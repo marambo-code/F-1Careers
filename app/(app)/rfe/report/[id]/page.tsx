@@ -1,9 +1,10 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
-import type { RFEReport, RFEIssue, RFEAnswers } from '@/lib/types'
+import type { RFEReport, RFEIssue } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
-import { generateRFEReport } from '@/lib/ai/rfe-analyzer'
-import { sendRFEReportReady } from '@/lib/email'
+import GeneratingView from '../../GeneratingView'
+
+export const maxDuration = 300
 
 export default async function RFEReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -23,49 +24,14 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
   if (!report) notFound()
   if (report.status === 'pending') redirect(`/rfe/preview?reportId=${id}`)
 
-  // Generate synchronously on the server if paid/stuck — page waits, no polling needed
+  if (report.status === 'complete' && !report.report_data) {
+    await service.from('reports').update({ status: 'error' }).eq('id', id)
+    report.status = 'error'
+  }
+
+  // Not complete → show async generating UI
   if (report.status !== 'complete') {
-    try {
-      // Re-extract PDF text from storage if missing
-      let rfeText = report.rfe_document_text
-      if (!rfeText) {
-        if (!report.rfe_document_path) throw new Error('No document found — please re-upload your RFE.')
-        const { data: fileData, error: dlErr } = await service.storage.from('rfe-documents').download(report.rfe_document_path)
-        if (dlErr || !fileData) throw new Error('Could not download your RFE document from storage.')
-        const pdfParse = require('pdf-parse')
-        const parsed = await pdfParse(Buffer.from(await fileData.arrayBuffer()))
-        rfeText = parsed.text.slice(0, 50000)
-        await service.from('reports').update({ rfe_document_text: rfeText }).eq('id', id)
-      }
-      // Extract petition context from questionnaire_responses if present
-      const qr = report.questionnaire_responses as RFEAnswers | null
-      const rfeOpts = {
-        petitionType: qr?.petition_type,
-        rfeField: qr?.rfe_field,
-        additionalContext: qr?.additional_context,
-      }
-      await service.from('reports').update({ status: 'generating' }).eq('id', id)
-      const reportData = await generateRFEReport(rfeText, rfeOpts)
-      await service.from('reports').update({ status: 'complete', report_data: reportData }).eq('id', id)
-      // Send email notification (fire-and-forget — don't block on failure)
-      if (user.email) {
-        sendRFEReportReady(user.email, id, reportData.case_type ?? 'RFE Analysis').catch(e => console.error('[email] rfe notify failed:', e))
-      }
-      const { data: fresh } = await service.from('reports').select('*').eq('id', id).single()
-      if (fresh) Object.assign(report, fresh)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      console.error('RFE generation failed:', msg)
-      await service.from('reports').update({ status: 'error' }).eq('id', id)
-      return (
-        <div className="max-w-2xl mx-auto text-center py-24 space-y-4">
-          <h2 className="text-xl font-bold text-navy">Generation failed</h2>
-          <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">{msg}</p>
-          <p className="text-mid text-sm">Your payment is safe. Please re-upload your RFE document.</p>
-          <a href="/rfe" className="btn-teal inline-block">Re-upload RFE →</a>
-        </div>
-      )
-    }
+    return <GeneratingView reportId={id} reportType="rfe" />
   }
 
   const data = report.report_data as RFEReport
@@ -123,7 +89,6 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
                   <p className="text-xs font-semibold text-mid uppercase tracking-wide mb-1">Plain English</p>
                   <p className="text-sm text-navy">{issue.plain_english}</p>
                 </div>
-
                 <div>
                   <p className="text-xs font-semibold text-mid uppercase tracking-wide mb-1">Evidence Gaps</p>
                   <ul className="space-y-1">
@@ -134,7 +99,6 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
                     ))}
                   </ul>
                 </div>
-
                 <div>
                   <p className="text-xs font-semibold text-mid uppercase tracking-wide mb-1">Strategy Rationale</p>
                   <p className="text-sm text-mid">{issue.strategy_rationale}</p>

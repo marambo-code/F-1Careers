@@ -6,8 +6,10 @@ import type {
   O1ABridgeAnalysis, RFERiskItem,
 } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
-import { generateStrategyReport } from '@/lib/ai/strategy-engine'
-import { sendStrategyReportReady } from '@/lib/email'
+import GeneratingView from './GeneratingView'
+
+// Allow up to 5 minutes in case a cached/direct page load triggers generation
+export const maxDuration = 300
 
 export default async function StrategyReportPage({
   params,
@@ -31,34 +33,15 @@ export default async function StrategyReportPage({
   if (!report) notFound()
   if (report.status === 'pending') redirect(`/strategy/preview?reportId=${id}`)
 
+  // If report is corrupt, reset so GeneratingView can retry
   if (report.status === 'complete' && !report.report_data) {
     await service.from('reports').update({ status: 'error' }).eq('id', id)
     report.status = 'error'
   }
 
+  // Not complete → show async generating UI (fires API route, polls for completion)
   if (report.status !== 'complete') {
-    try {
-      await service.from('reports').update({ status: 'generating' }).eq('id', id)
-      const reportData = await generateStrategyReport(report.questionnaire_responses)
-      await service.from('reports').update({ status: 'complete', report_data: reportData }).eq('id', id)
-      if (user.email) {
-        sendStrategyReportReady(user.email, id).catch(e => console.error('[email] strategy notify failed:', e))
-      }
-      const { data: fresh } = await service.from('reports').select('*').eq('id', id).single()
-      if (fresh) Object.assign(report, fresh)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      await service.from('reports').update({ status: 'error' }).eq('id', id)
-      return (
-        <div className="max-w-2xl mx-auto text-center py-24 space-y-4">
-          <h2 className="text-xl font-bold text-navy">Generation failed</h2>
-          <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">{msg}</p>
-          <p className="text-mid text-sm">Please refresh this page to try again. Your payment is safe.</p>
-          <a href={`/strategy/report/${id}`} className="btn-teal inline-block">Retry →</a>
-          <br /><a href="/dashboard" className="text-sm text-mid underline">← Back to Dashboard</a>
-        </div>
-      )
-    }
+    return <GeneratingView reportId={id} reportType="strategy" />
   }
 
   const data = report.report_data as StrategyReport
