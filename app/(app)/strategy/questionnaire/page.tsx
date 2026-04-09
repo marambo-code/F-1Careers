@@ -224,7 +224,20 @@ export default function QuestionnairePage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
       supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
-        if (data) setProfile(data)
+        if (data) {
+          setProfile(data)
+          // Pre-populate education_level from profile.degree if not already set
+          if (data.degree) {
+            const d = data.degree.toLowerCase()
+            const mapped =
+              d.includes('phd') || d.includes('doctorate') || d.includes('doctor of philosophy') ? 'phd' :
+              d.includes('m.d.') || d.includes('doctor of medicine') ? 'md' :
+              d.includes('master') || d.includes('m.s.') || d.includes('m.a.') || d.includes('mba') ? 'masters' :
+              d.includes('bachelor') || d.includes('b.s.') || d.includes('b.a.') || d.includes('b.eng') ? 'bachelors' :
+              ''
+            if (mapped) setAnswers(a => ({ ...a, education_level: mapped }))
+          }
+        }
         setLoading(false)
       })
     })
@@ -315,8 +328,17 @@ export default function QuestionnairePage() {
       {step === 0 && (
         <div className="card space-y-5">
           {(profile.full_name || profile.visa_status) && (
-            <div className="bg-teal-light rounded-lg px-4 py-3 text-sm text-teal font-medium">
-              ✓ Profile data pre-loaded — review and add any missing details below.
+            <div className="bg-teal-light rounded-xl p-4 space-y-2 border border-teal/20">
+              <p className="text-sm font-bold text-teal">✓ Profile data loaded — automatically included in your report</p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                {profile.full_name    && <p><span className="text-teal/60">Name:</span> <span className="text-navy font-medium">{profile.full_name}</span></p>}
+                {profile.visa_status  && <p><span className="text-teal/60">Visa status:</span> <span className="text-navy font-medium">{profile.visa_status}</span></p>}
+                {profile.university   && <p><span className="text-teal/60">University:</span> <span className="text-navy font-medium">{profile.university}</span></p>}
+                {profile.degree       && <p><span className="text-teal/60">Degree:</span> <span className="text-navy font-medium">{profile.degree}</span></p>}
+                {profile.field_of_study && <p><span className="text-teal/60">Field of study:</span> <span className="text-navy font-medium">{profile.field_of_study}</span></p>}
+                {profile.career_goal  && <p><span className="text-teal/60">Career goal:</span> <span className="text-navy font-medium">{profile.career_goal}</span></p>}
+              </div>
+              <p className="text-xs text-teal/60">Fill in the fields below — the more detail you add, the more specific your report will be.</p>
             </div>
           )}
 
