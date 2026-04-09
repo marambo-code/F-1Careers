@@ -1,17 +1,17 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 const STEPS = [
-  { label: 'Reading every page of your RFE document…', duration: 8 },
-  { label: 'Running USCIS objections against our denial database…', duration: 14 },
-  { label: 'Classifying issues by risk level and legal standard…', duration: 12 },
-  { label: 'Cross-referencing with successful RFE response patterns…', duration: 14 },
-  { label: 'Building rebuttal strategy per issue with attorney guidance…', duration: 14 },
-  { label: 'Identifying critical evidence gaps to close before deadline…', duration: 12 },
-  { label: 'Writing plain-English explanations for each USCIS objection…', duration: 10 },
-  { label: 'Prioritising your action list by urgency and impact…', duration: 8 },
+  { label: 'Reading every page of your RFE document…',                       duration: 8 },
+  { label: 'Running USCIS objections against our denial database…',          duration: 14 },
+  { label: 'Classifying issues by risk level and legal standard…',           duration: 12 },
+  { label: 'Cross-referencing with successful RFE response patterns…',       duration: 14 },
+  { label: 'Building rebuttal strategy per issue with attorney guidance…',   duration: 14 },
+  { label: 'Identifying critical evidence gaps to close before deadline…',   duration: 12 },
+  { label: 'Writing plain-English explanations for each USCIS objection…',   duration: 10 },
+  { label: 'Prioritising your action list by urgency and impact…',           duration: 8 },
 ]
 
 const TOTAL = STEPS.reduce((a, s) => a + s.duration, 0)
@@ -37,8 +37,10 @@ function ProgressRing({ progress }: { progress: number }) {
       <text
         x="64" y="64"
         textAnchor="middle" dominantBaseline="central"
-        style={{ transform: 'rotate(90deg)', transformOrigin: '64px 64px',
-                 fontSize: '18px', fontWeight: 700, fill: '#1B2B6B' }}
+        style={{
+          transform: 'rotate(90deg)', transformOrigin: '64px 64px',
+          fontSize: '18px', fontWeight: 700, fill: '#1B2B6B',
+        }}
       >
         {progress}%
       </text>
@@ -53,28 +55,63 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [timedOut, setTimedOut] = useState(false)
   const generateCalled = useRef(false)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const doneRef = useRef(false)
 
+  const handleComplete = useCallback(() => {
+    if (doneRef.current) return
+    doneRef.current = true
+    if (pollRef.current) clearInterval(pollRef.current)
+    router.refresh()
+  }, [router])
+
+  // ── Check status immediately on mount, then fire generation ──────
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
-    fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-      .then(r => r.json())
-      .then(b => { if (b.error) setError(b.error) })
-      .catch(e => setError(String(e)))
-  }, [reportId, reportType])
 
+    fetch(`/api/${reportType}/status/${reportId}`)
+      .then(r => r.json())
+      .then(b => {
+        if (b.status === 'complete') { handleComplete(); return }
+        if (b.status === 'error') { setError('Generation failed — click Retry below.'); return }
+
+        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
+          .then(r => r.json())
+          .then(b2 => {
+            if (b2.status === 'complete') handleComplete()
+            else if (b2.error) setError(b2.error)
+          })
+          .catch(e => setError(`Network error: ${String(e)}`))
+      })
+      .catch(() => {
+        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
+          .then(r => r.json())
+          .then(b2 => {
+            if (b2.status === 'complete') handleComplete()
+            else if (b2.error) setError(b2.error)
+          })
+          .catch(e => setError(`Network error: ${String(e)}`))
+      })
+  }, [reportId, reportType, handleComplete])
+
+  // ── Poll every 5 seconds ──────────────────────────────────────────
   useEffect(() => {
-    const iv = setInterval(async () => {
+    pollRef.current = setInterval(async () => {
       try {
         const res = await fetch(`/api/${reportType}/status/${reportId}`)
         const b = await res.json()
-        if (b.status === 'complete') { clearInterval(iv); router.refresh() }
-        else if (b.status === 'error') { clearInterval(iv); setError('Generation failed. Please retry.') }
-      } catch { /* keep polling */ }
+        if (b.status === 'complete') handleComplete()
+        else if (b.status === 'error') {
+          if (pollRef.current) clearInterval(pollRef.current)
+          setError('Generation failed — click Retry below.')
+        }
+      } catch { /* keep polling through transient network blips */ }
     }, 5000)
-    return () => clearInterval(iv)
-  }, [reportId, reportType, router])
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [reportId, reportType, handleComplete])
 
+  // ── Elapsed timer + timeout ───────────────────────────────────────
   useEffect(() => {
     const t = setInterval(() => {
       setElapsed(s => {
@@ -109,10 +146,12 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         </h2>
         <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {timedOut
-            ? 'Your report may still be generating. Click retry to check — your payment is safe.'
+            ? 'Your report may still be generating in the background. Click Retry to check — your payment is safe.'
             : error}
         </p>
-        <a href={`/${reportType}/report/${reportId}`} className="btn-teal inline-block">Check / Retry →</a>
+        <a href={`/${reportType}/report/${reportId}`} className="btn-teal inline-block">
+          Retry / Check Report →
+        </a>
         <br />
         <a href="/dashboard" className="text-sm text-mid underline">← Back to Dashboard</a>
       </div>
@@ -142,21 +181,21 @@ export default function GeneratingView({ reportId, reportType }: Props) {
       <div className="card py-4 space-y-2.5">
         <p className="text-xs font-bold text-mid uppercase tracking-widest mb-3">Your analysis includes</p>
         {STEPS.map((step, i) => {
-          const done = i < stepIndex
+          const done   = i < stepIndex
           const active = i === stepIndex
           return (
             <div key={i} className="flex items-start gap-3">
               <span className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold transition-all ${
-                done ? 'bg-teal text-white' :
+                done   ? 'bg-teal text-white' :
                 active ? 'border-2 border-teal bg-teal-light animate-pulse' :
-                'bg-gray-100 text-gray-300'
+                         'bg-gray-100 text-gray-300'
               }`}>
                 {done ? '✓' : ''}
               </span>
               <span className={`text-xs leading-snug transition-colors ${
-                done ? 'text-teal line-through' :
+                done   ? 'text-teal line-through' :
                 active ? 'text-navy font-semibold' :
-                'text-mid'
+                         'text-mid'
               }`}>
                 {step.label}
               </span>
