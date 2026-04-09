@@ -78,10 +78,8 @@ function isLegacyAnswers(a: StrategyAnswers): boolean {
 function extractJSON(text: string): string {
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   const start = cleaned.indexOf('{')
-  if (start === -1) throw new Error('No JSON object found in response — response may be empty or entirely non-JSON')
+  if (start === -1) throw new Error('No JSON object found in response')
 
-  // Walk from end to find the matching closing brace for the root object
-  // This is more robust than lastIndexOf when JSON is truncated
   let depth = 0
   let end = -1
   for (let i = start; i < cleaned.length; i++) {
@@ -93,270 +91,39 @@ function extractJSON(text: string): string {
   }
 
   if (end === -1) {
-    // JSON is truncated — depth never returned to 0
-    throw new Error(`JSON is truncated — response ended before closing brace (parsed ${cleaned.length - start} chars, depth stuck at ${depth})`)
+    throw new Error(`JSON is truncated — response ended before closing brace (depth stuck at ${depth})`)
   }
 
   return cleaned.slice(start, end + 1)
 }
 
-// ─── PREVIEW ─────────────────────────────────────────────────────
+// ─── Shared system prompt ─────────────────────────────────────────────────────
 
-export async function generateStrategyPreview(answers: StrategyAnswers): Promise<StrategyPreview> {
-  const eb1a = computeEB1AScore(answers)
-  const niw = computeNIWScore(answers)
+const SYSTEM = `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions.
 
-  const resumeBlock = answers.resume_text
-    ? `\nRESUME EXTRACT (first 3000 chars):\n${answers.resume_text.slice(0, 3000)}\n`
-    : ''
+RULES:
+1. Every field must reference the candidate's ACTUAL employers, roles, products, salary, and credentials — never generic placeholders
+2. Draft petition language must be attorney-quality and ready to file
+3. Return ONLY valid JSON — no markdown, no code fences, no text outside the JSON
+4. You MUST complete the entire JSON object — never truncate before closing all braces
+5. Use the TODAY date provided for ALL deadline and date calculations`
 
-  const prompt = isLegacyAnswers(answers)
-    ? buildLegacyPreviewPrompt(answers)
-    : `Analyze this candidate and return a JSON preview.
+// ─── Candidate context block (shared across all calls) ────────────────────────
 
-CANDIDATE:
-- Field: ${answers.field_of_work} — ${answers.subfield}
-- Education: ${answers.education_level}, ${answers.years_in_field} years experience
-- Visa: ${answers.visa_status}${answers.visa_expiration ? `, expires ${answers.visa_expiration}` : ''}
-- Role: ${answers.current_role} at ${answers.current_employer}
-- Salary: ${answers.us_salary}
-- Work: ${answers.work_description}
-${resumeBlock}
-EB-1A score: ${eb1a.score}/100 (${eb1a.metCount} criteria met)
-NIW score: ${niw.score}/100 (${niw.label})
-
-Return ONLY this JSON (no markdown, no fences):
-{
-  "applicable_pathways": ["list of viable pathways"],
-  "top_pathway": "single best recommendation",
-  "overall_strength": "Strong | Developing | Early",
-  "teaser": "2-3 sentence honest, specific assessment referencing their actual role, employer, and field"
-}`
-
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 1024,
-    system: `You are an expert immigration strategist. Analyze career profiles with the rigor of a senior immigration attorney.
-IMPORTANT: Return ONLY a valid JSON object. No markdown, no code fences, no explanation.`,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(extractJSON(raw)) as StrategyPreview
-}
-
-// ─── FULL REPORT ──────────────────────────────────────────────────
-
-export async function generateStrategyReport(answers: StrategyAnswers): Promise<StrategyReport> {
-  const eb1a = computeEB1AScore(answers)
-  const niw = computeNIWScore(answers)
-
-  const prompt = isLegacyAnswers(answers)
-    ? buildLegacyPrompt(answers)
-    : buildFullReportPrompt(answers, eb1a, niw)
-
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 8000,
-    system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions. You have won cases at the AAO and trained dozens of associates.
-
-YOUR JOB: Produce a report so specific, so actionable, and so legally precise that the reader says "this knows my case better than my own attorney does."
-
-CRITICAL RULES:
-1. Read the resume line by line — extract real evidence, quote actual lines
-2. Never use generic advice — every recommendation must be specific to THIS person's employers, products, salary, and credentials
-3. Draft petition language using their ACTUAL job titles, employers, products, and national impact framing — it must pass attorney review
-4. The Dhanasar analysis draft_petition_paragraph fields are the most important output — write them as if filing today
-5. For dhanasar_analysis, write each draft_petition_paragraph as if it is the actual brief section — 3-5 complete sentences, attorney quality
-6. Name real publications, real organizations, real conferences in the playbook — never generic placeholders
-7. Use TODAY'S DATE for all calculations — never reference months already past as future targets
-8. Return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON
-9. The o1a_bridge section must be thoughtful — analyze whether they actually need O-1A as a bridge given their specific visa situation
-10. IMPORTANT: You must produce a COMPLETE JSON object. Do not stop before closing all braces. The JSON must be syntactically valid and complete.`,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-
-  try {
-    return JSON.parse(extractJSON(raw)) as StrategyReport
-  } catch (parseErr) {
-    // Log the raw response so we can diagnose truncation vs malformed JSON
-    console.error('[strategy-engine] JSON parse failed. stop_reason:', response.stop_reason)
-    console.error('[strategy-engine] Raw response length:', raw.length)
-    console.error('[strategy-engine] Last 500 chars:', raw.slice(-500))
-    console.error('[strategy-engine] Parse error:', parseErr instanceof Error ? parseErr.message : parseErr)
-    throw new Error(`Report generation failed: JSON parse error after ${raw.length} chars (stop_reason: ${response.stop_reason}). ${parseErr instanceof Error ? parseErr.message : ''}`)
-  }
-}
-
-// ─── Prompts ─────────────────────────────────────────────────────
-
-function buildLegacyPreviewPrompt(a: StrategyAnswers): string {
-  return `Analyze this candidate and return a JSON preview.
-Role: ${a.current_role} at ${a.current_employer}
-Goal: ${a.career_goal} | Visa: ${a.visa_status}
-Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_strength": "Strong | Developing | Early", "teaser": "" }`
-}
-
-function buildLegacyPrompt(a: StrategyAnswers): string {
-  const today = new Date().toISOString().split('T')[0]
-  return `Generate a career and immigration strategy report for:
-- Role: ${a.current_role} at ${a.current_employer}
-- Visa: ${a.visa_status}, Goal: ${a.career_goal}
-- Publications: ${a.publications_count}, Citations: ${a.citations_count}
-${buildFullReportSchema(today, 'NIW')}`
-}
-
-function buildFullReportSchema(today: string, recommendedPathway: 'NIW' | 'EB1A' | 'O1A' | 'BOTH'): string {
-  const niwPrimary = recommendedPathway !== 'EB1A'
-  return `
-TODAY'S DATE: ${today} — use this for ALL deadline calculations. Never reference past dates as future.
-
-EVIDENCE MAP LABELING RULE: Since the recommended pathway is ${recommendedPathway}, ALWAYS lead criterion with the ${niwPrimary ? 'NIW Prong' : 'EB-1A criterion'}. If the same evidence also supports the other pathway, note it in eb1a_connection (if NIW primary) or omit (if EB-1A primary). Never mix them as equals in the criterion field.
-
-Return ONLY this JSON object. No markdown. No code fences.
-Long text fields (draft_petition_paragraph, draft_proposed_endeavor, attorney_briefing, petition_argument, what_they_should_say) should be thorough and complete — do NOT truncate.
-
-{
-  "petition_readiness": {
-    "niw_score": <0-100 integer>,
-    "niw_benchmark": "Compare this score to typical successful NIW filers in their specific field/role — cite a percentile range and what it means",
-    "eb1a_score": <0-100 integer>,
-    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and realistic timeline given their current evidence",
-    "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | EB-1A + EB-2 NIW concurrent",
-    "filing_recommendation": "Specific recommendation e.g. 'File NIW I-140 in [MONTH YEAR based on TODAY + X months] after completing Y and Z' — use real future months",
-    "visa_urgency": "Calculate precisely from TODAY (${today}) and their visa expiration. State exact months remaining, premium processing timeline, and hard deadline. Never reference months already passed."
-  },
-
-  "resume_evidence_map": [
-    {
-      "resume_line": "Exact quote or close paraphrase from their resume",
-      "criterion": "${niwPrimary ? 'Primary NIW Prong (e.g. NIW Prong 2 — Well-Positioned)' : 'Primary EB-1A criterion (e.g. EB-1A Critical Role §(viii))'}",
-      "eb1a_connection": "${niwPrimary ? 'Optional: EB-1A cross-reference if applicable, e.g. Also supports EB-1A Critical Role §(viii)' : 'omit this field'}",
-      "strength": "Strong | Developing | Gap",
-      "petition_argument": "How a skilled attorney writes this into the actual petition brief — 2-4 sentences citing the legal standard and why this evidence satisfies it"
-    }
-  ],
-
-  "dhanasar_analysis": [
-    {
-      "prong_number": 1,
-      "prong_name": "Substantial Merit & National Importance",
-      "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Specific evidence from their resume/profile that satisfies this prong — cite actual roles, employers, work",
-      "critical_gap": "The single most important missing piece for this prong — be specific",
-      "draft_petition_paragraph": "Write 3-5 sentences of actual petition brief language an attorney would submit to USCIS arguing this prong. Use their specific work, employer names, and cite national importance framing. This should be ready to use."
-    },
-    {
-      "prong_number": 2,
-      "prong_name": "Well-Positioned to Advance the Endeavor",
-      "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Specific evidence — credentials, track record, recognitions that show they are uniquely positioned",
-      "critical_gap": "What would make this prong airtight",
-      "draft_petition_paragraph": "3-5 sentences of attorney-quality petition language for Prong 2. Reference their HBS, specific employers, salary, cross-company track record specifically."
-    },
-    {
-      "prong_number": 3,
-      "prong_name": "National Benefit Justifies Waiving Job Offer Requirement",
-      "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Evidence that the US uniquely benefits from waiving the job offer requirement for this person",
-      "critical_gap": "What USCIS would most likely reject and why",
-      "draft_petition_paragraph": "3-5 sentences for Prong 3 — the hardest prong to argue. Explain why no US worker pipeline replicates this person's exact expertise. Cite economic data or policy if relevant."
-    }
-  ],
-
-  "draft_proposed_endeavor": "Write 4-6 sentences of petition-ready proposed endeavor language. Use their specific job titles, employers, products worked on, and national impact. This must pass attorney review. Include: what they will do, how it advances national interest, why their specific background makes them uniquely positioned, and the broader impact on US competitiveness.",
-
-  "expert_letters": [
-    {
-      "letter_number": 1,
-      "who": "Specific person type with title and org — e.g. Senior Director of Partnerships at Apple Inc who supervised Ian's BD programs",
-      "what_they_should_say": "Exactly what this letter must establish to satisfy which USCIS standard — cite the prong or criterion. Be specific about what facts and claims the letter needs.",
-      "how_to_approach": "Step-by-step guidance: how to frame the ask, offer to draft it, what to include in the ask email"
-    }
-  ],
-
-  "evidence_playbook": [
-    {
-      "gap": "Specific named gap tied to their actual profile and recommended pathway",
-      "priority": "High | Medium | Low",
-      "specific_action": "Exactly what to do — specific enough to execute today without clarification",
-      "named_targets": "Real publication names, real organizations, real conferences relevant to their exact field",
-      "deadline": "Specific timeframe relative to TODAY (${today}) e.g. 'by [Month Year]' or 'within 30 days'"
-    }
-  ],
-
-  "rfe_risks": [
-    {
-      "likely_objection": "Specific USCIS objection this petitioner is most likely to face — quote the legal standard USCIS would cite",
-      "likelihood": "High | Medium | Low",
-      "preemptive_strategy": "Exactly what to include in the initial petition filing to preempt this objection before USCIS asks"
-    }
-  ],
-
-  "o1a_bridge": {
-    "applicable": <true if F-1 OPT/OPT STEM with urgency OR if they need bridge status, false otherwise>,
-    "why_relevant": "Why O-1A matters for this specific person given their visa situation and timeline",
-    "criteria_met": ["List O-1A criteria this person already meets based on their profile — be specific"],
-    "criteria_gaps": ["List O-1A criteria they are close to but need to build"],
-    "recommended_action": "Should they file O-1A now, in parallel with NIW, or skip it — and exactly why"
-  },
-
-  "career_visa_assessment": {
-    "summary": "2-paragraph honest, deeply personalized assessment. Reference their specific employers, role, salary, and field. Be precise about strengths and weaknesses. Second paragraph should address their biggest concern if they stated one.",
-    "pathways": [
-      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific rationale referencing their actual evidence" },
-      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific rationale with timeline" }
-    ]
-  },
-
-  "gap_analysis": [
-    {
-      "gap": "Specific gap tied to their actual profile and the recommended pathway",
-      "materiality": "High | Medium | Low",
-      "action": "Specific actionable step with named resources — not generic advice"
-    }
-  ],
-
-  "sprint_30_day": [
-    { "week": "Week 1", "actions": ["Action 1 — specific to their situation", "Action 2", "Action 3"] },
-    { "week": "Week 2", "actions": ["Action 1", "Action 2"] },
-    { "week": "Week 3", "actions": ["Action 1", "Action 2"] },
-    { "week": "Week 4", "actions": ["Action 1 — deliver or submit something concrete"] }
-  ],
-
-  "roadmap": {
-    "three_month": ["Specific milestone for this person", "Another milestone", "Third milestone"],
-    "six_month": ["Specific milestone", "Another milestone", "Third milestone"],
-    "twelve_month": ["Specific milestone", "Another milestone", "Third milestone"]
-  },
-
-  "attorney_briefing": "Write a ready-to-send paragraph (3-5 sentences) for emailing an immigration attorney. Include: their name/role/employer, recommended pathway, 3 strongest evidence pieces, 2 critical gaps, visa status and exact expiration date, desired filing timeline, and a clear call to action. This should be professional enough to send immediately.",
-
-  "recommended_next_step": "The single most important action this person must take in the next 7 days — hyper-specific, not generic. Name the exact thing, the exact target, and why it unblocks everything else.",
-
-  "disclaimer": "This report is a career strategy tool and does not constitute legal advice. Consult a licensed immigration attorney before filing any petition."
-}`
-}
-
-function buildFullReportPrompt(
+function candidateContext(
   a: StrategyAnswers,
   eb1a: ReturnType<typeof computeEB1AScore>,
   niw: ReturnType<typeof computeNIWScore>,
+  today: string,
+  recommendedPathway: string,
 ): string {
-  const today = new Date().toISOString().split('T')[0] // e.g. 2026-04-09
-  const recommendedPathway: 'NIW' | 'EB1A' | 'O1A' | 'BOTH' =
-    niw.score >= eb1a.score ? 'NIW' : eb1a.score > 70 ? 'EB1A' : 'NIW'
-
   const resumeSection = a.resume_text
-    ? `\n═══ RESUME (READ EVERY LINE — extract real evidence, quote lines exactly) ═══\n${a.resume_text.slice(0, 6000)}\n`
+    ? `\n═══ RESUME ═══\n${a.resume_text.slice(0, 5000)}\n`
     : ''
+  return `TODAY: ${today}
+RECOMMENDED PATHWAY: ${recommendedPathway}
 
-  return `Generate a complete, attorney-quality career and immigration strategy report for this candidate.
-TODAY IS ${today}. Use this date for ALL deadline and urgency calculations.
-
-═══ CANDIDATE PROFILE ═══
+═══ PROFILE ═══
 Name: ${a.full_name || 'Not provided'}
 Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}
 Field: ${a.field_of_work} — ${a.subfield} | Experience: ${a.years_in_field} years
@@ -365,22 +132,317 @@ Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}
 Employer support: ${a.employer_support} | Attorney consulted: ${a.attorney_consulted}
 Main concern: ${a.biggest_concern || 'Not provided'}
 ${resumeSection}
-═══ CANDIDATE'S OWN DESCRIPTION OF THEIR WORK ═══
+═══ WORK DESCRIPTION ═══
 ${a.work_description || 'Not provided'}
 
-═══ PROPOSED ENDEAVOR (their words) ═══
+═══ PROPOSED ENDEAVOR ═══
 ${a.proposed_endeavor || 'Not provided'}
 
-═══ EB-1A CRITERIA SELF-ASSESSMENT ═══
-Pre-computed score: ${eb1a.score}/100 | Criteria met (≥ Moderate): ${eb1a.metCount}/10
-${criteriaBlock(a)}
-Met criteria: ${eb1a.metCriteria.join(', ') || 'None at threshold yet'}
+EB-1A pre-score: ${eb1a.score}/100 | Criteria met: ${eb1a.metCount}/10 (${eb1a.metCriteria.join(', ') || 'none'})
+NIW pre-score: ${niw.score}/100 (${niw.label})
+Dhanasar prongs: P1=${STRENGTH[a.niw_prong1 ?? 2]}, P2=${STRENGTH[a.niw_prong2 ?? 2]}, P3=${STRENGTH[a.niw_prong3 ?? 2]}
 
-═══ NIW DHANASAR PRONGS ═══
-Pre-computed score: ${niw.score}/100 (${niw.label})
-Prong 1 — Substantial Merit & National Importance: ${STRENGTH[a.niw_prong1 ?? 2]} (${a.niw_prong1 ?? 2}/4)
-Prong 2 — Well-Positioned to Advance Endeavor:     ${STRENGTH[a.niw_prong2 ?? 2]} (${a.niw_prong2 ?? 2}/4)
-Prong 3 — Benefit Justifies Waiving Job Offer:     ${STRENGTH[a.niw_prong3 ?? 2]} (${a.niw_prong3 ?? 2}/4)
+EB-1A criteria:
+${criteriaBlock(a)}`
+}
 
-${buildFullReportSchema(today, recommendedPathway)}`
+// ─── Call 1: Petition readiness + career assessment ───────────────────────────
+
+async function callAssessment(ctx: string): Promise<Pick<StrategyReport, 'petition_readiness' | 'career_visa_assessment' | 'recommended_next_step' | 'disclaimer'>> {
+  const prompt = `${ctx}
+
+Return ONLY this JSON (no other text):
+{
+  "petition_readiness": {
+    "niw_score": <integer 0-100>,
+    "niw_benchmark": "Compare to typical successful NIW filers in their field — cite percentile range and meaning",
+    "eb1a_score": <integer 0-100>,
+    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and realistic timeline",
+    "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | EB-1A + EB-2 NIW concurrent",
+    "filing_recommendation": "Specific month/year to file based on TODAY + X months, after completing specific steps",
+    "visa_urgency": "Calculate from TODAY and visa expiration. State exact months remaining, premium processing timeline, hard deadline."
+  },
+  "career_visa_assessment": {
+    "summary": "2 paragraphs: honest personalized assessment referencing their specific employers/role/salary. Second paragraph addresses their biggest concern.",
+    "pathways": [
+      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific rationale from their evidence" },
+      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific rationale with timeline" }
+    ]
+  },
+  "recommended_next_step": "The single most important action in the next 7 days — hyper-specific, name the exact thing and why it unblocks everything",
+  "disclaimer": "This report is a career strategy tool and does not constitute legal advice. Consult a licensed immigration attorney before filing any petition."
+}`
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 2000,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: prompt }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw))
+  } catch (e) {
+    console.error('[call1/assessment] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`Assessment section failed: ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Call 2: Dhanasar analysis + proposed endeavor + attorney briefing ─────────
+
+async function callDhanasar(ctx: string): Promise<Pick<StrategyReport, 'dhanasar_analysis' | 'draft_proposed_endeavor' | 'attorney_briefing'>> {
+  const prompt = `${ctx}
+
+Return ONLY this JSON (no other text):
+{
+  "dhanasar_analysis": [
+    {
+      "prong_number": 1,
+      "prong_name": "Substantial Merit & National Importance",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Specific evidence from their resume/profile satisfying this prong",
+      "critical_gap": "The single most important missing piece — be specific",
+      "draft_petition_paragraph": "3-5 sentences of actual petition brief an attorney would submit to USCIS. Use their specific work, employer names, national importance framing. Ready to file."
+    },
+    {
+      "prong_number": 2,
+      "prong_name": "Well-Positioned to Advance the Endeavor",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Specific evidence — credentials, track record, recognitions",
+      "critical_gap": "What would make this prong airtight",
+      "draft_petition_paragraph": "3-5 sentences attorney-quality petition language for Prong 2. Reference their specific employers, salary, cross-company track record."
+    },
+    {
+      "prong_number": 3,
+      "prong_name": "National Benefit Justifies Waiving Job Offer Requirement",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Evidence that the US uniquely benefits from waiving the job offer requirement",
+      "critical_gap": "What USCIS would most likely reject and why",
+      "draft_petition_paragraph": "3-5 sentences for Prong 3 — the hardest prong. Explain why no US worker pipeline replicates this person's expertise. Cite economic data or policy if relevant."
+    }
+  ],
+  "draft_proposed_endeavor": "4-6 sentences of petition-ready proposed endeavor language. Their specific job titles, employers, products, national impact. Must pass attorney review.",
+  "attorney_briefing": "3-5 sentence paragraph ready to email to an immigration attorney. Include: name/role/employer, recommended pathway, 3 strongest evidence pieces, 2 critical gaps, visa status and expiration, desired filing timeline, call to action."
+}`
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 3000,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: prompt }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw))
+  } catch (e) {
+    console.error('[call2/dhanasar] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`Dhanasar section failed: ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Call 3: Evidence map + RFE risks + O-1A bridge ───────────────────────────
+
+async function callEvidence(ctx: string, recommendedPathway: string): Promise<Pick<StrategyReport, 'resume_evidence_map' | 'rfe_risks' | 'o1a_bridge'>> {
+  const niwPrimary = recommendedPathway !== 'EB1A'
+  const prompt = `${ctx}
+
+Return ONLY this JSON (no other text):
+{
+  "resume_evidence_map": [
+    {
+      "resume_line": "Exact quote or close paraphrase from their resume",
+      "criterion": "${niwPrimary ? 'Primary NIW Prong (e.g. NIW Prong 2 — Well-Positioned)' : 'Primary EB-1A criterion (e.g. EB-1A Critical Role §(viii))'}",
+      "eb1a_connection": "${niwPrimary ? 'Optional EB-1A cross-reference if applicable' : 'omit'}",
+      "strength": "Strong | Developing | Gap",
+      "petition_argument": "How a skilled attorney writes this into the petition brief — 2-4 sentences citing the legal standard"
+    }
+  ],
+  "rfe_risks": [
+    {
+      "likely_objection": "Specific USCIS objection this petitioner is most likely to face — quote the legal standard USCIS would cite",
+      "likelihood": "High | Medium | Low",
+      "preemptive_strategy": "Exactly what to include in the initial petition to preempt this objection"
+    }
+  ],
+  "o1a_bridge": {
+    "applicable": <true if F-1 OPT/OPT STEM with urgency or needs bridge status, false otherwise>,
+    "why_relevant": "Why O-1A matters for this specific person given their visa situation and timeline",
+    "criteria_met": ["O-1A criteria this person already meets — specific"],
+    "criteria_gaps": ["O-1A criteria they are close to but need to build"],
+    "recommended_action": "File O-1A now, in parallel with NIW, or skip — and exactly why"
+  }
+}`
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 3000,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: prompt }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw))
+  } catch (e) {
+    console.error('[call3/evidence] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`Evidence section failed: ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Call 4: Action plan ───────────────────────────────────────────────────────
+
+async function callActionPlan(ctx: string, today: string): Promise<Pick<StrategyReport, 'expert_letters' | 'evidence_playbook' | 'gap_analysis' | 'sprint_30_day' | 'roadmap'>> {
+  const prompt = `${ctx}
+
+Return ONLY this JSON (no other text):
+{
+  "expert_letters": [
+    {
+      "letter_number": 1,
+      "who": "Specific person type with title and org — e.g. Senior Director at Apple who supervised their BD programs",
+      "what_they_should_say": "Exactly what this letter must establish to satisfy which USCIS standard — cite the prong or criterion",
+      "how_to_approach": "Step-by-step: how to frame the ask, offer to draft it, what to include in the ask email"
+    }
+  ],
+  "evidence_playbook": [
+    {
+      "gap": "Specific named gap tied to their actual profile and recommended pathway",
+      "priority": "High | Medium | Low",
+      "specific_action": "Exactly what to do — specific enough to execute today without clarification",
+      "named_targets": "Real publication names, real organizations, real conferences relevant to their exact field",
+      "deadline": "Specific timeframe relative to TODAY (${today}) e.g. 'by [Month Year]'"
+    }
+  ],
+  "gap_analysis": [
+    {
+      "gap": "Specific gap tied to their actual profile and recommended pathway",
+      "materiality": "High | Medium | Low",
+      "action": "Specific actionable step with named resources — not generic advice"
+    }
+  ],
+  "sprint_30_day": [
+    { "week": "Week 1", "actions": ["Specific action for their situation", "Action 2", "Action 3"] },
+    { "week": "Week 2", "actions": ["Action 1", "Action 2"] },
+    { "week": "Week 3", "actions": ["Action 1", "Action 2"] },
+    { "week": "Week 4", "actions": ["Action 1 — deliver or submit something concrete"] }
+  ],
+  "roadmap": {
+    "three_month": ["Specific milestone for this person", "Another milestone", "Third milestone"],
+    "six_month": ["Specific milestone", "Another milestone", "Third milestone"],
+    "twelve_month": ["Specific milestone", "Another milestone", "Third milestone"]
+  }
+}`
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 3000,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: prompt }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw))
+  } catch (e) {
+    console.error('[call4/action] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`Action plan section failed: ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Public: generate preview ─────────────────────────────────────────────────
+
+export async function generateStrategyPreview(answers: StrategyAnswers): Promise<StrategyPreview> {
+  const prompt = isLegacyAnswers(answers)
+    ? buildLegacyPreviewPrompt(answers)
+    : buildFullPreviewPrompt(answers)
+
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 1024,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: prompt }],
+  })
+
+  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+  return JSON.parse(extractJSON(raw)) as StrategyPreview
+}
+
+// ─── Public: generate full report (4 parallel calls) ─────────────────────────
+
+export async function generateStrategyReport(answers: StrategyAnswers): Promise<StrategyReport> {
+  const eb1a = computeEB1AScore(answers)
+  const niw = computeNIWScore(answers)
+  const today = new Date().toISOString().split('T')[0]
+  const recommendedPathway: 'NIW' | 'EB1A' | 'O1A' | 'BOTH' =
+    niw.score >= eb1a.score ? 'NIW' : eb1a.score > 70 ? 'EB1A' : 'NIW'
+
+  if (isLegacyAnswers(answers)) {
+    return generateLegacyReport(answers)
+  }
+
+  const ctx = candidateContext(answers, eb1a, niw, today, recommendedPathway)
+
+  console.log(`[strategy-engine] Starting 4 parallel calls. today=${today}, pathway=${recommendedPathway}`)
+
+  // All 4 calls run simultaneously — total time = slowest single call (~45s)
+  const [part1, part2, part3, part4] = await Promise.all([
+    callAssessment(ctx),
+    callDhanasar(ctx),
+    callEvidence(ctx, recommendedPathway),
+    callActionPlan(ctx, today),
+  ])
+
+  console.log('[strategy-engine] All 4 calls complete — merging report')
+
+  return {
+    ...part1,
+    ...part2,
+    ...part3,
+    ...part4,
+  }
+}
+
+// ─── Legacy support ───────────────────────────────────────────────────────────
+
+async function generateLegacyReport(answers: StrategyAnswers): Promise<StrategyReport> {
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 8000,
+    system: SYSTEM,
+    messages: [{ role: 'user', content: buildLegacyPrompt(answers) }],
+  })
+  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw)) as StrategyReport
+  } catch (e) {
+    console.error('[legacy] parse fail. stop_reason:', response.stop_reason, 'len:', raw.length)
+    throw new Error(`Legacy report failed: ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+function buildLegacyPreviewPrompt(a: StrategyAnswers): string {
+  return `Analyze this candidate and return a JSON preview.
+Role: ${a.current_role} at ${a.current_employer}
+Goal: ${a.career_goal} | Visa: ${a.visa_status}
+Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_strength": "Strong | Developing | Early", "teaser": "" }`
+}
+
+function buildFullPreviewPrompt(a: StrategyAnswers): string {
+  const niw = computeNIWScore(a)
+  const eb1a = computeEB1AScore(a)
+  const pathway = niw.score >= eb1a.score ? 'EB-2 NIW' : eb1a.score > 70 ? 'EB-1A' : 'EB-2 NIW'
+  return `Candidate: ${a.current_role} at ${a.current_employer}, ${a.education_level} from ${a.university}, ${a.visa_status}.
+NIW score: ${niw.score}/100 (${niw.label}). EB-1A score: ${eb1a.score}/100. Recommended: ${pathway}.
+Return ONLY this JSON: { "applicable_pathways": ["EB-2 NIW", "EB-1A"], "top_pathway": "${pathway}", "overall_strength": "Strong | Developing | Early", "teaser": "1-2 sentence honest assessment of their strongest angle" }`
+}
+
+function buildLegacyPrompt(a: StrategyAnswers): string {
+  const today = new Date().toISOString().split('T')[0]
+  return `TODAY: ${today}
+Generate a career and immigration strategy report for:
+Role: ${a.current_role} at ${a.current_employer}
+Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}
+Visa: ${a.visa_status}${a.visa_expiration ? ` (expires ${a.visa_expiration})` : ''}
+Work: ${a.work_description || 'Not provided'}
+Proposed endeavor: ${a.proposed_endeavor || 'Not provided'}
+
+Return a complete StrategyReport JSON with all required fields.`
 }
