@@ -18,28 +18,32 @@ export async function POST(
 ) {
   const { id } = await params
 
-  // ── Auth ──────────────────────────────────────────────────────────
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const service = createServiceClient()
 
-  // ── Fetch & verify ownership ──────────────────────────────────────
   const { data: report, error: fetchErr } = await service
     .from('reports')
-    .select('id, user_id, status, questionnaire_responses, rfe_document_path, rfe_document_text')
+    .select('id, user_id, status, questionnaire_responses, rfe_document_path, rfe_document_text, updated_at')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
   if (fetchErr || !report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  // ── Idempotency ───────────────────────────────────────────────────
   if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
-  if (report.status === 'generating') return NextResponse.json({ status: 'generating' })
 
-  // ── Lock the row ──────────────────────────────────────────────────
+  if (report.status === 'generating') {
+    const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
+    const STALE_MS = 8 * 60 * 1000
+    if (ageMs < STALE_MS) {
+      return NextResponse.json({ status: 'generating' })
+    }
+    console.log(`[rfe/generate] Report ${id} stuck generating for ${Math.round(ageMs / 60000)}m — restarting`)
+  }
+
   const { error: lockErr } = await service
     .from('reports')
     .update({ status: 'generating', report_data: null })
@@ -55,13 +59,11 @@ export async function POST(
   const existingRfeText = report.rfe_document_text as string | null
   const rfePath = report.rfe_document_path as string | null
 
-  // ── Fire background generation ────────────────────────────────────
   waitUntil(
     (async () => {
       try {
         console.log(`[rfe/generate] Starting background generation for report ${id}`)
 
-        // Re-extract PDF text if missing
         let rfeText = existingRfeText
         if (!rfeText) {
           if (!rfePath) {
@@ -83,7 +85,7 @@ export async function POST(
           rfeText = parsed.text.slice(0, 50000) as string
           try {
             await service.from('reports').update({ rfe_document_text: rfeText }).eq('id', id)
-          } catch { /* non-fatal: text is still in memory */ }
+          } catch { /* non-fatal */ }
         }
 
         const reportData = await generateRFEReport(rfeText, {
@@ -104,7 +106,6 @@ export async function POST(
         }
 
         console.log(`[rfe/generate] Generation complete for report ${id}`)
-
         if (userEmail) {
           sendRFEReportReady(userEmail, id, reportData.case_type ?? 'RFE Analysis').catch(e =>
             console.error('[email] rfe notify failed:', e)
@@ -118,6 +119,5 @@ export async function POST(
     })()
   )
 
-  // ── Return immediately — client polls /api/rfe/status/[id] ────────
   return NextResponse.json({ status: 'generating' })
 }

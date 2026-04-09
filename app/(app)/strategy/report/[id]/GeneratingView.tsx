@@ -64,13 +64,16 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const doneRef = useRef(false)  // prevent double router.refresh()
 
-  // Called when we know generation is complete — transition to report
+  // Called when we know generation is complete — transition to the report.
+  // router.push() forces a full navigation which always fetches fresh server data,
+  // bypassing any React reconciliation or Next.js cache issues that router.refresh()
+  // can hit when transitioning from a client component tree to a server component tree.
   const handleComplete = useCallback(() => {
     if (doneRef.current) return
     doneRef.current = true
     if (pollRef.current) clearInterval(pollRef.current)
-    router.refresh()
-  }, [router])
+    router.push(`/${reportType}/report/${reportId}`)
+  }, [router, reportId, reportType])
 
   // ── Fire generation + immediate status check on mount ─────────────
   useEffect(() => {

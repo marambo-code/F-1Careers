@@ -8,7 +8,8 @@ import type {
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from './GeneratingView'
 
-// Allow up to 5 minutes in case a cached/direct page load triggers generation
+// Always fetch fresh data — never serve a cached version of this page
+export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
 export default async function StrategyReportPage({

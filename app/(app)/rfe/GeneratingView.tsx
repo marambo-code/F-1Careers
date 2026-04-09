@@ -62,8 +62,8 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     if (doneRef.current) return
     doneRef.current = true
     if (pollRef.current) clearInterval(pollRef.current)
-    router.refresh()
-  }, [router])
+    router.push(`/${reportType}/report/${reportId}`)
+  }, [router, reportId, reportType])
 
   // ── Check status immediately on mount, then fire generation ──────
   useEffect(() => {

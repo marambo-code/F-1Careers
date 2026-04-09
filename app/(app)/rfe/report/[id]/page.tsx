@@ -4,6 +4,7 @@ import type { RFEReport, RFEIssue } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from '../../GeneratingView'
 
+export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
 export default async function RFEReportPage({ params }: { params: Promise<{ id: string }> }) {

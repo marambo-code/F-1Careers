@@ -4,7 +4,6 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyReport } from '@/lib/ai/strategy-engine'
 import { sendStrategyReportReady } from '@/lib/email'
 
-// Allow Vercel to keep the function alive up to 5 minutes for background generation
 export const maxDuration = 300
 
 async function markError(id: string) {
@@ -18,28 +17,41 @@ export async function POST(
 ) {
   const { id } = await params
 
-  // ── Auth ──────────────────────────────────────────────────────────
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const service = createServiceClient()
 
-  // ── Fetch & verify ownership ──────────────────────────────────────
+  // Include updated_at so we can detect stale 'generating' rows
   const { data: report, error: fetchErr } = await service
     .from('reports')
-    .select('id, user_id, status, questionnaire_responses')
+    .select('id, user_id, status, questionnaire_responses, updated_at')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
   if (fetchErr || !report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  // ── Idempotency ───────────────────────────────────────────────────
   if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
-  if (report.status === 'generating') return NextResponse.json({ status: 'generating' })
 
-  // ── Lock the row — mark as generating ────────────────────────────
+  // Idempotency: if already generating but NOT stale, let client keep polling.
+  // If it has been stuck for > 8 minutes (prior failed run), restart it.
+  if (report.status === 'generating') {
+    const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
+    const STALE_MS = 8 * 60 * 1000 // 8 minutes
+    if (ageMs < STALE_MS) {
+      return NextResponse.json({ status: 'generating' })
+    }
+    console.log(`[strategy/generate] Report ${id} stuck generating for ${Math.round(ageMs / 60000)}m — restarting`)
+    // Fall through to restart
+  }
+
+  if (!report.questionnaire_responses) {
+    console.error(`[strategy/generate] Report ${id} has no questionnaire_responses`)
+    return NextResponse.json({ error: 'No questionnaire data found. Please re-submit the form.' }, { status: 422 })
+  }
+
   const { error: lockErr } = await service
     .from('reports')
     .update({ status: 'generating', report_data: null })
@@ -53,11 +65,6 @@ export async function POST(
   const userEmail = user.email
   const questionnaire = report.questionnaire_responses
 
-  // ── Fire background generation — returns immediately to client ────
-  // waitUntil tells Vercel to keep this Lambda alive until the promise
-  // resolves (up to maxDuration = 300s), even after the HTTP response is sent.
-  // This prevents the function from being killed mid-generation, which was
-  // causing status to freeze at 'generating' forever.
   waitUntil(
     (async () => {
       try {
@@ -76,7 +83,6 @@ export async function POST(
         }
 
         console.log(`[strategy/generate] Generation complete for report ${id}`)
-
         if (userEmail) {
           sendStrategyReportReady(userEmail, id).catch(e =>
             console.error('[email] strategy notify failed:', e)
@@ -90,6 +96,5 @@ export async function POST(
     })()
   )
 
-  // ── Return immediately — client will poll /api/strategy/status/[id] ─
   return NextResponse.json({ status: 'generating' })
 }
