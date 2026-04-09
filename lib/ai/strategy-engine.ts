@@ -78,8 +78,25 @@ function isLegacyAnswers(a: StrategyAnswers): boolean {
 function extractJSON(text: string): string {
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   const start = cleaned.indexOf('{')
-  const end = cleaned.lastIndexOf('}')
-  if (start === -1 || end === -1) throw new Error('No JSON object found in response')
+  if (start === -1) throw new Error('No JSON object found in response — response may be empty or entirely non-JSON')
+
+  // Walk from end to find the matching closing brace for the root object
+  // This is more robust than lastIndexOf when JSON is truncated
+  let depth = 0
+  let end = -1
+  for (let i = start; i < cleaned.length; i++) {
+    if (cleaned[i] === '{') depth++
+    else if (cleaned[i] === '}') {
+      depth--
+      if (depth === 0) { end = i; break }
+    }
+  }
+
+  if (end === -1) {
+    // JSON is truncated — depth never returned to 0
+    throw new Error(`JSON is truncated — response ended before closing brace (parsed ${cleaned.length - start} chars, depth stuck at ${depth})`)
+  }
+
   return cleaned.slice(start, end + 1)
 }
 
@@ -140,7 +157,7 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 10000,
+    max_tokens: 16000,
     system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions. You have won cases at the AAO and trained dozens of associates.
 
 YOUR JOB: Produce a report so specific, so actionable, and so legally precise that the reader says "this knows my case better than my own attorney does."
@@ -154,12 +171,23 @@ CRITICAL RULES:
 6. Name real publications, real organizations, real conferences in the playbook — never generic placeholders
 7. Use TODAY'S DATE for all calculations — never reference months already past as future targets
 8. Return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON
-9. The o1a_bridge section must be thoughtful — analyze whether they actually need O-1A as a bridge given their specific visa situation`,
+9. The o1a_bridge section must be thoughtful — analyze whether they actually need O-1A as a bridge given their specific visa situation
+10. IMPORTANT: You must produce a COMPLETE JSON object. Do not stop before closing all braces. The JSON must be syntactically valid and complete.`,
     messages: [{ role: 'user', content: prompt }],
   })
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(extractJSON(raw)) as StrategyReport
+
+  try {
+    return JSON.parse(extractJSON(raw)) as StrategyReport
+  } catch (parseErr) {
+    // Log the raw response so we can diagnose truncation vs malformed JSON
+    console.error('[strategy-engine] JSON parse failed. stop_reason:', response.stop_reason)
+    console.error('[strategy-engine] Raw response length:', raw.length)
+    console.error('[strategy-engine] Last 500 chars:', raw.slice(-500))
+    console.error('[strategy-engine] Parse error:', parseErr instanceof Error ? parseErr.message : parseErr)
+    throw new Error(`Report generation failed: JSON parse error after ${raw.length} chars (stop_reason: ${response.stop_reason}). ${parseErr instanceof Error ? parseErr.message : ''}`)
+  }
 }
 
 // ─── Prompts ─────────────────────────────────────────────────────

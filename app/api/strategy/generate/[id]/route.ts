@@ -39,11 +39,15 @@ export async function POST(
       return NextResponse.json({ status: 'generating' })
     }
 
+    // For 'error' status (retry) or 'pending', proceed with generation
     // Mark as generating — acts as a DB-level lock against double generation
-    await service.from('reports').update({ status: 'generating' }).eq('id', id)
+    await service.from('reports').update({ status: 'generating', report_data: null }).eq('id', id)
+
+    console.log(`[strategy/generate] Starting generation for report ${id}, user ${user.id}`)
 
     // Run the AI generation — this is the long part (up to 2–3 min)
     const reportData = await generateStrategyReport(report.questionnaire_responses)
+    console.log(`[strategy/generate] Generation complete for report ${id}`)
 
     // Save result
     await service
@@ -61,7 +65,10 @@ export async function POST(
     return NextResponse.json({ status: 'complete' })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
-    console.error('[strategy/generate] failed:', msg)
+    console.error('[strategy/generate] FAILED for report', id, ':', msg)
+    if (err instanceof Error && err.stack) {
+      console.error('[strategy/generate] Stack:', err.stack.split('\n').slice(0, 5).join('\n'))
+    }
 
     // Mark as error so the UI can surface it
     try {

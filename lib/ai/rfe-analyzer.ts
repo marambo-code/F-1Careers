@@ -49,8 +49,23 @@ function extractJSON(text: string): string {
     .replace(/\s*```$/i, '')
     .trim()
   const start = cleaned.indexOf('{')
-  const end = cleaned.lastIndexOf('}')
-  if (start === -1 || end === -1) throw new Error('No JSON object found in response')
+  if (start === -1) throw new Error('No JSON object found in response')
+
+  // Walk braces to find matching close — avoids lastIndexOf bug on truncated JSON
+  let depth = 0
+  let end = -1
+  for (let i = start; i < cleaned.length; i++) {
+    if (cleaned[i] === '{') depth++
+    else if (cleaned[i] === '}') {
+      depth--
+      if (depth === 0) { end = i; break }
+    }
+  }
+
+  if (end === -1) {
+    throw new Error(`JSON is truncated — response ended before closing brace (parsed ${cleaned.length - start} chars)`)
+  }
+
   return cleaned.slice(start, end + 1)
 }
 
@@ -104,7 +119,7 @@ export async function generateRFEReport(
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 7000,
+    max_tokens: 10000,
     system: `You are a senior immigration attorney with 15+ years handling USCIS Requests for Evidence.
 
 CRITICAL RULES:
@@ -113,7 +128,7 @@ CRITICAL RULES:
 3. Risk ratings reflect realistic denial likelihood
 4. Evidence gaps must be specific to what USCIS asked
 5. Return ONLY a valid JSON object — no markdown, no code fences
-6. Keep all string values under 250 characters`,
+6. IMPORTANT: You must produce a COMPLETE, syntactically valid JSON object. Close all braces before stopping.`,
     messages: [
       {
         role: 'user',
@@ -150,5 +165,12 @@ Return ONLY this JSON object (no markdown, no fences). All strings under 250 cha
   })
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(extractJSON(raw)) as RFEReport
+  try {
+    return JSON.parse(extractJSON(raw)) as RFEReport
+  } catch (parseErr) {
+    console.error('[rfe-analyzer] JSON parse failed. stop_reason:', response.stop_reason)
+    console.error('[rfe-analyzer] Raw response length:', raw.length)
+    console.error('[rfe-analyzer] Last 500 chars:', raw.slice(-500))
+    throw new Error(`RFE report generation failed: JSON parse error after ${raw.length} chars (stop_reason: ${response.stop_reason}). ${parseErr instanceof Error ? parseErr.message : ''}`)
+  }
 }
