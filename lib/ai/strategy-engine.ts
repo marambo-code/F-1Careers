@@ -97,6 +97,26 @@ function extractJSON(text: string): string {
   return cleaned.slice(start, end + 1)
 }
 
+// ─── Retry helper ─────────────────────────────────────────────────────────────
+
+async function withRetry<T>(fn: () => Promise<T>, label: string, retries = 2): Promise<T> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      if (attempt === retries) {
+        console.error(`[strategy-engine] ${label} failed after ${retries} attempts: ${msg}`)
+        throw e
+      }
+      const delay = attempt * 3000 // 3s, 6s
+      console.warn(`[strategy-engine] ${label} attempt ${attempt} failed (${msg}) — retrying in ${delay}ms`)
+      await new Promise(r => setTimeout(r, delay))
+    }
+  }
+  throw new Error(`[strategy-engine] ${label} exhausted retries`) // unreachable but satisfies TS
+}
+
 // ─── Shared system prompt ─────────────────────────────────────────────────────
 
 const SYSTEM = `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions.
@@ -175,11 +195,14 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2000,
+    max_tokens: 2500,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  if (res.stop_reason === 'max_tokens') {
+    throw new Error(`Assessment section hit token limit (stop_reason: max_tokens) — response length: ${raw.length}`)
+  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
@@ -227,11 +250,14 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 3000,
+    max_tokens: 4000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  if (res.stop_reason === 'max_tokens') {
+    throw new Error(`Dhanasar section hit token limit — response length: ${raw.length}`)
+  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
@@ -275,11 +301,14 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 3000,
+    max_tokens: 4000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  if (res.stop_reason === 'max_tokens') {
+    throw new Error(`Evidence section hit token limit — response length: ${raw.length}`)
+  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
@@ -334,11 +363,14 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 3000,
+    max_tokens: 4000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  if (res.stop_reason === 'max_tokens') {
+    throw new Error(`Action plan section hit token limit — response length: ${raw.length}`)
+  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
@@ -382,12 +414,13 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   console.log(`[strategy-engine] Starting 4 parallel calls. today=${today}, pathway=${recommendedPathway}`)
 
-  // All 4 calls run simultaneously — total time = slowest single call (~45s)
+  // All 4 calls run simultaneously — total time = slowest single call (~45s).
+  // Each call has individual retry logic (2 attempts, 3s delay on retry).
   const [part1, part2, part3, part4] = await Promise.all([
-    callAssessment(ctx),
-    callDhanasar(ctx),
-    callEvidence(ctx, recommendedPathway),
-    callActionPlan(ctx, today),
+    withRetry(() => callAssessment(ctx), 'callAssessment'),
+    withRetry(() => callDhanasar(ctx), 'callDhanasar'),
+    withRetry(() => callEvidence(ctx, recommendedPathway), 'callEvidence'),
+    withRetry(() => callActionPlan(ctx, today), 'callActionPlan'),
   ])
 
   console.log('[strategy-engine] All 4 calls complete — merging report')

@@ -34,14 +34,20 @@ export async function POST(
     return NextResponse.json({ status: 'complete' })
   }
 
-  // Already generating — only block retry if it started less than 8 minutes ago
+  const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
+
+  // Generating — only block retry if started < 5 minutes ago (parallel calls finish in ~45s)
   if (report.status === 'generating') {
-    const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
-    if (ageMs < 8 * 60 * 1000) {
+    if (ageMs < 5 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    // Stale — fall through and restart
-    console.log(`[strategy/generate] Restarting stale report ${id} (${Math.round(ageMs / 60000)}min old)`)
+    // Stale generating — fall through and restart
+    console.log(`[strategy/generate] Restarting stale generating report ${id} (${Math.round(ageMs / 60000)}min old)`)
+  }
+
+  // Error state — fall through and restart (user explicitly requested retry)
+  if (report.status === 'error') {
+    console.log(`[strategy/generate] Restarting errored report ${id}`)
   }
 
   if (!report.questionnaire_responses) {

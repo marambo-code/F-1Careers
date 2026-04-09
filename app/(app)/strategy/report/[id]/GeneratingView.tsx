@@ -62,12 +62,10 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const [timedOut, setTimedOut] = useState(false)
   const generateCalled = useRef(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const doneRef = useRef(false)  // prevent double router.refresh()
+  const doneRef = useRef(false)       // prevent double navigation
+  const postDoneRef = useRef(false)   // true once the generate POST has returned
 
   // Called when we know generation is complete — transition to the report.
-  // router.push() forces a full navigation which always fetches fresh server data,
-  // bypassing any React reconciliation or Next.js cache issues that router.refresh()
-  // can hit when transitioning from a client component tree to a server component tree.
   const handleComplete = useCallback(() => {
     if (doneRef.current) return
     doneRef.current = true
@@ -75,25 +73,29 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     router.push(`/${reportType}/report/${reportId}`)
   }, [router, reportId, reportType])
 
-  // ── Fire generation + immediate status check on mount ─────────────
+  // ── Fire generation POST on mount ─────────────────────────────────
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
 
-    // Fire the generate POST. The route runs the AI synchronously and returns
-    // { status: 'complete' } when done, or { error: '...' } on failure.
-    // The polling loop below is a backup that handles reconnects / tab switching.
+    // The route runs the AI synchronously and returns { status: 'complete' }
+    // when done or { error: '...' } on failure.
+    // We track postDoneRef so the poll doesn't overwrite a real error with a generic one.
     fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
       .then(r => r.json())
       .then(b => {
+        postDoneRef.current = true
         if (b.status === 'complete') handleComplete()
         else if (b.error) setError(b.error)
-        // 'generating' means another request is already running — poll handles it
+        // 'generating' means another request is already in flight — poll will catch completion
       })
-      .catch(e => setError(`Network error: ${String(e)}`))
+      .catch(e => {
+        postDoneRef.current = true
+        setError(`Network error: ${String(e)}`)
+      })
   }, [reportId, reportType, handleComplete])
 
-  // ── Poll status every 5 seconds ───────────────────────────────────
+  // ── Poll status every 5 seconds (backup for reconnects / tab switching) ──
   useEffect(() => {
     pollRef.current = setInterval(async () => {
       try {
@@ -102,7 +104,10 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         if (b.status === 'complete') handleComplete()
         else if (b.status === 'error') {
           if (pollRef.current) clearInterval(pollRef.current)
-          setError('Generation failed — click Retry below.')
+          // Only set error from poll if the POST hasn't already surfaced a real error message
+          if (!postDoneRef.current) {
+            setError('Generation failed — click Retry below.')
+          }
         }
       } catch { /* keep polling through transient network blips */ }
     }, 5000)
@@ -148,7 +153,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         <h2 className="text-xl font-bold text-navy">
           {timedOut ? 'This is taking longer than expected' : 'Generation failed'}
         </h2>
-        <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+        <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-left">
           {timedOut
             ? 'Your report may still be generating in the background. Click Retry to check — your payment is safe.'
             : error}

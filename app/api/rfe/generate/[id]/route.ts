@@ -33,12 +33,17 @@ export async function POST(
     return NextResponse.json({ status: 'complete' })
   }
 
+  const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
+
   if (report.status === 'generating') {
-    const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
-    if (ageMs < 8 * 60 * 1000) {
+    if (ageMs < 5 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    console.log(`[rfe/generate] Restarting stale report ${id} (${Math.round(ageMs / 60000)}min old)`)
+    console.log(`[rfe/generate] Restarting stale generating report ${id} (${Math.round(ageMs / 60000)}min old)`)
+  }
+
+  if (report.status === 'error') {
+    console.log(`[rfe/generate] Restarting errored report ${id}`)
   }
 
   await service.from('reports').update({ status: 'generating', report_data: null }).eq('id', id)
