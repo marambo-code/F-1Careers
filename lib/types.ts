@@ -130,6 +130,12 @@ export interface StrategyAnswers {
   attorney_consulted: string
   biggest_concern: string
 
+  // ── Resume & Timeline ────────────────────────────────────────────
+  /** Parsed text from uploaded resume PDF */
+  resume_text?: string
+  /** e.g. "2026-09" — when current visa/status expires */
+  visa_expiration?: string
+
   // ── Legacy fields (kept for backward compat with existing reports) ─
   years_experience?: string
   publications_count?: string
@@ -151,20 +157,57 @@ export interface StrategyPreview {
 }
 
 export interface StrategyReport {
+  petition_readiness: PetitionReadiness
+  resume_evidence_map: ResumeEvidenceItem[]
+  draft_proposed_endeavor: string
+  expert_letters: ExpertLetter[]
+  evidence_playbook: EvidencePlaybookItem[]
   career_visa_assessment: {
     summary: string
     pathways: PathwayAssessment[]
   }
-  criterion_breakdown: CriterionBreakdown[]
-  evidence_mapping: EvidenceItem[]
   gap_analysis: GapItem[]
+  sprint_30_day: SprintWeek[]
   roadmap: {
     three_month: string[]
     six_month: string[]
     twelve_month: string[]
   }
+  attorney_briefing: string
   recommended_next_step: string
   disclaimer: string
+}
+
+export interface PetitionReadiness {
+  niw_score: number
+  niw_benchmark: string
+  eb1a_score: number
+  eb1a_assessment: string
+  recommended_pathway: string
+  filing_recommendation: string
+  visa_urgency: string
+}
+
+export interface ResumeEvidenceItem {
+  resume_line: string
+  criterion: string
+  strength: 'Strong' | 'Developing' | 'Gap'
+  petition_argument: string
+}
+
+export interface ExpertLetter {
+  letter_number: number
+  who: string
+  what_they_should_say: string
+  how_to_approach: string
+}
+
+export interface EvidencePlaybookItem {
+  gap: string
+  priority: 'High' | 'Medium' | 'Low'
+  specific_action: string
+  named_targets: string
+  deadline: string
 }
 
 export interface PathwayAssessment {
@@ -180,9 +223,9 @@ export interface CriterionBreakdown {
   evidence_summary: string
 }
 
-export interface EvidenceItem {
-  criterion: string
-  evidence: string[]
+export interface SprintWeek {
+  week: string
+  actions: string[]
 }
 
 export interface GapItem {

@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import type { StrategyReport, StrategyAnswers } from '@/lib/types'
+import type { StrategyReport, StrategyAnswers, ResumeEvidenceItem, ExpertLetter, EvidencePlaybookItem, SprintWeek, GapItem } from '@/lib/types'
 
 export default async function StrategyPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -21,8 +21,10 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
     month: 'long', day: 'numeric', year: 'numeric',
   })
 
-  const feasibilityColor = { High: '#00C2A8', Medium: '#B45309', Low: '#DC2626' }
-  const ratingColor = { Strong: '#00C2A8', Developing: '#B45309', Gap: '#DC2626' }
+  const feasibilityColor: Record<string, string> = { High: '#00C2A8', Medium: '#B45309', Low: '#6B7280' }
+  const strengthColor: Record<string, string> = { Strong: '#00C2A8', Developing: '#B45309', Gap: '#DC2626' }
+  const priorityColor: Record<string, string> = { High: '#DC2626', Medium: '#B45309', Low: '#6B7280' }
+  const pr = data.petition_readiness
 
   return (
     <div>
@@ -31,10 +33,10 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontSize: '10pt', fontWeight: 'bold', color: '#00C2A8', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>
-              F-1 Careers AI · Career Strategy Report
+              F-1 Careers AI · Attorney-Quality Strategy Report
             </div>
             <h1 style={{ fontSize: '22pt', fontWeight: 'bold', color: '#1B2B6B', margin: 0 }}>
-              Career & Visa Strategy Report
+              Career & Immigration Strategy Report
             </h1>
             {answers?.full_name && (
               <p style={{ fontSize: '12pt', color: '#555566', marginTop: '6px' }}>Prepared for: {answers.full_name}</p>
@@ -47,14 +49,125 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
+      {/* Petition Readiness Dashboard */}
+      {pr && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Petition Readiness Dashboard
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
+              <p style={{ fontSize: '9pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '6px' }}>EB-2 NIW Score</p>
+              <p style={{ fontSize: '36pt', fontWeight: 'black', color: pr.niw_score >= 75 ? '#00C2A8' : pr.niw_score >= 50 ? '#B45309' : '#DC2626', margin: 0 }}>{pr.niw_score}</p>
+              <p style={{ fontSize: '8pt', color: '#888' }}>/100</p>
+              <p style={{ fontSize: '9pt', color: '#555', marginTop: '6px', lineHeight: 1.5 }}>{pr.niw_benchmark}</p>
+            </div>
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
+              <p style={{ fontSize: '9pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '6px' }}>EB-1A Score</p>
+              <p style={{ fontSize: '36pt', fontWeight: 'black', color: pr.eb1a_score >= 75 ? '#00C2A8' : pr.eb1a_score >= 50 ? '#B45309' : '#DC2626', margin: 0 }}>{pr.eb1a_score}</p>
+              <p style={{ fontSize: '8pt', color: '#888' }}>/100</p>
+              <p style={{ fontSize: '9pt', color: '#555', marginTop: '6px', lineHeight: 1.5 }}>{pr.eb1a_assessment}</p>
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#1B2B6B', borderRadius: '10px', padding: '14px 18px', marginBottom: '12px' }}>
+            <p style={{ fontSize: '9pt', fontWeight: 'bold', color: '#00C2A8', textTransform: 'uppercase', marginBottom: '4px' }}>Recommended Pathway</p>
+            <p style={{ fontSize: '14pt', fontWeight: 'bold', color: 'white', margin: 0 }}>{pr.recommended_pathway}</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ border: '1px solid #e5e7eb', borderLeft: '4px solid #00C2A8', borderRadius: '8px', padding: '12px' }}>
+              <p style={{ fontSize: '8pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>Filing Recommendation</p>
+              <p style={{ fontSize: '10pt', fontWeight: '600', color: '#1B2B6B', margin: 0 }}>{pr.filing_recommendation}</p>
+            </div>
+            <div style={{ border: '1px solid #e5e7eb', borderLeft: '4px solid #F59E0B', borderRadius: '8px', padding: '12px' }}>
+              <p style={{ fontSize: '8pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>Visa Urgency</p>
+              <p style={{ fontSize: '10pt', fontWeight: '600', color: '#1B2B6B', margin: 0 }}>{pr.visa_urgency}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Resume Evidence Map */}
+      {data.resume_evidence_map && data.resume_evidence_map.length > 0 && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Resume Evidence Map
+          </h2>
+          {data.resume_evidence_map.map((item: ResumeEvidenceItem, i: number) => (
+            <div key={i} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px 16px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                <p style={{ fontSize: '10pt', fontWeight: '600', color: '#1B2B6B', margin: 0, flex: 1, paddingRight: '12px' }}>&ldquo;{item.resume_line}&rdquo;</p>
+                <span style={{ fontSize: '8pt', fontWeight: 'bold', color: strengthColor[item.strength] ?? '#555', flexShrink: 0 }}>{item.strength}</span>
+              </div>
+              <p style={{ fontSize: '8.5pt', color: '#00C2A8', fontWeight: '600', margin: '4px 0' }}>{item.criterion}</p>
+              <p style={{ fontSize: '9pt', color: '#555', margin: 0, lineHeight: 1.5 }}>{item.petition_argument}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Draft Proposed Endeavor */}
+      {data.draft_proposed_endeavor && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Draft Proposed Endeavor Statement
+          </h2>
+          <div style={{ backgroundColor: '#EDF0F8', borderRadius: '10px', padding: '16px 20px', borderLeft: '4px solid #1B2B6B' }}>
+            <p style={{ fontSize: '10.5pt', fontStyle: 'italic', color: '#1B2B6B', lineHeight: 1.8, margin: 0 }}>
+              &ldquo;{data.draft_proposed_endeavor}&rdquo;
+            </p>
+          </div>
+          <p style={{ fontSize: '8.5pt', color: '#888', marginTop: '8px' }}>⚠️ Have your attorney review and finalize before filing.</p>
+        </section>
+      )}
+
+      {/* Expert Letters */}
+      {data.expert_letters && data.expert_letters.length > 0 && (
+        <section style={{ marginBottom: '32px', pageBreakBefore: 'auto' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Expert Letter Strategy
+          </h2>
+          {data.expert_letters.map((letter: ExpertLetter) => (
+            <div key={letter.letter_number} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px 16px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <span style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#1B2B6B', color: 'white', fontSize: '9pt', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {letter.letter_number}
+                </span>
+                <strong style={{ fontSize: '10.5pt', color: '#1B2B6B' }}>{letter.who}</strong>
+              </div>
+              <p style={{ fontSize: '9pt', color: '#555', marginBottom: '6px' }}><strong>Must establish:</strong> {letter.what_they_should_say}</p>
+              <p style={{ fontSize: '9pt', color: '#888', margin: 0 }}><strong>Approach:</strong> {letter.how_to_approach}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Evidence Playbook */}
+      {data.evidence_playbook && data.evidence_playbook.length > 0 && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Evidence Playbook
+          </h2>
+          {data.evidence_playbook.map((item: EvidencePlaybookItem, i: number) => (
+            <div key={i} style={{ border: '1px solid #e5e7eb', borderLeft: `4px solid ${priorityColor[item.priority] ?? '#6B7280'}`, borderRadius: '8px', padding: '12px 16px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <strong style={{ fontSize: '10.5pt', color: '#1B2B6B' }}>{item.gap}</strong>
+                <span style={{ fontSize: '8.5pt', fontWeight: 'bold', color: priorityColor[item.priority] ?? '#555' }}>{item.priority} Priority</span>
+              </div>
+              <p style={{ fontSize: '9.5pt', color: '#333', marginBottom: '4px' }}><strong>Action:</strong> {item.specific_action}</p>
+              <p style={{ fontSize: '9.5pt', color: '#555', marginBottom: '4px' }}><strong>Targets:</strong> {item.named_targets}</p>
+              <p style={{ fontSize: '8.5pt', color: '#888', margin: 0 }}>⏱ {item.deadline}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Career & Visa Assessment */}
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #1B2B6B', paddingBottom: '6px', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
           Career & Visa Assessment
         </h2>
-        <p style={{ fontSize: '10.5pt', lineHeight: 1.7, color: '#333' }}>{data.career_visa_assessment?.summary}</p>
-
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
+        <p style={{ fontSize: '10.5pt', lineHeight: 1.7, color: '#333', marginBottom: '16px' }}>{data.career_visa_assessment?.summary}</p>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {data.career_visa_assessment?.pathways?.map(p => (
             <div key={p.pathway} style={{ border: `2px solid ${feasibilityColor[p.feasibility] ?? '#ccc'}`, borderRadius: '10px', padding: '12px 16px', minWidth: '180px', flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -67,41 +180,12 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* Criterion Breakdown */}
-      <section style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #1B2B6B', paddingBottom: '6px', marginBottom: '14px' }}>
-          Criterion-by-Criterion Breakdown
-        </h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9.5pt' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#EDF0F8' }}>
-              <th style={{ padding: '8px 10px', textAlign: 'left', color: '#1B2B6B', fontWeight: 'bold' }}>Pathway</th>
-              <th style={{ padding: '8px 10px', textAlign: 'left', color: '#1B2B6B', fontWeight: 'bold' }}>Criterion</th>
-              <th style={{ padding: '8px 10px', textAlign: 'center', color: '#1B2B6B', fontWeight: 'bold' }}>Rating</th>
-              <th style={{ padding: '8px 10px', textAlign: 'left', color: '#1B2B6B', fontWeight: 'bold' }}>Assessment</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.criterion_breakdown?.map((c, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <td style={{ padding: '7px 10px', color: '#555', fontWeight: '500' }}>{c.pathway}</td>
-                <td style={{ padding: '7px 10px', color: '#1B2B6B', fontWeight: '600' }}>{c.criterion}</td>
-                <td style={{ padding: '7px 10px', textAlign: 'center' }}>
-                  <span style={{ color: ratingColor[c.rating] ?? '#555', fontWeight: 'bold' }}>{c.rating}</span>
-                </td>
-                <td style={{ padding: '7px 10px', color: '#555', lineHeight: 1.5 }}>{c.evidence_summary}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
       {/* Gap Analysis */}
       <section style={{ marginBottom: '32px', pageBreakBefore: 'auto' }}>
-        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #1B2B6B', paddingBottom: '6px', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
           Gap Analysis
         </h2>
-        {data.gap_analysis?.map((g, i) => (
+        {data.gap_analysis?.map((g: GapItem, i: number) => (
           <div key={i} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px 16px', marginBottom: '10px', borderLeft: `4px solid ${g.materiality === 'High' ? '#DC2626' : g.materiality === 'Medium' ? '#B45309' : '#6B7280'}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
               <strong style={{ fontSize: '10.5pt', color: '#1B2B6B' }}>{g.gap}</strong>
@@ -114,9 +198,33 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         ))}
       </section>
 
+      {/* 30-Day Sprint */}
+      {data.sprint_30_day && data.sprint_30_day.length > 0 && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            30-Day Sprint Plan
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            {data.sprint_30_day.map((week: SprintWeek) => (
+              <div key={week.week} style={{ border: '1px solid #e5e7eb', borderTop: '4px solid #00C2A8', borderRadius: '8px', padding: '12px 14px' }}>
+                <p style={{ fontSize: '10pt', fontWeight: 'bold', color: '#1B2B6B', marginBottom: '10px' }}>{week.week}</p>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {week.actions.map((action: string, j: number) => (
+                    <li key={j} style={{ fontSize: '9pt', color: '#555', marginBottom: '6px', paddingLeft: '14px', position: 'relative', lineHeight: 1.5 }}>
+                      <span style={{ position: 'absolute', left: 0, color: '#00C2A8', fontWeight: 'bold' }}>{j + 1}.</span>
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Roadmap */}
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #1B2B6B', paddingBottom: '6px', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
           12-Month Roadmap
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
@@ -128,7 +236,7 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
             <div key={label} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px 14px' }}>
               <p style={{ fontSize: '10pt', fontWeight: 'bold', color: '#1B2B6B', marginBottom: '10px', paddingBottom: '6px', borderBottom: '1px solid #e5e7eb' }}>{label}</p>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                {items?.map((item, i) => (
+                {items?.map((item: string, i: number) => (
                   <li key={i} style={{ fontSize: '9pt', color: '#555', marginBottom: '7px', paddingLeft: '12px', position: 'relative', lineHeight: 1.5 }}>
                     <span style={{ position: 'absolute', left: 0, color: '#00C2A8', fontWeight: 'bold' }}>›</span>
                     {item}
@@ -140,10 +248,22 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
+      {/* Attorney Briefing */}
+      {data.attorney_briefing && (
+        <section style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', color: '#1B2B6B', borderBottom: '2px solid #00C2A8', paddingBottom: '6px', marginBottom: '14px' }}>
+            Attorney Briefing Paragraph
+          </h2>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #e5e7eb', borderRadius: '10px', padding: '16px 20px' }}>
+            <p style={{ fontSize: '10.5pt', color: '#1B2B6B', lineHeight: 1.8, margin: 0 }}>{data.attorney_briefing}</p>
+          </div>
+        </section>
+      )}
+
       {/* Next Step */}
       <section style={{ marginBottom: '32px', backgroundColor: '#1B2B6B', borderRadius: '12px', padding: '20px 24px', color: 'white' }}>
         <h2 style={{ fontSize: '12pt', fontWeight: 'bold', color: '#00C2A8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Recommended Next Step
+          Your #1 Next Step (Do This Today)
         </h2>
         <p style={{ fontSize: '11pt', color: 'white', margin: 0, lineHeight: 1.6 }}>{data.recommended_next_step}</p>
       </section>

@@ -76,6 +76,10 @@
   .badge-low {
     @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600;
   }
+
+  .section-heading {
+    @apply text-lg font-bold text-navy mb-4 pb-2 border-b-2 border-teal;
+  }
 }
 
 @media print {

@@ -4,8 +4,6 @@ import type { StrategyAnswers, StrategyReport, StrategyPreview } from '@/lib/typ
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 const MODEL = 'claude-sonnet-4-6'
 
-// ─── Scoring ─────────────────────────────────────────────────────
-
 const STRENGTH = ['None', 'Weak', 'Moderate', 'Strong', 'Exceptional']
 
 const FIELD_WEIGHT: Record<string, number> = {
@@ -73,19 +71,12 @@ function criteriaBlock(a: StrategyAnswers): string {
   }).join('\n')
 }
 
-// ─── Legacy ──────────────────────────────────────────────────────
-
 function isLegacyAnswers(a: StrategyAnswers): boolean {
   return a.cr_awards === undefined && a.publications_count !== undefined
 }
 
-// ─── JSON extraction ─────────────────────────────────────────────
-
 function extractJSON(text: string): string {
-  const cleaned = text.trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/i, '')
-    .trim()
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   const start = cleaned.indexOf('{')
   const end = cleaned.lastIndexOf('}')
   if (start === -1 || end === -1) throw new Error('No JSON object found in response')
@@ -98,16 +89,38 @@ export async function generateStrategyPreview(answers: StrategyAnswers): Promise
   const eb1a = computeEB1AScore(answers)
   const niw = computeNIWScore(answers)
 
+  const resumeBlock = answers.resume_text
+    ? `\nRESUME EXTRACT (first 3000 chars):\n${answers.resume_text.slice(0, 3000)}\n`
+    : ''
+
   const prompt = isLegacyAnswers(answers)
     ? buildLegacyPreviewPrompt(answers)
-    : buildPreviewPrompt(answers, eb1a, niw)
+    : `Analyze this candidate and return a JSON preview.
+
+CANDIDATE:
+- Field: ${answers.field_of_work} — ${answers.subfield}
+- Education: ${answers.education_level}, ${answers.years_in_field} years experience
+- Visa: ${answers.visa_status}${answers.visa_expiration ? `, expires ${answers.visa_expiration}` : ''}
+- Role: ${answers.current_role} at ${answers.current_employer}
+- Salary: ${answers.us_salary}
+- Work: ${answers.work_description}
+${resumeBlock}
+EB-1A score: ${eb1a.score}/100 (${eb1a.metCount} criteria met)
+NIW score: ${niw.score}/100 (${niw.label})
+
+Return ONLY this JSON (no markdown, no fences):
+{
+  "applicable_pathways": ["list of viable pathways"],
+  "top_pathway": "single best recommendation",
+  "overall_strength": "Strong | Developing | Early",
+  "teaser": "2-3 sentence honest, specific assessment referencing their actual role, employer, and field"
+}`
 
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1024,
-    system: `You are an expert immigration strategist specializing in US employment-based visa petitions (EB-1A, EB-2 NIW, O-1A, O-1B, H-1B).
-You analyze career profiles with the rigor of a senior immigration attorney.
-IMPORTANT: Return ONLY a valid JSON object. No markdown, no code fences, no explanation — just the raw JSON.`,
+    system: `You are an expert immigration strategist. Analyze career profiles with the rigor of a senior immigration attorney.
+IMPORTANT: Return ONLY a valid JSON object. No markdown, no code fences, no explanation.`,
     messages: [{ role: 'user', content: prompt }],
   })
 
@@ -127,15 +140,19 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 7000,
-    system: `You are a senior immigration strategist with deep expertise in USCIS employment-based visa petitions.
+    max_tokens: 9000,
+    system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1, and H-1B petitions.
+
+YOUR JOB: Produce a report so specific, so actionable, and so deeply researched that the reader says "this knows my case better than I do."
 
 CRITICAL RULES:
-1. Only assess criteria based on evidence the user actually provided
-2. Never fabricate, infer, or assume evidence that wasn't stated
-3. Be honest about weak cases
-4. Return ONLY a valid JSON object — no markdown, no code fences, no explanation
-5. Keep all string values under 250 characters`,
+1. Read the resume line by line — extract real evidence, cite real accomplishments
+2. Never use generic advice — everything must be specific to THIS person
+3. Draft proposed endeavor using their ACTUAL job titles, employers, and work
+4. Name real publications, real organizations, real conferences in the playbook
+5. Expert letter guidance must name specific types of people this person can actually reach
+6. Return ONLY valid JSON — no markdown, no code fences
+7. Keep all strings under 300 characters`,
     messages: [{ role: 'user', content: prompt }],
   })
 
@@ -145,101 +162,110 @@ CRITICAL RULES:
 
 // ─── Prompts ─────────────────────────────────────────────────────
 
-function buildPreviewPrompt(
-  a: StrategyAnswers,
-  eb1a: ReturnType<typeof computeEB1AScore>,
-  niw: ReturnType<typeof computeNIWScore>,
-): string {
-  return `Analyze this candidate and return a JSON preview.
-
-CANDIDATE:
-- Field: ${a.field_of_work} — ${a.subfield}
-- Education: ${a.education_level}, ${a.years_in_field} years experience
-- Visa: ${a.visa_status}, filing in ${a.filing_timeline} months
-- Role: ${a.current_role} at ${a.current_employer}
-- Salary: ${a.us_salary}
-
-WORK DESCRIPTION: ${a.work_description}
-PROPOSED ENDEAVOR: ${a.proposed_endeavor || 'Not provided'}
-
-PRE-COMPUTED SCORES:
-- EB-1A: ${eb1a.score}/100 (${eb1a.metCount} criteria met)
-- NIW: ${niw.score}/100 (${niw.label})
-
-EB-1A CRITERIA:
-${criteriaBlock(a)}
-
-Return ONLY this JSON object (no markdown, no fences):
-{
-  "applicable_pathways": ["list of viable pathways"],
-  "top_pathway": "single best recommendation",
-  "overall_strength": "Strong | Developing | Early",
-  "teaser": "2-3 sentence honest assessment specific to this candidate"
-}`
-}
-
 function buildLegacyPreviewPrompt(a: StrategyAnswers): string {
   return `Analyze this candidate and return a JSON preview.
-
-CANDIDATE:
-- Visa: ${a.visa_status}, Goal: ${a.career_goal}
-- Role: ${a.current_role} at ${a.current_employer}
-- Publications: ${a.publications_count}, Citations: ${a.citations_count}
-- Awards: ${a.awards}, Media: ${a.media_coverage}
-
-Return ONLY this JSON object (no markdown, no fences):
-{
-  "applicable_pathways": ["list of viable pathways"],
-  "top_pathway": "single best recommendation",
-  "overall_strength": "Strong | Developing | Early",
-  "teaser": "2-3 sentence honest assessment"
-}`
+Role: ${a.current_role} at ${a.current_employer}
+Goal: ${a.career_goal} | Visa: ${a.visa_status}
+Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_strength": "Strong | Developing | Early", "teaser": "" }`
 }
 
 function buildLegacyPrompt(a: StrategyAnswers): string {
-  return `Generate a complete career and immigration strategy report.
-
-CANDIDATE:
-- Visa: ${a.visa_status}, Goal: ${a.career_goal}
+  return `Generate a career and immigration strategy report for:
 - Role: ${a.current_role} at ${a.current_employer}
-- Publications: ${a.publications_count} (${a.publications_detail})
-- Citations: ${a.citations_count}, Awards: ${a.awards}
-- Media: ${a.media_coverage}, Speaking: ${a.speaking_engagements}
-- Memberships: ${a.professional_memberships}
-
+- Visa: ${a.visa_status}, Goal: ${a.career_goal}
+- Publications: ${a.publications_count}, Citations: ${a.citations_count}
 ${FULL_REPORT_SCHEMA}`
 }
 
-const FULL_REPORT_SCHEMA = `Return ONLY this JSON object (no markdown, no code fences). Every string under 250 chars:
+const FULL_REPORT_SCHEMA = `
+Return ONLY this JSON object. No markdown. No code fences. All strings under 300 chars.
+
 {
+  "petition_readiness": {
+    "niw_score": <0-100 integer>,
+    "niw_benchmark": "Compare this score to typical successful NIW filers in their field with a specific percentile or range",
+    "eb1a_score": <0-100 integer>,
+    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and timeline",
+    "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | H-1B",
+    "filing_recommendation": "File now with confidence | File in 3 months after X | Wait 6 months and build Y first",
+    "visa_urgency": "Specific urgency note based on visa status and expiration — if OPT STEM, calculate deadline precisely"
+  },
+
+  "resume_evidence_map": [
+    {
+      "resume_line": "Exact quote or close paraphrase from their resume or work description",
+      "criterion": "Which USCIS criterion this maps to (e.g. NIW Prong 1, EB-1A Critical Role §(viii))",
+      "strength": "Strong | Developing | Gap",
+      "petition_argument": "How a skilled attorney would use this line in the actual petition — cite the legal standard"
+    }
+  ],
+
+  "draft_proposed_endeavor": "Write 3-5 sentences of actual petition-ready language for the proposed endeavor statement. Use their specific job titles, employers, products, and national impact framing. This must be specific enough to submit to an attorney as a first draft.",
+
+  "expert_letters": [
+    {
+      "letter_number": 1,
+      "who": "Specific type of person — e.g. VP of Partnerships at Apple, not just 'employer'",
+      "what_they_should_say": "Exactly what this letter needs to establish — cite the USCIS standard it addresses",
+      "how_to_approach": "Practical guidance on how to request this letter given this person's situation"
+    }
+  ],
+
+  "evidence_playbook": [
+    {
+      "gap": "Specific gap name",
+      "priority": "High | Medium | Low",
+      "specific_action": "Exactly what to do — not generic, not vague",
+      "named_targets": "Real publication names, real organizations, real conferences specific to their field",
+      "deadline": "Realistic timeframe, e.g. '30 days' or '60 days before filing'"
+    }
+  ],
+
   "career_visa_assessment": {
-    "summary": "2-paragraph honest assessment referencing this candidate's actual field and evidence",
+    "summary": "2-paragraph honest, deeply personalized assessment. Reference their specific employers, role, salary, and field. Be precise about what makes this case strong or weak.",
     "pathways": [
-      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "specific rationale" },
-      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "specific rationale" }
+      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific to this person's evidence and gaps" },
+      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific to this person's evidence and gaps" }
     ]
   },
-  "criterion_breakdown": [
-    { "pathway": "EB-1A", "criterion": "Awards & Prizes §(i)", "rating": "Strong | Developing | Gap", "evidence_summary": "specific to this user" },
-    { "pathway": "EB-1A", "criterion": "Scholarly Articles §(vi)", "rating": "Strong | Developing | Gap", "evidence_summary": "specific to this user" },
-    { "pathway": "EB-2 NIW", "criterion": "Prong 1 — Substantial Merit", "rating": "Strong | Developing | Gap", "evidence_summary": "specific to this user" },
-    { "pathway": "EB-2 NIW", "criterion": "Prong 2 — Well-Positioned", "rating": "Strong | Developing | Gap", "evidence_summary": "specific to this user" },
-    { "pathway": "EB-2 NIW", "criterion": "Prong 3 — National Interest Waiver", "rating": "Strong | Developing | Gap", "evidence_summary": "specific to this user" }
-  ],
-  "evidence_mapping": [
-    { "criterion": "Original Contributions", "evidence": ["specific evidence item", "another item"] },
-    { "criterion": "National Importance", "evidence": ["specific evidence item", "another item"] }
-  ],
+
   "gap_analysis": [
-    { "gap": "specific gap for this user", "materiality": "High | Medium | Low", "action": "specific actionable step" },
-    { "gap": "another gap", "materiality": "High | Medium | Low", "action": "specific actionable step" }
+    {
+      "gap": "Specific gap tied to their actual profile",
+      "materiality": "High | Medium | Low",
+      "action": "Specific actionable step with named resources"
+    }
   ],
+
+  "sprint_30_day": [
+    {
+      "week": "Week 1",
+      "actions": ["Specific action 1", "Specific action 2", "Specific action 3"]
+    },
+    {
+      "week": "Week 2",
+      "actions": ["Specific action 1", "Specific action 2"]
+    },
+    {
+      "week": "Week 3",
+      "actions": ["Specific action 1", "Specific action 2"]
+    },
+    {
+      "week": "Week 4",
+      "actions": ["Specific action 1 — submit/send/complete something concrete"]
+    }
+  ],
+
   "roadmap": {
-    "three_month": ["action 1", "action 2", "action 3"],
-    "six_month": ["action 1", "action 2", "action 3"],
-    "twelve_month": ["action 1", "action 2", "action 3"]
+    "three_month": ["Specific action tied to their actual situation", "Another specific action", "Third action"],
+    "six_month": ["Specific action", "Another action", "Third action"],
+    "twelve_month": ["Specific action", "Another action", "Third action"]
   },
-  "recommended_next_step": "single most important thing in next 30 days, specific to this person",
+
+  "attorney_briefing": "Write a concise attorney briefing paragraph this person can email to an immigration attorney today. Include: recommended pathway, 3 strongest evidence pieces, 2 key gaps, visa urgency, and ask for a consultation to review readiness for filing.",
+
+  "recommended_next_step": "Single most important thing in next 30 days, hyper-specific to this person",
+
   "disclaimer": "This report is a career strategy tool and does not constitute legal advice. Consult a licensed immigration attorney before filing any petition."
 }`
 
@@ -248,25 +274,36 @@ function buildFullReportPrompt(
   eb1a: ReturnType<typeof computeEB1AScore>,
   niw: ReturnType<typeof computeNIWScore>,
 ): string {
-  return `Generate a complete career and immigration strategy report for this candidate.
+  const resumeSection = a.resume_text
+    ? `\n═══ RESUME (READ EVERY LINE — extract real evidence) ═══\n${a.resume_text.slice(0, 6000)}\n`
+    : ''
 
-CANDIDATE PROFILE:
-- Education: ${a.education_level}, ${a.years_in_field} years in ${a.field_of_work} (${a.subfield})
-- Visa: ${a.visa_status} | Filing: ${a.filing_timeline} months | Goal: ${a.career_goal}
-- Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}
+  return `Generate a complete, attorney-quality career and immigration strategy report for this candidate.
 
-WORK NARRATIVE: ${a.work_description || 'Not provided'}
-PROPOSED ENDEAVOR: ${a.proposed_endeavor || 'Not provided'}
+═══ CANDIDATE PROFILE ═══
+Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}
+Field: ${a.field_of_work} — ${a.subfield} | Experience: ${a.years_in_field} years
+Visa: ${a.visa_status}${a.visa_expiration ? ` (expires: ${a.visa_expiration})` : ''} | Filing target: ${a.filing_timeline} months
+Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}
+Employer support: ${a.employer_support} | Attorney consulted: ${a.attorney_consulted}
+Main concern: ${a.biggest_concern || 'Not provided'}
+${resumeSection}
+═══ CANDIDATE'S OWN DESCRIPTION OF THEIR WORK ═══
+${a.work_description || 'Not provided'}
 
-EB-1A CRITERIA (${eb1a.metCount} criteria met, score: ${eb1a.score}/100):
+═══ PROPOSED ENDEAVOR (their words) ═══
+${a.proposed_endeavor || 'Not provided'}
+
+═══ EB-1A CRITERIA SELF-ASSESSMENT ═══
+Pre-computed score: ${eb1a.score}/100 | Criteria met (≥ Moderate): ${eb1a.metCount}/10
 ${criteriaBlock(a)}
+Met: ${eb1a.metCriteria.join(', ') || 'None at threshold yet'}
 
-NIW PRONGS (score: ${niw.score}/100 — ${niw.label}):
-- Prong 1: ${STRENGTH[a.niw_prong1 ?? 2]} (${a.niw_prong1 ?? 2}/4)
-- Prong 2: ${STRENGTH[a.niw_prong2 ?? 2]} (${a.niw_prong2 ?? 2}/4)
-- Prong 3: ${STRENGTH[a.niw_prong3 ?? 2]} (${a.niw_prong3 ?? 2}/4)
-
-MAIN CONCERN: ${a.biggest_concern || 'Not provided'}
+═══ NIW DHANASAR PRONGS ═══
+Pre-computed score: ${niw.score}/100 (${niw.label})
+Prong 1 — Substantial Merit & National Importance: ${STRENGTH[a.niw_prong1 ?? 2]} (${a.niw_prong1 ?? 2}/4)
+Prong 2 — Well-Positioned to Advance Endeavor:     ${STRENGTH[a.niw_prong2 ?? 2]} (${a.niw_prong2 ?? 2}/4)
+Prong 3 — Benefit Justifies Waiving Job Offer:     ${STRENGTH[a.niw_prong3 ?? 2]} (${a.niw_prong3 ?? 2}/4)
 
 ${FULL_REPORT_SCHEMA}`
 }

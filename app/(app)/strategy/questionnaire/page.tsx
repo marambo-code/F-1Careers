@@ -192,9 +192,33 @@ export default function QuestionnairePage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [answers, setAnswers] = useState(defaultAnswers)
+  const [resumeText, setResumeText] = useState<string>('')
+  const [visaExpiration, setVisaExpiration] = useState<string>('')
+  const [resumeUploading, setResumeUploading] = useState(false)
+  const [resumeFileName, setResumeFileName] = useState<string>('')
 
   const set = (key: string, val: string | number) =>
     setAnswers(a => ({ ...a, [key]: val }))
+
+  const handleResumeUpload = async (file: File) => {
+    setResumeUploading(true)
+    setResumeFileName(file.name)
+    try {
+      const formData = new FormData()
+      formData.append('resume', file)
+      const res = await fetch('/api/strategy/parse-resume', { method: 'POST', body: formData })
+      if (res.ok) {
+        const { text } = await res.json()
+        setResumeText(text)
+      } else {
+        setResumeFileName('')
+      }
+    } catch {
+      setResumeFileName('')
+    } finally {
+      setResumeUploading(false)
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -222,6 +246,8 @@ export default function QuestionnairePage() {
         graduation_date: profile.graduation_date ?? '',
         visa_status: profile.visa_status ?? answers.field_of_work,
         career_goal: profile.career_goal ?? '',
+        ...(resumeText ? { resume_text: resumeText } : {}),
+        ...(visaExpiration ? { visa_expiration: visaExpiration } : {}),
       }
 
       const { data: report, error: insertError } = await supabase
@@ -391,6 +417,57 @@ export default function QuestionnairePage() {
               placeholder="e.g. I develop large language model alignment techniques at Anthropic. My research on constitutional AI has been adopted by 3 major AI labs and cited 400+ times. My work directly reduces AI safety risks that are a stated national priority in the Executive Order on AI (Oct 2023)..."
             />
           </div>
+
+          {/* Resume Upload */}
+          <div>
+            <label className="label">
+              Upload Resume / CV <span className="text-teal text-xs font-semibold ml-1">Highly Recommended</span>
+            </label>
+            <p className="text-xs text-mid mb-2">
+              Uploading your resume dramatically improves report quality — the AI will extract specific evidence, cite real accomplishments, and draft petition language using your actual experience.
+            </p>
+            <label className={`flex items-center gap-3 border-2 border-dashed rounded-xl px-4 py-4 cursor-pointer transition-colors ${
+              resumeText ? 'border-teal bg-teal-light' : 'border-border bg-gray-50 hover:border-teal/40'
+            }`}>
+              <input
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleResumeUpload(f) }}
+              />
+              {resumeUploading ? (
+                <span className="flex items-center gap-2 text-sm text-mid">
+                  <svg className="animate-spin w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Parsing resume...
+                </span>
+              ) : resumeText ? (
+                <span className="flex items-center gap-2 text-sm text-teal font-semibold">
+                  <span>✓</span> {resumeFileName} — parsed successfully
+                  <span className="font-normal text-mid ml-1">(click to replace)</span>
+                </span>
+              ) : (
+                <span className="text-sm text-mid">
+                  <span className="text-teal font-semibold">Click to upload</span> your resume PDF (max 10MB)
+                </span>
+              )}
+            </label>
+          </div>
+
+          {/* Visa Expiration */}
+          <div>
+            <label className="label">Current Visa / Status Expiration Date</label>
+            <p className="text-xs text-mid mb-1.5">Helps calculate your filing urgency and OPT/STEM deadlines precisely.</p>
+            <input
+              type="month"
+              className="input max-w-xs"
+              value={visaExpiration}
+              onChange={e => setVisaExpiration(e.target.value)}
+              placeholder="YYYY-MM"
+            />
+          </div>
         </div>
       )}
 
@@ -551,6 +628,16 @@ export default function QuestionnairePage() {
               <span className="text-navy font-medium">NIW prongs:</span>{' '}
               {STRENGTH[answers.niw_prong1]} / {STRENGTH[answers.niw_prong2]} / {STRENGTH[answers.niw_prong3]}
             </p>
+            <p className="text-mid">
+              <span className="text-navy font-medium">Resume:</span>{' '}
+              {resumeText
+                ? <span className="text-teal font-semibold">✓ {resumeFileName} uploaded</span>
+                : <span className="text-orange-600">Not uploaded — report will be less specific</span>
+              }
+            </p>
+            {visaExpiration && (
+              <p className="text-mid"><span className="text-navy font-medium">Visa expires:</span> {visaExpiration}</p>
+            )}
           </div>
         </div>
       )}
