@@ -66,22 +66,35 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     router.push(`/${reportType}/report/${reportId}`)
   }, [router, reportId, reportType])
 
-  // ── Fire generation POST on mount ────────────────────────────────
+  // ── Fire generation POST on mount — with auto-retry on network errors ─
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
 
-    fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-      .then(r => r.json())
-      .then(b => {
-        postDoneRef.current = true
-        if (b.status === 'complete') handleComplete()
-        else if (b.error) setError(b.error)
-      })
-      .catch(e => {
-        postDoneRef.current = true
-        setError(`Network error: ${String(e)}`)
-      })
+    const MAX_NETWORK_RETRIES = 3
+    let attempt = 0
+
+    const firePost = () => {
+      attempt++
+      fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(b => {
+          postDoneRef.current = true
+          if (b.status === 'complete') handleComplete()
+          else if (b.error) setError(b.error)
+        })
+        .catch(e => {
+          if (attempt < MAX_NETWORK_RETRIES) {
+            console.warn(`[GeneratingView] Network error attempt ${attempt}, retrying in 3s:`, String(e))
+            setTimeout(firePost, 3000)
+          } else {
+            postDoneRef.current = true
+            setError(`Connection error after ${MAX_NETWORK_RETRIES} attempts — please click Retry below.`)
+          }
+        })
+    }
+
+    firePost()
   }, [reportId, reportType, handleComplete])
 
   // ── Poll every 5 seconds (backup for reconnects) ──────────────────

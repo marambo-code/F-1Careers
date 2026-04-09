@@ -195,13 +195,13 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2500,
+    max_tokens: 1800,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
   if (res.stop_reason === 'max_tokens') {
-    throw new Error(`Assessment section hit token limit (stop_reason: max_tokens) — response length: ${raw.length}`)
+    throw new Error(`Assessment section hit token limit — response length: ${raw.length}`)
   }
   try {
     return JSON.parse(extractJSON(raw))
@@ -250,7 +250,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 4000,
+    max_tokens: 2000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -301,7 +301,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 4000,
+    max_tokens: 2000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -363,7 +363,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 4000,
+    max_tokens: 2000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })

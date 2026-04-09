@@ -73,26 +73,38 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     router.push(`/${reportType}/report/${reportId}`)
   }, [router, reportId, reportType])
 
-  // ── Fire generation POST on mount ─────────────────────────────────
+  // ── Fire generation POST on mount — with auto-retry on network errors ─
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
 
-    // The route runs the AI synchronously and returns { status: 'complete' }
-    // when done or { error: '...' } on failure.
-    // We track postDoneRef so the poll doesn't overwrite a real error with a generic one.
-    fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-      .then(r => r.json())
-      .then(b => {
-        postDoneRef.current = true
-        if (b.status === 'complete') handleComplete()
-        else if (b.error) setError(b.error)
-        // 'generating' means another request is already in flight — poll will catch completion
-      })
-      .catch(e => {
-        postDoneRef.current = true
-        setError(`Network error: ${String(e)}`)
-      })
+    const MAX_NETWORK_RETRIES = 3
+    let attempt = 0
+
+    const firePost = () => {
+      attempt++
+      fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(b => {
+          postDoneRef.current = true
+          if (b.status === 'complete') handleComplete()
+          else if (b.error) setError(b.error)
+          // 'generating' = another request already in flight — poll will catch it
+        })
+        .catch(e => {
+          // "Failed to fetch" = network error (connection drop, Vercel timeout kill, etc.)
+          // Auto-retry up to MAX_NETWORK_RETRIES times with 3s delay before showing error
+          if (attempt < MAX_NETWORK_RETRIES) {
+            console.warn(`[GeneratingView] Network error attempt ${attempt}, retrying in 3s:`, String(e))
+            setTimeout(firePost, 3000)
+          } else {
+            postDoneRef.current = true
+            setError(`Connection error after ${MAX_NETWORK_RETRIES} attempts — please click Retry below.`)
+          }
+        })
+    }
+
+    firePost()
   }, [reportId, reportType, handleComplete])
 
   // ── Poll status every 5 seconds (backup for reconnects / tab switching) ──

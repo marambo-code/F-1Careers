@@ -59,8 +59,17 @@ export async function POST(
 
   console.log(`[strategy/generate] Starting generation for report ${id}`)
 
+  // Hard 55-second timeout — returns a proper JSON error before Vercel's silent kill.
+  // Parallel AI calls should finish in ~20-25s each; this is a safety net.
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Generation timed out (55s) — please retry')), 55_000)
+  )
+
   try {
-    const reportData = await generateStrategyReport(report.questionnaire_responses)
+    const reportData = await Promise.race([
+      generateStrategyReport(report.questionnaire_responses),
+      timeoutPromise,
+    ])
 
     const { error: saveErr } = await service
       .from('reports')
