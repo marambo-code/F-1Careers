@@ -195,19 +195,16 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 800,
+    max_tokens: 1300,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
-  if (res.stop_reason === 'max_tokens') {
-    throw new Error(`Assessment section hit token limit — response length: ${raw.length}`)
-  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
     console.error('[call1/assessment] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
-    throw new Error(`Assessment section failed: ${e instanceof Error ? e.message : e}`)
+    throw new Error(`Assessment section failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
   }
 }
 
@@ -250,19 +247,16 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 900,
+    max_tokens: 1300,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
-  if (res.stop_reason === 'max_tokens') {
-    throw new Error(`Dhanasar section hit token limit — response length: ${raw.length}`)
-  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
     console.error('[call2/dhanasar] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
-    throw new Error(`Dhanasar section failed: ${e instanceof Error ? e.message : e}`)
+    throw new Error(`Dhanasar section failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
   }
 }
 
@@ -301,19 +295,16 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 900,
+    max_tokens: 1300,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
-  if (res.stop_reason === 'max_tokens') {
-    throw new Error(`Evidence section hit token limit — response length: ${raw.length}`)
-  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
     console.error('[call3/evidence] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
-    throw new Error(`Evidence section failed: ${e instanceof Error ? e.message : e}`)
+    throw new Error(`Evidence section failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
   }
 }
 
@@ -363,19 +354,16 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 900,
+    max_tokens: 1300,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
-  if (res.stop_reason === 'max_tokens') {
-    throw new Error(`Action plan section hit token limit — response length: ${raw.length}`)
-  }
   try {
     return JSON.parse(extractJSON(raw))
   } catch (e) {
     console.error('[call4/action] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
-    throw new Error(`Action plan section failed: ${e instanceof Error ? e.message : e}`)
+    throw new Error(`Action plan section failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
   }
 }
 
