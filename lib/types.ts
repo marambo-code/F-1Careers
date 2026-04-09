@@ -159,9 +159,12 @@ export interface StrategyPreview {
 export interface StrategyReport {
   petition_readiness: PetitionReadiness
   resume_evidence_map: ResumeEvidenceItem[]
+  dhanasar_analysis: DhanasarProngAnalysis[]
   draft_proposed_endeavor: string
   expert_letters: ExpertLetter[]
   evidence_playbook: EvidencePlaybookItem[]
+  rfe_risks: RFERiskItem[]
+  o1a_bridge: O1ABridgeAnalysis
   career_visa_assessment: {
     summary: string
     pathways: PathwayAssessment[]
@@ -190,9 +193,35 @@ export interface PetitionReadiness {
 
 export interface ResumeEvidenceItem {
   resume_line: string
+  /** Primary mapping — leads with NIW prong if NIW is recommended pathway */
   criterion: string
+  /** Optional EB-1A cross-reference shown as secondary label */
+  eb1a_connection?: string
   strength: 'Strong' | 'Developing' | 'Gap'
   petition_argument: string
+}
+
+export interface DhanasarProngAnalysis {
+  prong_number: 1 | 2 | 3
+  prong_name: string
+  score: 'Strong' | 'Moderate' | 'Weak' | 'Missing'
+  what_you_have: string
+  critical_gap: string
+  draft_petition_paragraph: string
+}
+
+export interface O1ABridgeAnalysis {
+  applicable: boolean
+  why_relevant: string
+  criteria_met: string[]
+  criteria_gaps: string[]
+  recommended_action: string
+}
+
+export interface RFERiskItem {
+  likely_objection: string
+  likelihood: 'High' | 'Medium' | 'Low'
+  preemptive_strategy: string
 }
 
 export interface ExpertLetter {

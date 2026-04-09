@@ -140,19 +140,21 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 9000,
-    system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1, and H-1B petitions.
+    max_tokens: 16000,
+    system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions. You have won cases at the AAO and trained dozens of associates.
 
-YOUR JOB: Produce a report so specific, so actionable, and so deeply researched that the reader says "this knows my case better than I do."
+YOUR JOB: Produce a report so specific, so actionable, and so legally precise that the reader says "this knows my case better than my own attorney does."
 
 CRITICAL RULES:
-1. Read the resume line by line — extract real evidence, cite real accomplishments
-2. Never use generic advice — everything must be specific to THIS person
-3. Draft proposed endeavor using their ACTUAL job titles, employers, and work
-4. Name real publications, real organizations, real conferences in the playbook
-5. Expert letter guidance must name specific types of people this person can actually reach
-6. Return ONLY valid JSON — no markdown, no code fences
-7. Keep all strings under 300 characters`,
+1. Read the resume line by line — extract real evidence, quote actual lines
+2. Never use generic advice — every recommendation must be specific to THIS person's employers, products, salary, and credentials
+3. Draft petition language using their ACTUAL job titles, employers, products, and national impact framing — it must pass attorney review
+4. The Dhanasar analysis draft_petition_paragraph fields are the most important output — write them as if filing today
+5. For dhanasar_analysis, write each draft_petition_paragraph as if it is the actual brief section — 3-5 complete sentences, attorney quality
+6. Name real publications, real organizations, real conferences in the playbook — never generic placeholders
+7. Use TODAY'S DATE for all calculations — never reference months already past as future targets
+8. Return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON
+9. The o1a_bridge section must be thoughtful — analyze whether they actually need O-1A as a bridge given their specific visa situation`,
     messages: [{ role: 'user', content: prompt }],
   })
 
@@ -170,120 +172,167 @@ Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_
 }
 
 function buildLegacyPrompt(a: StrategyAnswers): string {
+  const today = new Date().toISOString().split('T')[0]
   return `Generate a career and immigration strategy report for:
 - Role: ${a.current_role} at ${a.current_employer}
 - Visa: ${a.visa_status}, Goal: ${a.career_goal}
 - Publications: ${a.publications_count}, Citations: ${a.citations_count}
-${FULL_REPORT_SCHEMA}`
+${buildFullReportSchema(today, 'NIW')}`
 }
 
-const FULL_REPORT_SCHEMA = `
-Return ONLY this JSON object. No markdown. No code fences. All strings under 300 chars.
+function buildFullReportSchema(today: string, recommendedPathway: 'NIW' | 'EB1A' | 'O1A' | 'BOTH'): string {
+  const niwPrimary = recommendedPathway !== 'EB1A'
+  return `
+TODAY'S DATE: ${today} — use this for ALL deadline calculations. Never reference past dates as future.
+
+EVIDENCE MAP LABELING RULE: Since the recommended pathway is ${recommendedPathway}, ALWAYS lead criterion with the ${niwPrimary ? 'NIW Prong' : 'EB-1A criterion'}. If the same evidence also supports the other pathway, note it in eb1a_connection (if NIW primary) or omit (if EB-1A primary). Never mix them as equals in the criterion field.
+
+Return ONLY this JSON object. No markdown. No code fences.
+Long text fields (draft_petition_paragraph, draft_proposed_endeavor, attorney_briefing, petition_argument, what_they_should_say) should be thorough and complete — do NOT truncate.
 
 {
   "petition_readiness": {
     "niw_score": <0-100 integer>,
-    "niw_benchmark": "Compare this score to typical successful NIW filers in their field with a specific percentile or range",
+    "niw_benchmark": "Compare this score to typical successful NIW filers in their specific field/role — cite a percentile range and what it means",
     "eb1a_score": <0-100 integer>,
-    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and timeline",
-    "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | H-1B",
-    "filing_recommendation": "File now with confidence | File in 3 months after X | Wait 6 months and build Y first",
-    "visa_urgency": "Specific urgency note based on visa status and expiration — if OPT STEM, calculate deadline precisely"
+    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and realistic timeline given their current evidence",
+    "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | EB-1A + EB-2 NIW concurrent",
+    "filing_recommendation": "Specific recommendation e.g. 'File NIW I-140 in [MONTH YEAR based on TODAY + X months] after completing Y and Z' — use real future months",
+    "visa_urgency": "Calculate precisely from TODAY (${today}) and their visa expiration. State exact months remaining, premium processing timeline, and hard deadline. Never reference months already passed."
   },
 
   "resume_evidence_map": [
     {
-      "resume_line": "Exact quote or close paraphrase from their resume or work description",
-      "criterion": "Which USCIS criterion this maps to (e.g. NIW Prong 1, EB-1A Critical Role §(viii))",
+      "resume_line": "Exact quote or close paraphrase from their resume",
+      "criterion": "${niwPrimary ? 'Primary NIW Prong (e.g. NIW Prong 2 — Well-Positioned)' : 'Primary EB-1A criterion (e.g. EB-1A Critical Role §(viii))'}",
+      "eb1a_connection": "${niwPrimary ? 'Optional: EB-1A cross-reference if applicable, e.g. Also supports EB-1A Critical Role §(viii)' : 'omit this field'}",
       "strength": "Strong | Developing | Gap",
-      "petition_argument": "How a skilled attorney would use this line in the actual petition — cite the legal standard"
+      "petition_argument": "How a skilled attorney writes this into the actual petition brief — 2-4 sentences citing the legal standard and why this evidence satisfies it"
     }
   ],
 
-  "draft_proposed_endeavor": "Write 3-5 sentences of actual petition-ready language for the proposed endeavor statement. Use their specific job titles, employers, products, and national impact framing. This must be specific enough to submit to an attorney as a first draft.",
+  "dhanasar_analysis": [
+    {
+      "prong_number": 1,
+      "prong_name": "Substantial Merit & National Importance",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Specific evidence from their resume/profile that satisfies this prong — cite actual roles, employers, work",
+      "critical_gap": "The single most important missing piece for this prong — be specific",
+      "draft_petition_paragraph": "Write 3-5 sentences of actual petition brief language an attorney would submit to USCIS arguing this prong. Use their specific work, employer names, and cite national importance framing. This should be ready to use."
+    },
+    {
+      "prong_number": 2,
+      "prong_name": "Well-Positioned to Advance the Endeavor",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Specific evidence — credentials, track record, recognitions that show they are uniquely positioned",
+      "critical_gap": "What would make this prong airtight",
+      "draft_petition_paragraph": "3-5 sentences of attorney-quality petition language for Prong 2. Reference their HBS, specific employers, salary, cross-company track record specifically."
+    },
+    {
+      "prong_number": 3,
+      "prong_name": "National Benefit Justifies Waiving Job Offer Requirement",
+      "score": "Strong | Moderate | Weak | Missing",
+      "what_you_have": "Evidence that the US uniquely benefits from waiving the job offer requirement for this person",
+      "critical_gap": "What USCIS would most likely reject and why",
+      "draft_petition_paragraph": "3-5 sentences for Prong 3 — the hardest prong to argue. Explain why no US worker pipeline replicates this person's exact expertise. Cite economic data or policy if relevant."
+    }
+  ],
+
+  "draft_proposed_endeavor": "Write 4-6 sentences of petition-ready proposed endeavor language. Use their specific job titles, employers, products worked on, and national impact. This must pass attorney review. Include: what they will do, how it advances national interest, why their specific background makes them uniquely positioned, and the broader impact on US competitiveness.",
 
   "expert_letters": [
     {
       "letter_number": 1,
-      "who": "Specific type of person — e.g. VP of Partnerships at Apple, not just 'employer'",
-      "what_they_should_say": "Exactly what this letter needs to establish — cite the USCIS standard it addresses",
-      "how_to_approach": "Practical guidance on how to request this letter given this person's situation"
+      "who": "Specific person type with title and org — e.g. Senior Director of Partnerships at Apple Inc who supervised Ian's BD programs",
+      "what_they_should_say": "Exactly what this letter must establish to satisfy which USCIS standard — cite the prong or criterion. Be specific about what facts and claims the letter needs.",
+      "how_to_approach": "Step-by-step guidance: how to frame the ask, offer to draft it, what to include in the ask email"
     }
   ],
 
   "evidence_playbook": [
     {
-      "gap": "Specific gap name",
+      "gap": "Specific named gap tied to their actual profile and recommended pathway",
       "priority": "High | Medium | Low",
-      "specific_action": "Exactly what to do — not generic, not vague",
-      "named_targets": "Real publication names, real organizations, real conferences specific to their field",
-      "deadline": "Realistic timeframe, e.g. '30 days' or '60 days before filing'"
+      "specific_action": "Exactly what to do — specific enough to execute today without clarification",
+      "named_targets": "Real publication names, real organizations, real conferences relevant to their exact field",
+      "deadline": "Specific timeframe relative to TODAY (${today}) e.g. 'by [Month Year]' or 'within 30 days'"
     }
   ],
 
+  "rfe_risks": [
+    {
+      "likely_objection": "Specific USCIS objection this petitioner is most likely to face — quote the legal standard USCIS would cite",
+      "likelihood": "High | Medium | Low",
+      "preemptive_strategy": "Exactly what to include in the initial petition filing to preempt this objection before USCIS asks"
+    }
+  ],
+
+  "o1a_bridge": {
+    "applicable": <true if F-1 OPT/OPT STEM with urgency OR if they need bridge status, false otherwise>,
+    "why_relevant": "Why O-1A matters for this specific person given their visa situation and timeline",
+    "criteria_met": ["List O-1A criteria this person already meets based on their profile — be specific"],
+    "criteria_gaps": ["List O-1A criteria they are close to but need to build"],
+    "recommended_action": "Should they file O-1A now, in parallel with NIW, or skip it — and exactly why"
+  },
+
   "career_visa_assessment": {
-    "summary": "2-paragraph honest, deeply personalized assessment. Reference their specific employers, role, salary, and field. Be precise about what makes this case strong or weak.",
+    "summary": "2-paragraph honest, deeply personalized assessment. Reference their specific employers, role, salary, and field. Be precise about strengths and weaknesses. Second paragraph should address their biggest concern if they stated one.",
     "pathways": [
-      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific to this person's evidence and gaps" },
-      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific to this person's evidence and gaps" }
+      { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific rationale referencing their actual evidence" },
+      { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific rationale with timeline" }
     ]
   },
 
   "gap_analysis": [
     {
-      "gap": "Specific gap tied to their actual profile",
+      "gap": "Specific gap tied to their actual profile and the recommended pathway",
       "materiality": "High | Medium | Low",
-      "action": "Specific actionable step with named resources"
+      "action": "Specific actionable step with named resources — not generic advice"
     }
   ],
 
   "sprint_30_day": [
-    {
-      "week": "Week 1",
-      "actions": ["Specific action 1", "Specific action 2", "Specific action 3"]
-    },
-    {
-      "week": "Week 2",
-      "actions": ["Specific action 1", "Specific action 2"]
-    },
-    {
-      "week": "Week 3",
-      "actions": ["Specific action 1", "Specific action 2"]
-    },
-    {
-      "week": "Week 4",
-      "actions": ["Specific action 1 — submit/send/complete something concrete"]
-    }
+    { "week": "Week 1", "actions": ["Action 1 — specific to their situation", "Action 2", "Action 3"] },
+    { "week": "Week 2", "actions": ["Action 1", "Action 2"] },
+    { "week": "Week 3", "actions": ["Action 1", "Action 2"] },
+    { "week": "Week 4", "actions": ["Action 1 — deliver or submit something concrete"] }
   ],
 
   "roadmap": {
-    "three_month": ["Specific action tied to their actual situation", "Another specific action", "Third action"],
-    "six_month": ["Specific action", "Another action", "Third action"],
-    "twelve_month": ["Specific action", "Another action", "Third action"]
+    "three_month": ["Specific milestone for this person", "Another milestone", "Third milestone"],
+    "six_month": ["Specific milestone", "Another milestone", "Third milestone"],
+    "twelve_month": ["Specific milestone", "Another milestone", "Third milestone"]
   },
 
-  "attorney_briefing": "Write a concise attorney briefing paragraph this person can email to an immigration attorney today. Include: recommended pathway, 3 strongest evidence pieces, 2 key gaps, visa urgency, and ask for a consultation to review readiness for filing.",
+  "attorney_briefing": "Write a ready-to-send paragraph (3-5 sentences) for emailing an immigration attorney. Include: their name/role/employer, recommended pathway, 3 strongest evidence pieces, 2 critical gaps, visa status and exact expiration date, desired filing timeline, and a clear call to action. This should be professional enough to send immediately.",
 
-  "recommended_next_step": "Single most important thing in next 30 days, hyper-specific to this person",
+  "recommended_next_step": "The single most important action this person must take in the next 7 days — hyper-specific, not generic. Name the exact thing, the exact target, and why it unblocks everything else.",
 
   "disclaimer": "This report is a career strategy tool and does not constitute legal advice. Consult a licensed immigration attorney before filing any petition."
 }`
+}
 
 function buildFullReportPrompt(
   a: StrategyAnswers,
   eb1a: ReturnType<typeof computeEB1AScore>,
   niw: ReturnType<typeof computeNIWScore>,
 ): string {
+  const today = new Date().toISOString().split('T')[0] // e.g. 2026-04-09
+  const recommendedPathway: 'NIW' | 'EB1A' | 'O1A' | 'BOTH' =
+    niw.score >= eb1a.score ? 'NIW' : eb1a.score > 70 ? 'EB1A' : 'NIW'
+
   const resumeSection = a.resume_text
-    ? `\n═══ RESUME (READ EVERY LINE — extract real evidence) ═══\n${a.resume_text.slice(0, 6000)}\n`
+    ? `\n═══ RESUME (READ EVERY LINE — extract real evidence, quote lines exactly) ═══\n${a.resume_text.slice(0, 6000)}\n`
     : ''
 
   return `Generate a complete, attorney-quality career and immigration strategy report for this candidate.
+TODAY IS ${today}. Use this date for ALL deadline and urgency calculations.
 
 ═══ CANDIDATE PROFILE ═══
+Name: ${a.full_name || 'Not provided'}
 Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}
 Field: ${a.field_of_work} — ${a.subfield} | Experience: ${a.years_in_field} years
-Visa: ${a.visa_status}${a.visa_expiration ? ` (expires: ${a.visa_expiration})` : ''} | Filing target: ${a.filing_timeline} months
+Visa: ${a.visa_status}${a.visa_expiration ? ` (expires: ${a.visa_expiration})` : ''} | Filing target: ${a.filing_timeline} months from today
 Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}
 Employer support: ${a.employer_support} | Attorney consulted: ${a.attorney_consulted}
 Main concern: ${a.biggest_concern || 'Not provided'}
@@ -297,7 +346,7 @@ ${a.proposed_endeavor || 'Not provided'}
 ═══ EB-1A CRITERIA SELF-ASSESSMENT ═══
 Pre-computed score: ${eb1a.score}/100 | Criteria met (≥ Moderate): ${eb1a.metCount}/10
 ${criteriaBlock(a)}
-Met: ${eb1a.metCriteria.join(', ') || 'None at threshold yet'}
+Met criteria: ${eb1a.metCriteria.join(', ') || 'None at threshold yet'}
 
 ═══ NIW DHANASAR PRONGS ═══
 Pre-computed score: ${niw.score}/100 (${niw.label})
@@ -305,5 +354,5 @@ Prong 1 — Substantial Merit & National Importance: ${STRENGTH[a.niw_prong1 ?? 
 Prong 2 — Well-Positioned to Advance Endeavor:     ${STRENGTH[a.niw_prong2 ?? 2]} (${a.niw_prong2 ?? 2}/4)
 Prong 3 — Benefit Justifies Waiving Job Offer:     ${STRENGTH[a.niw_prong3 ?? 2]} (${a.niw_prong3 ?? 2}/4)
 
-${FULL_REPORT_SCHEMA}`
+${buildFullReportSchema(today, recommendedPathway)}`
 }
