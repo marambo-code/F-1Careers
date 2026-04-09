@@ -122,11 +122,11 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, retries = 2): P
 const SYSTEM = `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions.
 
 RULES:
-1. Every field must reference the candidate's ACTUAL employers, roles, products, salary, and credentials — never generic placeholders
-2. Draft petition language must be attorney-quality and ready to file
-3. Return ONLY valid JSON — no markdown, no code fences, no text outside the JSON
-4. You MUST complete the entire JSON object — never truncate before closing all braces
-5. Use the TODAY date provided for ALL deadline and date calculations`
+1. Reference the candidate's ACTUAL employers, roles, salary — never generic placeholders
+2. Return ONLY valid JSON — no markdown, no code fences, no text outside the JSON
+3. You MUST close ALL braces and complete the JSON before stopping
+4. BE CONCISE — keep every string field under 120 characters. Do not pad or repeat
+5. Use the TODAY date for all deadline calculations`
 
 // ─── Candidate context block (shared across all calls) ────────────────────────
 
@@ -195,7 +195,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1800,
+    max_tokens: 800,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -250,7 +250,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2000,
+    max_tokens: 900,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -301,7 +301,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2000,
+    max_tokens: 900,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -363,7 +363,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2000,
+    max_tokens: 900,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -414,13 +414,14 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   console.log(`[strategy-engine] Starting 4 parallel calls. today=${today}, pathway=${recommendedPathway}`)
 
-  // All 4 calls run simultaneously — total time = slowest single call (~45s).
-  // Each call has individual retry logic (2 attempts, 3s delay on retry).
+  // All 4 calls run simultaneously — total time = slowest single call (~25s at 30 tok/s).
+  // No retry wrapper — retries compound timing on slow API days; the 55s route timeout
+  // catches genuine failures and returns a proper error to the client.
   const [part1, part2, part3, part4] = await Promise.all([
-    withRetry(() => callAssessment(ctx), 'callAssessment'),
-    withRetry(() => callDhanasar(ctx), 'callDhanasar'),
-    withRetry(() => callEvidence(ctx, recommendedPathway), 'callEvidence'),
-    withRetry(() => callActionPlan(ctx, today), 'callActionPlan'),
+    callAssessment(ctx),
+    callDhanasar(ctx),
+    callEvidence(ctx, recommendedPathway),
+    callActionPlan(ctx, today),
   ])
 
   console.log('[strategy-engine] All 4 calls complete — merging report')

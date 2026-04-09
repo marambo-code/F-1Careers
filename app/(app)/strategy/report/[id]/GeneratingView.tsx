@@ -92,14 +92,15 @@ export default function GeneratingView({ reportId, reportType }: Props) {
           // 'generating' = another request already in flight — poll will catch it
         })
         .catch(e => {
-          // "Failed to fetch" = network error (connection drop, Vercel timeout kill, etc.)
-          // Auto-retry up to MAX_NETWORK_RETRIES times with 3s delay before showing error
+          // "Failed to fetch" = true network error (no response at all — different from a
+          // server error like "timed out" which comes back as b.error via .then()).
+          // Only retry on true network errors, not on server-reported failures.
           if (attempt < MAX_NETWORK_RETRIES) {
-            console.warn(`[GeneratingView] Network error attempt ${attempt}, retrying in 3s:`, String(e))
-            setTimeout(firePost, 3000)
+            console.warn(`[GeneratingView] Network error attempt ${attempt}, retrying in 4s:`, String(e))
+            setTimeout(firePost, 4000)
           } else {
             postDoneRef.current = true
-            setError(`Connection error after ${MAX_NETWORK_RETRIES} attempts — please click Retry below.`)
+            setError(`Network error — please check your connection and click Retry below.`)
           }
         })
     }

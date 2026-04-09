@@ -7,14 +7,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 export async function POST(req: Request) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    console.error('[stripe/webhook] STRIPE_WEBHOOK_SECRET env var is not set')
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
+  }
+
   const body = await req.text()
-  const sig = req.headers.get('stripe-signature')!
+  const sig = req.headers.get('stripe-signature')
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+  }
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err) {
-    console.error('Webhook signature verification failed:', err)
+    // Most common cause: STRIPE_WEBHOOK_SECRET in Vercel doesn't match the signing secret
+    // shown in Stripe Dashboard → Developers → Webhooks → [your endpoint] → Signing secret
+    console.error('[stripe/webhook] Signature verification failed — STRIPE_WEBHOOK_SECRET likely wrong in Vercel env vars:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
