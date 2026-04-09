@@ -1,4 +1,4 @@
-import { waitUntil } from '@vercel/functions'
+import { after } from 'next/server'
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyReport } from '@/lib/ai/strategy-engine'
@@ -23,7 +23,6 @@ export async function POST(
 
   const service = createServiceClient()
 
-  // Include updated_at so we can detect stale 'generating' rows
   const { data: report, error: fetchErr } = await service
     .from('reports')
     .select('id, user_id, status, questionnaire_responses, updated_at')
@@ -35,21 +34,18 @@ export async function POST(
 
   if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
 
-  // Idempotency: if already generating but NOT stale, let client keep polling.
-  // If it has been stuck for > 8 minutes (prior failed run), restart it.
+  // Allow retry if stuck generating for more than 8 minutes (prior failed run)
   if (report.status === 'generating') {
     const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
-    const STALE_MS = 8 * 60 * 1000 // 8 minutes
-    if (ageMs < STALE_MS) {
+    if (ageMs < 8 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    console.log(`[strategy/generate] Report ${id} stuck generating for ${Math.round(ageMs / 60000)}m — restarting`)
-    // Fall through to restart
+    console.log(`[strategy/generate] Report ${id} stuck for ${Math.round(ageMs / 60000)}m — restarting`)
   }
 
   if (!report.questionnaire_responses) {
     console.error(`[strategy/generate] Report ${id} has no questionnaire_responses`)
-    return NextResponse.json({ error: 'No questionnaire data found. Please re-submit the form.' }, { status: 422 })
+    return NextResponse.json({ error: 'No questionnaire data found.' }, { status: 422 })
   }
 
   const { error: lockErr } = await service
@@ -65,36 +61,37 @@ export async function POST(
   const userEmail = user.email
   const questionnaire = report.questionnaire_responses
 
-  waitUntil(
-    (async () => {
-      try {
-        console.log(`[strategy/generate] Starting background generation for report ${id}`)
-        const reportData = await generateStrategyReport(questionnaire)
+  // after() is Next.js 15's native API for background work after the response is sent.
+  // It keeps the serverless function alive until the promise resolves (up to maxDuration).
+  // No external package needed — built into next/server since Next.js 15.1.
+  after(async () => {
+    try {
+      console.log(`[strategy/generate] Starting generation for report ${id}`)
+      const reportData = await generateStrategyReport(questionnaire)
 
-        const { error: saveErr } = await service
-          .from('reports')
-          .update({ status: 'complete', report_data: reportData })
-          .eq('id', id)
+      const { error: saveErr } = await service
+        .from('reports')
+        .update({ status: 'complete', report_data: reportData })
+        .eq('id', id)
 
-        if (saveErr) {
-          console.error('[strategy/generate] Failed to save report:', saveErr.message)
-          await markError(id)
-          return
-        }
-
-        console.log(`[strategy/generate] Generation complete for report ${id}`)
-        if (userEmail) {
-          sendStrategyReportReady(userEmail, id).catch(e =>
-            console.error('[email] strategy notify failed:', e)
-          )
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Unknown error'
-        console.error('[strategy/generate] Generation failed for report', id, ':', msg)
+      if (saveErr) {
+        console.error('[strategy/generate] Failed to save:', saveErr.message)
         await markError(id)
+        return
       }
-    })()
-  )
+
+      console.log(`[strategy/generate] Complete for report ${id}`)
+      if (userEmail) {
+        sendStrategyReportReady(userEmail, id).catch(e =>
+          console.error('[email] notify failed:', e)
+        )
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error('[strategy/generate] FAILED for report', id, ':', msg)
+      await markError(id)
+    }
+  })
 
   return NextResponse.json({ status: 'generating' })
 }
