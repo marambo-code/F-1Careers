@@ -119,7 +119,7 @@ export async function generateRFEReport(
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 10000,
+    max_tokens: 4000,
     system: `You are a senior immigration attorney with 15+ years handling USCIS Requests for Evidence.
 
 CRITICAL RULES:
