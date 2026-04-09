@@ -140,7 +140,7 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 16000,
+    max_tokens: 10000,
     system: `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions. You have won cases at the AAO and trained dozens of associates.
 
 YOUR JOB: Produce a report so specific, so actionable, and so legally precise that the reader says "this knows my case better than my own attorney does."

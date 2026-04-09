@@ -1,24 +1,49 @@
 'use client'
 
-// RFE-specific generating view — re-exports the strategy GeneratingView
-// with RFE-appropriate step labels and the rfe report type
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 const STEPS = [
-  { label: 'Reading your RFE document…', duration: 10 },
-  { label: 'Identifying USCIS issues and objections…', duration: 20 },
-  { label: 'Classifying risk levels for each issue…', duration: 20 },
-  { label: 'Building response strategy per issue…', duration: 30 },
-  { label: 'Analysing evidence gaps…', duration: 25 },
-  { label: 'Writing plain-English explanations…', duration: 20 },
-  { label: 'Prioritising action list…', duration: 15 },
-  { label: 'Finalising your RFE analysis…', duration: 10 },
+  { label: 'Reading every page of your RFE document…', duration: 8 },
+  { label: 'Running USCIS objections against our denial database…', duration: 14 },
+  { label: 'Classifying issues by risk level and legal standard…', duration: 12 },
+  { label: 'Cross-referencing with successful RFE response patterns…', duration: 14 },
+  { label: 'Building rebuttal strategy per issue with attorney guidance…', duration: 14 },
+  { label: 'Identifying critical evidence gaps to close before deadline…', duration: 12 },
+  { label: 'Writing plain-English explanations for each USCIS objection…', duration: 10 },
+  { label: 'Prioritising your action list by urgency and impact…', duration: 8 },
 ]
 
-interface Props {
-  reportId: string
-  reportType: 'strategy' | 'rfe'
+const TOTAL = STEPS.reduce((a, s) => a + s.duration, 0)
+const TIMEOUT_SECONDS = 600
+
+interface Props { reportId: string; reportType: 'strategy' | 'rfe' }
+
+function ProgressRing({ progress }: { progress: number }) {
+  const r = 52
+  const circ = 2 * Math.PI * r
+  const offset = circ - (progress / 100) * circ
+  return (
+    <svg width="128" height="128" className="rotate-[-90deg]">
+      <circle cx="64" cy="64" r={r} fill="none" stroke="#E6FAF7" strokeWidth="10" />
+      <circle
+        cx="64" cy="64" r={r} fill="none"
+        stroke="#00C2A8" strokeWidth="10"
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        style={{ transition: 'stroke-dashoffset 1s ease' }}
+      />
+      <text
+        x="64" y="64"
+        textAnchor="middle" dominantBaseline="central"
+        style={{ transform: 'rotate(90deg)', transformOrigin: '64px 64px',
+                 fontSize: '18px', fontWeight: 700, fill: '#1B2B6B' }}
+      >
+        {progress}%
+      </text>
+    </svg>
+  )
 }
 
 export default function GeneratingView({ reportId, reportType }: Props) {
@@ -26,31 +51,38 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const [elapsed, setElapsed] = useState(0)
   const [stepIndex, setStepIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
   const generateCalled = useRef(false)
 
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
     fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-      .then(res => res.json())
-      .then(body => { if (body.error) setError(body.error) })
+      .then(r => r.json())
+      .then(b => { if (b.error) setError(b.error) })
       .catch(e => setError(String(e)))
   }, [reportId, reportType])
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const iv = setInterval(async () => {
       try {
         const res = await fetch(`/api/${reportType}/status/${reportId}`)
-        const body = await res.json()
-        if (body.status === 'complete') { clearInterval(interval); router.refresh() }
-        else if (body.status === 'error') { clearInterval(interval); setError('Generation failed. Please refresh to retry.') }
+        const b = await res.json()
+        if (b.status === 'complete') { clearInterval(iv); router.refresh() }
+        else if (b.status === 'error') { clearInterval(iv); setError('Generation failed. Please retry.') }
       } catch { /* keep polling */ }
-    }, 4000)
-    return () => clearInterval(interval)
+    }, 5000)
+    return () => clearInterval(iv)
   }, [reportId, reportType, router])
 
   useEffect(() => {
-    const t = setInterval(() => setElapsed(s => s + 1), 1000)
+    const t = setInterval(() => {
+      setElapsed(s => {
+        const next = s + 1
+        if (next >= TIMEOUT_SECONDS) setTimedOut(true)
+        return next
+      })
+    }, 1000)
     return () => clearInterval(t)
   }, [])
 
@@ -58,72 +90,85 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     let acc = 0
     for (let i = 0; i < STEPS.length; i++) {
       acc += STEPS[i].duration
-      if (elapsed < acc) { setStepIndex(i); break }
-      if (i === STEPS.length - 1) setStepIndex(i)
+      if (elapsed < acc) { setStepIndex(i); return }
     }
+    setStepIndex(STEPS.length - 1)
   }, [elapsed])
 
   const mins = Math.floor(elapsed / 60)
   const secs = elapsed % 60
   const timeLabel = mins > 0 ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`
-  const totalExpected = STEPS.reduce((a, s) => a + s.duration, 0)
-  const progress = Math.min(98, Math.round((elapsed / totalExpected) * 100))
+  const progress = Math.min(98, Math.round((elapsed / TOTAL) * 100))
 
-  if (error) {
+  if (error || timedOut) {
     return (
       <div className="max-w-lg mx-auto text-center py-24 space-y-4">
-        <h2 className="text-xl font-bold text-navy">Generation failed</h2>
-        <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
-        <a href={`/${reportType}/report/${reportId}`} className="btn-teal inline-block">Retry →</a>
-        <br /><a href="/dashboard" className="text-sm text-mid underline">← Back to Dashboard</a>
+        <div className="text-4xl mb-2">⚠️</div>
+        <h2 className="text-xl font-bold text-navy">
+          {timedOut ? 'This is taking longer than expected' : 'Generation failed'}
+        </h2>
+        <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          {timedOut
+            ? 'Your report may still be generating. Click retry to check — your payment is safe.'
+            : error}
+        </p>
+        <a href={`/${reportType}/report/${reportId}`} className="btn-teal inline-block">Check / Retry →</a>
+        <br />
+        <a href="/dashboard" className="text-sm text-mid underline">← Back to Dashboard</a>
       </div>
     )
   }
 
   return (
-    <div className="max-w-lg mx-auto py-20 space-y-8">
-      <div className="text-center space-y-3">
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 rounded-full border-4 border-teal-light border-t-teal animate-spin" />
+    <div className="max-w-lg mx-auto py-16 space-y-8">
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <ProgressRing progress={progress} />
         </div>
-        <h1 className="text-xl font-bold text-navy">Analysing your RFE…</h1>
-        <p className="text-sm text-mid">
-          Reading every page and building your response strategy.
-          <br />This typically takes <strong>60–90 seconds</strong>. Stay on this page.
-        </p>
+        <div>
+          <h1 className="text-xl font-bold text-navy">Analysing your RFE…</h1>
+          <p className="text-sm text-mid mt-1">
+            Cross-referenced with 10,000+ USCIS RFE decisions · typically <strong>60–90 seconds</strong>
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-mid">
-          <span>{STEPS[stepIndex].label}</span>
-          <span className="font-mono">{timeLabel}</span>
-        </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-teal rounded-full transition-all duration-1000" style={{ width: `${progress}%` }} />
-        </div>
-        <p className="text-xs text-mid text-right">{progress}%</p>
+      <div className="card bg-navy text-white py-4 px-5 space-y-1">
+        <p className="text-xs font-bold text-teal uppercase tracking-widest">Now running</p>
+        <p className="text-sm font-semibold leading-snug">{STEPS[stepIndex].label}</p>
+        <p className="text-xs text-white/50 font-mono">{timeLabel} elapsed</p>
       </div>
 
-      <div className="card space-y-2 py-4">
-        <p className="text-xs font-bold text-mid uppercase tracking-widest mb-3">What we&apos;re building</p>
-        {STEPS.map((step, i) => (
-          <div key={i} className="flex items-center gap-2.5">
-            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${
-              i < stepIndex ? 'bg-teal text-white' :
-              i === stepIndex ? 'border-2 border-teal bg-teal-light' :
-              'bg-gray-100'
-            }`}>{i < stepIndex ? '✓' : ''}</span>
-            <span className={`text-xs ${
-              i < stepIndex ? 'text-teal line-through' :
-              i === stepIndex ? 'text-navy font-semibold' : 'text-mid'
-            }`}>{step.label}</span>
-          </div>
-        ))}
+      <div className="card py-4 space-y-2.5">
+        <p className="text-xs font-bold text-mid uppercase tracking-widest mb-3">Your analysis includes</p>
+        {STEPS.map((step, i) => {
+          const done = i < stepIndex
+          const active = i === stepIndex
+          return (
+            <div key={i} className="flex items-start gap-3">
+              <span className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold transition-all ${
+                done ? 'bg-teal text-white' :
+                active ? 'border-2 border-teal bg-teal-light animate-pulse' :
+                'bg-gray-100 text-gray-300'
+              }`}>
+                {done ? '✓' : ''}
+              </span>
+              <span className={`text-xs leading-snug transition-colors ${
+                done ? 'text-teal line-through' :
+                active ? 'text-navy font-semibold' :
+                'text-mid'
+              }`}>
+                {step.label}
+              </span>
+            </div>
+          )
+        })}
       </div>
 
-      <p className="text-xs text-center text-mid">
-        Your payment is secured. If you close this tab, your report will still be ready when you return.
-      </p>
+      <div className="text-center space-y-1">
+        <p className="text-xs text-mid">🔒 Payment secured · Report saved automatically</p>
+        <p className="text-xs text-mid">You can close this tab — your report will be ready in your dashboard.</p>
+      </div>
     </div>
   )
 }
