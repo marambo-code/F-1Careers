@@ -1,15 +1,10 @@
-import { after } from 'next/server'
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyReport } from '@/lib/ai/strategy-engine'
 import { sendStrategyReportReady } from '@/lib/email'
 
+// Allow this function to run up to 5 minutes (Vercel Pro required for > 60s)
 export const maxDuration = 300
-
-async function markError(id: string) {
-  const service = createServiceClient()
-  try { await service.from('reports').update({ status: 'error' }).eq('id', id) } catch { /* ignore */ }
-}
 
 export async function POST(
   _req: Request,
@@ -30,68 +25,62 @@ export async function POST(
     .eq('user_id', user.id)
     .single()
 
-  if (fetchErr || !report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (fetchErr || !report) {
+    return NextResponse.json({ error: 'Report not found' }, { status: 404 })
+  }
 
-  if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
+  // Already done — return immediately
+  if (report.status === 'complete') {
+    return NextResponse.json({ status: 'complete' })
+  }
 
-  // Allow retry if stuck generating for more than 8 minutes (prior failed run)
+  // Already generating — only block retry if it started less than 8 minutes ago
   if (report.status === 'generating') {
     const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
     if (ageMs < 8 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    console.log(`[strategy/generate] Report ${id} stuck for ${Math.round(ageMs / 60000)}m — restarting`)
+    // Stale — fall through and restart
+    console.log(`[strategy/generate] Restarting stale report ${id} (${Math.round(ageMs / 60000)}min old)`)
   }
 
   if (!report.questionnaire_responses) {
-    console.error(`[strategy/generate] Report ${id} has no questionnaire_responses`)
-    return NextResponse.json({ error: 'No questionnaire data found.' }, { status: 422 })
+    return NextResponse.json({ error: 'No questionnaire data — please resubmit the form.' }, { status: 422 })
   }
 
-  const { error: lockErr } = await service
-    .from('reports')
-    .update({ status: 'generating', report_data: null })
-    .eq('id', id)
+  // Lock the row
+  await service.from('reports').update({ status: 'generating', report_data: null }).eq('id', id)
 
-  if (lockErr) {
-    console.error('[strategy/generate] Failed to lock report:', lockErr.message)
-    return NextResponse.json({ error: 'Failed to start generation' }, { status: 500 })
-  }
+  console.log(`[strategy/generate] Starting generation for report ${id}`)
 
-  const userEmail = user.email
-  const questionnaire = report.questionnaire_responses
+  try {
+    const reportData = await generateStrategyReport(report.questionnaire_responses)
 
-  // after() is Next.js 15's native API for background work after the response is sent.
-  // It keeps the serverless function alive until the promise resolves (up to maxDuration).
-  // No external package needed — built into next/server since Next.js 15.1.
-  after(async () => {
-    try {
-      console.log(`[strategy/generate] Starting generation for report ${id}`)
-      const reportData = await generateStrategyReport(questionnaire)
+    const { error: saveErr } = await service
+      .from('reports')
+      .update({ status: 'complete', report_data: reportData })
+      .eq('id', id)
 
-      const { error: saveErr } = await service
-        .from('reports')
-        .update({ status: 'complete', report_data: reportData })
-        .eq('id', id)
-
-      if (saveErr) {
-        console.error('[strategy/generate] Failed to save:', saveErr.message)
-        await markError(id)
-        return
-      }
-
-      console.log(`[strategy/generate] Complete for report ${id}`)
-      if (userEmail) {
-        sendStrategyReportReady(userEmail, id).catch(e =>
-          console.error('[email] notify failed:', e)
-        )
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      console.error('[strategy/generate] FAILED for report', id, ':', msg)
-      await markError(id)
+    if (saveErr) {
+      console.error('[strategy/generate] DB save failed:', saveErr.message)
+      await service.from('reports').update({ status: 'error' }).eq('id', id)
+      return NextResponse.json({ error: `Failed to save report: ${saveErr.message}` }, { status: 500 })
     }
-  })
 
-  return NextResponse.json({ status: 'generating' })
+    console.log(`[strategy/generate] Complete for report ${id}`)
+
+    if (user.email) {
+      sendStrategyReportReady(user.email, id).catch(e =>
+        console.error('[email] notify failed:', e)
+      )
+    }
+
+    return NextResponse.json({ status: 'complete' })
+
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[strategy/generate] FAILED for report', id, ':', msg)
+    await service.from('reports').update({ status: 'error' }).eq('id', id)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

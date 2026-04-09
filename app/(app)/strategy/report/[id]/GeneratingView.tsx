@@ -80,34 +80,17 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     if (generateCalled.current) return
     generateCalled.current = true
 
-    // 1. Check current status immediately (handles returning users where
-    //    generation may already be complete or errored)
-    fetch(`/api/${reportType}/status/${reportId}`)
+    // Fire the generate POST. The route runs the AI synchronously and returns
+    // { status: 'complete' } when done, or { error: '...' } on failure.
+    // The polling loop below is a backup that handles reconnects / tab switching.
+    fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
       .then(r => r.json())
       .then(b => {
-        if (b.status === 'complete') { handleComplete(); return }
-        if (b.status === 'error') { setError('Generation failed — click Retry below.'); return }
-
-        // Still pending/generating — fire the generate POST
-        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-          .then(r => r.json())
-          .then(b2 => {
-            if (b2.status === 'complete') handleComplete()
-            else if (b2.error) setError(b2.error)
-            // 'generating' → polling loop handles the rest
-          })
-          .catch(e => setError(`Network error: ${String(e)}`))
+        if (b.status === 'complete') handleComplete()
+        else if (b.error) setError(b.error)
+        // 'generating' means another request is already running — poll handles it
       })
-      .catch(() => {
-        // Status check failed — fall back to just firing the POST
-        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-          .then(r => r.json())
-          .then(b2 => {
-            if (b2.status === 'complete') handleComplete()
-            else if (b2.error) setError(b2.error)
-          })
-          .catch(e => setError(`Network error: ${String(e)}`))
-      })
+      .catch(e => setError(`Network error: ${String(e)}`))
   }, [reportId, reportType, handleComplete])
 
   // ── Poll status every 5 seconds ───────────────────────────────────

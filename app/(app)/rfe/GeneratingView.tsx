@@ -70,29 +70,13 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     if (generateCalled.current) return
     generateCalled.current = true
 
-    fetch(`/api/${reportType}/status/${reportId}`)
+    fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
       .then(r => r.json())
       .then(b => {
-        if (b.status === 'complete') { handleComplete(); return }
-        if (b.status === 'error') { setError('Generation failed — click Retry below.'); return }
-
-        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-          .then(r => r.json())
-          .then(b2 => {
-            if (b2.status === 'complete') handleComplete()
-            else if (b2.error) setError(b2.error)
-          })
-          .catch(e => setError(`Network error: ${String(e)}`))
+        if (b.status === 'complete') handleComplete()
+        else if (b.error) setError(b.error)
       })
-      .catch(() => {
-        fetch(`/api/${reportType}/generate/${reportId}`, { method: 'POST' })
-          .then(r => r.json())
-          .then(b2 => {
-            if (b2.status === 'complete') handleComplete()
-            else if (b2.error) setError(b2.error)
-          })
-          .catch(e => setError(`Network error: ${String(e)}`))
-      })
+      .catch(e => setError(`Network error: ${String(e)}`))
   }, [reportId, reportType, handleComplete])
 
   // ── Poll every 5 seconds ──────────────────────────────────────────

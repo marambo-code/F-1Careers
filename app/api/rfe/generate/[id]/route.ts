@@ -1,4 +1,3 @@
-import { after } from 'next/server'
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEReport } from '@/lib/ai/rfe-analyzer'
@@ -6,11 +5,6 @@ import { sendRFEReportReady } from '@/lib/email'
 import type { RFEAnswers } from '@/lib/types'
 
 export const maxDuration = 300
-
-async function markError(id: string) {
-  const service = createServiceClient()
-  try { await service.from('reports').update({ status: 'error' }).eq('id', id) } catch { /* ignore */ }
-}
 
 export async function POST(
   _req: Request,
@@ -31,90 +25,79 @@ export async function POST(
     .eq('user_id', user.id)
     .single()
 
-  if (fetchErr || !report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (fetchErr || !report) {
+    return NextResponse.json({ error: 'Report not found' }, { status: 404 })
+  }
 
-  if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
+  if (report.status === 'complete') {
+    return NextResponse.json({ status: 'complete' })
+  }
 
   if (report.status === 'generating') {
     const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
     if (ageMs < 8 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    console.log(`[rfe/generate] Report ${id} stuck for ${Math.round(ageMs / 60000)}m — restarting`)
+    console.log(`[rfe/generate] Restarting stale report ${id} (${Math.round(ageMs / 60000)}min old)`)
   }
 
-  const { error: lockErr } = await service
-    .from('reports')
-    .update({ status: 'generating', report_data: null })
-    .eq('id', id)
+  await service.from('reports').update({ status: 'generating', report_data: null }).eq('id', id)
 
-  if (lockErr) {
-    console.error('[rfe/generate] Failed to lock report:', lockErr.message)
-    return NextResponse.json({ error: 'Failed to start generation' }, { status: 500 })
-  }
+  console.log(`[rfe/generate] Starting generation for report ${id}`)
 
-  const userEmail = user.email
-  const qr = report.questionnaire_responses as RFEAnswers | null
-  const existingRfeText = report.rfe_document_text as string | null
-  const rfePath = report.rfe_document_path as string | null
-
-  after(async () => {
-    try {
-      console.log(`[rfe/generate] Starting generation for report ${id}`)
-
-      let rfeText = existingRfeText
-      if (!rfeText) {
-        if (!rfePath) {
-          console.error('[rfe/generate] No document found for report', id)
-          await markError(id)
-          return
-        }
-        const { data: fileData, error: dlErr } = await service.storage
-          .from('rfe-documents')
-          .download(rfePath)
-        if (dlErr || !fileData) {
-          console.error('[rfe/generate] Could not download document for report', id)
-          await markError(id)
-          return
-        }
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const pdfParse = require('pdf-parse')
-        const parsed = await pdfParse(Buffer.from(await fileData.arrayBuffer()))
-        rfeText = parsed.text.slice(0, 50000) as string
-        try {
-          await service.from('reports').update({ rfe_document_text: rfeText }).eq('id', id)
-        } catch { /* non-fatal */ }
+  try {
+    // Re-extract PDF text if missing
+    let rfeText = report.rfe_document_text as string | null
+    if (!rfeText) {
+      const rfePath = report.rfe_document_path as string | null
+      if (!rfePath) {
+        await service.from('reports').update({ status: 'error' }).eq('id', id)
+        return NextResponse.json({ error: 'No RFE document found — please re-upload.' }, { status: 422 })
       }
-
-      const reportData = await generateRFEReport(rfeText, {
-        petitionType: qr?.petition_type,
-        rfeField: qr?.rfe_field,
-        additionalContext: qr?.additional_context,
-      })
-
-      const { error: saveErr } = await service
-        .from('reports')
-        .update({ status: 'complete', report_data: reportData })
-        .eq('id', id)
-
-      if (saveErr) {
-        console.error('[rfe/generate] Failed to save:', saveErr.message)
-        await markError(id)
-        return
+      const { data: fileData, error: dlErr } = await service.storage.from('rfe-documents').download(rfePath)
+      if (dlErr || !fileData) {
+        await service.from('reports').update({ status: 'error' }).eq('id', id)
+        return NextResponse.json({ error: 'Could not download RFE document from storage.' }, { status: 500 })
       }
-
-      console.log(`[rfe/generate] Complete for report ${id}`)
-      if (userEmail) {
-        sendRFEReportReady(userEmail, id, reportData.case_type ?? 'RFE Analysis').catch(e =>
-          console.error('[email] notify failed:', e)
-        )
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      console.error('[rfe/generate] FAILED for report', id, ':', msg)
-      await markError(id)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse')
+      const parsed = await pdfParse(Buffer.from(await fileData.arrayBuffer()))
+      rfeText = parsed.text.slice(0, 50000) as string
+      await service.from('reports').update({ rfe_document_text: rfeText }).eq('id', id)
     }
-  })
 
-  return NextResponse.json({ status: 'generating' })
+    const qr = report.questionnaire_responses as RFEAnswers | null
+    const reportData = await generateRFEReport(rfeText, {
+      petitionType: qr?.petition_type,
+      rfeField: qr?.rfe_field,
+      additionalContext: qr?.additional_context,
+    })
+
+    const { error: saveErr } = await service
+      .from('reports')
+      .update({ status: 'complete', report_data: reportData })
+      .eq('id', id)
+
+    if (saveErr) {
+      console.error('[rfe/generate] DB save failed:', saveErr.message)
+      await service.from('reports').update({ status: 'error' }).eq('id', id)
+      return NextResponse.json({ error: `Failed to save report: ${saveErr.message}` }, { status: 500 })
+    }
+
+    console.log(`[rfe/generate] Complete for report ${id}`)
+
+    if (user.email) {
+      sendRFEReportReady(user.email, id, reportData.case_type ?? 'RFE Analysis').catch(e =>
+        console.error('[email] notify failed:', e)
+      )
+    }
+
+    return NextResponse.json({ status: 'complete' })
+
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[rfe/generate] FAILED for report', id, ':', msg)
+    await service.from('reports').update({ status: 'error' }).eq('id', id)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
