@@ -50,11 +50,6 @@ export async function POST(
 
   console.log(`[rfe/generate] Starting generation for report ${id}`)
 
-  // 55s hard timeout — returns proper JSON before Vercel's silent kill
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('Generation timed out (55s) — please retry')), 55_000)
-  )
-
   try {
     // Re-extract PDF text if missing
     let rfeText = report.rfe_document_text as string | null
@@ -77,14 +72,11 @@ export async function POST(
     }
 
     const qr = report.questionnaire_responses as RFEAnswers | null
-    const reportData = await Promise.race([
-      generateRFEReport(rfeText, {
-        petitionType: qr?.petition_type,
-        rfeField: qr?.rfe_field,
-        additionalContext: qr?.additional_context,
-      }),
-      timeoutPromise,
-    ])
+    const reportData = await generateRFEReport(rfeText, {
+      petitionType: qr?.petition_type,
+      rfeField: qr?.rfe_field,
+      additionalContext: qr?.additional_context,
+    })
 
     const { error: saveErr } = await service
       .from('reports')

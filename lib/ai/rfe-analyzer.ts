@@ -110,67 +110,151 @@ Return ONLY this JSON object (no markdown, no fences):
   return JSON.parse(extractJSON(raw)) as RFEPreview
 }
 
+// ─── RFE shared context block ─────────────────────────────────────────────────
+
+function rfeContext(
+  rfeText: string,
+  petLabel: string,
+  fieldLabel: string,
+  additionalContext?: string,
+): string {
+  return `PETITION TYPE: ${petLabel}
+FIELD: ${fieldLabel}
+${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}\n` : ''}LEGAL STANDARD:
+${PETITION_CRITERIA['other']}
+
+RFE DOCUMENT (first 14000 chars):
+${rfeText.slice(0, 14000)}`
+}
+
+// ─── Call 1: Triage ────────────────────────────────────────────────────────────
+// Reads the full RFE and identifies every distinct issue USCIS raised.
+// Returns a minimal issue list (title + risk only) plus case_type and priority actions.
+// Bounded output — always completes within ~600 tokens regardless of RFE complexity.
+
+interface RFETriage {
+  case_type: string
+  issues: { number: number; title: string; risk_level: 'High' | 'Medium' | 'Low' }[]
+  priority_action_list: string[]
+}
+
+async function callTriage(ctx: string): Promise<RFETriage> {
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 800,
+    system: `You are a senior immigration attorney specializing in USCIS RFE responses.
+Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
+    messages: [{
+      role: 'user',
+      content: `${ctx}
+
+Read the RFE carefully. Identify EVERY distinct issue USCIS raised — do not miss any.
+
+Return ONLY this JSON:
+{
+  "case_type": "e.g. EB-1A Extraordinary Ability — 5 issues identified",
+  "issues": [
+    { "number": 1, "title": "5-8 word descriptive title of the issue", "risk_level": "High | Medium | Low" }
+  ],
+  "priority_action_list": [
+    "Most urgent action the petitioner must take",
+    "Second priority action",
+    "Third priority action",
+    "Fourth if applicable",
+    "Fifth if applicable"
+  ]
+}`,
+    }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw)) as RFETriage
+  } catch (e) {
+    console.error('[rfe/triage] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`RFE triage failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Call 2: Deep analysis ─────────────────────────────────────────────────────
+// Takes the triage issue list and writes the full analysis for each issue.
+// Knows the exact issue count upfront so it can't truncate mid-issue.
+// Max tokens scaled to issue count: 600 per issue base, floor 2000, ceiling 6000.
+
+interface RFEDeepAnalysis {
+  issue_registry: import('@/lib/types').RFEIssue[]
+}
+
+async function callDeepAnalysis(ctx: string, triage: RFETriage): Promise<RFEDeepAnalysis> {
+  const issueCount = triage.issues.length
+  // 600 tokens per issue is comfortable for thorough analysis; floor at 2000, cap at 6000
+  const maxTokens = Math.min(6000, Math.max(2000, issueCount * 600))
+
+  const issueList = triage.issues
+    .map(i => `  ${i.number}. "${i.title}" — Risk: ${i.risk_level}`)
+    .join('\n')
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: maxTokens,
+    system: `You are a senior immigration attorney specializing in USCIS RFE responses.
+Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.
+You MUST produce a complete valid JSON object — close ALL braces and arrays before stopping.`,
+    messages: [{
+      role: 'user',
+      content: `${ctx}
+
+The triage identified ${issueCount} issues:
+${issueList}
+
+For EACH of these ${issueCount} issues, produce a complete analysis.
+
+Return ONLY this JSON (issue_registry must have exactly ${issueCount} entries):
+{
+  "issue_registry": [
+    {
+      "number": <matches triage number>,
+      "title": "<exact title from triage>",
+      "plain_english": "What USCIS is really saying — translate legalese to plain English, 2-4 sentences",
+      "evidence_gaps": ["specific document or evidence USCIS wants", "another specific item"],
+      "risk_level": "<matches triage risk_level>",
+      "response_strategy": "Rebut | Supplement | Narrow",
+      "strategy_rationale": "Why this strategy, and exactly how to execute it for this specific issue — 2-3 sentences"
+    }
+  ]
+}`,
+    }],
+  })
+  const raw = res.content[0].type === 'text' ? res.content[0].text : ''
+  try {
+    return JSON.parse(extractJSON(raw)) as RFEDeepAnalysis
+  } catch (e) {
+    console.error('[rfe/deep] parse fail. stop_reason:', res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`RFE deep analysis failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
+  }
+}
+
+// ─── Public: generate full RFE report (2 sequential calls) ───────────────────
+
 export async function generateRFEReport(
   rfeText: string,
   opts: { petitionType?: string; rfeField?: string; additionalContext?: string } = {},
 ): Promise<RFEReport> {
   const petLabel = PETITION_LABELS[opts.petitionType ?? ''] ?? 'employment-based petition'
   const fieldLabel = FIELD_LABELS[opts.rfeField ?? ''] ?? 'general field'
+  const ctx = rfeContext(rfeText, petLabel, fieldLabel, opts.additionalContext)
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 1500,
-    system: `You are a senior immigration attorney with 15+ years handling USCIS Requests for Evidence.
+  console.log('[rfe-analyzer] Starting triage call')
+  const triage = await callTriage(ctx)
+  console.log(`[rfe-analyzer] Triage complete — ${triage.issues.length} issues identified: ${triage.case_type}`)
 
-CRITICAL RULES:
-1. List EVERY distinct issue USCIS raised
-2. Translate legalese into plain English
-3. Risk ratings reflect realistic denial likelihood
-4. Evidence gaps must be specific to what USCIS asked
-5. Return ONLY a valid JSON object — no markdown, no code fences
-6. IMPORTANT: You must produce a COMPLETE, syntactically valid JSON object. Close all braces before stopping.`,
-    messages: [
-      {
-        role: 'user',
-        content: `Analyze this USCIS RFE and generate a complete response strategy.
+  console.log('[rfe-analyzer] Starting deep analysis call')
+  const deep = await callDeepAnalysis(ctx, triage)
+  console.log(`[rfe-analyzer] Deep analysis complete — ${deep.issue_registry.length} issues analyzed`)
 
-PETITION TYPE: ${petLabel}
-FIELD: ${fieldLabel}
-${opts.additionalContext ? `CONTEXT: ${opts.additionalContext}\n` : ''}
-LEGAL STANDARD:
-${PETITION_CRITERIA[opts.petitionType ?? 'other'] ?? PETITION_CRITERIA.other}
-
-RFE DOCUMENT:
-${rfeText.slice(0, 12000)}
-
-Return ONLY this JSON object (no markdown, no fences). All strings under 250 chars:
-{
-  "case_type": "e.g. EB-1A Extraordinary Ability — 4 issues identified",
-  "issue_registry": [
-    {
-      "number": 1,
-      "title": "5-8 word descriptive title",
-      "plain_english": "What USCIS is saying in plain language",
-      "evidence_gaps": ["specific missing item", "another item"],
-      "risk_level": "High | Medium | Low",
-      "response_strategy": "Rebut | Supplement | Narrow",
-      "strategy_rationale": "Why this strategy works for this issue"
-    }
-  ],
-  "priority_action_list": ["Most urgent action", "Second priority", "Third priority"],
-  "disclaimer": "This analysis is a strategic planning tool and does not constitute legal advice. Work with a licensed immigration attorney to prepare your RFE response."
-}`,
-      },
-    ],
-  })
-
-  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-  try {
-    return JSON.parse(extractJSON(raw)) as RFEReport
-  } catch (parseErr) {
-    console.error('[rfe-analyzer] JSON parse failed. stop_reason:', response.stop_reason)
-    console.error('[rfe-analyzer] Raw response length:', raw.length)
-    console.error('[rfe-analyzer] Last 500 chars:', raw.slice(-500))
-    throw new Error(`RFE report generation failed: JSON parse error after ${raw.length} chars (stop_reason: ${response.stop_reason}). ${parseErr instanceof Error ? parseErr.message : ''}`)
+  return {
+    case_type: triage.case_type,
+    issue_registry: deep.issue_registry,
+    priority_action_list: triage.priority_action_list,
+    disclaimer: 'This analysis is a strategic planning tool and does not constitute legal advice. Work with a licensed immigration attorney to prepare your RFE response.',
   }
 }
