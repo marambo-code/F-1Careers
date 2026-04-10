@@ -195,7 +195,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1300,
+    max_tokens: 2000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -247,7 +247,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1300,
+    max_tokens: 3000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -295,7 +295,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1300,
+    max_tokens: 3000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
@@ -354,7 +354,7 @@ Return ONLY this JSON (no other text):
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1300,
+    max_tokens: 3000,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   })
