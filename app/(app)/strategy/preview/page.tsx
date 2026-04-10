@@ -102,40 +102,61 @@ export default async function StrategyPreviewPage({
 
       {preview ? (
         <>
-          {/* Strength indicator */}
-          <div className="card flex items-center gap-4">
-            <div className={`px-4 py-2 rounded-xl font-bold text-lg ${strengthColors[preview.overall_strength]}`}>
-              {preview.overall_strength}
+          {/* Score dashboard */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* NIW Score */}
+            <div className="card text-center space-y-2">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest">EB-2 NIW Score</p>
+              <p className={`text-6xl font-black ${
+                (preview.niw_score ?? 0) >= 65 ? 'text-teal' :
+                (preview.niw_score ?? 0) >= 45 ? 'text-yellow-600' : 'text-orange-500'
+              }`}>{preview.niw_score ?? '—'}</p>
+              <p className="text-xs text-mid">/100</p>
+              {preview.niw_benchmark && (
+                <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">{preview.niw_benchmark}</p>
+              )}
             </div>
+
+            {/* EB-1A Score */}
+            <div className="card text-center space-y-2">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest">EB-1A Score</p>
+              <p className={`text-6xl font-black ${
+                (preview.eb1a_score ?? 0) >= 70 ? 'text-teal' :
+                (preview.eb1a_score ?? 0) >= 50 ? 'text-yellow-600' : 'text-orange-500'
+              }`}>{preview.eb1a_score ?? '—'}</p>
+              <p className="text-xs text-mid">/100</p>
+              <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">
+                {(preview.eb1a_score ?? 0) >= 70 ? 'Competitive EB-1A case — full breakdown in report.' :
+                 (preview.eb1a_score ?? 0) >= 50 ? 'Developing EB-1A case — 12–18 months of credential building needed.' :
+                 'EB-1A is premature — focus on NIW pathway first.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Recommended pathway + strength */}
+          <div className="card flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <p className="font-semibold text-navy">Overall Profile Strength</p>
-              <p className="text-sm text-mid">Based on your evidence and career trajectory</p>
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">Recommended Pathway</p>
+              <p className="text-xl font-black text-navy">{preview.top_pathway}</p>
+            </div>
+            <div className={`px-4 py-2 rounded-xl font-bold text-sm ${strengthColors[preview.overall_strength]}`}>
+              {preview.overall_strength} Profile
             </div>
           </div>
 
-          {/* Applicable pathways */}
-          <div className="card">
-            <h2 className="font-bold text-navy mb-3">Applicable Visa Pathways ({preview.applicable_pathways.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {preview.applicable_pathways.map(p => (
-                <span key={p} className={`px-3 py-1 rounded-lg text-sm font-semibold ${p === preview.top_pathway ? 'bg-navy text-white' : 'bg-navy-light text-navy'}`}>
-                  {p === preview.top_pathway && '★ '}{p}
-                </span>
-              ))}
-            </div>
-            <p className="text-sm text-mid mt-3">
-              Top recommended pathway: <strong className="text-navy">{preview.top_pathway}</strong>
-            </p>
-          </div>
-
-          {/* Teaser */}
+          {/* Teaser — locked */}
           <div className="card border-l-4 border-l-teal">
-            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">From the full report</p>
+            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">AI Assessment Preview</p>
             <p className="text-navy">{preview.teaser}</p>
-            <div className="mt-4 blur-sm select-none pointer-events-none space-y-2">
-              <p className="text-sm text-mid">■■■■■■■■ ■■■ ■■■■ ■■■■■■■■■■ ■■■■■■ ■■■■■■■ ■■■■■■■■■■■</p>
-              <p className="text-sm text-mid">■■■■ ■■■■■■ ■■■ ■■■■■■■■ ■■■■■ ■■■■■■ ■■■■■■■■■■■■</p>
-              <p className="text-sm text-mid">■■■■■■■■■■■■ ■■■■ ■■■■■■ ■■■ ■■■■■■■■ ■■■■■</p>
+            <div className="mt-4 space-y-2 relative">
+              <div className="blur-sm select-none pointer-events-none space-y-2">
+                <p className="text-sm text-mid">■■■■■■■■ ■■■ ■■■■ ■■■■■■■■■■ ■■■■■■ ■■■■■■■ ■■■■■■■■■■■</p>
+                <p className="text-sm text-mid">■■■■ ■■■■■■ ■■■ ■■■■■■■■ ■■■■■ ■■■■■■ ■■■■■■■■■■■■</p>
+                <p className="text-sm text-mid">■■■■■■■■■■■■ ■■■■ ■■■■■■ ■■■ ■■■■■■■■ ■■■■■</p>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="bg-white border border-border rounded-lg px-3 py-1 text-xs font-semibold text-navy shadow-sm">🔒 Unlock full report</span>
+              </div>
             </div>
           </div>
         </>

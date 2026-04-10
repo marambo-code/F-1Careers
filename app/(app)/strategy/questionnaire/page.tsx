@@ -196,6 +196,10 @@ export default function QuestionnairePage() {
   const [visaExpiration, setVisaExpiration] = useState<string>('')
   const [resumeUploading, setResumeUploading] = useState(false)
   const [resumeFileName, setResumeFileName] = useState<string>('')
+  const [linkedInUrl, setLinkedInUrl] = useState<string>('')
+  const [jobHistory, setJobHistory] = useState<{ role: string; employer: string; duration: string }[]>([])
+  const [showSecondEdu, setShowSecondEdu] = useState(false)
+  const [secondEdu, setSecondEdu] = useState({ university: '', degree: '', field: '' })
 
   const set = (key: string, val: string | number) =>
     setAnswers(a => ({ ...a, [key]: val }))
@@ -226,6 +230,8 @@ export default function QuestionnairePage() {
       supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
         if (data) {
           setProfile(data)
+          // Pre-populate LinkedIn from profile
+          if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
           // Pre-populate education_level from profile.degree if not already set
           if (data.degree) {
             const d = data.degree.toLowerCase()
@@ -261,6 +267,13 @@ export default function QuestionnairePage() {
         career_goal: profile.career_goal ?? '',
         ...(resumeText ? { resume_text: resumeText } : {}),
         ...(visaExpiration ? { visa_expiration: visaExpiration } : {}),
+        ...(linkedInUrl ? { linkedin_url: linkedInUrl } : {}),
+        ...(jobHistory.length > 0 ? { job_history: jobHistory.filter(j => j.role && j.employer) } : {}),
+        ...(showSecondEdu && secondEdu.university ? {
+          second_university: secondEdu.university,
+          second_degree: secondEdu.degree,
+          second_field_of_study: secondEdu.field,
+        } : {}),
       }
 
       const { data: report, error: insertError } = await supabase
@@ -489,6 +502,70 @@ export default function QuestionnairePage() {
               onChange={e => setVisaExpiration(e.target.value)}
               placeholder="YYYY-MM"
             />
+          </div>
+
+          {/* LinkedIn URL */}
+          <div>
+            <label className="label">LinkedIn URL <span className="text-teal text-xs font-semibold ml-1">Recommended</span></label>
+            <p className="text-xs text-mid mb-1.5">Helps the AI identify stronger recommenders and context for your expert letter strategy.</p>
+            <input
+              className="input"
+              value={linkedInUrl}
+              onChange={e => setLinkedInUrl(e.target.value)}
+              placeholder="https://linkedin.com/in/yourname"
+            />
+          </div>
+
+          {/* Second Degree */}
+          <div>
+            {!showSecondEdu ? (
+              <button
+                type="button"
+                onClick={() => setShowSecondEdu(true)}
+                className="text-sm text-teal font-semibold hover:underline"
+              >
+                + Add a second degree
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="label mb-0">Second Degree</label>
+                  <button type="button" onClick={() => setShowSecondEdu(false)} className="text-xs text-mid hover:text-red-500">Remove</button>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <input className="input" placeholder="University" value={secondEdu.university} onChange={e => setSecondEdu(s => ({ ...s, university: e.target.value }))} />
+                  <input className="input" placeholder="Degree (e.g. B.S.)" value={secondEdu.degree} onChange={e => setSecondEdu(s => ({ ...s, degree: e.target.value }))} />
+                  <input className="input" placeholder="Field of study" value={secondEdu.field} onChange={e => setSecondEdu(s => ({ ...s, field: e.target.value }))} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Previous Roles */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="label mb-0">Previous Roles</label>
+                <p className="text-xs text-mid mt-0.5">Prior employers — significantly improves evidence mapping and recommender identification.</p>
+              </div>
+            </div>
+            {jobHistory.map((job, i) => (
+              <div key={i} className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
+                <input className="input text-sm" placeholder="Role / Title" value={job.role} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, role: e.target.value } : j))} />
+                <input className="input text-sm" placeholder="Employer" value={job.employer} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, employer: e.target.value } : j))} />
+                <input className="input text-sm w-28" placeholder="e.g. 2021–23" value={job.duration} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, duration: e.target.value } : j))} />
+                <button type="button" onClick={() => setJobHistory(h => h.filter((_, idx) => idx !== i))} className="text-mid hover:text-red-500 text-lg leading-none px-1">×</button>
+              </div>
+            ))}
+            {jobHistory.length < 4 && (
+              <button
+                type="button"
+                onClick={() => setJobHistory(h => [...h, { role: '', employer: '', duration: '' }])}
+                className="text-sm text-teal font-semibold hover:underline"
+              >
+                + Add previous role
+              </button>
+            )}
           </div>
         </div>
       )}

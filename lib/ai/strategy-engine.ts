@@ -12,7 +12,7 @@ const FIELD_WEIGHT: Record<string, number> = {
   education: 1.3, law: 1.3, other: 1.4,
 }
 
-function computeEB1AScore(a: StrategyAnswers): { score: number; metCount: number; metCriteria: string[] } {
+export function computeEB1AScore(a: StrategyAnswers): { score: number; metCount: number; metCriteria: string[] } {
   const crMap: Record<string, number> = {
     awards: a.cr_awards ?? 0, membership: a.cr_membership ?? 0,
     press: a.cr_press ?? 0, judging: a.cr_judging ?? 0,
@@ -41,7 +41,7 @@ function computeEB1AScore(a: StrategyAnswers): { score: number; metCount: number
   return { score: Math.min(98, Math.max(5, Math.round(base + bonus))), metCount, metCriteria }
 }
 
-function computeNIWScore(a: StrategyAnswers): { score: number; label: string } {
+export function computeNIWScore(a: StrategyAnswers): { score: number; label: string } {
   const p1 = a.niw_prong1 ?? 2, p2 = a.niw_prong2 ?? 2, p3 = a.niw_prong3 ?? 2
   const minP = Math.min(p1, p2, p3)
   const raw = minP <= 1
@@ -140,18 +140,29 @@ function candidateContext(
   const resumeSection = a.resume_text
     ? `\n═══ RESUME ═══\n${a.resume_text.slice(0, 5000)}\n`
     : ''
+
+  const secondEduSection = a.second_university
+    ? `\nSecond degree: ${a.second_degree || ''} in ${a.second_field_of_study || ''} — ${a.second_university}`
+    : ''
+
+  const jobHistorySection = a.job_history && a.job_history.length > 0
+    ? `\n═══ PRIOR ROLES ═══\n${a.job_history.map(j => `  • ${j.role} at ${j.employer} (${j.duration})`).join('\n')}\n`
+    : ''
+
+  const linkedInLine = a.linkedin_url ? `\nLinkedIn: ${a.linkedin_url}` : ''
+
   return `TODAY: ${today}
 RECOMMENDED PATHWAY: ${recommendedPathway}
 
 ═══ PROFILE ═══
 Name: ${a.full_name || 'Not provided'}
-Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}
+Education: ${a.education_level} | ${a.university} — ${a.degree} in ${a.field_of_study}${secondEduSection}
 Field: ${a.field_of_work} — ${a.subfield} | Experience: ${a.years_in_field} years
 Visa: ${a.visa_status}${a.visa_expiration ? ` (expires: ${a.visa_expiration})` : ''} | Filing target: ${a.filing_timeline} months from today
-Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}
+Role: ${a.current_role} at ${a.current_employer} | Salary: ${a.us_salary}${linkedInLine}
 Employer support: ${a.employer_support} | Attorney consulted: ${a.attorney_consulted}
 Main concern: ${a.biggest_concern || 'Not provided'}
-${resumeSection}
+${jobHistorySection}${resumeSection}
 ═══ WORK DESCRIPTION ═══
 ${a.work_description || 'Not provided'}
 

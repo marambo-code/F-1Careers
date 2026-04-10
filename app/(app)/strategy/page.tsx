@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import type { StrategyPreview } from '@/lib/types'
 
 const DELIVERABLES = [
   {
@@ -29,6 +30,8 @@ const DELIVERABLES = [
   },
 ]
 
+export const dynamic = 'force-dynamic'
+
 export default async function StrategyStartPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -36,6 +39,30 @@ export default async function StrategyStartPage() {
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
   const hasResume = !!profile?.resume_path
+
+  // Fetch past strategy reports (most recent first)
+  const { data: pastReports } = await supabase
+    .from('reports')
+    .select('id, status, created_at, preview_data')
+    .eq('user_id', user.id)
+    .eq('type', 'strategy')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const statusLabel: Record<string, string> = {
+    complete: 'Complete',
+    generating: 'Generating…',
+    pending: 'Preview ready',
+    paid: 'Generating…',
+    error: 'Error — retry',
+  }
+  const statusColor: Record<string, string> = {
+    complete: 'text-teal bg-teal-light',
+    generating: 'text-yellow-700 bg-yellow-50',
+    paid: 'text-yellow-700 bg-yellow-50',
+    pending: 'text-navy bg-navy-light',
+    error: 'text-red-600 bg-red-50',
+  }
 
   return (
     <div className="max-w-2xl space-y-8">
@@ -84,6 +111,46 @@ export default async function StrategyStartPage() {
             <Link href="/profile" className="text-sm font-semibold text-yellow-800 underline mt-1 inline-block">
               Upload resume →
             </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Past reports */}
+      {pastReports && pastReports.length > 0 && (
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-navy">Your Reports</h2>
+            <Link href="/strategy/questionnaire" className="text-sm text-teal font-semibold hover:underline">
+              + New report →
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {pastReports.map(r => {
+              const preview = r.preview_data as StrategyPreview | null
+              const date = new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              const href = r.status === 'complete' ? `/strategy/report/${r.id}` :
+                           r.status === 'pending' ? `/strategy/preview?reportId=${r.id}` :
+                           `/strategy/report/${r.id}`
+              return (
+                <Link key={r.id} href={href} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border hover:border-teal/30 hover:bg-teal-light/30 transition-colors group">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-navy">{preview?.top_pathway ?? 'Strategy Report'}</span>
+                      {preview?.niw_score !== undefined && (
+                        <span className="text-xs text-mid font-mono">NIW {preview.niw_score}/100</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-mid mt-0.5">{date}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor[r.status] ?? 'text-mid bg-gray-100'}`}>
+                      {statusLabel[r.status] ?? r.status}
+                    </span>
+                    <span className="text-mid group-hover:text-teal transition-colors">→</span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}

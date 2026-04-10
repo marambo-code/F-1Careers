@@ -130,6 +130,19 @@ export interface StrategyAnswers {
   attorney_consulted: string
   biggest_concern: string
 
+  // ── Additional Education ─────────────────────────────────────────
+  /** Second degree (e.g. Bachelor's from a different institution) */
+  second_university?: string
+  second_degree?: string
+  second_field_of_study?: string
+
+  // ── Job History ──────────────────────────────────────────────────
+  /** Previous roles beyond current employer */
+  job_history?: JobHistoryItem[]
+
+  // ── LinkedIn ─────────────────────────────────────────────────────
+  linkedin_url?: string
+
   // ── Resume & Timeline ────────────────────────────────────────────
   /** Parsed text from uploaded resume PDF */
   resume_text?: string
@@ -154,6 +167,16 @@ export interface StrategyPreview {
   top_pathway: string
   overall_strength: 'Strong' | 'Developing' | 'Early'
   teaser: string
+  // Computed scores injected by the API (not AI-generated)
+  niw_score?: number
+  niw_benchmark?: string
+  eb1a_score?: number
+}
+
+export interface JobHistoryItem {
+  role: string
+  employer: string
+  duration: string // e.g. "2021–2023"
 }
 
 export interface StrategyReport {
