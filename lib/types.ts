@@ -304,9 +304,20 @@ export interface RFEPreview {
   teaser: string
 }
 
+export interface RFEResponseWeek {
+  week: string      // e.g. "Week 1 (Days 1–7)"
+  actions: string[] // Specific actions to complete that week
+}
+
 export interface RFEReport {
   case_type: string
+  overall_denial_risk: 'High' | 'Medium' | 'Low'
+  overall_assessment: string        // Honest 2-3 sentence summary of case viability
+  response_deadline_note: string    // "USCIS allows 87 days to respond. If issued [date], your deadline is [date]."
   issue_registry: RFEIssue[]
+  response_timeline: RFEResponseWeek[]  // Week-by-week plan against the 87-day deadline
+  cover_letter_outline: string[]    // Sections/talking points for the response cover letter
+  attorney_briefing: string         // Ready-to-send paragraph for an immigration attorney
   priority_action_list: string[]
   disclaimer: string
 }
@@ -314,8 +325,12 @@ export interface RFEReport {
 export interface RFEIssue {
   number: number
   title: string
-  plain_english: string
-  evidence_gaps: string[]
+  uscis_citation: string            // The specific legal standard / regulation USCIS cited
+  plain_english: string             // Plain English translation of what USCIS is saying
+  denial_risk_if_unaddressed: string // What happens to the petition if this issue is ignored
+  evidence_gaps: string[]           // Specific missing evidence USCIS wants
+  specific_documents: string[]      // Exact documents to obtain or create
+  draft_rebuttal_paragraph: string  // Ready-to-use response language for the cover letter
   risk_level: 'High' | 'Medium' | 'Low'
   response_strategy: 'Rebut' | 'Supplement' | 'Narrow'
   strategy_rationale: string
