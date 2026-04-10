@@ -2,6 +2,36 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import DeleteReportButton from '@/components/ui/DeleteReportButton'
+import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function daysUntil(yearMonth: string): number | null {
+  // yearMonth is "YYYY-MM" — count to last day of that month
+  if (!yearMonth || !yearMonth.match(/^\d{4}-\d{2}$/)) return null
+  const [y, m] = yearMonth.split('-').map(Number)
+  const expiry = new Date(y, m, 0) // day 0 of next month = last day of this month
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.ceil((expiry.getTime() - today.getTime()) / 86_400_000)
+}
+
+function optUrgencyColor(days: number | null): string {
+  if (days === null) return 'text-mid'
+  if (days <= 60) return 'text-red-500'
+  if (days <= 180) return 'text-yellow-600'
+  return 'text-teal'
+}
+
+function profileStrength(profile: Record<string, unknown> | null, hasLinkedIn: boolean): number {
+  if (!profile) return 0
+  const fields = ['full_name', 'university', 'degree', 'field_of_study', 'graduation_date', 'visa_status', 'career_goal', 'resume_path']
+  const filled = fields.filter(f => !!profile[f]).length
+  const linkedInBonus = hasLinkedIn ? 1 : 0
+  return Math.round(((filled + linkedInBonus) / (fields.length + 1)) * 100)
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -27,6 +57,25 @@ export default async function DashboardPage() {
   const profileComplete = profile?.university && profile?.degree &&
     profile?.visa_status && profile?.career_goal && profile?.graduation_date
 
+  // ── Immigration status data ───────────────────────────────────────
+  // Pull NIW/EB-1A scores from most recent strategy report
+  const latestStrategyReport = reports?.find(r => r.type === 'strategy' && (r.status === 'complete' || r.status === 'pending'))
+  const latestPreview = latestStrategyReport?.preview_data as StrategyPreview | null
+  const latestFullReport = latestStrategyReport?.report_data as StrategyReport | null
+
+  // Prefer full report scores (AI-scored), fall back to computed preview scores
+  const niwScore = latestFullReport?.petition_readiness?.niw_score ?? latestPreview?.niw_score ?? null
+  const eb1aScore = latestFullReport?.petition_readiness?.eb1a_score ?? latestPreview?.eb1a_score ?? null
+  const recommendedPathway = latestFullReport?.petition_readiness?.recommended_pathway ?? latestPreview?.top_pathway ?? null
+
+  // OPT expiration — from latest strategy questionnaire answers
+  const latestAnswers = latestStrategyReport?.questionnaire_responses as StrategyAnswers | null
+  const visaExpiration = latestAnswers?.visa_expiration ?? null
+  const daysLeft = visaExpiration ? daysUntil(visaExpiration) : null
+  const visaStatus = latestAnswers?.visa_status ?? profile?.visa_status ?? null
+
+  const strength = profileStrength(profile as Record<string, unknown> | null, !!(profile?.linkedin_url))
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -43,6 +92,123 @@ export default async function DashboardPage() {
             <p className="text-xs text-mid">report{completedReports.length !== 1 ? 's' : ''} generated</p>
           </div>
         )}
+      </div>
+
+      {/* ── Immigration Status Bar ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* OPT Countdown */}
+        <div className="card py-4 text-center space-y-1 col-span-2 sm:col-span-1">
+          <p className="text-xs font-bold text-mid uppercase tracking-widest">
+            {visaStatus ? visaStatus.replace('F-1 ', '') : 'Visa'} Expires
+          </p>
+          {daysLeft !== null ? (
+            <>
+              <p className={`text-4xl font-black ${optUrgencyColor(daysLeft)}`}>{daysLeft}</p>
+              <p className="text-xs text-mid">days remaining</p>
+              {daysLeft <= 180 && (
+                <p className={`text-xs font-semibold ${daysLeft <= 60 ? 'text-red-500' : 'text-yellow-600'}`}>
+                  {daysLeft <= 60 ? '⚠ File immediately' : '⏱ File soon'}
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="text-2xl font-black text-mid">—</p>
+              <Link href="/strategy/questionnaire" className="text-xs text-teal font-semibold hover:underline">Add expiry date</Link>
+            </>
+          )}
+        </div>
+
+        {/* NIW Score */}
+        <div className="card py-4 text-center space-y-1">
+          <p className="text-xs font-bold text-mid uppercase tracking-widest">NIW Score</p>
+          {niwScore !== null ? (
+            <>
+              <p className={`text-4xl font-black ${niwScore >= 65 ? 'text-teal' : niwScore >= 45 ? 'text-yellow-600' : 'text-orange-500'}`}>{niwScore}</p>
+              <p className="text-xs text-mid">/100</p>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl font-black text-mid">—</p>
+              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Run analysis</Link>
+            </>
+          )}
+        </div>
+
+        {/* EB-1A Score */}
+        <div className="card py-4 text-center space-y-1">
+          <p className="text-xs font-bold text-mid uppercase tracking-widest">EB-1A Score</p>
+          {eb1aScore !== null ? (
+            <>
+              <p className={`text-4xl font-black ${eb1aScore >= 70 ? 'text-teal' : eb1aScore >= 50 ? 'text-yellow-600' : 'text-orange-500'}`}>{eb1aScore}</p>
+              <p className="text-xs text-mid">/100</p>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl font-black text-mid">—</p>
+              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Run analysis</Link>
+            </>
+          )}
+        </div>
+
+        {/* Recommended pathway */}
+        <div className="card py-4 text-center space-y-1">
+          <p className="text-xs font-bold text-mid uppercase tracking-widest">Best Pathway</p>
+          {recommendedPathway ? (
+            <>
+              <p className="text-sm font-black text-navy leading-tight mt-1">{recommendedPathway}</p>
+              <Link href={latestStrategyReport ? `/strategy/report/${latestStrategyReport.id}` : '/strategy'} className="text-xs text-teal font-semibold hover:underline">
+                View report →
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl font-black text-mid">—</p>
+              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Get analysis</Link>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── Evidence Strength Bar ── */}
+      <div className="card space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold text-navy">Profile & Evidence Strength</p>
+            <p className="text-xs text-mid mt-0.5">
+              {strength < 50 ? 'Add more information to improve your AI report accuracy.' :
+               strength < 80 ? 'Good foundation — upload resume and LinkedIn to maximize report quality.' :
+               'Strong profile — your reports will be highly personalized.'}
+            </p>
+          </div>
+          <span className={`text-2xl font-black ${strength >= 80 ? 'text-teal' : strength >= 50 ? 'text-yellow-600' : 'text-orange-500'}`}>{strength}%</span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${strength >= 80 ? 'bg-teal' : strength >= 50 ? 'bg-yellow-400' : 'bg-orange-400'}`}
+            style={{ width: `${strength}%` }}
+          />
+        </div>
+        <div className="flex gap-4 text-xs text-mid flex-wrap">
+          <span className={profile?.full_name ? 'text-teal font-medium' : ''}>
+            {profile?.full_name ? '✓' : '○'} Name
+          </span>
+          <span className={profile?.visa_status ? 'text-teal font-medium' : ''}>
+            {profile?.visa_status ? '✓' : '○'} Visa status
+          </span>
+          <span className={profile?.resume_path ? 'text-teal font-medium' : ''}>
+            {profile?.resume_path ? '✓' : '○'} Resume
+          </span>
+          <span className={profile?.linkedin_url ? 'text-teal font-medium' : ''}>
+            {profile?.linkedin_url ? '✓' : '○'} LinkedIn
+          </span>
+          <span className={profile?.graduation_date ? 'text-teal font-medium' : ''}>
+            {profile?.graduation_date ? '✓' : '○'} Grad date
+          </span>
+          {strength < 100 && (
+            <Link href="/profile" className="text-teal font-semibold hover:underline ml-auto">Complete profile →</Link>
+          )}
+        </div>
       </div>
 
       {/* Profile completion banner */}
