@@ -124,8 +124,8 @@ FIELD: ${fieldLabel}
 ${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}\n` : ''}LEGAL STANDARD:
 ${criteria}
 
-RFE DOCUMENT (first 14000 chars):
-${rfeText.slice(0, 14000)}`
+RFE DOCUMENT (first 25000 chars):
+${rfeText.slice(0, 25000)}`
 }
 
 // ─── Call 1: Triage ────────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ interface RFETriage {
 async function callTriage(ctx: string): Promise<RFETriage> {
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1000,
+    max_tokens: 1500,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
     messages: [{
@@ -191,8 +191,9 @@ interface RFEDeepAnalysis {
 
 async function callDeepAnalysis(ctx: string, triage: RFETriage): Promise<RFEDeepAnalysis> {
   const issueCount = triage.issues.length
-  // 700 tokens per issue (richer content now), floor 2500, ceiling 6000
-  const maxTokens = Math.min(6000, Math.max(2500, issueCount * 700))
+  // ~900 tokens per issue (rich drafts + citations), floor 3000, ceiling 8000
+  // Covers up to ~8 issues fully; very complex RFEs (10-12 issues) still get 8000
+  const maxTokens = Math.min(8000, Math.max(3000, issueCount * 900))
 
   const issueList = triage.issues
     .map(i => `  ${i.number}. "${i.title}" — Risk: ${i.risk_level}`)
@@ -263,7 +264,7 @@ async function callResponsePlan(ctx: string, triage: RFETriage): Promise<RFEResp
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1800,
+    max_tokens: 2500,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
     messages: [{
