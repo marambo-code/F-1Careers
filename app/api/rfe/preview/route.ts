@@ -34,7 +34,14 @@ export async function POST(req: Request) {
     const pdfParse = require('pdf-parse')
     const buffer = Buffer.from(await fileData.arrayBuffer())
     const parsed = await pdfParse(buffer)
-    const rfeText = parsed.text
+    const rfeText = parsed.text as string
+
+    // Detect scanned / image-only PDFs — no selectable text extracted
+    if (!rfeText || rfeText.trim().length < 100) {
+      return NextResponse.json({
+        error: 'Your RFE PDF appears to be a scanned image with no selectable text. USCIS RFEs are usually text-based — try opening the PDF and selecting/copying text to confirm. If it is scanned, please use a PDF OCR tool (e.g. Adobe Acrobat, Smallpdf) to convert it to a text-searchable PDF and re-upload.',
+      }, { status: 422 })
+    }
 
     // Generate preview via AI — pass petition type and field for accurate analysis
     const preview = await generateRFEPreview(rfeText, { petitionType, rfeField, additionalContext })

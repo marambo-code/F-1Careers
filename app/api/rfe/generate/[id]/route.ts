@@ -51,13 +51,18 @@ export async function POST(
   console.log(`[rfe/generate] Starting generation for report ${id}`)
 
   try {
-    // Re-extract PDF text if missing
+    // Re-extract PDF text if missing or empty (empty string = scanned PDF on first pass)
     let rfeText = report.rfe_document_text as string | null
-    if (!rfeText) {
+    const textIsMissing = rfeText === null || rfeText === undefined || rfeText.trim().length < 100
+
+    if (textIsMissing) {
       const rfePath = report.rfe_document_path as string | null
+      console.log(`[rfe/generate] rfe_document_text missing/short — falling back to storage path: ${rfePath}`)
       if (!rfePath) {
         await service.from('reports').update({ status: 'error' }).eq('id', id)
-        return NextResponse.json({ error: 'No RFE document found — please re-upload.' }, { status: 422 })
+        return NextResponse.json({
+          error: 'No RFE document found. Please go back and re-upload your RFE PDF.',
+        }, { status: 422 })
       }
       const { data: fileData, error: dlErr } = await service.storage.from('rfe-documents').download(rfePath)
       if (dlErr || !fileData) {
@@ -68,11 +73,20 @@ export async function POST(
       const pdfParse = require('pdf-parse')
       const parsed = await pdfParse(Buffer.from(await fileData.arrayBuffer()))
       rfeText = parsed.text.slice(0, 50000) as string
+
+      // Detect scanned / image-only PDFs — no selectable text
+      if (!rfeText || rfeText.trim().length < 100) {
+        await service.from('reports').update({ status: 'error' }).eq('id', id)
+        return NextResponse.json({
+          error: 'Your RFE PDF appears to be a scanned image (no selectable text). Please export or scan it as a text-based PDF and re-upload. Most USCIS RFE PDFs are text-based — try opening it and copying text to confirm.',
+        }, { status: 422 })
+      }
+
       await service.from('reports').update({ rfe_document_text: rfeText }).eq('id', id)
     }
 
     const qr = report.questionnaire_responses as RFEAnswers | null
-    const reportData = await generateRFEReport(rfeText, {
+    const reportData = await generateRFEReport(rfeText!, {
       petitionType: qr?.petition_type,
       rfeField: qr?.rfe_field,
       additionalContext: qr?.additional_context,

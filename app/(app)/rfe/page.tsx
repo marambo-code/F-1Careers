@@ -98,7 +98,8 @@ export default function RFEUploadPage() {
       router.push(`/rfe/preview?reportId=${report.id}`)
     } else {
       const body = await res.json().catch(() => ({}))
-      setError(`Analysis failed: ${body?.error ?? 'Unknown error'}. Please try again.`)
+      // Surface the exact error (scanned PDF, etc.) without a wrapper prefix
+      setError(body?.error ?? 'Analysis failed — please try again.')
       setUploading(false)
     }
   }
