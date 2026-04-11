@@ -264,7 +264,7 @@ async function callResponsePlan(ctx: string, triage: RFETriage): Promise<RFEResp
 
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 2500,
+    max_tokens: 5000,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
     messages: [{
