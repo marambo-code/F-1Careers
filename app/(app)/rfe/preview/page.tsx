@@ -76,17 +76,38 @@ export default async function RFEPreviewPage({
   }
 
   const preview = report.preview_data as RFEPreview | null
+  const risk = preview?.overall_denial_risk ?? 'High'
+  const riskStyles = {
+    High:   { banner: 'bg-red-50 border-red-300',   badge: 'bg-red-100 border-red-300 text-red-700',   label: '⚠ High Denial Risk',   text: 'text-red-700' },
+    Medium: { banner: 'bg-yellow-50 border-yellow-300', badge: 'bg-yellow-100 border-yellow-300 text-yellow-700', label: '⚡ Medium Denial Risk', text: 'text-yellow-700' },
+    Low:    { banner: 'bg-green-50 border-green-300',  badge: 'bg-green-100 border-green-300 text-green-700',  label: '✓ Lower Denial Risk',   text: 'text-green-700' },
+  }
+  const rs = riskStyles[risk]
 
   return (
     <div className="max-w-2xl space-y-8">
       <div>
         <span className="text-xs font-bold text-navy uppercase tracking-widest">Preview</span>
         <h1 className="text-2xl font-bold text-navy mt-1">RFE Analysis Preview</h1>
-        <p className="text-mid mt-2">Here's what we found in your document. Unlock the full analysis to see the complete response strategy.</p>
+        <p className="text-mid mt-2">Here's what we found in your document. Unlock the full analysis to see issue-by-issue strategy, draft rebuttal language, and your 87-day action plan.</p>
       </div>
 
       {preview ? (
         <>
+          {/* Denial risk — the most important signal, shown first */}
+          <div className={`rounded-xl border-2 p-5 ${rs.banner}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <span className={`text-sm font-bold px-3 py-1 rounded-full border ${rs.badge}`}>
+                {rs.label}
+              </span>
+              <span className="text-xs font-semibold text-mid uppercase tracking-wide">
+                {preview.issue_count} issues · {preview.high_risk_count} high risk
+              </span>
+            </div>
+            <p className={`text-sm font-medium leading-relaxed ${rs.text}`}>{preview.teaser}</p>
+          </div>
+
+          {/* Stat row */}
           <div className="grid grid-cols-3 gap-4">
             <div className="card text-center">
               <p className="text-3xl font-bold text-navy">{preview.issue_count}</p>
@@ -97,24 +118,26 @@ export default async function RFEPreviewPage({
               <p className="text-sm text-mid mt-1">High Risk</p>
             </div>
             <div className="card text-center">
-              <p className="text-sm font-bold text-navy">{preview.case_type}</p>
-              <p className="text-sm text-mid mt-1">Case Type</p>
+              <p className={`text-lg font-bold ${rs.text}`}>{risk}</p>
+              <p className="text-sm text-mid mt-1">Denial Risk</p>
             </div>
           </div>
 
+          {/* Blurred teaser of full report */}
           <div className="card border-l-4 border-l-navy">
-            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">From the full analysis</p>
-            <p className="text-navy">{preview.teaser}</p>
-            <div className="mt-4 space-y-3">
+            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">Locked — full analysis includes</p>
+            <div className="space-y-3">
               {[1, 2, 3].map(i => (
                 <div key={i} className="blur-sm select-none pointer-events-none border border-border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-bold text-navy">Issue {i}: ■■■■■■■■■■■■■■</span>
                     <span className="badge-high">High</span>
                   </div>
-                  <p className="text-sm text-mid">■■■■■ ■■■■■■■■■■■ ■■■■■ ■■■■■■■■ ■■■■■■■■■■■■■■■■■</p>
+                  <p className="text-xs text-mid mb-1">■■■ ■■■■■■■■■■ ■■■■ ■■■■■■■■■■■■■■■ ■■■■■■</p>
+                  <p className="text-xs font-mono text-navy/40">8 CFR ■■■.■(■)(■)(■■■)</p>
                 </div>
               ))}
+              <p className="text-center text-xs text-mid pt-1">+ draft rebuttal language · evidence checklist · 87-day timeline · attorney briefing</p>
             </div>
           </div>
         </>

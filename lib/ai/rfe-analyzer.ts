@@ -98,9 +98,10 @@ ${rfeText.slice(0, 6000)}
 Return ONLY this JSON object (no markdown, no fences):
 {
   "case_type": "petition type and primary issue, e.g. EB-1A RFE — 3 criteria challenged",
+  "overall_denial_risk": "High | Medium | Low",
   "issue_count": <number>,
   "high_risk_count": <number>,
-  "teaser": "2-3 sentence plain English summary of the most critical issue"
+  "teaser": "2-3 sentence plain English summary of the most critical issue — be direct and specific, name the criterion and what USCIS is challenging"
 }`,
       },
     ],

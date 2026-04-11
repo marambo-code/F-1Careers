@@ -299,6 +299,7 @@ export interface RFEAnswers {
 
 export interface RFEPreview {
   case_type: string
+  overall_denial_risk: 'High' | 'Medium' | 'Low'
   issue_count: number
   high_risk_count: number
   teaser: string
