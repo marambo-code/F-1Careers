@@ -189,95 +189,81 @@ interface RFEDeepAnalysis {
   issue_registry: import('@/lib/types').RFEIssue[]
 }
 
-// Analyses a specific slice of issues — reusable for both single and split-call paths
-async function callDeepAnalysisBatch(
+// ─── Call 2: Deep analysis — one call per issue, all in parallel ──────────────
+// Each issue gets its own dedicated call (max 1500 tokens) so output can never
+// be truncated regardless of issue count. For EB-1A with 10 criteria this fires
+// 10 simultaneous calls; all finish in the same wall-clock time as one call.
+
+async function callSingleIssue(
   ctx: string,
-  allIssues: RFETriage['issues'],
-  batchIssues: RFETriage['issues'],
-  batchLabel: string,
-): Promise<RFEDeepAnalysis> {
-  const batchCount = batchIssues.length
-  // 900 tokens per issue, floor 2500, ceiling 7500 (leave headroom under 8096 hard limit)
-  const maxTokens = Math.min(7500, Math.max(2500, batchCount * 900))
-
-  const issueList = batchIssues
-    .map(i => `  ${i.number}. "${i.title}" — Risk: ${i.risk_level}`)
-    .join('\n')
-
+  issue: RFETriage['issues'][number],
+  totalIssues: number,
+): Promise<import('@/lib/types').RFEIssue> {
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: maxTokens,
+    max_tokens: 1500,   // One issue with all rich fields = ~800-1200 tokens — well within limit
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
-Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.
-You MUST produce a complete valid JSON object — close ALL braces and arrays before stopping.`,
+Return ONLY a single valid JSON object. No markdown, no code fences, no text outside the JSON.`,
     messages: [{
       role: 'user',
       content: `${ctx}
 
-This RFE has ${allIssues.length} total issues. You are analysing batch ${batchLabel} — the following ${batchCount} issue(s):
-${issueList}
+This RFE has ${totalIssues} total issues. Analyse ONLY this one issue:
+Issue ${issue.number}: "${issue.title}" — Risk level: ${issue.risk_level}
 
-For EACH of these ${batchCount} issues, produce a complete analysis.
-
-The most important field is "draft_rebuttal_paragraph" — this is actual petition response language
+The most important field is "draft_rebuttal_paragraph" — actual petition response language
 the petitioner can hand to their attorney or use directly. It should read like a real RFE response
-brief: formal, specific, citing evidence by exhibit number where appropriate (e.g. "See Exhibit ___"),
+brief: formal, specific, citing evidence by exhibit number (e.g. "See Exhibit ___"),
 directly addressing the USCIS objection and explaining why the evidence satisfies the legal standard.
-Make it 3-5 sentences of professional legal writing.
+Write 3-5 sentences of professional legal writing grounded in the specific RFE text above.
 
-Return ONLY this JSON (issue_registry must have exactly ${batchCount} entries):
+Return ONLY this JSON object:
 {
-  "issue_registry": [
-    {
-      "number": <matches issue number above>,
-      "title": "<exact title from the list above>",
-      "uscis_citation": "The specific regulation, legal standard, or AAO decision USCIS is invoking — e.g. '8 CFR 204.5(h)(3)(v) — original contributions of major significance' or 'Matter of Dhanasar, Prong 1'",
-      "plain_english": "What USCIS is really saying in plain language — translate the legalese, 2-4 sentences. Start with 'USCIS is saying that...'",
-      "denial_risk_if_unaddressed": "1-2 sentences: what specifically happens to this petition if this issue is not addressed in the response",
-      "evidence_gaps": ["Specific document or evidence USCIS wants — be precise", "Another specific item"],
-      "specific_documents": ["Exact document to obtain or create — name the source and what it must contain", "Another document with specifics"],
-      "draft_rebuttal_paragraph": "3-5 sentences of ready-to-use RFE response language addressing this specific issue. Professional legal tone. Reference specific evidence by type (e.g., 'the supplemental expert declaration of Dr. X, submitted herewith as Exhibit ___'). Directly rebut the USCIS objection by citing the applicable legal standard and explaining how the evidence satisfies it.",
-      "risk_level": "<matches risk_level from the list above>",
-      "response_strategy": "Rebut | Supplement | Narrow",
-      "strategy_rationale": "Why this strategy, and the 2-3 most important execution steps specific to this issue"
-    }
-  ]
+  "number": ${issue.number},
+  "title": "${issue.title}",
+  "uscis_citation": "The exact regulation, legal standard, or AAO precedent USCIS is invoking for THIS issue — e.g. '8 CFR 204.5(h)(3)(v) — original contributions of major significance' or 'Matter of Dhanasar, 26 I&N Dec. 884 (AAO 2016), Prong 2'",
+  "plain_english": "What USCIS is really saying in plain language — translate the legalese, 2-4 sentences. Start with 'USCIS is saying that...'",
+  "denial_risk_if_unaddressed": "1-2 sentences: what specifically happens to this petition if this exact issue is not addressed",
+  "evidence_gaps": [
+    "Specific document or evidence USCIS wants for this issue — be precise about format and source",
+    "Second specific item if applicable"
+  ],
+  "specific_documents": [
+    "Exact document to obtain or create — name the source, who must sign it, what it must state",
+    "Second document with full specifics"
+  ],
+  "draft_rebuttal_paragraph": "3-5 sentences of ready-to-use RFE response language for this specific issue. Professional legal tone. Cite the applicable standard, reference evidence by type (e.g. 'the expert declaration of [Name], submitted as Exhibit ___'), and explain directly why the evidence satisfies the criterion.",
+  "risk_level": "${issue.risk_level}",
+  "response_strategy": "Rebut | Supplement | Narrow",
+  "strategy_rationale": "Why this specific strategy for this issue, and the 2-3 most important execution steps"
 }`,
     }],
   })
+
   const raw = res.content[0].type === 'text' ? res.content[0].text : ''
   try {
-    return JSON.parse(extractJSON(raw)) as RFEDeepAnalysis
+    return JSON.parse(extractJSON(raw)) as import('@/lib/types').RFEIssue
   } catch (e) {
-    console.error(`[rfe/deep-${batchLabel}] parse fail. stop_reason:`, res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
-    throw new Error(`RFE deep analysis failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
+    console.error(`[rfe/issue-${issue.number}] parse fail. stop_reason:`, res.stop_reason, 'len:', raw.length, 'last200:', raw.slice(-200))
+    throw new Error(`RFE issue ${issue.number} analysis failed (stop_reason: ${res.stop_reason}): ${e instanceof Error ? e.message : e}`)
   }
 }
 
 async function callDeepAnalysis(ctx: string, triage: RFETriage): Promise<RFEDeepAnalysis> {
   const issues = triage.issues
+  console.log(`[rfe/deep] Firing ${issues.length} parallel single-issue calls`)
 
-  // For ≤5 issues: single call (fast path)
-  // For 6+ issues: split into two parallel calls to stay under the 8096-token output limit
-  // Each batch handles ~half the issues, comfortably within 7500-token ceiling
-  if (issues.length <= 5) {
-    return callDeepAnalysisBatch(ctx, issues, issues, '1/1')
-  }
+  // All issues analysed in parallel — each call is bounded at 1500 tokens so
+  // truncation is impossible regardless of RFE type or issue count
+  const issueResults = await Promise.all(
+    issues.map(issue => callSingleIssue(ctx, issue, issues.length))
+  )
 
-  const mid = Math.ceil(issues.length / 2)
-  const batchA = issues.slice(0, mid)
-  const batchB = issues.slice(mid)
+  // Return in original triage order
+  const sorted = [...issueResults].sort((a, b) => a.number - b.number)
+  console.log(`[rfe/deep] All ${sorted.length} issues complete`)
 
-  console.log(`[rfe/deep] ${issues.length} issues — splitting into 2 parallel batches (${batchA.length} + ${batchB.length})`)
-
-  const [resA, resB] = await Promise.all([
-    callDeepAnalysisBatch(ctx, issues, batchA, `1/2 (issues ${batchA[0].number}–${batchA[batchA.length - 1].number})`),
-    callDeepAnalysisBatch(ctx, issues, batchB, `2/2 (issues ${batchB[0].number}–${batchB[batchB.length - 1].number})`),
-  ])
-
-  return {
-    issue_registry: [...resA.issue_registry, ...resB.issue_registry],
-  }
+  return { issue_registry: sorted }
 }
 
 // ─── Call 3: Response plan ────────────────────────────────────────────────────
