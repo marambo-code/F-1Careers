@@ -110,8 +110,11 @@ Return ONLY this JSON object (no markdown, no fences):
   return JSON.parse(extractJSON(raw)) as RFEPreview
 }
 
-// ─── RFE shared context block ─────────────────────────────────────────────────
+// ─── Context builders ─────────────────────────────────────────────────────────
 
+// Full context for triage + response-plan calls — needs the complete document
+// to identify every issue and build an accurate timeline.
+// 25,000 chars ≈ 6,250 tokens input per call (only 2 calls use this).
 function rfeContext(
   rfeText: string,
   petLabel: string,
@@ -126,6 +129,35 @@ ${criteria}
 
 RFE DOCUMENT (first 25000 chars):
 ${rfeText.slice(0, 25000)}`
+}
+
+// Compact context for per-issue calls — issues are already identified by triage.
+// Each call only needs enough RFE text to cite specific USCIS language in the rebuttal.
+// 8,000 chars ≈ 2,000 tokens → keeps each call under 2,800 tokens total input.
+// At CONCURRENCY=5: 5 × 2,800 = 14,000 tokens/round — well under 30k/min limit.
+function issueContext(
+  rfeText: string,
+  petLabel: string,
+  fieldLabel: string,
+  criteria: string,
+  triage: RFETriage,
+  additionalContext?: string,
+): string {
+  const issueList = triage.issues
+    .map(i => `  ${i.number}. ${i.title} (${i.risk_level} risk)`)
+    .join('\n')
+
+  return `PETITION TYPE: ${petLabel}
+FIELD: ${fieldLabel}
+${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}\n` : ''}LEGAL STANDARD:
+${criteria}
+
+TRIAGE SUMMARY (${triage.issues.length} issues identified):
+Overall risk: ${triage.overall_denial_risk}
+${issueList}
+
+RFE DOCUMENT EXCERPT (first 8000 chars — sufficient for issue-level analysis):
+${rfeText.slice(0, 8000)}`
 }
 
 // ─── Call 1: Triage ────────────────────────────────────────────────────────────
@@ -189,10 +221,10 @@ interface RFEDeepAnalysis {
   issue_registry: import('@/lib/types').RFEIssue[]
 }
 
-// ─── Call 2: Deep analysis — one call per issue, all in parallel ──────────────
-// Each issue gets its own dedicated call (max 1500 tokens) so output can never
-// be truncated regardless of issue count. For EB-1A with 10 criteria this fires
-// 10 simultaneous calls; all finish in the same wall-clock time as one call.
+// ─── Call 2: Deep analysis — one call per issue, rate-limit-safe ──────────────
+// Uses compact issueContext (~2,800 tokens input) instead of the full 25k-char
+// context, so 5 parallel calls = ~14,000 tokens/round — under the 30k/min limit.
+// Output capped at 1500 tokens (one issue cannot exceed this), so no truncation.
 
 async function callSingleIssue(
   ctx: string,
@@ -249,10 +281,7 @@ Return ONLY this JSON object:
   }
 }
 
-// Rate-limit-safe parallel runner.
-// Each single-issue call sends ~6,500 input tokens (full RFE context + prompt).
-// Org limit is 30,000 input TPM → safe concurrency = floor(30000 / 6500) = 4.
-// We use 3 to leave headroom for the simultaneous triage + response-plan calls.
+// Concurrency runner — processes items in rounds of `concurrency` at a time.
 async function runWithConcurrency<T>(
   items: T[],
   concurrency: number,
@@ -267,17 +296,22 @@ async function runWithConcurrency<T>(
   return results
 }
 
-async function callDeepAnalysis(ctx: string, triage: RFETriage): Promise<RFEDeepAnalysis> {
+async function callDeepAnalysis(
+  _fullCtx: string,
+  triage: RFETriage,
+  compactCtx: string,
+): Promise<RFEDeepAnalysis> {
   const issues = triage.issues
-  // CONCURRENCY = 3 → each round uses ~3 × 6,500 = ~19,500 input tokens
-  // An EB-1A with 10 issues runs as 4 sequential rounds (3+3+3+1) — ~60s total
-  const CONCURRENCY = 3
-  console.log(`[rfe/deep] ${issues.length} issues — running ${CONCURRENCY} at a time to respect rate limits`)
+  // Compact context ≈ 2,800 tokens/call × 5 concurrent = ~14,000 tokens/round
+  // → safely under the 30,000 input TPM limit with headroom to spare.
+  // EB-1A with 10 issues: 2 rounds (5+5) instead of the old 4 rounds (3+3+3+1).
+  const CONCURRENCY = 5
+  console.log(`[rfe/deep] ${issues.length} issues — ${CONCURRENCY} concurrent (compact context ~2800 tok/call)`)
 
   const issueResults = await runWithConcurrency(
     issues,
     CONCURRENCY,
-    issue => callSingleIssue(ctx, issue, issues.length),
+    issue => callSingleIssue(compactCtx, issue, issues.length),
   )
 
   // Return in original triage order
@@ -362,18 +396,24 @@ export async function generateRFEReport(
   const petLabel = PETITION_LABELS[opts.petitionType ?? ''] ?? 'employment-based petition'
   const fieldLabel = FIELD_LABELS[opts.rfeField ?? ''] ?? 'general field'
   const criteria = PETITION_CRITERIA[opts.petitionType ?? 'other'] ?? PETITION_CRITERIA.other
-  const ctx = rfeContext(rfeText, petLabel, fieldLabel, criteria, opts.additionalContext)
 
-  // Call 1: Triage — must complete first so we know the issues
+  // Full context (25k chars) — used only by triage and response-plan (2 calls total)
+  const fullCtx = rfeContext(rfeText, petLabel, fieldLabel, criteria, opts.additionalContext)
+
+  // Call 1: Triage — must complete first; needs full document to find every issue
   console.log('[rfe-analyzer] Starting triage')
-  const triage = await callTriage(ctx)
+  const triage = await callTriage(fullCtx)
   console.log(`[rfe-analyzer] Triage complete — ${triage.issues.length} issues: ${triage.case_type}`)
 
-  // Calls 2 + 3: Run in parallel — both only need triage + context
+  // Compact context (8k chars + triage summary) — used by per-issue calls only.
+  // ~2,800 tokens/call vs 6,750 with full context → 5 concurrent calls = ~14k tokens/round.
+  const compactCtx = issueContext(rfeText, petLabel, fieldLabel, criteria, triage, opts.additionalContext)
+
+  // Calls 2 + 3: Run in parallel — deep analysis uses compact context, plan uses full
   console.log('[rfe-analyzer] Starting deep analysis + response plan in parallel')
   const [deep, plan] = await Promise.all([
-    callDeepAnalysis(ctx, triage),
-    callResponsePlan(ctx, triage),
+    callDeepAnalysis(fullCtx, triage, compactCtx),
+    callResponsePlan(fullCtx, triage),
   ])
   console.log(`[rfe-analyzer] Complete — ${deep.issue_registry.length} issues fully analyzed`)
 
