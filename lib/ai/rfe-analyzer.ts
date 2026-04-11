@@ -249,14 +249,35 @@ Return ONLY this JSON object:
   }
 }
 
+// Rate-limit-safe parallel runner.
+// Each single-issue call sends ~6,500 input tokens (full RFE context + prompt).
+// Org limit is 30,000 input TPM → safe concurrency = floor(30000 / 6500) = 4.
+// We use 3 to leave headroom for the simultaneous triage + response-plan calls.
+async function runWithConcurrency<T>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<import('@/lib/types').RFEIssue>,
+): Promise<import('@/lib/types').RFEIssue[]> {
+  const results: import('@/lib/types').RFEIssue[] = []
+  for (let i = 0; i < items.length; i += concurrency) {
+    const batch = items.slice(i, i + concurrency)
+    const batchResults = await Promise.all(batch.map(fn))
+    results.push(...batchResults)
+  }
+  return results
+}
+
 async function callDeepAnalysis(ctx: string, triage: RFETriage): Promise<RFEDeepAnalysis> {
   const issues = triage.issues
-  console.log(`[rfe/deep] Firing ${issues.length} parallel single-issue calls`)
+  // CONCURRENCY = 3 → each round uses ~3 × 6,500 = ~19,500 input tokens
+  // An EB-1A with 10 issues runs as 4 sequential rounds (3+3+3+1) — ~60s total
+  const CONCURRENCY = 3
+  console.log(`[rfe/deep] ${issues.length} issues — running ${CONCURRENCY} at a time to respect rate limits`)
 
-  // All issues analysed in parallel — each call is bounded at 1500 tokens so
-  // truncation is impossible regardless of RFE type or issue count
-  const issueResults = await Promise.all(
-    issues.map(issue => callSingleIssue(ctx, issue, issues.length))
+  const issueResults = await runWithConcurrency(
+    issues,
+    CONCURRENCY,
+    issue => callSingleIssue(ctx, issue, issues.length),
   )
 
   // Return in original triage order
