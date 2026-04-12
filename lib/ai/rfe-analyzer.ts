@@ -79,6 +79,7 @@ export async function generateRFEPreview(
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 512,
+    temperature: 0,
     system: `You are an expert immigration attorney specializing in USCIS Requests for Evidence.
 IMPORTANT: Return ONLY a valid JSON object. No markdown, no code fences, no explanation.`,
     messages: [
@@ -178,6 +179,7 @@ async function callTriage(ctx: string): Promise<RFETriage> {
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1500,
+    temperature: 0,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
     messages: [{
@@ -235,6 +237,7 @@ async function callSingleIssue(
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1500,   // One issue with all rich fields = ~800-1200 tokens — well within limit
+    temperature: 0,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY a single valid JSON object. No markdown, no code fences, no text outside the JSON.`,
     messages: [{
@@ -338,6 +341,7 @@ async function callResponsePlan(ctx: string, triage: RFETriage): Promise<RFEResp
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 5000,
+    temperature: 0,
     system: `You are a senior immigration attorney with 20+ years handling USCIS RFE responses.
 Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON object.`,
     messages: [{
