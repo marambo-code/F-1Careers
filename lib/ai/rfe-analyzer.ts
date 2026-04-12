@@ -99,9 +99,8 @@ ${rfeText.slice(0, 6000)}
 Return ONLY this JSON object (no markdown, no fences):
 {
   "case_type": "petition type and primary issue, e.g. EB-1A RFE — 3 criteria challenged",
-  "overall_denial_risk": "High | Medium | Low",
-  "issue_count": <number>,
-  "high_risk_count": <number>,
+  "issue_count": <integer — total number of distinct issues USCIS raised>,
+  "high_risk_count": <integer — issues where USCIS explicitly found evidence insufficient or criterion unmet>,
   "teaser": "2-3 sentence plain English summary of the most critical issue — be direct and specific, name the criterion and what USCIS is challenging"
 }`,
       },
@@ -109,7 +108,16 @@ Return ONLY this JSON object (no markdown, no fences):
   })
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(extractJSON(raw)) as RFEPreview
+  const parsed = JSON.parse(extractJSON(raw)) as Omit<RFEPreview, 'overall_denial_risk'>
+
+  // Compute denial risk from counts — same formula as the full report, never AI-judged
+  const fakeIssues = [
+    ...Array(parsed.high_risk_count).fill({ risk_level: 'High' }),
+    ...Array(Math.max(0, parsed.issue_count - parsed.high_risk_count)).fill({ risk_level: 'Medium' }),
+  ]
+  const overall_denial_risk = computeRFEDenialRisk(fakeIssues)
+
+  return { ...parsed, overall_denial_risk }
 }
 
 // ─── Context builders ─────────────────────────────────────────────────────────
@@ -155,7 +163,6 @@ ${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}\n` : ''}LEGAL ST
 ${criteria}
 
 TRIAGE SUMMARY (${triage.issues.length} issues identified):
-Overall risk: ${triage.overall_denial_risk}
 ${issueList}
 
 RFE DOCUMENT EXCERPT (first 8000 chars — sufficient for issue-level analysis):
@@ -168,11 +175,33 @@ ${rfeText.slice(0, 8000)}`
 
 interface RFETriage {
   case_type: string
-  overall_denial_risk: 'High' | 'Medium' | 'Low'
   overall_assessment: string
   response_deadline_note: string
   issues: { number: number; title: string; risk_level: 'High' | 'Medium' | 'Low' }[]
   priority_action_list: string[]
+}
+
+// Compute denial risk algorithmically from actual issue data — never ask the AI
+// to make this call, because it produces inconsistent editorial judgments.
+//
+// Logic (applies to all petition types):
+//   High   — 3+ High-risk issues, OR >50% of all issues are High
+//   Low    — zero High-risk issues AND ≤1 Medium
+//   Medium — everything else
+//
+// For EB-1A specifically, 3+ High issues almost certainly means the petitioner
+// cannot clear the 3-of-10 criteria threshold, making denial near-certain without
+// a strong response — so "High" is the correct signal.
+export function computeRFEDenialRisk(
+  issues: { risk_level: string }[],
+): 'High' | 'Medium' | 'Low' {
+  const total = issues.length
+  if (total === 0) return 'Medium'
+  const highCount = issues.filter(i => i.risk_level === 'High').length
+  const medCount  = issues.filter(i => i.risk_level === 'Medium').length
+  if (highCount >= 3 || highCount / total > 0.5) return 'High'
+  if (highCount === 0 && medCount <= 1)           return 'Low'
+  return 'Medium'
 }
 
 async function callTriage(ctx: string): Promise<RFETriage> {
@@ -188,11 +217,16 @@ Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON ob
 
 Read the RFE carefully. Identify EVERY distinct issue USCIS raised — do not miss any.
 
+For each issue, classify risk_level using ONLY these definitions — do not deviate:
+  High   = USCIS explicitly states the evidence is insufficient or the criterion is not met;
+           OR the evidentiary gap is fundamental (e.g. no qualifying evidence submitted at all)
+  Medium = USCIS has concerns but some evidence was submitted; gap is fillable with supplemental docs
+  Low    = Minor documentation deficiency; straightforward to cure with a single letter or document
+
 Return ONLY this JSON:
 {
   "case_type": "e.g. EB-2 NIW National Interest Waiver — 5 issues identified",
-  "overall_denial_risk": "High | Medium | Low",
-  "overall_assessment": "2-3 sentence honest assessment of the case. How serious is this RFE? What is the realistic outcome if properly responded to vs. ignored?",
+  "overall_assessment": "2-3 sentence honest assessment. What did USCIS find most deficient? What is the realistic outcome if properly responded to vs. not responded to?",
   "response_deadline_note": "USCIS RFEs allow 87 days to respond from the date of the notice. Identify the RFE issue date from the document if visible and calculate the exact deadline. If not visible, state: 'Count 87 days from the date printed on your RFE notice.'",
   "issues": [
     { "number": 1, "title": "5-8 word descriptive title of the specific USCIS objection", "risk_level": "High | Medium | Low" }
@@ -351,7 +385,6 @@ Return ONLY valid JSON. No markdown, no code fences, no text outside the JSON ob
 The RFE has ${triage.issues.length} issues:
 ${issueList}
 
-Overall denial risk: ${triage.overall_denial_risk}
 ${triage.response_deadline_note}
 
 Produce the response plan.
@@ -422,9 +455,12 @@ export async function generateRFEReport(
   ])
   console.log(`[rfe-analyzer] Complete — ${deep.issue_registry.length} issues fully analyzed`)
 
+  // Compute denial risk from actual issue data — never trust the AI to do this consistently
+  const overall_denial_risk = computeRFEDenialRisk(deep.issue_registry)
+
   return {
     case_type: triage.case_type,
-    overall_denial_risk: triage.overall_denial_risk,
+    overall_denial_risk,
     overall_assessment: triage.overall_assessment,
     response_deadline_note: triage.response_deadline_note,
     issue_registry: deep.issue_registry,
