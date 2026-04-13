@@ -91,7 +91,7 @@ export default async function StrategyReportPage({
       <div className="flex items-start justify-between">
         <div>
           <span className="text-xs font-bold text-teal uppercase tracking-widest">Attorney-Quality Strategy Report</span>
-          <h1 className="text-2xl font-bold text-navy mt-1">Your Career & Immigration Strategy</h1>
+          <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Strategy Report</h1>
           <p className="text-sm text-mid mt-1">
             Generated {new Date(report.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
@@ -347,7 +347,7 @@ export default async function StrategyReportPage({
 
       {/* ── 9. Career + Visa Assessment ── */}
       <section>
-        <h2 className="section-heading">Career + Visa Pathway Assessment</h2>
+        <h2 className="section-heading">Green Card Strategy Assessment</h2>
         <p className="text-mid text-sm mb-4 leading-relaxed">{data.career_visa_assessment?.summary}</p>
         <div className="grid sm:grid-cols-2 gap-3">
           {data.career_visa_assessment?.pathways?.map((p: PathwayAssessment) => (

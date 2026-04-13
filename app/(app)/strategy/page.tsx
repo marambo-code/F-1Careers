@@ -68,8 +68,8 @@ export default async function StrategyStartPage() {
     <div className="max-w-2xl space-y-8">
       {/* Header */}
       <div>
-        <span className="text-xs font-bold text-teal uppercase tracking-widest">Career Strategy</span>
-        <h1 className="text-2xl font-bold text-navy mt-1">Career Strategy Report</h1>
+        <span className="text-xs font-bold text-teal uppercase tracking-widest">Green Card Strategy</span>
+        <h1 className="text-2xl font-bold text-navy mt-1">Green Card Strategy Report</h1>
         <p className="text-mid mt-2 leading-relaxed">
           AI-powered analysis of your visa pathway, evidence strength, and a personalized
           roadmap — built specifically for international professionals navigating the US immigration system.

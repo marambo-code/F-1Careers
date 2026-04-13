@@ -128,7 +128,7 @@ export default function ProfilePage() {
             onChange={e => setResumeFile(e.target.files?.[0] ?? null)}
             className="text-sm text-mid file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-navy-light file:text-navy file:text-sm file:font-medium hover:file:bg-navy/10 cursor-pointer"
           />
-          <p className="text-xs text-mid mt-1">PDF only. Required for Career Strategy Report.</p>
+          <p className="text-xs text-mid mt-1">PDF only. Required for Green Card Strategy Report.</p>
         </div>
 
         <div className="flex items-center gap-3 pt-2">

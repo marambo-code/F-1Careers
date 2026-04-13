@@ -46,7 +46,7 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
               F-1 Careers AI · Attorney-Quality Strategy Report
             </div>
             <h1 style={{ fontSize: '22pt', fontWeight: 'bold', color: '#1B2B6B', margin: 0 }}>
-              Career & Immigration Strategy Report
+              Green Card Strategy Report
             </h1>
             {answers?.full_name && (
               <p style={{ fontSize: '12pt', color: '#555566', marginTop: '6px' }}>Prepared for: {answers.full_name}</p>
@@ -237,9 +237,9 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         </section>
       )}
 
-      {/* Career & Visa Assessment */}
+      {/* Green Card Strategy Assessment */}
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={sectionHeading('Career & Visa Assessment')}>Career & Visa Assessment</h2>
+        <h2 style={sectionHeading('Green Card Strategy Assessment')}>Green Card Strategy Assessment</h2>
         <p style={{ fontSize: '10.5pt', lineHeight: 1.7, color: '#333', marginBottom: '16px' }}>{data.career_visa_assessment?.summary}</p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {data.career_visa_assessment?.pathways?.map(p => (

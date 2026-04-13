@@ -233,7 +233,7 @@ export default async function DashboardPage() {
       <div>
         <h2 className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">AI Tools</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {/* Career Strategy */}
+          {/* Green Card Strategy */}
           <Link href="/strategy" className="card hover:shadow-card-hover transition-all group border-2 hover:border-teal/20">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 bg-teal-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-teal/20 transition-colors">
@@ -243,7 +243,7 @@ export default async function DashboardPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-navy">Career Strategy Report</h3>
+                  <h3 className="font-bold text-navy">Green Card Strategy Report</h3>
                   <span className="text-xs font-bold text-teal">$300</span>
                 </div>
                 <p className="text-sm text-mid mt-1 leading-relaxed">Visa pathway analysis, evidence gaps, criterion breakdown, and your personalized 12-month roadmap.</p>
@@ -285,9 +285,9 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <p className="text-navy font-semibold">No reports yet</p>
-            <p className="text-sm text-mid mt-1">Generate your first career strategy report to get started.</p>
+            <p className="text-sm text-mid mt-1">Generate your first green card strategy report to get started.</p>
             <Link href="/strategy" className="btn-teal inline-block mt-5">
-              Get my career strategy →
+              Get my green card strategy →
             </Link>
           </div>
         ) : (
@@ -321,7 +321,7 @@ export default async function DashboardPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-navy text-sm">
-                          {report.type === 'strategy' ? 'Career Strategy Report' : 'RFE Analysis'}
+                          {report.type === 'strategy' ? 'Green Card Strategy Report' : 'RFE Analysis'}
                         </p>
                         {isGenerating && (
                           <span className="text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full px-2 py-0.5">Generating…</span>

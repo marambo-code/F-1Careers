@@ -16,12 +16,12 @@ export default function LoginPage() {
             <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
             <span className="text-teal text-xs font-bold bg-teal/15 px-2 py-0.5 rounded-md border border-teal/20">AI</span>
           </div>
-          <p className="text-blue-200 text-sm">AI Career Strategy Engine for International Professionals</p>
+          <p className="text-blue-200 text-sm">AI Green Card Strategy Engine for International Professionals</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h1 className="text-xl font-bold text-navy mb-1">Welcome back</h1>
-          <p className="text-sm text-mid mb-6">Sign in to access your career strategy dashboard.</p>
+          <p className="text-sm text-mid mb-6">Sign in to access your green card strategy dashboard.</p>
           <Suspense fallback={<div className="h-48 animate-pulse bg-gray-50 rounded-lg" />}>
             <LoginForm />
           </Suspense>

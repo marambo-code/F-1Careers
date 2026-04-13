@@ -42,7 +42,7 @@ export default async function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup" className="bg-teal text-white font-bold text-lg px-8 py-4 rounded-2xl hover:bg-teal/90 transition-all hover:scale-105 shadow-lg shadow-teal/30">
-              Get my career strategy →
+              Get my green card strategy →
             </Link>
             <Link href="#products" className="text-blue-200 font-medium text-sm hover:text-white transition-colors">
               See what's included ↓
@@ -76,7 +76,7 @@ export default async function Home() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Career Strategy */}
+          {/* Green Card Strategy */}
           <div className="rounded-2xl border-2 border-teal/20 p-8 space-y-6 hover:border-teal/50 transition-colors">
             <div className="w-12 h-12 bg-teal/10 rounded-2xl flex items-center justify-center">
               <svg className="w-6 h-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@ export default async function Home() {
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold text-navy">Career Strategy Report</h3>
+                <h3 className="text-xl font-bold text-navy">Green Card Strategy Report</h3>
                 <span className="text-2xl font-bold text-teal">$300</span>
               </div>
               <p className="text-mid text-sm leading-relaxed">
@@ -226,7 +226,7 @@ export default async function Home() {
             <span className="font-bold text-navy">F-1 Careers</span>
             <span className="text-teal text-xs font-bold bg-teal/10 px-1.5 py-0.5 rounded">AI</span>
           </div>
-          <p className="text-xs">This tool provides career strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.</p>
+          <p className="text-xs">This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.</p>
           <div className="flex gap-4">
             <Link href="/login" className="hover:text-navy transition-colors">Sign in</Link>
             <Link href="/signup" className="hover:text-navy transition-colors">Sign up</Link>

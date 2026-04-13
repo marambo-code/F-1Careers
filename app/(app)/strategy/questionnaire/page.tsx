@@ -318,7 +318,7 @@ export default function QuestionnairePage() {
       {/* Progress */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-xl font-bold text-navy">Career Strategy Questionnaire</h1>
+          <h1 className="text-xl font-bold text-navy">Green Card Strategy Questionnaire</h1>
           <span className="text-sm text-mid">Step {step + 1} of {STEPS.length}</span>
         </div>
         <div className="flex gap-1">

@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/strategy', label: 'Career Strategy' },
+  { href: '/strategy', label: 'Green Card Strategy' },
   { href: '/rfe', label: 'RFE Analyzer' },
   { href: '/profile', label: 'Profile' },
 ]

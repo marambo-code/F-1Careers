@@ -96,7 +96,7 @@ export default async function StrategyPreviewPage({
     <div className="max-w-2xl space-y-8">
       <div>
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Preview</span>
-        <h1 className="text-2xl font-bold text-navy mt-1">Your Career Strategy Preview</h1>
+        <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Strategy Preview</h1>
         <p className="text-mid mt-2">Here's what the AI found. Unlock the full report to see the complete analysis.</p>
       </div>
 
