@@ -77,8 +77,6 @@ async function setupStripe(env) {
       nickname: 'Green Card Score Pro',
       product_data: {
         name: 'Green Card Score Pro',
-        description: 'Living Green Card Score, 4 personalized career moves, score history tracking',
-        metadata: { app: 'f1careers' },
       },
     })
     priceId = price.id
