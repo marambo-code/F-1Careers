@@ -5,11 +5,14 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const navLinks = [
+interface NavLink { href: string; label: string; highlight?: boolean }
+
+const navLinks: NavLink[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/strategy', label: 'Green Card Strategy' },
   { href: '/rfe', label: 'RFE Analyzer' },
   { href: '/profile', label: 'Profile' },
+  { href: '/subscribe', label: 'Pro', highlight: true },
 ]
 
 export default function Nav() {
@@ -38,19 +41,31 @@ export default function Nav() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-0.5">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
-                  ? 'bg-white/10 text-white'
-                  : 'text-blue-200 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map(link => {
+            const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+            if (link.highlight && !isActive) {
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="px-3 py-1.5 rounded-lg text-sm font-bold text-teal border border-teal/30 hover:bg-teal/10 transition-colors ml-1"
+                >
+                  {link.label} ✦
+                </Link>
+              )
+            }
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'bg-white/10 text-white' : 'text-blue-200 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Sign out */}
@@ -65,19 +80,24 @@ export default function Nav() {
 
       {/* Mobile nav */}
       <div className="md:hidden border-t border-white/10 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
-        {navLinks.map(link => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
-                ? 'bg-white/10 text-white'
-                : 'text-blue-200 hover:text-white'
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
+        {navLinks.map(link => {
+          const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                link.highlight && !isActive
+                  ? 'text-teal border border-teal/30 font-bold'
+                  : isActive
+                  ? 'bg-white/10 text-white'
+                  : 'text-blue-200 hover:text-white'
+              }`}
+            >
+              {link.label}{link.highlight && !isActive ? ' ✦' : ''}
+            </Link>
+          )
+        })}
       </div>
     </nav>
   )

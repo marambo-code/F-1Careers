@@ -123,6 +123,49 @@ drop policy if exists "Users can read own RFE" on storage.objects;
 create policy "Users can read own RFE" on storage.objects
   for select using (bucket_id = 'rfe-documents' and auth.uid()::text = (storage.foldername(name))[1]);
 
+-- ─── SUBSCRIPTIONS ───────────────────────────────────────────────
+create table if not exists public.subscriptions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null unique,
+  stripe_customer_id text,
+  stripe_subscription_id text unique,
+  status text not null check (status in ('active', 'canceled', 'past_due', 'trialing')),
+  current_period_end timestamptz,
+  cancel_at_period_end boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- ─── SCORE HISTORY ───────────────────────────────────────────────
+create table if not exists public.score_history (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  green_card_score integer not null,
+  niw_score integer,
+  eb1a_score integer,
+  snapshot_label text,      -- e.g. "After strategy report · Apr 2026"
+  report_id uuid references public.reports(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+-- ─── PROFILE EXTENSIONS ──────────────────────────────────────────
+alter table public.profiles add column if not exists career_moves jsonb;
+alter table public.profiles add column if not exists career_moves_updated_at timestamptz;
+
+-- ─── RLS ON NEW TABLES ───────────────────────────────────────────
+alter table public.subscriptions enable row level security;
+alter table public.score_history enable row level security;
+
+-- Subscriptions policies
+drop policy if exists "Users can view own subscription" on public.subscriptions;
+create policy "Users can view own subscription" on public.subscriptions
+  for select using (auth.uid() = user_id);
+
+-- Score history policies
+drop policy if exists "Users can view own score history" on public.score_history;
+create policy "Users can view own score history" on public.score_history
+  for select using (auth.uid() = user_id);
+
 -- ─── DASHBOARD VIEW ──────────────────────────────────────────────
 create or replace view public.user_reports_view as
   select

@@ -2,17 +2,19 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import DeleteReportButton from '@/components/ui/DeleteReportButton'
+import CareerMovesSection from '@/components/dashboard/CareerMovesSection'
+import { computeGreenCardScoreFromSubscores } from '@/lib/scoring'
 import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
+import type { CareerMove } from '@/lib/ai/career-moves'
 
 export const dynamic = 'force-dynamic'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function daysUntil(yearMonth: string): number | null {
-  // yearMonth is "YYYY-MM" — count to last day of that month
   if (!yearMonth || !yearMonth.match(/^\d{4}-\d{2}$/)) return null
   const [y, m] = yearMonth.split('-').map(Number)
-  const expiry = new Date(y, m, 0) // day 0 of next month = last day of this month
+  const expiry = new Date(y, m, 0)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   return Math.ceil((expiry.getTime() - today.getTime()) / 86_400_000)
@@ -33,68 +35,226 @@ function profileStrength(profile: Record<string, unknown> | null, hasLinkedIn: b
   return Math.round(((filled + linkedInBonus) / (fields.length + 1)) * 100)
 }
 
+// ── Score ring SVG ────────────────────────────────────────────────────────────
+
+function ScoreRing({ score, color }: { score: number; color: string }) {
+  const radius = 44
+  const circumference = 2 * Math.PI * radius
+  const filled = (score / 100) * circumference
+  const dash = `${filled} ${circumference - filled}`
+
+  const strokeColor =
+    color === 'teal' ? '#14B8A6' :
+    color === 'blue' ? '#3B82F6' :
+    color === 'yellow' ? '#D97706' : '#EF4444'
+
+  return (
+    <svg width="110" height="110" viewBox="0 0 110 110" className="rotate-[-90deg]">
+      <circle cx="55" cy="55" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="8" />
+      <circle
+        cx="55" cy="55" r={radius}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth="8"
+        strokeDasharray={dash}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dasharray 0.6s ease' }}
+      />
+    </svg>
+  )
+}
+
+// ── Score history mini-bar ────────────────────────────────────────────────────
+
+interface ScorePoint { green_card_score: number; created_at: string }
+
+function ScoreHistory({ history }: { history: ScorePoint[] }) {
+  if (history.length < 2) return null
+  const max = Math.max(...history.map(h => h.green_card_score), 100)
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-bold text-mid uppercase tracking-widest">Score History</p>
+      <div className="flex items-end gap-1.5 h-10">
+        {history.map((h, i) => {
+          const pct = (h.green_card_score / max) * 100
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+              <div
+                className="w-full bg-teal rounded-sm transition-all"
+                style={{ height: `${Math.max(pct, 8)}%` }}
+              />
+              <span className="text-[9px] text-mid">{new Date(h.created_at).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</span>
+              {/* tooltip */}
+              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-navy text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                {h.green_card_score}/100
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // Fetch all data in parallel
+  const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end').eq('user_id', user.id).maybeSingle(),
+    supabase.from('score_history').select('green_card_score, niw_score, eb1a_score, created_at').eq('user_id', user.id).order('created_at', { ascending: true }).limit(12),
+  ])
 
-  const { data: reports } = await supabase
-    .from('reports')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const profile = profileResult.data
+  const reports = reportsResult.data ?? []
+  const subscription = subscriptionResult.data
+  const scoreHistory = (scoreHistoryResult.data ?? []) as ScorePoint[]
 
-  const completedReports = reports?.filter(r => r.status === 'complete') ?? []
-  const allReports = reports ?? []
+  const isPro = subscription?.status === 'active' || subscription?.status === 'trialing'
+  const completedReports = reports.filter(r => r.status === 'complete')
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
+  const profileComplete = profile?.university && profile?.degree && profile?.visa_status && profile?.career_goal && profile?.graduation_date
 
-  const profileComplete = profile?.university && profile?.degree &&
-    profile?.visa_status && profile?.career_goal && profile?.graduation_date
-
-  // ── Immigration status data ───────────────────────────────────────
-  // Pull NIW/EB-1A scores from most recent strategy report
-  const latestStrategyReport = reports?.find(r => r.type === 'strategy' && (r.status === 'complete' || r.status === 'pending'))
+  // ── Strategy data ──────────────────────────────────────────────────────────
+  const latestStrategyReport = reports.find(r => r.type === 'strategy' && (r.status === 'complete' || r.status === 'pending'))
   const latestPreview = latestStrategyReport?.preview_data as StrategyPreview | null
   const latestFullReport = latestStrategyReport?.report_data as StrategyReport | null
+  const latestAnswers = latestStrategyReport?.questionnaire_responses as StrategyAnswers | null
 
-  // Prefer full report scores (AI-scored), fall back to computed preview scores
   const niwScore = latestFullReport?.petition_readiness?.niw_score ?? latestPreview?.niw_score ?? null
   const eb1aScore = latestFullReport?.petition_readiness?.eb1a_score ?? latestPreview?.eb1a_score ?? null
   const recommendedPathway = latestFullReport?.petition_readiness?.recommended_pathway ?? latestPreview?.top_pathway ?? null
+  const hasStrategyReport = !!latestStrategyReport
 
-  // OPT expiration — from latest strategy questionnaire answers
-  const latestAnswers = latestStrategyReport?.questionnaire_responses as StrategyAnswers | null
+  // Green Card Score
+  const greenCardScore = (niwScore !== null && eb1aScore !== null)
+    ? computeGreenCardScoreFromSubscores(niwScore, eb1aScore)
+    : null
+
+  // OPT countdown
   const visaExpiration = latestAnswers?.visa_expiration ?? null
   const daysLeft = visaExpiration ? daysUntil(visaExpiration) : null
   const visaStatus = latestAnswers?.visa_status ?? profile?.visa_status ?? null
 
+  // Profile strength
   const strength = profileStrength(profile as Record<string, unknown> | null, !!(profile?.linkedin_url))
+
+  // Career moves
+  const cachedMoves = profile?.career_moves as { moves: CareerMove[] } | null
+  const careerMoves = cachedMoves?.moves ?? null
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-mid font-medium">Welcome back</p>
-          <h1 className="text-2xl font-bold text-navy mt-0.5">
-            {firstName === 'there' ? 'Your Dashboard' : `Hi, ${firstName}`}
-          </h1>
+
+      {/* ══ HERO: Green Card Score ══════════════════════════════════════════════ */}
+      <div className="card bg-navy text-white overflow-hidden relative">
+        {/* Subtle background accent */}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-teal/5 rounded-full -translate-y-1/4 translate-x-1/4 pointer-events-none" />
+
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-blue-300 uppercase tracking-widest">Green Card Score</p>
+            <p className="text-blue-200 text-sm max-w-xs leading-relaxed">
+              {greenCardScore
+                ? `Your composite petition readiness across NIW and EB-1A. Best pathway: ${greenCardScore.bestPathway}.`
+                : 'Complete a Green Card Strategy report to see your score.'}
+            </p>
+            {greenCardScore && (
+              <div className="flex items-center gap-3 pt-1 flex-wrap">
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                  greenCardScore.labelColor === 'teal' ? 'bg-teal/20 text-teal' :
+                  greenCardScore.labelColor === 'blue' ? 'bg-blue-400/20 text-blue-300' :
+                  greenCardScore.labelColor === 'yellow' ? 'bg-yellow-400/20 text-yellow-300' :
+                  'bg-red-400/20 text-red-300'
+                }`}>
+                  {greenCardScore.label}
+                </span>
+                {greenCardScore.readyToFile && (
+                  <span className="text-xs text-teal font-semibold">✓ Ready to file</span>
+                )}
+                {niwScore !== null && (
+                  <span className="text-xs text-blue-300">NIW {niwScore} · EB-1A {eb1aScore}</span>
+                )}
+              </div>
+            )}
+            {!greenCardScore && (
+              <Link href="/strategy" className="inline-block mt-2 bg-teal text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-teal/90 transition-colors">
+                Run Green Card Strategy →
+              </Link>
+            )}
+          </div>
+
+          {/* Score ring */}
+          <div className="relative flex-shrink-0">
+            {greenCardScore ? (
+              <>
+                <ScoreRing score={greenCardScore.overall} color={greenCardScore.labelColor} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-white">{greenCardScore.overall}</span>
+                  <span className="text-xs text-blue-300 font-medium">/100</span>
+                </div>
+              </>
+            ) : (
+              <div className="w-[110px] h-[110px] rounded-full border-8 border-white/10 flex items-center justify-center">
+                <span className="text-2xl font-black text-white/30">—</span>
+              </div>
+            )}
+          </div>
         </div>
-        {completedReports.length > 0 && (
-          <div className="text-right">
-            <p className="text-2xl font-bold text-navy">{completedReports.length}</p>
-            <p className="text-xs text-mid">report{completedReports.length !== 1 ? 's' : ''} generated</p>
+
+        {/* Score history (Pro only, if data exists) */}
+        {isPro && scoreHistory.length >= 2 && (
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <ScoreHistory history={scoreHistory} />
           </div>
         )}
+
+        {/* Pro badge or upgrade hint */}
+        {isPro ? (
+          <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2">
+            <span className="text-xs bg-teal/20 text-teal border border-teal/30 font-bold px-2 py-0.5 rounded-full">Pro</span>
+            <p className="text-xs text-blue-300">Living score — updates with each new strategy report</p>
+          </div>
+        ) : greenCardScore ? (
+          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-4">
+            <p className="text-xs text-blue-300">Upgrade to Pro to track your score over time and unlock all career moves</p>
+            <Link href="/subscribe" className="flex-shrink-0 text-xs bg-teal text-white font-bold px-3 py-1.5 rounded-lg hover:bg-teal/90 transition-colors">
+              Go Pro
+            </Link>
+          </div>
+        ) : null}
       </div>
 
-      {/* ── Immigration Status Bar ── */}
+      {/* ══ CAREER MOVES ═══════════════════════════════════════════════════════ */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-sm font-bold text-navy">Career Moves</h2>
+            <p className="text-xs text-mid mt-0.5">AI-personalized actions tied to weak EB-1A criteria and NIW prongs</p>
+          </div>
+          {isPro && careerMoves && (
+            <span className="text-xs bg-teal/10 text-teal border border-teal/20 font-bold px-2 py-0.5 rounded-full">Pro</span>
+          )}
+          {!isPro && careerMoves && (
+            <Link href="/subscribe" className="text-xs text-teal font-semibold hover:underline">
+              Unlock all →
+            </Link>
+          )}
+        </div>
+        <CareerMovesSection
+          initialMoves={careerMoves}
+          isPro={isPro}
+          hasStrategyReport={hasStrategyReport}
+        />
+      </div>
+
+      {/* ══ STATUS ROW ═════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* OPT Countdown */}
         <div className="card py-4 text-center space-y-1 col-span-2 sm:col-span-1">
@@ -170,7 +330,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Evidence Strength Bar ── */}
+      {/* ══ PROFILE STRENGTH ═══════════════════════════════════════════════════ */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -190,21 +350,11 @@ export default async function DashboardPage() {
           />
         </div>
         <div className="flex gap-4 text-xs text-mid flex-wrap">
-          <span className={profile?.full_name ? 'text-teal font-medium' : ''}>
-            {profile?.full_name ? '✓' : '○'} Name
-          </span>
-          <span className={profile?.visa_status ? 'text-teal font-medium' : ''}>
-            {profile?.visa_status ? '✓' : '○'} Visa status
-          </span>
-          <span className={profile?.resume_path ? 'text-teal font-medium' : ''}>
-            {profile?.resume_path ? '✓' : '○'} Resume
-          </span>
-          <span className={profile?.linkedin_url ? 'text-teal font-medium' : ''}>
-            {profile?.linkedin_url ? '✓' : '○'} LinkedIn
-          </span>
-          <span className={profile?.graduation_date ? 'text-teal font-medium' : ''}>
-            {profile?.graduation_date ? '✓' : '○'} Grad date
-          </span>
+          <span className={profile?.full_name ? 'text-teal font-medium' : ''}>{profile?.full_name ? '✓' : '○'} Name</span>
+          <span className={profile?.visa_status ? 'text-teal font-medium' : ''}>{profile?.visa_status ? '✓' : '○'} Visa status</span>
+          <span className={profile?.resume_path ? 'text-teal font-medium' : ''}>{profile?.resume_path ? '✓' : '○'} Resume</span>
+          <span className={profile?.linkedin_url ? 'text-teal font-medium' : ''}>{profile?.linkedin_url ? '✓' : '○'} LinkedIn</span>
+          <span className={profile?.graduation_date ? 'text-teal font-medium' : ''}>{profile?.graduation_date ? '✓' : '○'} Grad date</span>
           {strength < 100 && (
             <Link href="/profile" className="text-teal font-semibold hover:underline ml-auto">Complete profile →</Link>
           )}
@@ -223,17 +373,14 @@ export default async function DashboardPage() {
             <p className="text-sm font-semibold text-navy">Complete your profile for better AI accuracy</p>
             <p className="text-sm text-mid mt-0.5">Your visa status, graduation date, and degree improve your strategy report.</p>
           </div>
-          <Link href="/profile" className="flex-shrink-0 btn-teal text-xs py-1.5 px-3">
-            Complete →
-          </Link>
+          <Link href="/profile" className="flex-shrink-0 btn-teal text-xs py-1.5 px-3">Complete →</Link>
         </div>
       )}
 
-      {/* Products */}
+      {/* ══ AI TOOLS ═══════════════════════════════════════════════════════════ */}
       <div>
         <h2 className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">AI Tools</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {/* Green Card Strategy */}
           <Link href="/strategy" className="card hover:shadow-card-hover transition-all group border-2 hover:border-teal/20">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 bg-teal-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-teal/20 transition-colors">
@@ -252,7 +399,6 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
-          {/* RFE Analyzer */}
           <Link href="/rfe" className="card hover:shadow-card-hover transition-all group border-2 hover:border-navy/20">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 bg-navy-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-navy/10 transition-colors">
@@ -273,11 +419,11 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Reports history */}
+      {/* ══ REPORTS HISTORY ════════════════════════════════════════════════════ */}
       <div>
         <h2 className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">Your Reports</h2>
 
-        {allReports.length === 0 ? (
+        {reports.length === 0 ? (
           <div className="card text-center py-12 bg-gray-50 border-dashed">
             <div className="w-12 h-12 bg-navy-light rounded-xl flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-navy/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -292,7 +438,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {allReports.map(report => {
+            {reports.map(report => {
               const isComplete = report.status === 'complete'
               const isGenerating = report.status === 'generating' || report.status === 'paid'
               const isError = report.status === 'error'
@@ -334,9 +480,7 @@ export default async function DashboardPage() {
                         )}
                       </div>
                       <p className="text-xs text-mid mt-0.5">
-                        {new Date(report.created_at).toLocaleDateString('en-US', {
-                          month: 'long', day: 'numeric', year: 'numeric'
-                        })}
+                        {new Date(report.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       </p>
                     </div>
                   </div>
