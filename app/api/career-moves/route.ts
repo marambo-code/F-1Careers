@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
     // Fetch profile (for cached moves) and latest complete strategy report
     const [profileResult, reportResult] = await Promise.all([
-      service.from('profiles').select('career_moves, career_moves_updated_at').eq('id', user.id).single(),
+      service.from('profiles').select('career_moves, career_moves_updated_at, linkedin_url').eq('id', user.id).single(),
       service
         .from('reports')
         .select('id, questionnaire_responses, report_data, created_at')
@@ -63,8 +63,9 @@ export async function POST(req: Request) {
     // Compute current score from answers
     const score = computeGreenCardScore(answers)
 
-    // Generate fresh moves
-    const result = await generateCareerMoves(answers, score)
+    // Generate fresh moves (pass LinkedIn URL for personalization)
+    const linkedInUrl = profile?.linkedin_url as string | undefined
+    const result = await generateCareerMoves(answers, score, linkedInUrl)
     const toCache = { ...result, report_id: report.id }
 
     // Persist to profile

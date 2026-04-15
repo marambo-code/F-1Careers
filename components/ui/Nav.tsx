@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -19,6 +19,23 @@ export default function Nav() {
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
+  const [isPro, setIsPro] = useState(false)
+
+  // Check subscription status client-side (lightweight — single DB read)
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.status === 'active' || data?.status === 'trialing') setIsPro(true)
+        })
+    })
+  }, [pathname]) // re-check whenever route changes (e.g. after subscribe success)
 
   const handleSignOut = async () => {
     setSigningOut(true)
@@ -43,17 +60,36 @@ export default function Nav() {
         <div className="hidden md:flex items-center gap-0.5">
           {navLinks.map(link => {
             const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
-            if (link.highlight && !isActive) {
+
+            // Pro link — show differently based on subscription status
+            if (link.highlight) {
+              if (isPro) {
+                // Already Pro — show as a non-clickable badge in the nav
+                return (
+                  <span
+                    key={link.href}
+                    className="ml-1 px-3 py-1.5 rounded-lg text-sm font-bold bg-gradient-to-r from-teal/25 to-teal/15 text-teal border border-teal/30 flex items-center gap-1.5"
+                  >
+                    <span className="text-teal">✦</span> Pro Member
+                  </span>
+                )
+              }
+              // Not Pro — show upgrade link
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-1.5 rounded-lg text-sm font-bold text-teal border border-teal/30 hover:bg-teal/10 transition-colors ml-1"
+                  className={`ml-1 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                    isActive
+                      ? 'bg-white/10 text-white'
+                      : 'text-teal border border-teal/30 hover:bg-teal/10'
+                  }`}
                 >
                   {link.label} ✦
                 </Link>
               )
             }
+
             return (
               <Link
                 key={link.href}
@@ -82,19 +118,40 @@ export default function Nav() {
       <div className="md:hidden border-t border-white/10 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
         {navLinks.map(link => {
           const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href))
+
+          if (link.highlight) {
+            if (isPro) {
+              return (
+                <span
+                  key={link.href}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal/20 text-teal border border-teal/30 flex items-center gap-1"
+                >
+                  ✦ Pro
+                </span>
+              )
+            }
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  isActive ? 'bg-white/10 text-white' : 'text-teal border border-teal/30'
+                }`}
+              >
+                Pro ✦
+              </Link>
+            )
+          }
+
           return (
             <Link
               key={link.href}
               href={link.href}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                link.highlight && !isActive
-                  ? 'text-teal border border-teal/30 font-bold'
-                  : isActive
-                  ? 'bg-white/10 text-white'
-                  : 'text-blue-200 hover:text-white'
+                isActive ? 'bg-white/10 text-white' : 'text-blue-200 hover:text-white'
               }`}
             >
-              {link.label}{link.highlight && !isActive ? ' ✦' : ''}
+              {link.label}
             </Link>
           )
         })}

@@ -1,47 +1,111 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-export default async function SubscribeSuccessPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+export default function SubscribeSuccessPage() {
+  const params = useSearchParams()
+  const router = useRouter()
+  const sessionId = params.get('session_id')
+
+  const [status, setStatus] = useState<'activating' | 'done' | 'error'>('activating')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  useEffect(() => {
+    if (!sessionId) { setStatus('done'); return }
+
+    // Immediately provision subscription — don't wait for webhook
+    fetch('/api/subscriptions/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          // Non-fatal — webhook will still fire shortly
+          console.warn('[activate]', data.error)
+        }
+        setStatus('done')
+      })
+      .catch(e => {
+        console.warn('[activate] network error:', e)
+        setStatus('done') // webhook will handle it
+      })
+  }, [sessionId])
+
+  // Auto-redirect after 3s
+  useEffect(() => {
+    if (status !== 'done') return
+    const t = setTimeout(() => router.push('/dashboard'), 3000)
+    return () => clearTimeout(t)
+  }, [status, router])
 
   return (
-    <div className="max-w-lg mx-auto text-center space-y-6 pt-8">
-      <div className="w-16 h-16 rounded-full bg-teal/15 flex items-center justify-center mx-auto">
-        <span className="text-teal text-3xl">✓</span>
-      </div>
-      <div>
-        <h1 className="text-2xl font-bold text-navy">You're a Pro member</h1>
-        <p className="text-mid mt-2">
-          Your Green Card Score is now live. As you complete new strategy reports and execute career moves, your score will update automatically.
-        </p>
-      </div>
-      <div className="card text-left space-y-2">
-        <p className="font-semibold text-navy text-sm">What's unlocked for you:</p>
-        {[
-          'Living Green Card Score — updates with every report',
-          'All 4 AI career moves, personalized to your exact profile',
-          'Score history chart — track your trajectory',
-          'Priority support',
-        ].map(item => (
-          <div key={item} className="flex items-center gap-2 text-sm text-mid">
-            <span className="text-teal font-bold">✓</span>
-            <span>{item}</span>
+    <div className="max-w-md mx-auto text-center space-y-6 pt-12">
+      {status === 'activating' ? (
+        <>
+          {/* Animated checkmark building */}
+          <div className="w-20 h-20 mx-auto relative">
+            <svg className="w-20 h-20 animate-spin-slow" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" strokeWidth="6" />
+              <circle
+                cx="40" cy="40" r="34"
+                fill="none" stroke="#14B8A6" strokeWidth="6"
+                strokeDasharray="213.6"
+                strokeDashoffset="53.4"
+                strokeLinecap="round"
+                className="animate-dash"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-teal text-2xl">✦</span>
+            </div>
           </div>
-        ))}
-      </div>
-      <Link
-        href="/dashboard"
-        className="btn-primary inline-block w-full text-center"
-      >
-        Go to your dashboard →
-      </Link>
-      <p className="text-xs text-mid">
-        It may take a few seconds for your Pro status to appear.
-        <br />Refresh your dashboard if you don't see it right away.
-      </p>
+          <div>
+            <p className="text-navy font-bold text-lg">Activating your Pro membership…</p>
+            <p className="text-mid text-sm mt-1">This takes just a second</p>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Success state */}
+          <div className="w-20 h-20 mx-auto rounded-full bg-teal/10 flex items-center justify-center">
+            <svg className="w-10 h-10 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+
+          <div>
+            <div className="inline-flex items-center gap-2 bg-teal/10 text-teal text-xs font-bold px-3 py-1 rounded-full mb-3">
+              <span>✦</span> PRO MEMBER
+            </div>
+            <h1 className="text-2xl font-bold text-navy">You're in.</h1>
+            <p className="text-mid mt-2 leading-relaxed">
+              Your Green Card Score is now live and your career moves are being personalized. Redirecting to your dashboard…
+            </p>
+          </div>
+
+          <div className="card text-left space-y-2.5">
+            {[
+              'Living Green Card Score — updates with every strategy report',
+              'All 4 AI-personalized career moves, specific to your profile',
+              'Score history — track your trajectory over time',
+              'Priority support',
+            ].map(item => (
+              <div key={item} className="flex items-start gap-2.5 text-sm">
+                <span className="text-teal font-bold mt-0.5 flex-shrink-0">✓</span>
+                <span className="text-mid">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          <Link href="/dashboard" className="block w-full bg-navy text-white font-bold py-3 rounded-xl hover:bg-navy/90 transition-colors text-sm">
+            Go to dashboard →
+          </Link>
+        </>
+      )}
     </div>
   )
 }

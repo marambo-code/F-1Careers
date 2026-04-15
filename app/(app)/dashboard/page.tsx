@@ -236,9 +236,6 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-bold text-navy">Career Moves</h2>
             <p className="text-xs text-mid mt-0.5">What to do next to move your score</p>
           </div>
-          {isPro && careerMoves && (
-            <span className="text-xs bg-teal/10 text-teal border border-teal/20 font-bold px-2 py-0.5 rounded-full">Pro</span>
-          )}
           {!isPro && careerMoves && (
             <Link href="/subscribe" className="text-xs text-teal font-semibold hover:underline">
               Unlock all →

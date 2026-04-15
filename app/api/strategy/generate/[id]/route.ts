@@ -99,8 +99,12 @@ export async function POST(
         else console.log(`[score_history] Snapshot saved: ${gcScore.overall}/100 for user ${user.id}`)
       })
 
+      // Fetch LinkedIn URL for better personalization
+      const { data: profileData } = await service.from('profiles').select('linkedin_url').eq('id', user.id).single()
+      const linkedInUrl = profileData?.linkedin_url as string | undefined
+
       // Generate and cache career moves
-      generateCareerMoves(answers, gcScore)
+      generateCareerMoves(answers, gcScore, linkedInUrl)
         .then(result => {
           const toCache = { ...result, report_id: id }
           return service.from('profiles').update({
