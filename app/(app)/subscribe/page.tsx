@@ -29,17 +29,19 @@ export default function SubscribePage() {
     try {
       const res = await fetch('/api/subscriptions/checkout', { method: 'POST' })
       const data = await res.json()
+
       if (data.error === 'already_subscribed') {
         router.push('/dashboard')
         return
       }
       if (data.url) {
         window.location.href = data.url
-      } else {
-        setError('Something went wrong. Please try again.')
+        return
       }
-    } catch {
-      setError('Something went wrong. Please try again.')
+      // Surface the actual server error
+      setError(data.error ? `Error: ${data.error}` : 'Something went wrong. Please try again.')
+    } catch (e) {
+      setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
     } finally {
       setLoading(false)
     }

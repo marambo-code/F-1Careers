@@ -72,20 +72,30 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleRefresh = async () => {
+  const handleRefresh = async (force = true) => {
     setLoading(true)
     setError(null)
     try {
       const res = await fetch('/api/career-moves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ force: true }),
+        body: JSON.stringify({ force }),
       })
+      if (!res.ok) {
+        const text = await res.text()
+        setError(`Server error ${res.status}: ${text.slice(0, 100)}`)
+        return
+      }
       const data = await res.json()
-      if (data.moves) setMoves(data.moves)
-      else setError(data.message ?? 'Failed to refresh. Try again.')
-    } catch {
-      setError('Something went wrong. Try again.')
+      if (data.moves && data.moves.length > 0) {
+        setMoves(data.moves)
+      } else if (data.error) {
+        setError(data.message ?? data.error)
+      } else {
+        setError('No moves returned. Try again.')
+      }
+    } catch (e) {
+      setError(`Error: ${e instanceof Error ? e.message : 'Please try again.'}`)
     } finally {
       setLoading(false)
     }
@@ -118,7 +128,7 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
             <p className="text-sm text-mid mt-1">Generate your personalized moves based on your current profile and score.</p>
           </div>
           <button
-            onClick={handleRefresh}
+            onClick={() => handleRefresh(true)}
             disabled={loading}
             className="btn-teal text-xs py-2 px-4 flex-shrink-0 disabled:opacity-50"
           >
@@ -158,11 +168,11 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
         <div className="flex items-center justify-between pt-1">
           <p className="text-xs text-mid">Moves refresh automatically after each new strategy report</p>
           <button
-            onClick={handleRefresh}
+            onClick={() => handleRefresh(true)}
             disabled={loading}
             className="text-xs text-teal font-semibold hover:underline disabled:opacity-50"
           >
-            {loading ? 'Refreshing…' : 'Refresh now'}
+            {loading ? 'Refreshing…' : 'Refresh moves'}
           </button>
         </div>
       )}

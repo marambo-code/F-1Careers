@@ -154,78 +154,76 @@ export default async function DashboardPage() {
 
       {/* ══ HERO: Green Card Score ══════════════════════════════════════════════ */}
       <div className="card bg-navy text-white overflow-hidden relative">
-        {/* Subtle background accent */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-teal/5 rounded-full -translate-y-1/4 translate-x-1/4 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-teal/5 rounded-full -translate-y-1/3 translate-x-1/3 pointer-events-none" />
 
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="space-y-1">
-            <p className="text-xs font-bold text-blue-300 uppercase tracking-widest">Green Card Score</p>
-            <p className="text-blue-200 text-sm max-w-xs leading-relaxed">
-              {greenCardScore
-                ? `Your composite petition readiness across NIW and EB-1A. Best pathway: ${greenCardScore.bestPathway}.`
-                : 'Complete a Green Card Strategy report to see your score.'}
-            </p>
-            {greenCardScore && (
-              <div className="flex items-center gap-3 pt-1 flex-wrap">
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                  greenCardScore.labelColor === 'teal' ? 'bg-teal/20 text-teal' :
-                  greenCardScore.labelColor === 'blue' ? 'bg-blue-400/20 text-blue-300' :
-                  greenCardScore.labelColor === 'yellow' ? 'bg-yellow-400/20 text-yellow-300' :
-                  'bg-red-400/20 text-red-300'
-                }`}>
-                  {greenCardScore.label}
-                </span>
+        {greenCardScore ? (
+          <div className="flex items-center gap-6">
+            {/* Score ring — left */}
+            <div className="relative flex-shrink-0">
+              <ScoreRing score={greenCardScore.overall} color="teal" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-black text-white leading-none">{greenCardScore.overall}</span>
+                <span className="text-[11px] text-blue-300 font-medium mt-0.5">/100</span>
+              </div>
+            </div>
+
+            {/* Text — right */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest mb-1">Green Card Score</p>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${
+                  greenCardScore.label === 'Exceptional' ? 'bg-teal/25 text-teal' :
+                  greenCardScore.label === 'Strong'      ? 'bg-teal/20 text-teal' :
+                  greenCardScore.label === 'Developing'  ? 'bg-yellow-400/20 text-yellow-300' :
+                                                           'bg-red-400/20 text-red-300'
+                }`}>{greenCardScore.label}</span>
                 {greenCardScore.readyToFile && (
                   <span className="text-xs text-teal font-semibold">✓ Ready to file</span>
                 )}
-                {niwScore !== null && (
-                  <span className="text-xs text-blue-300">NIW {niwScore} · EB-1A {eb1aScore}</span>
-                )}
               </div>
-            )}
-            {!greenCardScore && (
-              <Link href="/strategy" className="inline-block mt-2 bg-teal text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-teal/90 transition-colors">
-                Run Green Card Strategy →
+              <p className="text-blue-200 text-sm mt-2">
+                Best pathway: <span className="text-white font-semibold">{greenCardScore.bestPathway}</span>
+                <span className="text-blue-400 mx-2">·</span>
+                NIW <span className="text-white font-semibold">{niwScore}</span>
+                <span className="text-blue-400 mx-1.5">·</span>
+                EB-1A <span className="text-white font-semibold">{eb1aScore}</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-5">
+            <div className="w-[110px] h-[110px] rounded-full border-8 border-white/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl font-black text-white/20">—</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest mb-1">Green Card Score</p>
+              <p className="text-white font-semibold">Not yet calculated</p>
+              <p className="text-blue-300 text-sm mt-1">Run a Green Card Strategy report to see your score.</p>
+              <Link href="/strategy" className="inline-block mt-3 bg-teal text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-teal/90 transition-colors">
+                Run strategy report →
               </Link>
-            )}
+            </div>
           </div>
+        )}
 
-          {/* Score ring */}
-          <div className="relative flex-shrink-0">
-            {greenCardScore ? (
-              <>
-                <ScoreRing score={greenCardScore.overall} color={greenCardScore.labelColor} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black text-white">{greenCardScore.overall}</span>
-                  <span className="text-xs text-blue-300 font-medium">/100</span>
-                </div>
-              </>
-            ) : (
-              <div className="w-[110px] h-[110px] rounded-full border-8 border-white/10 flex items-center justify-center">
-                <span className="text-2xl font-black text-white/30">—</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Score history (Pro only, if data exists) */}
+        {/* Score history (Pro only) */}
         {isPro && scoreHistory.length >= 2 && (
-          <div className="mt-6 pt-6 border-t border-white/10">
+          <div className="mt-5 pt-5 border-t border-white/10">
             <ScoreHistory history={scoreHistory} />
           </div>
         )}
 
-        {/* Pro badge or upgrade hint */}
+        {/* Footer strip */}
         {isPro ? (
           <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2">
-            <span className="text-xs bg-teal/20 text-teal border border-teal/30 font-bold px-2 py-0.5 rounded-full">Pro</span>
-            <p className="text-xs text-blue-300">Living score — updates with each new strategy report</p>
+            <span className="text-[11px] bg-teal/20 text-teal border border-teal/30 font-bold px-2 py-0.5 rounded-full">Pro</span>
+            <p className="text-xs text-blue-300">Score updates automatically with each new strategy report</p>
           </div>
         ) : greenCardScore ? (
           <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-4">
-            <p className="text-xs text-blue-300">Upgrade to Pro to track your score over time and unlock all career moves</p>
-            <Link href="/subscribe" className="flex-shrink-0 text-xs bg-teal text-white font-bold px-3 py-1.5 rounded-lg hover:bg-teal/90 transition-colors">
-              Go Pro
+            <p className="text-xs text-blue-300">Go Pro to track your score over time and unlock all 4 career moves</p>
+            <Link href="/subscribe" className="flex-shrink-0 text-xs bg-teal text-white font-bold px-3 py-1.5 rounded-lg hover:bg-teal/90 transition-colors whitespace-nowrap">
+              Go Pro — $29/mo
             </Link>
           </div>
         ) : null}
@@ -236,7 +234,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-sm font-bold text-navy">Career Moves</h2>
-            <p className="text-xs text-mid mt-0.5">AI-personalized actions tied to weak EB-1A criteria and NIW prongs</p>
+            <p className="text-xs text-mid mt-0.5">What to do next to move your score</p>
           </div>
           {isPro && careerMoves && (
             <span className="text-xs bg-teal/10 text-teal border border-teal/20 font-bold px-2 py-0.5 rounded-full">Pro</span>
