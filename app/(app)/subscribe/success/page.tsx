@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-export default function SubscribeSuccessPage() {
+function SuccessContent() {
   const params = useSearchParams()
   const router = useRouter()
   const sessionId = params.get('session_id')
@@ -107,5 +107,18 @@ export default function SubscribeSuccessPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function SubscribeSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-md mx-auto text-center pt-12">
+        <div className="w-12 h-12 rounded-full border-4 border-teal/20 border-t-teal animate-spin mx-auto" />
+        <p className="text-mid text-sm mt-4">Activating your membership…</p>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   )
 }
