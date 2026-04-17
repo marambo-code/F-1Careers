@@ -241,15 +241,40 @@ export default async function DashboardPage() {
       {/* ══ CAREER MOVES ═══════════════════════════════════════════════════════ */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-sm font-bold text-navy">Career Moves</h2>
-            <p className="text-xs text-mid mt-0.5">What to do next to move your score</p>
+          <div className="flex items-center gap-3">
+            {/* Completion ring mini */}
+            {careerMoves && careerMoves.length > 0 && (() => {
+              const done = careerMoves.filter((m: CareerMove & { completed?: boolean }) => m.completed).length
+              const total = careerMoves.length
+              const r = 10, c = 2 * Math.PI * r
+              return (
+                <div className="relative flex items-center justify-center w-7 h-7 flex-shrink-0">
+                  <svg width="28" height="28" viewBox="0 0 28 28" className="rotate-[-90deg]">
+                    <circle cx="14" cy="14" r={r} fill="none" stroke="#E5E7EB" strokeWidth="3"/>
+                    <circle cx="14" cy="14" r={r} fill="none" stroke="#14B8A6" strokeWidth="3"
+                      strokeDasharray={`${(done/total)*c} ${c}`} strokeLinecap="round"/>
+                  </svg>
+                  <span className="absolute text-[8px] font-black text-navy">{done}/{total}</span>
+                </div>
+              )
+            })()}
+            <div>
+              <h2 className="text-sm font-bold text-navy">Career Moves</h2>
+              <p className="text-xs text-mid mt-0.5">What to do next to move your score</p>
+            </div>
           </div>
-          {!isPro && careerMoves && (
-            <Link href="/subscribe" className="text-xs text-teal font-semibold hover:underline">
-              Unlock all →
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            {isPro && careerMoves && (
+              <Link href="/career-moves" className="text-xs text-teal font-semibold hover:underline">
+                Full view →
+              </Link>
+            )}
+            {!isPro && careerMoves && (
+              <Link href="/subscribe" className="text-xs text-teal font-semibold hover:underline">
+                Unlock all →
+              </Link>
+            )}
+          </div>
         </div>
         <CareerMovesSection
           initialMoves={careerMoves}
