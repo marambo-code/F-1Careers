@@ -166,6 +166,35 @@ drop policy if exists "Users can view own score history" on public.score_history
 create policy "Users can view own score history" on public.score_history
   for select using (auth.uid() = user_id);
 
+-- ─── COUNTRY / PROFILE EXTENSION ────────────────────────────────
+alter table public.profiles add column if not exists country_of_birth text;
+
+-- ─── ADMIN ALERTS ────────────────────────────────────────────────
+-- Manually managed via Supabase dashboard — toggle active to show/hide
+create table if not exists public.admin_alerts (
+  id uuid default uuid_generate_v4() primary key,
+  title text not null,
+  message text not null,
+  severity text default 'info' check (severity in ('info', 'warning', 'critical')),
+  active boolean default true,
+  created_at timestamptz default now()
+);
+alter table public.admin_alerts enable row level security;
+drop policy if exists "Anyone can view active alerts" on public.admin_alerts;
+create policy "Anyone can view active alerts" on public.admin_alerts
+  for select using (active = true);
+
+-- ─── RATE LIMITS ─────────────────────────────────────────────────
+create table if not exists public.rate_limits (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  route text not null,
+  count integer default 1,
+  window_start timestamptz default now(),
+  unique(user_id, route)
+);
+alter table public.rate_limits enable row level security;
+
 -- ─── DASHBOARD VIEW ──────────────────────────────────────────────
 create or replace view public.user_reports_view as
   select

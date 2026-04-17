@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import DeleteReportButton from '@/components/ui/DeleteReportButton'
 import CareerMovesSection from '@/components/dashboard/CareerMovesSection'
+import CountryAlert from '@/components/dashboard/CountryAlert'
+import AdminAlertBanner from '@/components/dashboard/AdminAlertBanner'
 import { computeGreenCardScoreFromSubscores } from '@/lib/scoring'
 import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
 import type { CareerMove } from '@/lib/ai/career-moves'
@@ -105,7 +107,7 @@ export default async function DashboardPage() {
 
   // Fetch all data in parallel
   const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('profiles').select('*, country_of_birth').eq('id', user.id).single(),
     supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end').eq('user_id', user.id).maybeSingle(),
     supabase.from('score_history').select('green_card_score, niw_score, eb1a_score, created_at').eq('user_id', user.id).order('created_at', { ascending: true }).limit(12),
@@ -149,8 +151,15 @@ export default async function DashboardPage() {
   const cachedMoves = profile?.career_moves as { moves: CareerMove[] } | null
   const careerMoves = cachedMoves?.moves ?? null
 
+  // Country of birth for backlog alerts
+  const countryOfBirth = (profile as Record<string, unknown> | null)?.country_of_birth as string | undefined
+
   return (
     <div className="space-y-8">
+
+      {/* ══ ADMIN ALERTS + COUNTRY WARNINGS ════════════════════════════════════ */}
+      <AdminAlertBanner />
+      {countryOfBirth && <CountryAlert countryCode={countryOfBirth} recommendedPathway={recommendedPathway} />}
 
       {/* ══ HERO: Green Card Score ══════════════════════════════════════════════ */}
       <div className="card bg-navy text-white overflow-hidden relative">

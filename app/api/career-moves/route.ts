@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateCareerMoves } from '@/lib/ai/career-moves'
 import { computeGreenCardScore } from '@/lib/scoring'
+import { checkRateLimit } from '@/lib/rate-limit'
 import type { StrategyAnswers } from '@/lib/types'
 
 export async function POST(req: Request) {
@@ -24,6 +25,16 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({}))
     const forceRefresh = body?.force === true
+
+    // Rate limit: 15 generations per 24h per user
+    const rateLimit = await checkRateLimit(user.id, 'career-moves')
+    if (!rateLimit.allowed) {
+      const resetTime = rateLimit.resetAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      return NextResponse.json(
+        { error: 'rate_limited', message: `Limit reached. Resets at ${resetTime}.` },
+        { status: 429 }
+      )
+    }
 
     const service = createServiceClient()
 
