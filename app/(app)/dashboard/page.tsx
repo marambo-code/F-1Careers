@@ -166,7 +166,7 @@ export default async function DashboardPage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-teal/5 rounded-full -translate-y-1/3 translate-x-1/3 pointer-events-none" />
 
         {greenCardScore ? (
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
             {/* Score ring — left */}
             <div className="relative flex-shrink-0">
               <ScoreRing score={greenCardScore.overall} color="teal" />
@@ -177,7 +177,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Text — right */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-center sm:text-left">
               <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest mb-1">Green Card Score</p>
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${

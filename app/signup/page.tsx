@@ -41,7 +41,7 @@ export default function SignupPage() {
       setError(signInError.message)
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      router.push('/profile?welcome=true')
       router.refresh()
     }
   }

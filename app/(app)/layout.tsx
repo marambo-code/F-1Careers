@@ -5,7 +5,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Nav />
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 pb-24 md:pb-8">
         {children}
       </main>
       <footer className="border-t border-gray-200 bg-white mt-8">
