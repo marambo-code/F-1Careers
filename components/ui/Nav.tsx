@@ -9,7 +9,8 @@ interface NavLink { href: string; label: string; highlight?: boolean }
 
 const navLinks: NavLink[] = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/strategy', label: 'Green Card Strategy' },
+  { href: '/strategy', label: 'GC Strategy' },
+  { href: '/career-moves', label: 'Career Moves' },
   { href: '/rfe', label: 'RFE Analyzer' },
   { href: '/profile', label: 'Profile' },
   { href: '/subscribe', label: 'Pro', highlight: true },

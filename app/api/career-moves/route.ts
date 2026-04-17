@@ -52,6 +52,7 @@ export async function POST(req: Request) {
         .maybeSingle(),
     ])
 
+
     const profile = profileResult.data
     const report = reportResult.data
 
@@ -74,9 +75,10 @@ export async function POST(req: Request) {
     // Compute current score from answers
     const score = computeGreenCardScore(answers)
 
-    // Generate fresh moves (pass LinkedIn URL for personalization)
+    // Generate fresh moves (pass LinkedIn URL + full report data for maximum personalization)
     const linkedInUrl = profile?.linkedin_url as string | undefined
-    const result = await generateCareerMoves(answers, score, linkedInUrl)
+    const reportData = report.report_data as Record<string, unknown> | null
+    const result = await generateCareerMoves(answers, score, linkedInUrl, reportData)
     const toCache = { ...result, report_id: report.id }
 
     // Persist to profile

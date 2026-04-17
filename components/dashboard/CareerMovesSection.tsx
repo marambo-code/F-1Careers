@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import type { CareerMove } from '@/lib/ai/career-moves'
 
 // ── Impact / effort styling ───────────────────────────────────────
@@ -20,8 +22,9 @@ const EFFORT_COLOR: Record<string, string> = {
 const LOADING_PHRASES = [
   'Reviewing your profile…',
   'Analyzing your criteria gaps…',
-  'Identifying your best opportunities…',
+  'Identifying your strongest opportunities…',
   'Crafting your personalized moves…',
+  'Almost ready…',
 ]
 
 function LoadingSkeleton() {
@@ -36,7 +39,6 @@ function LoadingSkeleton() {
 
   return (
     <div className="space-y-3">
-      {/* Status text */}
       <div className="flex items-center gap-2 pb-1">
         <div className="flex gap-1">
           {[0, 1, 2].map(i => (
@@ -52,7 +54,6 @@ function LoadingSkeleton() {
         </p>
       </div>
 
-      {/* Skeleton cards */}
       {[0, 1, 2, 3].map(i => (
         <div key={i} className="card border border-border overflow-hidden relative">
           <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent" />
@@ -85,7 +86,7 @@ function LoadingSkeleton() {
   )
 }
 
-// ── Move card ─────────────────────────────────────────────────────
+// ── Move card (compact dashboard version) ────────────────────────
 
 function MoveCard({ move, locked }: { move: CareerMove; locked?: boolean }) {
   const [expanded, setExpanded] = useState(false)
@@ -120,6 +121,10 @@ function MoveCard({ move, locked }: { move: CareerMove; locked?: boolean }) {
       </div>
 
       <p className="text-sm text-mid mt-3 leading-relaxed">{move.why}</p>
+
+      {move.score_impact && (
+        <p className="text-xs text-teal font-semibold mt-2">{move.score_impact}</p>
+      )}
 
       <button
         onClick={() => setExpanded(!expanded)}
@@ -163,6 +168,37 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
   const [moves, setMoves] = useState<CareerMove[] | null>(initialMoves)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Client-side Pro state — starts with server value but re-checks immediately
+  const [isProState, setIsProState] = useState(isPro)
+  const autoTriggered = useRef(false)
+
+  // Re-check Pro status on the client every time this component mounts.
+  // This is the critical fix: the server may have rendered isPro=false
+  // before the subscribe/activate flow completed — this self-corrects.
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          const nowPro = data?.status === 'active' || data?.status === 'trialing'
+          setIsProState(nowPro)
+        })
+    })
+  }, [])
+
+  // Auto-generate moves when Pro is detected and no moves exist yet.
+  // This handles the "just subscribed" moment — fires once.
+  useEffect(() => {
+    if (isProState && !moves && hasStrategyReport && !loading && !autoTriggered.current) {
+      autoTriggered.current = true
+      handleGenerate(false) // use cache if available, no forced regen
+    }
+  }, [isProState, moves, hasStrategyReport, loading])
 
   const handleGenerate = async (force = true) => {
     setLoading(true)
@@ -173,18 +209,17 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ force }),
       })
+      const data = await res.json()
       if (!res.ok) {
-        const text = await res.text()
-        setError(`Server error ${res.status}: ${text.slice(0, 120)}`)
+        setError(data.message ?? `Error ${res.status}`)
         return
       }
-      const data = await res.json()
       if (data.moves?.length > 0) {
         setMoves(data.moves)
       } else if (data.error) {
         setError(data.message ?? data.error)
       } else {
-        setError('No moves returned. Try again.')
+        setError('No moves returned. Please try again.')
       }
     } catch (e) {
       setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
@@ -240,25 +275,30 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
     )
   }
 
-  // ── Moves: free shows 1 locked, Pro shows all ─────────────────
-  const visibleMoves  = isPro ? moves : moves.slice(0, 1)
-  const lockedMoves   = isPro ? [] : moves.slice(1)
+  // ── Moves: free shows 1 + locked, Pro shows all ───────────────
+  const visibleMoves = isProState ? moves : moves.slice(0, 1)
+  const lockedMoves  = isProState ? [] : moves.slice(1)
 
   return (
     <div className="space-y-3">
       {/* Pro member header */}
-      {isPro && (
+      {isProState && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ProBadge />
-            <p className="text-xs text-mid">All moves unlocked · refreshes with each new report</p>
+            <p className="text-xs text-mid">All moves unlocked</p>
           </div>
-          <button
-            onClick={() => handleGenerate(true)}
-            className="text-xs text-teal font-semibold hover:underline"
-          >
-            Refresh moves
-          </button>
+          <div className="flex items-center gap-3">
+            <Link href="/career-moves" className="text-xs text-mid hover:text-navy transition-colors">
+              Full view →
+            </Link>
+            <button
+              onClick={() => handleGenerate(true)}
+              className="text-xs text-teal font-semibold hover:underline"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
       )}
 
@@ -266,7 +306,7 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
       {lockedMoves.map(move => <MoveCard key={move.id} move={move} locked />)}
 
       {/* Upgrade CTA — free only */}
-      {!isPro && lockedMoves.length > 0 && (
+      {!isProState && lockedMoves.length > 0 && (
         <div className="card bg-navy text-white text-center py-5">
           <ProBadge />
           <p className="font-bold mt-2">Unlock all {moves.length} career moves</p>
