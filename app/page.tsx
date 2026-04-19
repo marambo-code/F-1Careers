@@ -10,167 +10,306 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Nav ────────────────────────────────────────────────────── */}
-      <nav className="border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur z-50">
+      {/* ── Nav ─────────────────────────────────────────────────────── */}
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-navy tracking-tight">F-1 Careers</span>
-            <span className="text-teal text-xs font-bold bg-teal/10 px-2 py-0.5 rounded border border-teal/20">AI</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-mid font-medium hover:text-navy transition-colors">Sign in</Link>
-            <Link href="/signup" className="bg-navy text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-navy/90 transition-colors">
+          <Link href="/" className="flex items-center gap-2 no-underline">
+            <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
+            <span className="text-[10px] font-extrabold text-teal bg-teal/10 border border-teal/25 px-2 py-0.5 rounded-md">AI</span>
+          </Link>
+          <div className="flex items-center gap-2.5">
+            <Link href="/login" className="text-sm text-mid font-medium hover:text-navy transition-colors px-3 py-2">Sign in</Link>
+            <Link
+              href="/signup"
+              className="text-sm font-bold text-white bg-navy px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
+            >
               Get started free →
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ────────────────────────────────────────────────────── */}
-      <section className="bg-navy text-white">
-        <div className="max-w-5xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-teal/15 border border-teal/30 text-teal text-xs font-bold px-3 py-1.5 rounded-full mb-6">
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section className="bg-navy text-white relative overflow-hidden">
+        {/* Glow */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+          style={{
+            width: 900,
+            height: 500,
+            background: 'radial-gradient(ellipse, rgba(0,194,168,.14) 0%, transparent 65%)',
+          }}
+        />
+
+        <div className="relative z-10 max-w-3xl mx-auto px-6 pt-24 pb-0 text-center">
+          <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-8">
             <span className="w-1.5 h-1.5 bg-teal rounded-full animate-pulse" />
-            AI-Powered · Built for F-1, OPT, H-1B, and EB Petitioners
+            Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
           </div>
-          <h1 className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight mb-6">
-            Your visa strategy,<br />
+
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-3">
+            Your career and visa strategy,<br />
             <span className="text-teal">built by AI.</span>
           </h1>
-          <p className="text-blue-200 text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            F-1 Careers analyzes your profile against USCIS criteria and tells you exactly which visa pathway fits — and exactly what to do next.
+
+          <p className="text-[13px] font-bold tracking-[2px] uppercase text-white/40 mb-6">
+            Intelligently &nbsp;·&nbsp; Compliantly &nbsp;·&nbsp; Stress-free
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup" className="bg-teal text-white font-bold text-lg px-8 py-4 rounded-2xl hover:bg-teal/90 transition-all hover:scale-105 shadow-lg shadow-teal/30">
-              Get my green card strategy →
+
+          <p className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">
+            AI-powered career and visa strategy trained on Case Law precedent, built by international students who know exactly what you&apos;re going through.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+            <Link
+              href="/signup"
+              className="bg-teal text-white font-extrabold text-lg px-10 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
+              style={{ boxShadow: '0 8px 32px rgba(0,194,168,.30)' }}
+            >
+              Get my free green card preview →
             </Link>
-            <Link href="#products" className="text-blue-200 font-medium text-sm hover:text-white transition-colors">
-              See what's included ↓
+            <Link href="#products" className="text-slate-500 text-sm font-medium hover:text-white transition-colors py-4 px-2">
+              See what&apos;s included ↓
             </Link>
           </div>
-          <p className="text-blue-300 text-xs mt-6">Preview free · Pay only if you want the full report</p>
+          <p className="text-slate-600 text-xs pb-16">Preview free &nbsp;·&nbsp; Pay only for the full report</p>
         </div>
 
-        {/* Stats bar */}
-        <div className="border-t border-white/10">
-          <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-3 gap-6 text-center">
+        {/* Trust bar */}
+        <div className="border-t border-white/[0.07]">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4">
             {[
-              { n: 'EB-1A', d: 'Extraordinary Ability' },
-              { n: 'EB-2 NIW', d: 'National Interest Waiver' },
-              { n: 'O-1 · H-1B', d: 'Temporary Visas' },
-            ].map(s => (
-              <div key={s.n}>
-                <p className="text-white font-bold text-lg">{s.n}</p>
-                <p className="text-blue-300 text-xs mt-0.5">{s.d}</p>
+              { val: 'EB-1A & NIW', lbl: 'Both pathways analyzed' },
+              { val: 'Kazarian & Dhanasar', lbl: 'Trained on controlling case law' },
+              { val: '4 career moves', lbl: 'Your 90-day action campaign' },
+              { val: 'F-1 to green card', lbl: 'Built by those who did it' },
+            ].map((item, i) => (
+              <div key={i} className="py-5 px-4 text-center border-r border-white/[0.06] last:border-r-0">
+                <span className="block text-[15px] font-extrabold text-white">{item.val}</span>
+                <span className="block text-[11px] text-slate-500 mt-0.5">{item.lbl}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Products ────────────────────────────────────────────────── */}
-      <section id="products" className="max-w-5xl mx-auto px-6 py-24">
+      {/* ── Origin ───────────────────────────────────────────────────── */}
+      <section className="bg-slate-50 border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-16 md:gap-20">
+          <div className="flex-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Our story</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.2] mb-5">
+              From F-1 visa to EB-1A.<br />We&apos;ve navigated every step.
+            </h2>
+            <p className="text-base text-mid leading-[1.75] mb-4">
+              Not from a textbook. From years of first-hand experience navigating the same system you&apos;re in right now.
+            </p>
+            <p className="text-base text-mid leading-[1.75] mb-4">
+              We built F-1 Careers because generations of international students had already figured this out. That knowledge deserved a home.
+            </p>
+            <p className="text-base text-navy font-semibold leading-[1.75]">
+              The tool we wish we had. Trained on the case law that actually decides your petition.
+            </p>
+          </div>
+
+          <div
+            className="flex-shrink-0 w-full md:w-80 bg-navy rounded-2xl p-7"
+            style={{ boxShadow: '0 24px 64px rgba(27,43,107,.20)' }}
+          >
+            <p className="text-[10px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Case Law Trained</p>
+            {[
+              { tag: 'Kazarian', title: 'Matter of Kazarian', desc: 'EB-1A two-part adjudication standard. All 10 criteria framework.' },
+              { tag: 'Dhanasar', title: 'Matter of Dhanasar', desc: 'NIW three-prong test. National interest framework.' },
+              { tag: 'Chawathe', title: 'Matter of Chawathe', desc: 'Preponderance of evidence. Burden of proof standard.' },
+            ].map((c, i) => (
+              <div key={i} className="flex gap-3 py-3 border-b border-white/[0.06] last:border-b-0">
+                <span className="text-[10px] font-bold text-teal w-14 flex-shrink-0 pt-0.5">{c.tag}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-white">{c.title}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-[1.5]">{c.desc}</p>
+                </div>
+              </div>
+            ))}
+            <p className="text-[11px] text-slate-600 mt-4 pt-3 border-t border-white/[0.06] leading-[1.55]">
+              Not generic AI. Trained on the exact standards USCIS adjudicators use to evaluate your petition.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Products ─────────────────────────────────────────────────── */}
+      <section id="products" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-navy">Two tools. One goal: your green card.</h2>
-          <p className="text-mid mt-3 max-w-xl mx-auto">Built specifically for international professionals who can't afford to get this wrong.</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
+            Two tools. One path forward.
+          </h2>
+          <p className="text-lg text-mid mt-3">For every stage of your immigration journey.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Green Card Strategy */}
-          <div className="rounded-2xl border-2 border-teal/20 p-8 space-y-6 hover:border-teal/50 transition-colors">
-            <div className="w-12 h-12 bg-teal/10 rounded-2xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="border-2 border-border rounded-2xl p-9 hover:border-teal/50 hover:shadow-card-hover transition-all">
+            <div className="text-2xl mb-5">📊</div>
+            <div className="flex items-start justify-between mb-2.5">
+              <h3 className="text-[19px] font-extrabold text-navy">Green Card Strategy Report</h3>
+              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$300</span>
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold text-navy">Green Card Strategy Report</h3>
-                <span className="text-2xl font-bold text-teal">$300</span>
-              </div>
-              <p className="text-mid text-sm leading-relaxed">
-                Complete criterion-by-criterion EB-1A and NIW assessment with a personalized 12-month roadmap. Preview free before paying.
-              </p>
-            </div>
-            <ul className="space-y-2.5">
+            <p className="text-sm text-mid leading-relaxed mb-6">
+              Complete EB-1A and NIW analysis with a personalized 12-month roadmap. Free preview before you pay.
+            </p>
+            <ul className="space-y-2.5 mb-7">
               {[
-                'EB-1A all 10 criteria rated (Strong / Developing / Gap)',
+                'All 10 EB-1A criteria scored and ranked',
                 'NIW Dhanasar three-prong analysis',
                 'Visa pathway feasibility ranking',
-                'Evidence mapping tied to your profile',
-                'Gap analysis with specific action items',
-                '3 / 6 / 12-month career + immigration roadmap',
-                'Downloadable PDF — attorney-ready format',
+                'Evidence mapping tied to your actual profile',
+                'Gap analysis with specific next steps',
+                '3 / 6 / 12-month career and immigration roadmap',
+                'Downloadable PDF, attorney-ready format',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
-                  <span className="text-teal font-bold mt-0.5">✓</span> {f}
+                  <span className="text-teal font-bold mt-0.5 flex-shrink-0">✓</span> {f}
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full bg-teal text-white font-bold py-3.5 rounded-xl text-center hover:bg-teal/90 transition-colors text-sm">
-              Start questionnaire — preview free →
+            <Link href="/signup" className="block w-full bg-teal text-white font-bold py-3.5 rounded-xl text-center text-sm hover:opacity-90 transition-opacity no-underline">
+              Start questionnaire, preview free →
             </Link>
           </div>
 
-          {/* RFE Analyzer */}
-          <div className="rounded-2xl border-2 border-navy/20 p-8 space-y-6 hover:border-navy/40 transition-colors">
-            <div className="w-12 h-12 bg-navy/10 rounded-2xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <div className="border-2 border-border rounded-2xl p-9 hover:border-navy/40 hover:shadow-card-hover transition-all">
+            <div className="text-2xl mb-5">📄</div>
+            <div className="flex items-start justify-between mb-2.5">
+              <h3 className="text-[19px] font-extrabold text-navy">RFE Response Analyzer</h3>
+              <span className="text-[26px] font-extrabold text-navy ml-4 flex-shrink-0">$200</span>
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold text-navy">RFE Response Analyzer</h3>
-                <span className="text-2xl font-bold text-navy">$200</span>
-              </div>
-              <p className="text-mid text-sm leading-relaxed">
-                Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy. Works for EB-1A, NIW, H-1B, O-1, and more.
-              </p>
-            </div>
-            <ul className="space-y-2.5">
+            <p className="text-sm text-mid leading-relaxed mb-6">
+              Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy.
+            </p>
+            <ul className="space-y-2.5 mb-7">
               {[
                 'Every RFE issue identified and ranked by risk',
-                'Plain English translation of USCIS legalese',
+                'Plain-English translation of USCIS legalese',
                 'Evidence checklist for each issue',
-                'Response strategy: Rebut / Supplement / Narrow',
-                'Cites controlling cases (Kazarian, Dhanasar, etc.)',
+                'Response strategy: Rebut, Supplement, or Narrow',
+                'Cites controlling cases (Kazarian, Dhanasar)',
                 'Priority action list ordered by urgency',
-                'Downloadable PDF — hand directly to attorney',
+                'Downloadable PDF, hand directly to attorney',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
-                  <span className="text-navy font-bold mt-0.5">✓</span> {f}
+                  <span className="text-navy font-bold mt-0.5 flex-shrink-0">✓</span> {f}
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full bg-navy text-white font-bold py-3.5 rounded-xl text-center hover:bg-navy/90 transition-colors text-sm">
-              Upload RFE — preview free →
+            <Link href="/signup" className="block w-full bg-navy text-white font-bold py-3.5 rounded-xl text-center text-sm hover:opacity-90 transition-opacity no-underline">
+              Upload RFE, preview free →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── How it works ────────────────────────────────────────────── */}
-      <section className="bg-gray-50 py-24">
-        <div className="max-w-5xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-navy text-center mb-14">How it works</h2>
+      {/* ── Career Moves / Pro band ───────────────────────────────────── */}
+      <section className="bg-navy py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+            <div className="flex-1 min-w-[280px]">
+              <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Pro membership</p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15] mb-4">
+                Your <span className="text-teal">career moves.</span><br />
+                Not generic advice.
+              </h2>
+              <p className="text-base text-slate-500 leading-[1.7] mb-3">
+                Every month, 4 AI-generated actions built specifically for your criteria gaps, your field, and your timeline. A 90-day campaign that updates as you grow.
+              </p>
+              <p className="text-base text-slate-500 leading-[1.7]">
+                Your Green Card Score tracks every report. Watch it move as you execute.
+              </p>
+              <div className="flex items-baseline gap-1 mt-7">
+                <span className="text-5xl font-extrabold text-white leading-none">$29</span>
+                <span className="text-base text-slate-500">/month</span>
+              </div>
+              <Link href="/signup" className="inline-block mt-5 bg-teal text-white font-extrabold text-[15px] px-8 py-3.5 rounded-2xl hover:opacity-90 transition-opacity no-underline">
+                Get Pro →
+              </Link>
+            </div>
+
+            <div className="flex-1 min-w-[280px] max-w-[520px] w-full">
+              <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-slate-500 mb-4">Example career moves</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+                <div className="bg-white/5 border border-white/[0.09] rounded-2xl p-5">
+                  <div className="flex flex-wrap items-start gap-1.5 mb-3">
+                    <span className="text-[10px] font-bold text-purple-400 border border-purple-400/30 px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,.08)' }}>High Leverage</span>
+                    <span className="text-[10px] font-bold text-teal border border-teal/30 px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,194,168,.08)' }}>↑ High impact</span>
+                    <span className="text-[10px] text-slate-500 ml-auto">Low effort</span>
+                  </div>
+                  <p className="text-[13px] font-bold text-white leading-[1.4] mb-1.5">Submit review for NeurIPS 2025 Programme Committee</p>
+                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iv — Judging the Work of Others</p>
+                  <p className="text-[12px] text-slate-500 leading-[1.55]">One formal review invitation documents a new criterion entirely. OpenReview.net is actively recruiting reviewers now.</p>
+                  <p className="text-[11px] font-bold text-teal mt-2.5">▲ +10-14 pts on EB-1A score</p>
+                </div>
+
+                <div className="bg-white/5 border border-white/[0.09] rounded-2xl p-5">
+                  <div className="flex flex-wrap items-start gap-1.5 mb-3">
+                    <span className="text-[10px] font-bold text-emerald-400 border border-emerald-400/30 px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,.08)' }}>Quick Win</span>
+                    <span className="text-[10px] font-bold text-teal border border-teal/30 px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,194,168,.08)' }}>↑ High impact</span>
+                    <span className="text-[10px] text-slate-500 ml-auto">Low effort</span>
+                  </div>
+                  <p className="text-[13px] font-bold text-white leading-[1.4] mb-1.5">Get quoted in MIT Technology Review on your research</p>
+                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iii — Press and Media Coverage</p>
+                  <p className="text-[12px] text-slate-500 leading-[1.55]">Your university press office can pitch this today. One credible media mention covers §iii with minimal time investment.</p>
+                  <p className="text-[11px] font-bold text-teal mt-2.5">▲ +8-12 pts on EB-1A score</p>
+                </div>
+
+                <div className="border border-white/[0.09] rounded-2xl p-5 flex flex-col items-center justify-center text-center min-h-[160px] gap-2" style={{ background: 'rgba(15,23,42,.82)' }}>
+                  <span className="text-xl">🔒</span>
+                  <span className="text-[12px] font-semibold text-slate-500">Pro move</span>
+                </div>
+
+                <div className="border border-white/[0.09] rounded-2xl p-5 flex flex-col items-center justify-center text-center min-h-[160px] gap-2" style={{ background: 'rgba(15,23,42,.82)' }}>
+                  <span className="text-xl">🔒</span>
+                  <span className="text-[12px] font-semibold text-slate-500">Pro move</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Who it's for ─────────────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">Built for the entire journey.</h2>
+          <p className="text-lg text-mid mt-3">From your first OPT to your green card approval.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {[
+            { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
+            { who: 'H-1B holders', desc: "Want a green card path that doesn't depend entirely on your employer." },
+            { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
+            { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
+            { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },
+            { who: 'Self-petitioners', desc: 'Filing without employer sponsorship and need to understand what extraordinary really means.' },
+          ].map(c => (
+            <div key={c.who} className="rounded-2xl border border-border p-6 hover:border-teal/35 transition-colors">
+              <p className="font-bold text-navy text-sm mb-1.5">{c.who}</p>
+              <p className="text-mid text-sm leading-relaxed">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── How it works ─────────────────────────────────────────────── */}
+      <section className="bg-slate-50 border-y border-border py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">How it works</h2>
+          </div>
           <div className="grid sm:grid-cols-3 gap-10">
             {[
-              {
-                step: '01',
-                title: 'Answer the questionnaire',
-                body: 'Rate your evidence against each USCIS criterion. Takes 5 minutes. Your profile data pre-fills where possible.',
-              },
-              {
-                step: '02',
-                title: 'Get your free preview',
-                body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis — before paying anything.',
-              },
-              {
-                step: '03',
-                title: 'Unlock the full report',
-                body: 'Pay once for your full criterion breakdown, evidence map, gap analysis, and 12-month roadmap. Download as PDF.',
-              },
+              { step: '01', title: 'Answer the questionnaire', body: 'Rate your evidence against each USCIS criterion. Takes 5 minutes. Your profile data pre-fills where possible.' },
+              { step: '02', title: 'Get your free preview', body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis before paying anything.' },
+              { step: '03', title: 'Unlock the full report', body: 'Pay once for your full criterion breakdown, evidence map, gap analysis, and 12-month roadmap. Download as PDF.' },
             ].map(s => (
               <div key={s.step} className="text-center space-y-3">
                 <div className="w-12 h-12 bg-navy text-white rounded-2xl flex items-center justify-center font-bold text-sm mx-auto">{s.step}</div>
@@ -182,54 +321,38 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Who it's for ────────────────────────────────────────────── */}
-      <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-navy">Built for international professionals</h2>
-          <p className="text-mid mt-3">If you're navigating the US immigration system without a roadmap, this is for you.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "Want a path to a green card that doesn't depend on your employer." },
-            { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway to pursue.' },
-            { who: 'RFE recipients', desc: 'Just received a USCIS Request for Evidence and need a response strategy fast.' },
-            { who: 'Researchers & PhDs', desc: "Have publications, citations, and contributions but don't know how USCIS sees them." },
-            { who: 'Self-petitioners', desc: 'Filing without employer sponsorship and need to understand what it takes.' },
-          ].map(c => (
-            <div key={c.who} className="rounded-xl border border-border p-5 hover:border-teal/30 transition-colors">
-              <p className="font-bold text-navy text-sm">{c.who}</p>
-              <p className="text-mid text-sm mt-1 leading-relaxed">{c.desc}</p>
-            </div>
-          ))}
-        </div>
+      {/* ── Final CTA ────────────────────────────────────────────────── */}
+      <section className="bg-navy text-white py-28 px-6 text-center">
+        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-5">
+          You didn&apos;t come this far<br />
+          to get stuck on <span className="text-teal">paperwork.</span>
+        </h2>
+        <p className="text-lg text-slate-500 max-w-md mx-auto mb-9 leading-relaxed">Free preview. No commitment. Just clarity.</p>
+        <Link
+          href="/signup"
+          className="inline-block bg-teal text-white font-extrabold text-lg px-12 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
+          style={{ boxShadow: '0 8px 32px rgba(0,194,168,.28)' }}
+        >
+          Get started free →
+        </Link>
+        <p className="text-slate-600 text-xs mt-5">Preview free &nbsp;·&nbsp; No subscription required &nbsp;·&nbsp; Pay only for the full report</p>
       </section>
 
-      {/* ── Final CTA ───────────────────────────────────────────────── */}
-      <section className="bg-navy text-white py-20">
-        <div className="max-w-2xl mx-auto px-6 text-center space-y-6">
-          <h2 className="text-4xl font-bold">Stop guessing. Start knowing.</h2>
-          <p className="text-blue-200 leading-relaxed">
-            Most international professionals spend years uncertain about which visa path is right for them. Get clarity in 5 minutes — free preview, no commitment.
-          </p>
-          <Link href="/signup" className="inline-block bg-teal text-white font-bold text-lg px-10 py-4 rounded-2xl hover:bg-teal/90 transition-all hover:scale-105 shadow-lg shadow-teal/30">
-            Get started free →
-          </Link>
-          <p className="text-blue-300 text-xs">No subscription · Preview free · Pay only for the full report</p>
-        </div>
-      </section>
-
-      {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 py-8">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-mid">
+      {/* ── Footer ───────────────────────────────────────────────────── */}
+      <footer className="border-t border-border py-7 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-navy">F-1 Careers</span>
-            <span className="text-teal text-xs font-bold bg-teal/10 px-1.5 py-0.5 rounded">AI</span>
+            <span className="font-extrabold text-navy text-[15px]">F-1 Careers</span>
+            <span className="text-[10px] font-extrabold text-teal bg-teal/10 border border-teal/25 px-1.5 py-0.5 rounded">AI</span>
           </div>
-          <p className="text-xs">This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.</p>
-          <div className="flex gap-4">
-            <Link href="/login" className="hover:text-navy transition-colors">Sign in</Link>
-            <Link href="/signup" className="hover:text-navy transition-colors">Sign up</Link>
+          <p className="text-[11px] text-slate-400 max-w-sm text-center leading-relaxed">
+            This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
+          </p>
+          <div className="flex gap-5">
+            <Link href="/privacy" className="text-sm text-mid hover:text-navy transition-colors">Privacy</Link>
+            <Link href="/terms" className="text-sm text-mid hover:text-navy transition-colors">Terms</Link>
+            <Link href="/login" className="text-sm text-mid hover:text-navy transition-colors">Sign in</Link>
+            <Link href="/signup" className="text-sm text-mid hover:text-navy transition-colors">Sign up</Link>
           </div>
         </div>
       </footer>
