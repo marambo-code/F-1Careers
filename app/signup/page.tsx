@@ -59,7 +59,7 @@ export default function SignupPage() {
             <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
             <span className="text-teal text-xs font-bold bg-teal/15 px-2 py-0.5 rounded-md border border-teal/20">AI</span>
           </div>
-          <p className="text-blue-200 text-sm">AI Green Card Strategy Engine for International Professionals</p>
+          <p className="text-blue-200 text-sm">Personalized Career and Visa Strategy for International Professionals</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">

@@ -81,7 +81,7 @@ export default async function Home() {
             {[
               { val: 'EB-1A & NIW', lbl: 'Both pathways analyzed' },
               { val: 'Kazarian & Dhanasar', lbl: 'Trained on controlling case law' },
-              { val: '4 career moves', lbl: 'Your 90-day action campaign' },
+              { val: 'Career moves', lbl: 'Your 90-day action campaign' },
               { val: 'F-1 to green card', lbl: 'Built by those who did it' },
             ].map((item, i) => (
               <div key={i} className="py-5 px-4 text-center border-r border-white/[0.06] last:border-r-0">
@@ -141,7 +141,7 @@ export default async function Home() {
       <section id="products" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
-            Two tools. One path forward.
+            Multiple tools. One path forward.
           </h2>
           <p className="text-lg text-mid mt-3">For every stage of your immigration journey.</p>
         </div>
@@ -215,10 +215,10 @@ export default async function Home() {
               <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Pro membership</p>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15] mb-4">
                 Your <span className="text-teal">career moves.</span><br />
-                Not generic advice.
+                Personalized to your journey.
               </h2>
               <p className="text-base text-slate-500 leading-[1.7] mb-3">
-                Every month, 4 AI-generated actions built specifically for your criteria gaps, your field, and your timeline. A 90-day campaign that updates as you grow.
+                Every month, personalized intelligent moves built specifically for your criteria gaps, your field, and your timeline. A 90-day campaign that updates as you grow.
               </p>
               <p className="text-base text-slate-500 leading-[1.7]">
                 Your Green Card Score tracks every report. Watch it move as you execute.
@@ -325,7 +325,7 @@ export default async function Home() {
       <section className="bg-navy text-white py-28 px-6 text-center">
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-5">
           You didn&apos;t come this far<br />
-          to get stuck on <span className="text-teal">paperwork.</span>
+          to get stuck on <span className="text-teal">confusion.</span>
         </h2>
         <p className="text-lg text-slate-500 max-w-md mx-auto mb-9 leading-relaxed">Free preview. No commitment. Just clarity.</p>
         <Link
@@ -335,7 +335,6 @@ export default async function Home() {
         >
           Get started free →
         </Link>
-        <p className="text-slate-600 text-xs mt-5">Preview free &nbsp;·&nbsp; No subscription required &nbsp;·&nbsp; Pay only for the full report</p>
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
