@@ -324,8 +324,8 @@ export default async function Home() {
       {/* ── Final CTA ────────────────────────────────────────────────── */}
       <section className="bg-navy text-white py-28 px-6 text-center">
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-5">
-          You didn&apos;t come this far<br />
-          to get stuck on <span className="text-teal">confusion.</span>
+          You&apos;re already <span className="text-teal">extraordinary.</span><br />
+          USCIS just needs to see it.
         </h2>
         <p className="text-lg text-slate-500 max-w-md mx-auto mb-9 leading-relaxed">Free preview. No commitment. Just clarity.</p>
         <Link
