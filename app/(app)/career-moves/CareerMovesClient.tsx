@@ -390,24 +390,47 @@ export default function CareerMovesClient({
   const [confirmRegen, setConfirmRegen] = useState(false)
   const autoTriggered = useRef(false)
 
-  // Re-check Pro status client-side
+  // Re-check Pro status client-side — only upgrade, never downgrade.
+  // The server-side check is authoritative; this only catches the edge case
+  // where the page loaded before the subscription was written (post-payment race).
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
       supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle()
-        .then(({ data }) => setIsProState(data?.status === 'active' || data?.status === 'trialing'))
+        .then(({ data }) => {
+          if (data?.status === 'active' || data?.status === 'trialing') {
+            setIsProState(true)
+          }
+        })
     })
   }, [])
 
-  // Auto-generate if Pro + has report + no moves yet
+  // Auto-generate if Pro + has report + no moves yet.
+  // Runs once — autoTriggered ref prevents double-fire.
   useEffect(() => {
     if (isProState && !currentSet && hasStrategyReport && !loading && !autoTriggered.current) {
       autoTriggered.current = true
-      handleGenerate(false)
+      fetch('/api/career-moves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: false }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.moves?.length > 0) {
+            setCurrentSet({
+              id: data.setId ?? 'legacy',
+              generated_at: new Date().toISOString(),
+              moves: data.moves,
+              is_current: true,
+            })
+          }
+        })
+        .catch(() => {})
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isProState, currentSet, hasStrategyReport, loading])
+  }, [isProState, hasStrategyReport])
 
   const handleGenerate = async (force = true) => {
     setLoading(true)
