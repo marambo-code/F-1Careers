@@ -160,7 +160,7 @@ export default async function StrategyStartPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-blue-200 text-sm font-medium">One-time · No subscription</p>
-            <p className="text-4xl font-bold mt-1">$300</p>
+            <p className="text-4xl font-bold mt-1">$397</p>
             <p className="text-blue-200 text-sm mt-1">Full structured report. Preview before you pay.</p>
           </div>
           <div className="text-right text-xs text-blue-300 space-y-1">

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 
 const FEATURES_FREE = [
   'Green Card Score snapshot (after strategy report)',
-  'Full Green Card Strategy report ($150)',
-  'Full RFE Analysis report ($200)',
+  'Full Green Card Strategy report ($397)',
+  'Full RFE Analysis report ($297)',
   '1 career move preview',
 ]
 
@@ -22,12 +22,17 @@ export default function SubscribePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
 
   const handleSubscribe = async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/subscriptions/checkout', { method: 'POST' })
+      const res = await fetch('/api/subscriptions/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ billing }),
+      })
       const data = await res.json()
 
       if (data.error === 'already_subscribed') {
@@ -38,7 +43,6 @@ export default function SubscribePage() {
         window.location.href = data.url
         return
       }
-      // Surface the actual server error
       setError(data.error ? `Error: ${data.error}` : 'Something went wrong. Please try again.')
     } catch (e) {
       setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
@@ -81,8 +85,33 @@ export default function SubscribePage() {
             <span className="bg-teal text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-teal mb-1">Pro</p>
-          <p className="text-2xl font-bold text-navy">$29<span className="text-base font-normal text-mid">/month</span></p>
-          <p className="text-sm text-mid mb-4">Cancel anytime</p>
+
+          {/* Billing toggle */}
+          <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg p-0.5 mb-3 w-fit">
+            <button
+              onClick={() => setBilling('monthly')}
+              className={`text-xs font-bold px-3 py-1.5 rounded-md transition-all ${billing === 'monthly' ? 'bg-white text-navy shadow-sm' : 'text-mid hover:text-navy'}`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBilling('annual')}
+              className={`text-xs font-bold px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${billing === 'annual' ? 'bg-white text-navy shadow-sm' : 'text-mid hover:text-navy'}`}
+            >
+              Annual
+              <span className="text-[10px] font-extrabold text-teal bg-teal/10 px-1.5 py-0.5 rounded">Save $189</span>
+            </button>
+          </div>
+
+          {billing === 'monthly' ? (
+            <p className="text-2xl font-bold text-navy">$49<span className="text-base font-normal text-mid">/month</span></p>
+          ) : (
+            <div>
+              <p className="text-2xl font-bold text-navy">$399<span className="text-base font-normal text-mid">/year</span></p>
+              <p className="text-xs text-teal font-semibold mt-0.5">$33/mo — save $189 vs monthly</p>
+            </div>
+          )}
+          <p className="text-sm text-mid mb-4 mt-1">Cancel anytime</p>
           <ul className="space-y-2">
             {FEATURES_PRO.map(f => (
               <li key={f} className="flex items-start gap-2 text-sm text-navy">
@@ -112,7 +141,7 @@ export default function SubscribePage() {
           disabled={loading}
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors disabled:opacity-50"
         >
-          {loading ? 'Redirecting to checkout...' : 'Subscribe for $29/month'}
+          {loading ? 'Redirecting to checkout...' : billing === 'annual' ? 'Start annual plan — $399/year' : 'Start monthly plan — $49/month'}
         </button>
         <p className="text-blue-300 text-xs text-center mt-3">
           Secured by Stripe · Cancel anytime from your account

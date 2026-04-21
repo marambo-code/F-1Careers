@@ -9,8 +9,8 @@ interface PayButtonProps {
 }
 
 const PRICES = {
-  strategy: '$300',
-  rfe: '$200',
+  strategy: '$397',
+  rfe: '$297',
 }
 
 export default function PayButton({ reportId, productType, className }: PayButtonProps) {

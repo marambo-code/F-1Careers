@@ -208,7 +208,7 @@ export default async function StrategyPreviewPage({
           ))}
         </ul>
         <div className="mt-6">
-          <p className="text-3xl font-bold">$300</p>
+          <p className="text-3xl font-bold">$397</p>
           <p className="text-blue-200 text-sm">One-time · No subscription</p>
         </div>
         <PayButton reportId={reportId} productType="strategy" className="mt-4 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors" />

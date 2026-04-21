@@ -36,7 +36,7 @@ USCIS adjudication is highly fact-specific and subject to change. No AI system c
           title: '4. Payments and refunds',
           body: `Strategy reports and RFE analyses are one-time purchases. Due to the nature of AI-generated content (generated immediately upon payment), all sales are final. If a report fails to generate due to a technical error on our end, we will regenerate it or issue a full refund at our discretion.
 
-Pro subscriptions ($29/month) are billed monthly. You may cancel at any time. Cancellation takes effect at the end of the current billing period. We do not issue prorated refunds for partial months.`,
+Pro subscriptions ($49/month or $399/year) are billed on the selected cycle. You may cancel at any time. Cancellation takes effect at the end of the current billing period. We do not issue prorated refunds for partial months.`,
         },
         {
           title: '5. Accuracy of information',

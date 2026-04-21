@@ -167,7 +167,7 @@ export default async function RFEPreviewPage({
           ))}
         </ul>
         <div className="mt-6">
-          <p className="text-3xl font-bold">$200</p>
+          <p className="text-3xl font-bold">$297</p>
           <p className="text-blue-200 text-sm">One-time · No subscription</p>
         </div>
         <PayButton

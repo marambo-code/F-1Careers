@@ -1,7 +1,7 @@
 /**
  * POST /api/subscriptions/checkout
  * ─────────────────────────────────────────────────────────────────
- * Creates a Stripe Subscription checkout session ($29/month).
+ * Creates a Stripe Subscription checkout session ($49/month).
  * On success, Stripe redirects to /subscribe/success?session_id=...
  * The subscription webhook handles provisioning.
  */

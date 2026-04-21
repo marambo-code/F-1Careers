@@ -317,7 +317,7 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
             href="/subscribe"
             className="inline-block mt-4 bg-teal text-white font-bold py-2.5 px-6 rounded-xl hover:bg-teal/90 transition-colors text-sm"
           >
-            Go Pro — $29/month
+            Go Pro — $49/month
           </a>
         </div>
       )}

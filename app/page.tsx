@@ -155,7 +155,7 @@ export default async function Home() {
             <div className="text-2xl mb-5">📊</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">Green Card Strategy Report</h3>
-              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$300</span>
+              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$397</span>
             </div>
             <p className="text-sm text-mid leading-relaxed mb-6">
               Complete EB-1A and NIW analysis with a personalized 12-month roadmap. Free preview before you pay.
@@ -184,7 +184,7 @@ export default async function Home() {
             <div className="text-2xl mb-5">📄</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">RFE Response Analyzer</h3>
-              <span className="text-[26px] font-extrabold text-navy ml-4 flex-shrink-0">$200</span>
+              <span className="text-[26px] font-extrabold text-navy ml-4 flex-shrink-0">$297</span>
             </div>
             <p className="text-sm text-mid leading-relaxed mb-6">
               Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy.
@@ -228,8 +228,9 @@ export default async function Home() {
                 Your Green Card Score tracks every report. Watch it move as you execute.
               </p>
               <div className="flex items-baseline gap-1 mt-7">
-                <span className="text-5xl font-extrabold text-white leading-none">$29</span>
+                <span className="text-5xl font-extrabold text-white leading-none">$49</span>
                 <span className="text-base text-slate-500">/month</span>
+                <span className="text-[11px] text-slate-600 ml-2">or $399/yr</span>
               </div>
               <Link href="/signup" className="inline-block mt-5 bg-teal text-white font-extrabold text-[15px] px-8 py-3.5 rounded-2xl hover:opacity-90 transition-opacity no-underline">
                 Get Pro →

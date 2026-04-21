@@ -276,7 +276,7 @@ export default function RFEUploadPage() {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-blue-200 text-sm">One-time · No subscription</p>
-            <p className="text-3xl font-bold mt-1">$200</p>
+            <p className="text-3xl font-bold mt-1">$297</p>
           </div>
           <div className="text-xs text-blue-300 space-y-1.5 text-right">
             <p>✓ Full issue registry, risk-ranked</p>

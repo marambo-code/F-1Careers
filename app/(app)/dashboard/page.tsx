@@ -232,7 +232,7 @@ export default async function DashboardPage() {
           <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-4">
             <p className="text-xs text-blue-300">Go Pro to track your score over time and unlock all 4 career moves</p>
             <Link href="/subscribe" className="flex-shrink-0 text-xs bg-teal text-white font-bold px-3 py-1.5 rounded-lg hover:bg-teal/90 transition-colors whitespace-nowrap">
-              Go Pro — $29/mo
+              Go Pro — $49/mo
             </Link>
           </div>
         ) : null}
@@ -420,7 +420,7 @@ export default async function DashboardPage() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-navy">Green Card Strategy Report</h3>
-                  <span className="text-xs font-bold text-teal">$300</span>
+                  <span className="text-xs font-bold text-teal">$397</span>
                 </div>
                 <p className="text-sm text-mid mt-1 leading-relaxed">Visa pathway analysis, evidence gaps, criterion breakdown, and your personalized 12-month roadmap.</p>
                 <p className="text-xs text-teal font-semibold mt-3 group-hover:underline">Start questionnaire →</p>
@@ -438,7 +438,7 @@ export default async function DashboardPage() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-navy">RFE Analyzer</h3>
-                  <span className="text-xs font-bold text-navy">$200</span>
+                  <span className="text-xs font-bold text-navy">$297</span>
                 </div>
                 <p className="text-sm text-mid mt-1 leading-relaxed">Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy.</p>
                 <p className="text-xs text-navy font-semibold mt-3 group-hover:underline">Upload RFE document →</p>

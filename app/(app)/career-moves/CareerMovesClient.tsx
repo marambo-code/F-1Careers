@@ -353,7 +353,7 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full bg-teal/25 text-teal border border-teal/30">✦ PRO</span>
                 <p className="font-bold text-lg">Unlock your full 90-day campaign</p>
                 <p className="text-blue-200 text-sm max-w-sm mx-auto">See your remaining {lockedMoves.length} moves with action plans, evidence checklists, and 30-day milestones.</p>
-                <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-8 rounded-xl hover:bg-teal/90 transition-colors">Go Pro — $29/month</Link>
+                <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-8 rounded-xl hover:bg-teal/90 transition-colors">Go Pro — $49/month</Link>
               </div>
               {lockedMoves.map((move, i) => (
                 <MoveCard key={move.id} move={move} locked index={visibleMoves.length + i} />
