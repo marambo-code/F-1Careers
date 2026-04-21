@@ -1,20 +1,4 @@
-'use client'
-
-import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-
-/* ─── animation helpers ─────────────────────────────────── */
-const show = (active: boolean, delay: number, extra = '') =>
-  `transition-all duration-700 ease-out ${extra} ${
-    active
-      ? 'opacity-100 translate-y-0 blur-none'
-      : 'opacity-0 translate-y-5 blur-sm pointer-events-none'
-  }`
-
-const growLine = (active: boolean, delay: number, color = 'bg-white/20') =>
-  `${color} origin-left transition-transform duration-700 ease-out h-px ${
-    active ? 'scale-x-100' : 'scale-x-0'
-  }`
 
 /* ─── shared path stages ────────────────────────────────── */
 const shared = [
@@ -65,18 +49,6 @@ const selfPath = [
 ]
 
 export default function JourneyRoadmap() {
-  const [active, setActive] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setActive(true); obs.disconnect() } },
-      { threshold: 0.12 }
-    )
-    if (ref.current) obs.observe(ref.current)
-    return () => obs.disconnect()
-  }, [])
-
   return (
     <section
       className="relative py-28 px-6 overflow-hidden"
@@ -88,13 +60,10 @@ export default function JourneyRoadmap() {
         <div className="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full opacity-[0.04]" style={{ background: 'radial-gradient(circle, #1B2B6B 0%, transparent 70%)' }} />
       </div>
 
-      <div ref={ref} className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-5xl mx-auto">
 
         {/* ── Header ─────────────────────────────────────────── */}
-        <div
-          className={`text-center mb-20 ${show(active, 0)}`}
-          style={{ transitionDelay: '0ms' }}
-        >
+        <div className="text-center mb-20">
           <p className="text-[11px] font-extrabold uppercase tracking-[2.5px] text-teal mb-4">Your immigration journey</p>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-4">
             The path to a green card.<br />
@@ -110,56 +79,35 @@ export default function JourneyRoadmap() {
           {shared.map((s, i) => (
             <div key={s.label} className="flex items-center">
               {/* Node */}
-              <div
-                className={show(active, i + 1)}
-                style={{ transitionDelay: `${200 + i * 180}ms` }}
-              >
-                <div className="flex flex-col items-center text-center group">
-                  {/* Step badge */}
-                  <span
-                    className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full border"
-                    style={{
-                      color: 'rgba(0,194,168,0.8)',
-                      borderColor: 'rgba(0,194,168,0.25)',
-                      background: 'rgba(0,194,168,0.06)',
-                    }}
-                  >
-                    {s.step}
-                  </span>
-
-                  {/* Circle */}
-                  <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-3 relative"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      backdropFilter: 'blur(8px)',
-                    }}
-                  >
-                    {s.icon}
-                  </div>
-
-                  <p className="text-[13px] font-bold text-white leading-tight w-[76px]">{s.label}</p>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-tight w-[76px]">{s.sub}</p>
+              <div className="flex flex-col items-center text-center">
+                <span
+                  className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full border"
+                  style={{
+                    color: 'rgba(0,194,168,0.8)',
+                    borderColor: 'rgba(0,194,168,0.25)',
+                    background: 'rgba(0,194,168,0.06)',
+                  }}
+                >
+                  {s.step}
+                </span>
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-3"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    backdropFilter: 'blur(8px)',
+                  }}
+                >
+                  {s.icon}
                 </div>
+                <p className="text-[13px] font-bold text-white leading-tight w-[76px]">{s.label}</p>
+                <p className="text-[11px] text-slate-500 mt-1 leading-tight w-[76px]">{s.sub}</p>
               </div>
 
-              {/* Connector line + arrowhead */}
-              <div
-                className="flex items-center mx-3 mt-[-36px]"
-                style={{ transitionDelay: `${300 + i * 180}ms` }}
-              >
-                <div className="relative w-10 overflow-hidden">
-                  <div
-                    className={growLine(active, i + 1)}
-                    style={{ transitionDelay: `${360 + i * 180}ms`, background: 'rgba(255,255,255,0.15)' }}
-                  />
-                </div>
-                <svg
-                  width="6" height="10" viewBox="0 0 6 10"
-                  className={`flex-shrink-0 transition-all duration-300 ${active ? 'opacity-40' : 'opacity-0'}`}
-                  style={{ transitionDelay: `${500 + i * 180}ms` }}
-                >
+              {/* Connector */}
+              <div className="flex items-center mx-3 mt-[-36px]">
+                <div className="w-10 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
+                <svg width="6" height="10" viewBox="0 0 6 10" className="flex-shrink-0 opacity-40">
                   <path d="M1 1l4 4-4 4" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
@@ -167,33 +115,25 @@ export default function JourneyRoadmap() {
           ))}
 
           {/* Fork node */}
-          <div
-            className={show(active, 4)}
-            style={{ transitionDelay: '740ms' }}
-          >
-            <div className="flex flex-col items-center text-center">
-              <span className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full text-slate-500 border border-slate-700 bg-slate-800/50">
-                Fork
-              </span>
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.15)' }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-slate-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5 4.5 4.5m0 0L16.5 12M21 3H7.5" />
-                </svg>
-              </div>
-              <p className="text-[13px] font-bold text-slate-400 leading-tight w-[76px]">Path forks</p>
-              <p className="text-[11px] text-slate-600 mt-1 leading-tight w-[76px]">Two very different roads</p>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full text-slate-500 border border-slate-700 bg-slate-800/50">
+              Fork
+            </span>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.15)' }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-slate-400">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5 4.5 4.5m0 0L16.5 12M21 3H7.5" />
+              </svg>
             </div>
+            <p className="text-[13px] font-bold text-slate-400 leading-tight w-[76px]">Path forks</p>
+            <p className="text-[11px] text-slate-600 mt-1 leading-tight w-[76px]">Two very different roads</p>
           </div>
         </div>
 
         {/* ── Fork label ──────────────────────────────────────── */}
-        <div
-          className={`text-center mb-10 ${show(active, 5)}`}
-          style={{ transitionDelay: '900ms' }}
-        >
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-3">
             <div className="h-px w-16 bg-gradient-to-r from-transparent to-slate-700" />
             <span className="text-xs text-slate-500 font-medium tracking-wide">At this point, most people face a critical choice</span>
@@ -204,175 +144,141 @@ export default function JourneyRoadmap() {
         {/* ── Two paths ───────────────────────────────────────── */}
         <div className="grid md:grid-cols-2 gap-5">
 
-          {/* ── Employer path (gray) ────────────────────────── */}
+          {/* ── Employer path ───────────────────────────────── */}
           <div
-            className={show(active, 5)}
-            style={{ transitionDelay: '1000ms' }}
+            className="rounded-2xl p-6 h-full"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+            }}
           >
-            <div
-              className="rounded-2xl p-6 h-full"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-slate-500 mb-1">Employer route</p>
-                  <p className="text-sm font-bold text-slate-400">The road most people end up on</p>
-                </div>
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ color: '#f97316', background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}
-                >
-                  High uncertainty
-                </span>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-slate-500 mb-1">Employer route</p>
+                <p className="text-sm font-bold text-slate-400">The road most people end up on</p>
               </div>
-
-              {/* Steps */}
-              <div className="relative">
-                {/* Vertical line */}
-                <div
-                  className="absolute left-[15px] top-4 bottom-4 w-px origin-top transition-transform duration-700"
-                  style={{
-                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
-                    transitionDelay: '1100ms',
-                    transform: active ? 'scaleY(1)' : 'scaleY(0)',
-                  }}
-                />
-
-                <div className="space-y-5">
-                  {employerPath.map((s, i) => (
-                    <div
-                      key={s.label}
-                      className={`flex gap-4 items-start transition-all duration-500 ${active ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}
-                      style={{ transitionDelay: `${1100 + i * 120}ms` }}
-                    >
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative z-10 text-xs font-bold"
-                        style={{
-                          background: s.final ? 'rgba(100,116,139,0.15)' : 'rgba(249,115,22,0.08)',
-                          border: s.final ? '1px solid rgba(100,116,139,0.2)' : '1px solid rgba(249,115,22,0.2)',
-                          color: s.final ? '#64748b' : '#f97316',
-                        }}
-                      >
-                        {s.final ? '🏁' : '⚠'}
-                      </div>
-                      <div className="pt-0.5">
-                        <p className={`text-sm font-bold ${s.final ? 'text-slate-500' : 'text-slate-300'}`}>{s.label}</p>
-                        <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{s.note}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <p
-                className={`text-[11px] text-slate-600 italic mt-6 pt-5 border-t border-white/[0.05] leading-relaxed transition-all duration-500 ${active ? 'opacity-100' : 'opacity-0'}`}
-                style={{ transitionDelay: '1600ms' }}
+              <span
+                className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                style={{ color: '#f97316', background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}
               >
-                Your career, your timeline, your green card — all contingent on one employer staying committed to you.
-              </p>
+                High uncertainty
+              </span>
             </div>
+
+            <div className="relative">
+              <div
+                className="absolute left-[15px] top-4 bottom-4 w-px"
+                style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.02))' }}
+              />
+              <div className="space-y-5">
+                {employerPath.map((s) => (
+                  <div key={s.label} className="flex gap-4 items-start">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative z-10 text-xs font-bold"
+                      style={{
+                        background: s.final ? 'rgba(100,116,139,0.15)' : 'rgba(249,115,22,0.08)',
+                        border: s.final ? '1px solid rgba(100,116,139,0.2)' : '1px solid rgba(249,115,22,0.2)',
+                        color: s.final ? '#64748b' : '#f97316',
+                      }}
+                    >
+                      {s.final ? '🏁' : '⚠'}
+                    </div>
+                    <div className="pt-0.5">
+                      <p className={`text-sm font-bold ${s.final ? 'text-slate-500' : 'text-slate-300'}`}>{s.label}</p>
+                      <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{s.note}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-600 italic mt-6 pt-5 border-t border-white/[0.05] leading-relaxed">
+              Your career, your timeline, your green card — all contingent on one employer staying committed to you.
+            </p>
           </div>
 
-          {/* ── Self-petition path (teal) ──────────────────────── */}
+          {/* ── Self-petition path ──────────────────────────── */}
           <div
-            className={show(active, 5)}
-            style={{ transitionDelay: '1100ms' }}
+            className="rounded-2xl p-6 h-full relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,194,168,0.08) 0%, rgba(27,43,107,0.3) 100%)',
+              border: '1px solid rgba(0,194,168,0.25)',
+              boxShadow: '0 0 60px rgba(0,194,168,0.08), inset 0 0 40px rgba(0,194,168,0.03)',
+            }}
           >
             <div
-              className="rounded-2xl p-6 h-full relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, rgba(0,194,168,0.08) 0%, rgba(27,43,107,0.3) 100%)',
-                border: '1px solid rgba(0,194,168,0.25)',
-                boxShadow: '0 0 60px rgba(0,194,168,0.08), inset 0 0 40px rgba(0,194,168,0.03)',
-              }}
-            >
-              {/* Ambient glow */}
-              <div
-                className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.15) 0%, transparent 70%)' }}
-              />
+              className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.15) 0%, transparent 70%)' }}
+            />
 
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6 relative z-10">
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1">Self-petition route</p>
-                  <p className="text-sm font-bold text-white">The road built for extraordinary talent</p>
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1">Self-petition route</p>
+                <p className="text-sm font-bold text-white">The road built for extraordinary talent</p>
+              </div>
+              <span
+                className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                style={{ color: '#00C2A8', background: 'rgba(0,194,168,0.1)', border: '1px solid rgba(0,194,168,0.25)' }}
+              >
+                No employer needed
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
+              {selfPath.map((p) => (
+                <div
+                  key={p.label}
+                  className="rounded-xl p-4"
+                  style={{
+                    background: 'rgba(0,194,168,0.07)',
+                    border: '1px solid rgba(0,194,168,0.18)',
+                  }}
+                >
+                  <p className="text-[13px] font-extrabold text-white mb-1">{p.label}</p>
+                  <p className="text-[11px] text-teal/70 leading-tight">{p.sub}</p>
                 </div>
-                <span
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ color: '#00C2A8', background: 'rgba(0,194,168,0.1)', border: '1px solid rgba(0,194,168,0.25)' }}
-                >
-                  No employer needed
-                </span>
-              </div>
+              ))}
+            </div>
 
-              {/* Two pathways side by side */}
-              <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-                {selfPath.map((p, i) => (
+            <div className="space-y-2.5 mb-6 relative z-10">
+              {[
+                'No lottery. No employer sponsor. No waiting on someone else.',
+                'You file. You control the timeline.',
+                'Your achievements are the petition.',
+              ].map((b) => (
+                <div key={b} className="flex items-start gap-2.5">
                   <div
-                    key={p.label}
-                    className={`rounded-xl p-4 transition-all duration-600 ${active ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-                    style={{
-                      transitionDelay: `${1300 + i * 150}ms`,
-                      background: 'rgba(0,194,168,0.07)',
-                      border: '1px solid rgba(0,194,168,0.18)',
-                    }}
+                    className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: 'rgba(0,194,168,0.15)', border: '1px solid rgba(0,194,168,0.3)' }}
                   >
-                    <p className="text-[13px] font-extrabold text-white mb-1">{p.label}</p>
-                    <p className="text-[11px] text-teal/70 leading-tight">{p.sub}</p>
+                    <svg viewBox="0 0 8 8" width="8" height="8" className="text-teal">
+                      <path d="M1.5 4l1.5 1.5L6.5 2" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
-                ))}
-              </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">{b}</p>
+                </div>
+              ))}
+            </div>
 
-              {/* Benefits */}
-              <div
-                className={`space-y-2.5 mb-6 relative z-10 transition-all duration-500 ${active ? 'opacity-100' : 'opacity-0'}`}
-                style={{ transitionDelay: '1500ms' }}
+            <div
+              className="pt-5 border-t relative z-10"
+              style={{ borderColor: 'rgba(0,194,168,0.15)' }}
+            >
+              <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-2">
+                F-1 Careers was built for this path
+              </p>
+              <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                We assess your profile against EB-1A and NIW criteria and show you exactly what it takes — criterion by criterion.
+              </p>
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 text-sm font-bold text-navy bg-teal px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity no-underline"
               >
-                {[
-                  'No lottery. No employer sponsor. No waiting on someone else.',
-                  'You file. You control the timeline.',
-                  'Your achievements are the petition.',
-                ].map((b) => (
-                  <div key={b} className="flex items-start gap-2.5">
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: 'rgba(0,194,168,0.15)', border: '1px solid rgba(0,194,168,0.3)' }}
-                    >
-                      <svg viewBox="0 0 8 8" width="8" height="8" className="text-teal">
-                        <path d="M1.5 4l1.5 1.5L6.5 2" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">{b}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA */}
-              <div
-                className={`pt-5 border-t relative z-10 transition-all duration-500 ${active ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
-                style={{ borderColor: 'rgba(0,194,168,0.15)', transitionDelay: '1650ms' }}
-              >
-                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-2">
-                  F-1 Careers was built for this path
-                </p>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  We assess your profile against EB-1A and NIW criteria and show you exactly what it takes — criterion by criterion.
-                </p>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-2 text-sm font-bold text-navy bg-teal px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity no-underline"
-                >
-                  See my pathway
-                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </Link>
-              </div>
+                See my pathway
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
