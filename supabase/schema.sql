@@ -184,6 +184,30 @@ drop policy if exists "Anyone can view active alerts" on public.admin_alerts;
 create policy "Anyone can view active alerts" on public.admin_alerts
   for select using (active = true);
 
+-- ─── CAREER MOVE SETS ────────────────────────────────────────────
+-- Each generated batch of career moves is stored as its own row.
+-- is_current = true marks the active set; past sets are archived (is_current = false).
+-- This preserves full history and completion state across regenerations.
+create table if not exists public.career_move_sets (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  report_id uuid references public.reports(id) on delete set null,
+  moves jsonb not null default '[]',
+  generated_at timestamptz not null default now(),
+  is_current boolean not null default true
+);
+
+create index if not exists career_move_sets_user_current
+  on public.career_move_sets(user_id, is_current);
+create index if not exists career_move_sets_user_time
+  on public.career_move_sets(user_id, generated_at desc);
+
+alter table public.career_move_sets enable row level security;
+
+drop policy if exists "Users can view own career move sets" on public.career_move_sets;
+create policy "Users can view own career move sets" on public.career_move_sets
+  for select using (auth.uid() = user_id);
+
 -- ─── RATE LIMITS ─────────────────────────────────────────────────
 create table if not exists public.rate_limits (
   id uuid default uuid_generate_v4() primary key,

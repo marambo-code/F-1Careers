@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { CareerMove } from '@/lib/ai/career-moves'
 import type { GreenCardScore } from '@/lib/scoring'
+import type { PastSet } from './page'
 
 type Move = CareerMove & { completed?: boolean }
 
@@ -26,6 +27,20 @@ function CompletionRing({ done, total }: { done: number; total: number }) {
         <span className="text-[9px] text-mid leading-none">/{total}</span>
       </div>
     </div>
+  )
+}
+
+// ── Small ring for past sets ──────────────────────────────────────
+
+function MiniRing({ done, total }: { done: number; total: number }) {
+  const r = 10, c = 2 * Math.PI * r
+  const pct = total > 0 ? done / total : 0
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" className="rotate-[-90deg] flex-shrink-0">
+      <circle cx="14" cy="14" r={r} fill="none" stroke="#E5E7EB" strokeWidth="3" />
+      <circle cx="14" cy="14" r={r} fill="none" stroke={pct === 1 ? '#00C2A8' : '#94A3B8'} strokeWidth="3"
+        strokeDasharray={`${pct * c} ${c}`} strokeLinecap="round" />
+    </svg>
   )
 }
 
@@ -62,10 +77,10 @@ const TAG_STYLE: Record<string, string> = {
   'Foundation': 'bg-blue-50 text-blue-600 border-blue-200',
 }
 
-function MoveCard({ move, locked, onToggleComplete }: {
+function MoveCard({ move, locked, readonly, onToggleComplete }: {
   move: Move
   locked?: boolean
-  index?: number
+  readonly?: boolean
   onToggleComplete?: (id: string, completed: boolean) => void
 }) {
   const [expanded, setExpanded] = useState(false)
@@ -73,7 +88,7 @@ function MoveCard({ move, locked, onToggleComplete }: {
   return (
     <div className={`relative rounded-2xl border transition-all duration-200 ${
       locked ? 'select-none border-gray-200 bg-gray-50/50' :
-      move.completed ? 'border-teal/30 bg-teal/3' : 'border-border bg-white shadow-sm hover:shadow-md'
+      move.completed ? 'border-teal/30 bg-teal/[0.03]' : 'border-border bg-white shadow-sm hover:shadow-md'
     }`}>
 
       {locked && (
@@ -90,8 +105,8 @@ function MoveCard({ move, locked, onToggleComplete }: {
 
       <div className="p-5">
         <div className="flex items-start gap-3">
-          {/* Completion checkbox */}
-          {!locked && onToggleComplete && (
+          {/* Completion checkbox — only for active, non-readonly moves */}
+          {!locked && !readonly && onToggleComplete && (
             <button
               onClick={() => onToggleComplete(move.id, !move.completed)}
               className={`mt-0.5 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
@@ -105,6 +120,19 @@ function MoveCard({ move, locked, onToggleComplete }: {
                 </svg>
               )}
             </button>
+          )}
+
+          {/* Read-only completion indicator for past sets */}
+          {readonly && (
+            <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+              move.completed ? 'bg-teal/20 border-teal/40' : 'border-gray-200 bg-gray-50'
+            }`}>
+              {move.completed && (
+                <svg className="w-3 h-3 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              )}
+            </div>
           )}
 
           <div className="flex-1 min-w-0">
@@ -132,7 +160,7 @@ function MoveCard({ move, locked, onToggleComplete }: {
           </div>
         </div>
 
-        {!move.completed && (
+        {!readonly && !move.completed && (
           <button onClick={() => setExpanded(!expanded)} disabled={!!locked}
             className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-navy hover:text-teal transition-colors">
             <span className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>▾</span>
@@ -140,7 +168,16 @@ function MoveCard({ move, locked, onToggleComplete }: {
           </button>
         )}
 
-        {expanded && !move.completed && (
+        {/* In readonly mode (past sets), show action plan if expanded */}
+        {readonly && (
+          <button onClick={() => setExpanded(!expanded)}
+            className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-mid hover:text-navy transition-colors">
+            <span className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>▾</span>
+            {expanded ? 'Hide details' : 'View action plan'}
+          </button>
+        )}
+
+        {expanded && (
           <div className="mt-4 space-y-4 border-t border-border pt-4">
             <div className="rounded-xl bg-teal/5 border border-teal/15 p-4">
               <p className="text-[11px] font-black text-teal uppercase tracking-widest mb-2">Do this today</p>
@@ -172,11 +209,68 @@ function MoveCard({ move, locked, onToggleComplete }: {
   )
 }
 
+// ── Past set panel ────────────────────────────────────────────────
+
+function PastSetPanel({ set }: { set: PastSet }) {
+  const [expanded, setExpanded] = useState(false)
+  const done = set.moves.filter(m => m.completed).length
+  const total = set.moves.length
+  const allDone = done === total && total > 0
+
+  return (
+    <div className="border border-border rounded-2xl overflow-hidden">
+      {/* Header row */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-gray-50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-3">
+          <MiniRing done={done} total={total} />
+          <div>
+            <p className="text-sm font-semibold text-navy">
+              {new Date(set.generated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+            <p className="text-xs text-mid mt-0.5">
+              {allDone
+                ? '✓ All completed'
+                : `${done} of ${total} completed`}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {allDone && (
+            <span className="text-[10px] font-bold text-teal bg-teal/10 px-2 py-0.5 rounded-full border border-teal/20">
+              Done
+            </span>
+          )}
+          <svg
+            className={`w-4 h-4 text-mid transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+
+      {/* Moves */}
+      {expanded && (
+        <div className="px-5 pb-5 space-y-3 border-t border-border pt-4 bg-gray-50/50">
+          {set.moves.map(move => (
+            <MoveCard key={move.id} move={move} readonly />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Props ─────────────────────────────────────────────────────────
 
 interface Props {
   initialMoves: Move[] | null
   generatedAt: string | null
+  currentSetId: string | null
+  pastSets: PastSet[]
   isPro: boolean
   hasStrategyReport: boolean
   greenCardScore: GreenCardScore | null
@@ -188,9 +282,22 @@ interface Props {
 
 // ── Main ──────────────────────────────────────────────────────────
 
-export default function CareerMovesClient({ initialMoves, generatedAt, isPro, hasStrategyReport, greenCardScore, niwScore, eb1aScore, reportId }: Props) {
+export default function CareerMovesClient({
+  initialMoves,
+  generatedAt,
+  currentSetId: initialSetId,
+  pastSets: initialPastSets,
+  isPro,
+  hasStrategyReport,
+  greenCardScore,
+  niwScore,
+  eb1aScore,
+  reportId,
+}: Props) {
   const [moves, setMoves] = useState<Move[]>(initialMoves ?? [])
   const [genAt, setGenAt] = useState<string | null>(generatedAt)
+  const [currentSetId, setCurrentSetId] = useState<string | null>(initialSetId)
+  const [pastSets, setPastSets] = useState<PastSet[]>(initialPastSets)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isProState, setIsProState] = useState(isPro)
@@ -213,18 +320,37 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
       autoTriggered.current = true
       handleGenerate(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProState, moves, hasStrategyReport, loading])
 
   const handleGenerate = async (force = true) => {
     setLoading(true)
     setError(null)
     setConfirmRegen(false)
+
+    // Optimistically archive the current set into past sets
+    if (force && moves.length > 0 && genAt && currentSetId) {
+      setPastSets(prev => [{ id: currentSetId, generated_at: genAt, moves }, ...prev])
+      setMoves([])
+      setGenAt(null)
+      setCurrentSetId(null)
+    }
+
     try {
-      const res = await fetch('/api/career-moves', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ force }) })
+      const res = await fetch('/api/career-moves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force }),
+      })
       const data = await res.json()
       if (!res.ok) { setError(data.message ?? `Error ${res.status}`); return }
-      if (data.moves?.length > 0) { setMoves(data.moves); setGenAt(new Date().toISOString()) }
-      else setError(data.message ?? data.error ?? 'No moves returned.')
+      if (data.moves?.length > 0) {
+        setMoves(data.moves)
+        setGenAt(new Date().toISOString())
+        setCurrentSetId(data.setId ?? null)
+      } else {
+        setError(data.message ?? data.error ?? 'No moves returned.')
+      }
     } catch (e) {
       setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
     } finally {
@@ -239,19 +365,22 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
     await fetch('/api/career-moves/complete', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ move_id, completed }),
+      body: JSON.stringify({ move_id, completed, set_id: currentSetId }),
     })
   }
 
   const doneCount = moves.filter(m => m.completed).length
   const allDone = moves.length > 0 && doneCount === moves.length
   const visibleMoves = isProState ? moves : moves.slice(0, 1)
-  const lockedMoves  = isProState ? [] : moves.slice(1)
+  const lockedMoves = isProState ? [] : moves.slice(1)
 
   if (!hasStrategyReport) {
     return (
       <div className="max-w-2xl space-y-6">
-        <div><h1 className="text-2xl font-bold text-navy">Career Moves</h1><p className="text-mid mt-1 text-sm">Your 4 personalized actions to strengthen your petition</p></div>
+        <div>
+          <h1 className="text-2xl font-bold text-navy">Career Moves</h1>
+          <p className="text-mid mt-1 text-sm">Your personalized actions to strengthen your petition</p>
+        </div>
         <div className="card border-2 border-dashed border-teal/20 text-center py-12">
           <p className="font-bold text-navy text-lg">Run a strategy report first</p>
           <p className="text-mid text-sm mt-2 mb-5 max-w-xs mx-auto">Your moves are generated from your actual criteria scores — not templates.</p>
@@ -281,9 +410,12 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
         </div>
 
         {isProState && moves.length > 0 && (
-          <button onClick={() => setConfirmRegen(true)} disabled={loading}
-            className="text-xs text-mid border border-border rounded-xl px-4 py-2 hover:border-navy hover:text-navy transition-colors flex-shrink-0">
-            Generate new moves
+          <button
+            onClick={() => setConfirmRegen(true)}
+            disabled={loading}
+            className="text-xs text-mid border border-border rounded-xl px-4 py-2 hover:border-navy hover:text-navy transition-colors flex-shrink-0"
+          >
+            Generate new set
           </button>
         )}
       </div>
@@ -291,8 +423,8 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
       {/* Confirm regen modal */}
       {confirmRegen && (
         <div className="card border-2 border-orange-200 bg-orange-50 space-y-3">
-          <p className="font-semibold text-navy text-sm">Generate fresh moves?</p>
-          <p className="text-sm text-mid">Your current progress ({doneCount} completed) will be cleared. This will take ~15 seconds.</p>
+          <p className="font-semibold text-navy text-sm">Generate a fresh set of moves?</p>
+          <p className="text-sm text-mid">Your current set ({doneCount} completed) will be archived in your history below. This takes ~15 seconds.</p>
           <div className="flex gap-3">
             <button onClick={() => handleGenerate(true)} className="btn-teal text-xs py-2 px-4">Yes, generate new</button>
             <button onClick={() => setConfirmRegen(false)} className="text-sm text-mid hover:text-navy">Cancel</button>
@@ -305,16 +437,29 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
         <div className="card py-3 px-4 flex items-center gap-3 flex-wrap text-sm">
           <span className="text-xl font-black text-teal">{greenCardScore.overall}</span>
           <span className="text-xs text-mid">/100</span>
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${greenCardScore.label === 'Exceptional' || greenCardScore.label === 'Strong' ? 'bg-teal/10 text-teal' : 'bg-yellow-50 text-yellow-700'}`}>{greenCardScore.label}</span>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${greenCardScore.label === 'Exceptional' || greenCardScore.label === 'Strong' ? 'bg-teal/10 text-teal' : 'bg-yellow-50 text-yellow-700'}`}>
+            {greenCardScore.label}
+          </span>
           <span className="text-mid text-xs">· Best pathway: <span className="font-semibold text-navy">{greenCardScore.bestPathway}</span></span>
-          {niwScore !== null && <><span className="text-mid text-xs">· NIW <span className="font-semibold text-navy">{niwScore}</span></span><span className="text-mid text-xs">EB-1A <span className="font-semibold text-navy">{eb1aScore}</span></span></>}
-          {reportId && <Link href={`/strategy/report/${reportId}`} className="text-xs text-teal font-semibold hover:underline ml-auto">View report →</Link>}
+          {niwScore !== null && (
+            <>
+              <span className="text-mid text-xs">· NIW <span className="font-semibold text-navy">{niwScore}</span></span>
+              <span className="text-mid text-xs">EB-1A <span className="font-semibold text-navy">{eb1aScore}</span></span>
+            </>
+          )}
+          {reportId && (
+            <Link href={`/strategy/report/${reportId}`} className="text-xs text-teal font-semibold hover:underline ml-auto">
+              View report →
+            </Link>
+          )}
         </div>
       )}
 
       {/* Generated at */}
       {genAt && moves.length > 0 && (
-        <p className="text-xs text-mid">Generated {new Date(genAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+        <p className="text-xs text-mid">
+          Generated {new Date(genAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </p>
       )}
 
       {/* Loading */}
@@ -340,11 +485,11 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
         </div>
       )}
 
-      {/* Moves list */}
+      {/* Active moves list */}
       {!loading && moves.length > 0 && (
         <div className="space-y-4">
-          {visibleMoves.map((move, i) => (
-            <MoveCard key={move.id} move={move} index={i} onToggleComplete={handleToggleComplete} />
+          {visibleMoves.map((move) => (
+            <MoveCard key={move.id} move={move} onToggleComplete={handleToggleComplete} />
           ))}
 
           {!isProState && lockedMoves.length > 0 && (
@@ -352,18 +497,41 @@ export default function CareerMovesClient({ initialMoves, generatedAt, isPro, ha
               <div className="rounded-2xl bg-navy text-white p-6 text-center space-y-3">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full bg-teal/25 text-teal border border-teal/30">✦ PRO</span>
                 <p className="font-bold text-lg">Unlock your full 90-day campaign</p>
-                <p className="text-blue-200 text-sm max-w-sm mx-auto">See your remaining {lockedMoves.length} moves with action plans, evidence checklists, and 30-day milestones.</p>
-                <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-8 rounded-xl hover:bg-teal/90 transition-colors">Go Pro — $49/month</Link>
+                <p className="text-blue-200 text-sm max-w-sm mx-auto">
+                  See your remaining {lockedMoves.length} moves with action plans, evidence checklists, and 30-day milestones.
+                </p>
+                <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-8 rounded-xl hover:bg-teal/90 transition-colors">
+                  Go Pro — $49/month
+                </Link>
               </div>
-              {lockedMoves.map((move, i) => (
-                <MoveCard key={move.id} move={move} locked index={visibleMoves.length + i} />
+              {lockedMoves.map((move) => (
+                <MoveCard key={move.id} move={move} locked />
               ))}
             </>
           )}
         </div>
       )}
 
-      {error && !loading && <p className="text-xs text-red-500 bg-red-50 p-3 rounded-xl">{error}</p>}
+      {error && !loading && moves.length > 0 && (
+        <p className="text-xs text-red-500 bg-red-50 p-3 rounded-xl">{error}</p>
+      )}
+
+      {/* ── History ─────────────────────────────────────────────────── */}
+      {pastSets.length > 0 && (
+        <div className="space-y-3 pt-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-bold text-navy uppercase tracking-widest">Previous sets</h2>
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-mid">{pastSets.length} archived</span>
+          </div>
+          <p className="text-xs text-mid">Your completed sets are preserved here — nothing is ever lost when you generate new moves.</p>
+          <div className="space-y-2">
+            {pastSets.map(set => (
+              <PastSetPanel key={set.id} set={set} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-4 pt-2 text-sm">
         <Link href="/dashboard" className="text-mid hover:text-navy transition-colors">← Dashboard</Link>

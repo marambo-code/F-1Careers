@@ -1,7 +1,7 @@
 /**
  * PATCH /api/career-moves/complete
- * Toggles the `completed` flag on a single career move stored in profiles.career_moves.
- * Body: { move_id: string, completed: boolean }
+ * Toggles the `completed` flag on a single career move stored in career_move_sets.
+ * Body: { move_id: string, completed: boolean, set_id: string }
  */
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
@@ -13,25 +13,29 @@ export async function PATCH(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { move_id, completed } = await req.json()
+    const { move_id, completed, set_id } = await req.json()
     if (!move_id) return NextResponse.json({ error: 'move_id required' }, { status: 400 })
 
     const service = createServiceClient()
-    const { data: profile } = await service
-      .from('profiles')
-      .select('career_moves')
-      .eq('id', user.id)
-      .single()
 
-    const cached = profile?.career_moves as { moves: (CareerMove & { completed?: boolean })[]; generated_at: string; report_id?: string } | null
-    if (!cached?.moves) return NextResponse.json({ error: 'No moves found' }, { status: 404 })
-
-    const updated = {
-      ...cached,
-      moves: cached.moves.map(m => m.id === move_id ? { ...m, completed: !!completed } : m),
+    // Find the target set — fall back to is_current if no set_id provided
+    let query = service.from('career_move_sets').select('id, moves').eq('user_id', user.id)
+    if (set_id) {
+      query = query.eq('id', set_id)
+    } else {
+      query = query.eq('is_current', true)
     }
+    const { data: set } = await query.single()
 
-    await service.from('profiles').update({ career_moves: updated }).eq('id', user.id)
+    if (!set?.moves) return NextResponse.json({ error: 'No moves found' }, { status: 404 })
+
+    const updatedMoves = (set.moves as (CareerMove & { completed?: boolean })[])
+      .map(m => m.id === move_id ? { ...m, completed: !!completed } : m)
+
+    await service
+      .from('career_move_sets')
+      .update({ moves: updatedMoves })
+      .eq('id', set.id)
 
     return NextResponse.json({ ok: true })
   } catch (err) {

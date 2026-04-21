@@ -2,12 +2,16 @@
  * POST /api/career-moves
  * ─────────────────────────────────────────────────────────────────
  * Generates (or returns cached) career moves for the authenticated user.
- * Career moves are cached in profiles.career_moves; they're only
- * regenerated when the user's latest strategy report changes (score bump).
  *
- * Called:
- *  1. After a strategy report completes (server-side, auto-trigger)
- *  2. On demand from the dashboard "Refresh" button
+ * Career moves are stored in `career_move_sets` — each generation creates
+ * a new row (is_current=true) and archives the previous set (is_current=false).
+ * This preserves full history across regenerations.
+ *
+ * Cache logic:
+ *  - Returns the current set if it matches the latest report_id AND force=false
+ *  - Archives current set + inserts new row on force=true or report mismatch
+ *
+ * Returns: { moves, cached, setId }
  */
 
 import { NextResponse } from 'next/server'
@@ -38,9 +42,9 @@ export async function POST(req: Request) {
 
     const service = createServiceClient()
 
-    // Fetch profile (for cached moves) and latest complete strategy report
+    // Fetch latest complete strategy report + profile (for LinkedIn URL)
     const [profileResult, reportResult] = await Promise.all([
-      service.from('profiles').select('career_moves, career_moves_updated_at, linkedin_url').eq('id', user.id).single(),
+      service.from('profiles').select('linkedin_url').eq('id', user.id).single(),
       service
         .from('reports')
         .select('id, questionnaire_responses, report_data, created_at')
@@ -51,7 +55,6 @@ export async function POST(req: Request) {
         .limit(1)
         .maybeSingle(),
     ])
-
 
     const profile = profileResult.data
     const report = reportResult.data
@@ -65,29 +68,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'no_answers' }, { status: 200 })
     }
 
-    // Use cache if fresh (same report, not forced)
-    const cachedMoves = profile?.career_moves as { moves: unknown[]; generated_at: string; report_id?: string } | null
-    const cacheIsForReport = cachedMoves?.report_id === report.id
-    if (!forceRefresh && cachedMoves && cacheIsForReport) {
-      return NextResponse.json({ moves: cachedMoves.moves, cached: true })
+    // Check for a current cached set matching this report
+    const { data: currentSet } = await service
+      .from('career_move_sets')
+      .select('id, moves, generated_at')
+      .eq('user_id', user.id)
+      .eq('is_current', true)
+      .eq('report_id', report.id)
+      .maybeSingle()
+
+    if (!forceRefresh && currentSet) {
+      return NextResponse.json({ moves: currentSet.moves, cached: true, setId: currentSet.id })
     }
 
-    // Compute current score from answers
+    // Generate fresh moves
     const score = computeGreenCardScore(answers)
-
-    // Generate fresh moves (pass LinkedIn URL + full report data for maximum personalization)
     const linkedInUrl = profile?.linkedin_url as string | undefined
     const reportData = report.report_data as Record<string, unknown> | null
     const result = await generateCareerMoves(answers, score, linkedInUrl, reportData)
-    const toCache = { ...result, report_id: report.id }
 
-    // Persist to profile
+    // Archive all current sets for this user
     await service
-      .from('profiles')
-      .update({ career_moves: toCache, career_moves_updated_at: new Date().toISOString() })
-      .eq('id', user.id)
+      .from('career_move_sets')
+      .update({ is_current: false })
+      .eq('user_id', user.id)
+      .eq('is_current', true)
 
-    return NextResponse.json({ moves: result.moves, cached: false })
+    // Insert new set as current
+    const { data: newSet } = await service
+      .from('career_move_sets')
+      .insert({
+        user_id: user.id,
+        report_id: report.id,
+        moves: result.moves,
+        generated_at: new Date().toISOString(),
+        is_current: true,
+      })
+      .select('id')
+      .single()
+
+    return NextResponse.json({ moves: result.moves, cached: false, setId: newSet?.id ?? null })
   } catch (error) {
     console.error('[career-moves]', error)
     return NextResponse.json({ error: 'Failed to generate career moves' }, { status: 500 })
