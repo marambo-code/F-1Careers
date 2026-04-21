@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import JourneyRoadmap from '@/components/home/JourneyRoadmap'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -92,6 +93,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── Journey Roadmap ──────────────────────────────────────────── */}
+      <JourneyRoadmap />
 
       {/* ── Origin ───────────────────────────────────────────────────── */}
       <section className="bg-slate-50 border-b border-border">

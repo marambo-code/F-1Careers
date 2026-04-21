@@ -97,11 +97,33 @@ export default async function StrategyPreviewPage({
       <div>
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Preview</span>
         <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Strategy Preview</h1>
-        <p className="text-mid mt-2">Here's what the AI found. Unlock the full report to see the complete analysis.</p>
+        <p className="text-mid mt-2">Here&apos;s where you stand. Unlock the complete strategy to see the full breakdown.</p>
       </div>
 
       {preview ? (
         <>
+          {/* TL;DR Verdict Card */}
+          <div className="card bg-teal/5 border border-teal/20 border-l-4 border-l-teal">
+            <p className="text-xs font-bold text-teal uppercase tracking-widest mb-2">Your verdict</p>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex-1">
+                <p className="text-lg font-bold text-navy">
+                  {preview.top_pathway} is your strongest pathway right now.
+                </p>
+                <p className="text-sm text-mid mt-1.5 leading-relaxed">
+                  {preview.overall_strength === 'Strong'
+                    ? 'Your profile is competitive. The full report shows you exactly how to file and what evidence to lead with.'
+                    : preview.overall_strength === 'Developing'
+                    ? 'You have a real case. The full report shows which gaps to close and how fast you can get there.'
+                    : 'Your case is early-stage. The full report maps the 12 months that change your eligibility picture entirely.'}
+                </p>
+              </div>
+              <div className={`px-4 py-2 rounded-xl font-bold text-sm flex-shrink-0 ${strengthColors[preview.overall_strength]}`}>
+                {preview.overall_strength} Profile
+              </div>
+            </div>
+          </div>
+
           {/* Score dashboard */}
           <div className="grid sm:grid-cols-2 gap-4">
             {/* NIW Score */}
