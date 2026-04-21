@@ -73,8 +73,8 @@ export async function POST(req: Request) {
     console.log(`✓ Subscription activated for user ${userId}`)
   }
 
-  // ── customer.subscription.updated ───────────────────────────────
-  if (event.type === 'customer.subscription.updated') {
+  // ── customer.subscription.created / updated ──────────────────────
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
     const sub = event.data.object as Stripe.Subscription
     const userId = sub.metadata?.user_id
     if (!userId) return NextResponse.json({ received: true })
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' })
 
-    console.log(`✓ Subscription updated for user ${userId}: ${sub.status}`)
+    console.log(`✓ Subscription ${event.type} for user ${userId}: ${sub.status}`)
   }
 
   // ── customer.subscription.deleted ───────────────────────────────
