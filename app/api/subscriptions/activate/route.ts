@@ -32,12 +32,19 @@ export async function POST(req: Request) {
       expand: ['subscription'],
     })
 
+    console.log(`[activate] session ${sessionId} — status: ${session.status}, payment_status: ${session.payment_status}`)
+
     if (session.payment_status !== 'paid' && session.status !== 'complete') {
+      console.error(`[activate] payment not confirmed — status: ${session.status}, payment_status: ${session.payment_status}`)
       return NextResponse.json({ error: 'Payment not confirmed yet' }, { status: 402 })
     }
 
     const sub = session.subscription as Stripe.Subscription | null
-    if (!sub) return NextResponse.json({ error: 'No subscription found on session' }, { status: 400 })
+    if (!sub) {
+      console.error(`[activate] no subscription on session ${sessionId}`)
+      return NextResponse.json({ error: 'No subscription found on session' }, { status: 400 })
+    }
+    console.log(`[activate] subscription ${sub.id} — status: ${sub.status}`)
 
     const service = createServiceClient()
 
@@ -51,6 +58,7 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' })
 
+    console.log(`[activate] ✓ subscription activated for user ${user.id}`)
     return NextResponse.json({ status: 'active' })
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
