@@ -64,35 +64,58 @@ export default async function CareerMovesPage() {
 
   const answers = report?.questionnaire_responses as StrategyAnswers | null
 
-  // ── Legacy migration ──────────────────────────────────────────────
-  // If no career_move_sets rows exist, migrate from profiles.career_moves
-  if (allSets.length === 0) {
+  // ── Resolve current set ───────────────────────────────────────────
+  // Primary: career_move_sets table (new system)
+  // Fallback: profiles.career_moves JSONB (legacy / migration not yet run)
+  // Using id='legacy' lets the client display moves without needing the new table.
+  let currentSet: MoveSet | null = allSets.find(s => s.is_current) ?? null
+  const pastSets: MoveSet[] = allSets.filter(s => !s.is_current)
+
+  if (!currentSet) {
     const legacy = profile?.career_moves as {
-      moves: CareerMove[];
+      moves: TrackedMove[];
       generated_at?: string;
       report_id?: string;
     } | null
 
     if (legacy?.moves?.length) {
-      const service = createServiceClient()
-      const { data: migrated } = await service
-        .from('career_move_sets')
-        .insert({
-          user_id: user.id,
-          report_id: legacy.report_id ?? report?.id ?? null,
-          moves: legacy.moves,
-          generated_at: legacy.generated_at ?? new Date().toISOString(),
-          is_current: true,
-        })
-        .select('id, moves, generated_at, is_current')
-        .single()
+      // Try to migrate into career_move_sets if the table exists
+      try {
+        const service = createServiceClient()
+        const { data: migrated } = await service
+          .from('career_move_sets')
+          .insert({
+            user_id: user.id,
+            report_id: legacy.report_id ?? report?.id ?? null,
+            moves: legacy.moves,
+            generated_at: legacy.generated_at ?? new Date().toISOString(),
+            is_current: true,
+          })
+          .select('id, moves, generated_at, is_current')
+          .single()
 
-      if (migrated) allSets = [migrated as MoveSet]
+        if (migrated) {
+          currentSet = migrated as MoveSet
+        } else {
+          // Table may not exist yet — show moves directly from profile
+          currentSet = {
+            id: 'legacy',
+            generated_at: legacy.generated_at ?? new Date().toISOString(),
+            moves: legacy.moves,
+            is_current: true,
+          }
+        }
+      } catch {
+        // Table doesn't exist — display legacy moves directly
+        currentSet = {
+          id: 'legacy',
+          generated_at: legacy.generated_at ?? new Date().toISOString(),
+          moves: legacy.moves,
+          is_current: true,
+        }
+      }
     }
   }
-
-  const currentSet = allSets.find(s => s.is_current) ?? null
-  const pastSets = allSets.filter(s => !s.is_current)
 
   return (
     <CareerMovesClient
