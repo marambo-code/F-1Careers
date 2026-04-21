@@ -469,8 +469,8 @@ export default function CareerMovesClient({
   }
 
   const moves = currentSet?.moves ?? []
-  const visibleMoves = isProState ? moves : moves.slice(0, 1)
-  const lockedMoves = isProState ? [] : moves.slice(1)
+  const visibleMoves = moves
+  const lockedMoves: TrackedMove[] = []
   const allDone = moves.length > 0 && moves.every(m => (m.status ?? (m.completed ? 'done' : 'not_started')) === 'done')
 
   // ── No strategy report ──────────────────────────────────────────
@@ -485,6 +485,47 @@ export default function CareerMovesClient({
           <p className="font-bold text-navy text-lg">Run a strategy report first</p>
           <p className="text-mid text-sm mt-2 mb-5 max-w-xs mx-auto">Your moves are generated from your actual criteria scores — not templates.</p>
           <Link href="/strategy" className="btn-teal">Get my green card strategy →</Link>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Not Pro — show paywall ───────────────────────────────────────
+  if (!isProState) {
+    return (
+      <div className="max-w-2xl space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-navy">Career Moves</h1>
+          <p className="text-mid mt-1 text-sm">Personalized actions to strengthen your petition</p>
+        </div>
+
+        <div className="card bg-navy text-white text-center space-y-4 py-10">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full bg-teal/25 text-teal border border-teal/30">✦ PRO</span>
+          <p className="text-2xl font-bold">Unlock your 4 career moves</p>
+          <p className="text-blue-200 text-sm max-w-sm mx-auto leading-relaxed">
+            AI-generated, hyper-specific actions tied to your weakest EB-1A criteria or NIW prongs. Not generic advice — personalized to your profile.
+          </p>
+          <div className="text-left max-w-xs mx-auto space-y-2.5 pt-2">
+            {[
+              'All 4 moves with full action plans',
+              'Notes field to track what you did',
+              'Status tracker per move',
+              'Living Green Card Score',
+              'Score history over time',
+            ].map(f => (
+              <div key={f} className="flex items-center gap-2 text-sm text-blue-100">
+                <span className="text-teal font-bold">✓</span> {f}
+              </div>
+            ))}
+          </div>
+          <div className="pt-2">
+            <p className="text-3xl font-bold">$49<span className="text-base font-normal text-blue-300">/month</span></p>
+            <p className="text-blue-300 text-xs mt-0.5">or $399/year — save $189</p>
+          </div>
+          <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-10 rounded-xl hover:bg-teal/90 transition-colors">
+            Go Pro to unlock →
+          </Link>
+          <p className="text-blue-400 text-xs">Cancel anytime · Secured by Stripe</p>
         </div>
       </div>
     )
@@ -602,23 +643,6 @@ export default function CareerMovesClient({
               />
             ))}
 
-            {!isProState && lockedMoves.length > 0 && (
-              <>
-                <div className="rounded-2xl bg-navy text-white p-6 text-center space-y-3">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full bg-teal/25 text-teal border border-teal/30">✦ PRO</span>
-                  <p className="font-bold text-lg">Unlock your full 90-day campaign</p>
-                  <p className="text-blue-200 text-sm max-w-sm mx-auto">
-                    See all {lockedMoves.length} remaining moves with action plans, evidence checklists, and notes tracking.
-                  </p>
-                  <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-8 rounded-xl hover:bg-teal/90 transition-colors">
-                    Go Pro — $49/month
-                  </Link>
-                </div>
-                {lockedMoves.map(move => (
-                  <MoveTrackerCard key={move.id} move={move} setId={currentSet.id} locked />
-                ))}
-              </>
-            )}
           </div>
         </div>
       )}

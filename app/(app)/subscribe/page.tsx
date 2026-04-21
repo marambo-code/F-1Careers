@@ -36,7 +36,7 @@ export default function SubscribePage() {
       const data = await res.json()
 
       if (data.error === 'already_subscribed') {
-        router.push('/dashboard')
+        router.push('/career-moves')
         return
       }
       if (data.url) {

@@ -10,7 +10,6 @@ function SuccessContent() {
   const sessionId = params.get('session_id')
 
   const [status, setStatus] = useState<'activating' | 'done' | 'error'>('activating')
-  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     if (!sessionId) { setStatus('done'); return }
@@ -23,10 +22,7 @@ function SuccessContent() {
     })
       .then(r => r.json())
       .then(data => {
-        if (data.error) {
-          // Non-fatal — webhook will still fire shortly
-          console.warn('[activate]', data.error)
-        }
+        if (data.error) console.warn('[activate]', data.error)
         setStatus('done')
       })
       .catch(e => {
@@ -35,10 +31,10 @@ function SuccessContent() {
       })
   }, [sessionId])
 
-  // Auto-redirect after 3s
+  // Auto-redirect to career moves after 3s
   useEffect(() => {
     if (status !== 'done') return
-    const t = setTimeout(() => router.push('/dashboard'), 3000)
+    const t = setTimeout(() => router.push('/career-moves'), 3000)
     return () => clearTimeout(t)
   }, [status, router])
 
@@ -46,7 +42,6 @@ function SuccessContent() {
     <div className="max-w-md mx-auto text-center space-y-6 pt-12">
       {status === 'activating' ? (
         <>
-          {/* Animated checkmark building */}
           <div className="w-20 h-20 mx-auto relative">
             <svg className="w-20 h-20 animate-spin-slow" viewBox="0 0 80 80">
               <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" strokeWidth="6" />
@@ -70,7 +65,6 @@ function SuccessContent() {
         </>
       ) : (
         <>
-          {/* Success state */}
           <div className="w-20 h-20 mx-auto rounded-full bg-teal/10 flex items-center justify-center">
             <svg className="w-10 h-10 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -83,7 +77,7 @@ function SuccessContent() {
             </div>
             <h1 className="text-2xl font-bold text-navy">You're in.</h1>
             <p className="text-mid mt-2 leading-relaxed">
-              Your Green Card Score is now live and your career moves are being personalized. Redirecting to your dashboard…
+              Your career moves are being personalized. Taking you there now…
             </p>
           </div>
 
@@ -91,8 +85,8 @@ function SuccessContent() {
             {[
               'Living Green Card Score — updates with every strategy report',
               'All 4 AI-personalized career moves, specific to your profile',
+              'Notes and progress tracker on every move',
               'Score history — track your trajectory over time',
-              'Priority support',
             ].map(item => (
               <div key={item} className="flex items-start gap-2.5 text-sm">
                 <span className="text-teal font-bold mt-0.5 flex-shrink-0">✓</span>
@@ -101,8 +95,8 @@ function SuccessContent() {
             ))}
           </div>
 
-          <Link href="/dashboard" className="block w-full bg-navy text-white font-bold py-3 rounded-xl hover:bg-navy/90 transition-colors text-sm">
-            Go to dashboard →
+          <Link href="/career-moves" className="block w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors text-sm">
+            Go to my career moves →
           </Link>
         </>
       )}
