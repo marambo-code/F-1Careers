@@ -63,15 +63,23 @@ export default function Nav() {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
   const [isPro, setIsPro] = useState(false)
+  const [firstName, setFirstName] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
-      supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle()
-        .then(({ data }) => {
-          if (data?.status === 'active' || data?.status === 'trialing') setIsPro(true)
-        })
+      // Fetch subscription + profile name in parallel
+      Promise.all([
+        supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
+        supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle(),
+      ]).then(([subResult, profileResult]) => {
+        if (subResult.data?.status === 'active' || subResult.data?.status === 'trialing') {
+          setIsPro(true)
+        }
+        const name = profileResult.data?.full_name
+        if (name) setFirstName(name.split(' ')[0])
+      })
     })
   }, [pathname])
 
@@ -126,11 +134,16 @@ export default function Nav() {
             )}
           </div>
 
-          {/* Sign out — desktop */}
-          <button onClick={handleSignOut} disabled={signingOut}
-            className="hidden md:block text-blue-300 hover:text-white text-sm transition-colors disabled:opacity-50">
-            {signingOut ? 'Signing out…' : 'Sign out'}
-          </button>
+          {/* User name + sign out — desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {firstName && (
+              <span className="text-blue-200 text-sm">Hello, <span className="text-white font-semibold">{firstName}</span></span>
+            )}
+            <button onClick={handleSignOut} disabled={signingOut}
+              className="text-blue-300 hover:text-white text-sm transition-colors disabled:opacity-50">
+              {signingOut ? 'Signing out…' : 'Sign out'}
+            </button>
+          </div>
 
           {/* Mobile: logo area shows Pro badge if Pro */}
           {isPro && (

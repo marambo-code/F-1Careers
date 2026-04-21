@@ -157,6 +157,27 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
 
+      {/* ══ GREETING ═══════════════════════════════════════════════════════════ */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-navy">Hello, {firstName} 👋</h1>
+          <p className="text-sm text-mid mt-0.5">Here's your green card progress</p>
+        </div>
+        {isPro && (
+          <div className="flex items-center gap-2 bg-gradient-to-r from-teal/15 to-teal/5 border border-teal/25 rounded-xl px-4 py-2.5">
+            <span className="text-teal text-base">✦</span>
+            <div>
+              <p className="text-xs font-black text-teal leading-none">Pro Member</p>
+              {subscription?.current_period_end && (
+                <p className="text-[10px] text-teal/70 mt-0.5 leading-none">
+                  Renews {new Date(subscription.current_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* ══ ADMIN ALERTS + COUNTRY WARNINGS ════════════════════════════════════ */}
       <AdminAlertBanner />
       {countryOfBirth && <CountryAlert countryCode={countryOfBirth} recommendedPathway={recommendedPathway} />}

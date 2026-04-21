@@ -173,8 +173,10 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
   const autoTriggered = useRef(false)
 
   // Re-check Pro status on the client every time this component mounts.
-  // This is the critical fix: the server may have rendered isPro=false
-  // before the subscribe/activate flow completed — this self-corrects.
+  // CRITICAL: only upgrade to Pro — never downgrade. The server may have
+  // rendered isPro=false before subscribe/activate completed; this self-corrects.
+  // We never call setIsProState(false) here because the server-side value is
+  // the authoritative source for "not Pro."
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -185,8 +187,10 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
         .eq('user_id', user.id)
         .maybeSingle()
         .then(({ data }) => {
-          const nowPro = data?.status === 'active' || data?.status === 'trialing'
-          setIsProState(nowPro)
+          if (data?.status === 'active' || data?.status === 'trialing') {
+            setIsProState(true)
+          }
+          // Never set to false — trust the server-side isPro prop
         })
     })
   }, [])
