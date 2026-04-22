@@ -180,7 +180,9 @@ create table if not exists public.admin_alerts (
   created_at timestamptz default now()
 );
 alter table public.admin_alerts enable row level security;
+-- Drop all known historical names for this policy (safe to re-run)
 drop policy if exists "Anyone can view active alerts" on public.admin_alerts;
+drop policy if exists "Authenticated users can read active alerts" on public.admin_alerts;
 create policy "Anyone can view active alerts" on public.admin_alerts
   for select using (active = true);
 
@@ -218,6 +220,9 @@ create table if not exists public.rate_limits (
   unique(user_id, route)
 );
 alter table public.rate_limits enable row level security;
+drop policy if exists "Users manage own rate limits" on public.rate_limits;
+create policy "Users manage own rate limits" on public.rate_limits
+  for all to authenticated using (auth.uid() = user_id);
 
 -- ─── DASHBOARD VIEW ──────────────────────────────────────────────
 create or replace view public.user_reports_view as
