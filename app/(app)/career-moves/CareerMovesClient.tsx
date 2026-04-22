@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+// Note: useRef kept for NotesField debounce
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { GreenCardScore } from '@/lib/scoring'
@@ -388,7 +389,6 @@ export default function CareerMovesClient({
   const [error, setError] = useState<string | null>(null)
   const [isProState, setIsProState] = useState(isPro)
   const [confirmRegen, setConfirmRegen] = useState(false)
-  const autoTriggered = useRef(false)
 
   // Re-check Pro status client-side — only upgrade, never downgrade.
   // The server-side check is authoritative; this only catches the edge case
@@ -402,35 +402,13 @@ export default function CareerMovesClient({
           if (data?.status === 'active' || data?.status === 'trialing') {
             setIsProState(true)
           }
+          // Never downgrade — trust server-side isPro prop
         })
     })
   }, [])
 
-  // Auto-generate if Pro + has report + no moves yet.
-  // Runs once — autoTriggered ref prevents double-fire.
-  useEffect(() => {
-    if (isProState && !currentSet && hasStrategyReport && !loading && !autoTriggered.current) {
-      autoTriggered.current = true
-      fetch('/api/career-moves', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ force: false }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.moves?.length > 0) {
-            setCurrentSet({
-              id: data.setId ?? 'legacy',
-              generated_at: new Date().toISOString(),
-              moves: data.moves,
-              is_current: true,
-            })
-          }
-        })
-        .catch(() => {})
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isProState, hasStrategyReport])
+  // No auto-generate on load. Moves are generated explicitly when the user
+  // clicks "Generate my career moves". This keeps the page fast and predictable.
 
   const handleGenerate = async (force = true) => {
     setLoading(true)

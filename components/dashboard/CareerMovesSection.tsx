@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { CareerMove } from '@/lib/ai/career-moves'
@@ -17,76 +17,7 @@ const EFFORT_COLOR: Record<string, string> = {
   High:   'text-orange-500',
 }
 
-// ── Loading skeleton ──────────────────────────────────────────────
-
-const LOADING_PHRASES = [
-  'Reviewing your profile…',
-  'Analyzing your criteria gaps…',
-  'Identifying your strongest opportunities…',
-  'Crafting your personalized moves…',
-  'Almost ready…',
-]
-
-function LoadingSkeleton() {
-  const [phraseIdx, setPhraseIdx] = useState(0)
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setPhraseIdx(i => (i + 1) % LOADING_PHRASES.length)
-    }, 1800)
-    return () => clearInterval(t)
-  }, [])
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 pb-1">
-        <div className="flex gap-1">
-          {[0, 1, 2].map(i => (
-            <span
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-teal inline-block"
-              style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
-            />
-          ))}
-        </div>
-        <p className="text-xs text-teal font-medium transition-all duration-500">
-          {LOADING_PHRASES[phraseIdx]}
-        </p>
-      </div>
-
-      {[0, 1, 2, 3].map(i => (
-        <div key={i} className="card border border-border overflow-hidden relative">
-          <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-          <div className="flex items-start gap-3">
-            <div className="h-6 w-20 bg-gray-100 rounded-full flex-shrink-0" />
-            <div className="flex-1 space-y-2">
-              <div className="h-4 bg-gray-100 rounded w-4/5" />
-              <div className="h-3 bg-gray-100 rounded w-2/5" />
-            </div>
-            <div className="h-4 w-12 bg-gray-100 rounded flex-shrink-0" />
-          </div>
-          <div className="mt-3 space-y-1.5">
-            <div className="h-3 bg-gray-100 rounded w-full" />
-            <div className="h-3 bg-gray-100 rounded w-11/12" />
-          </div>
-        </div>
-      ))}
-
-      <style>{`
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-          40% { transform: translateY(-5px); opacity: 1; }
-        }
-        @keyframes shimmer {
-          100% { transform: translateX(200%); }
-        }
-        .animate-shimmer { animation: shimmer 1.6s infinite; }
-      `}</style>
-    </div>
-  )
-}
-
-// ── Move card (compact dashboard version) ────────────────────────
+// ── Compact move card (dashboard preview) ────────────────────────
 
 function MoveCard({ move, locked }: { move: CareerMove; locked?: boolean }) {
   const [expanded, setExpanded] = useState(false)
@@ -146,17 +77,9 @@ function MoveCard({ move, locked }: { move: CareerMove; locked?: boolean }) {
   )
 }
 
-// ── Pro badge ─────────────────────────────────────────────────────
-
-function ProBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-teal/20 to-teal/10 text-teal border border-teal/25">
-      ✦ PRO
-    </span>
-  )
-}
-
 // ── Main component ────────────────────────────────────────────────
+// This is a READ-ONLY preview of existing career moves.
+// Generation always happens on the /career-moves page — never here.
 
 interface CareerMovesSectionProps {
   initialMoves: CareerMove[] | null
@@ -165,72 +88,19 @@ interface CareerMovesSectionProps {
 }
 
 export default function CareerMovesSection({ initialMoves, isPro, hasStrategyReport }: CareerMovesSectionProps) {
-  const [moves, setMoves] = useState<CareerMove[] | null>(initialMoves)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  // Client-side Pro state — starts with server value but re-checks immediately
   const [isProState, setIsProState] = useState(isPro)
-  const autoTriggered = useRef(false)
 
-  // Re-check Pro status on the client every time this component mounts.
-  // CRITICAL: only upgrade to Pro — never downgrade. The server may have
-  // rendered isPro=false before subscribe/activate completed; this self-corrects.
-  // We never call setIsProState(false) here because the server-side value is
-  // the authoritative source for "not Pro."
+  // Re-check Pro status — only upgrade, never downgrade
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
-      supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      supabase.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle()
         .then(({ data }) => {
-          if (data?.status === 'active' || data?.status === 'trialing') {
-            setIsProState(true)
-          }
-          // Never set to false — trust the server-side isPro prop
+          if (data?.status === 'active' || data?.status === 'trialing') setIsProState(true)
         })
     })
   }, [])
-
-  // Auto-generate moves when Pro is detected and no moves exist yet.
-  // This handles the "just subscribed" moment — fires once.
-  useEffect(() => {
-    if (isProState && !moves && hasStrategyReport && !loading && !autoTriggered.current) {
-      autoTriggered.current = true
-      handleGenerate(false) // use cache if available, no forced regen
-    }
-  }, [isProState, moves, hasStrategyReport, loading])
-
-  const handleGenerate = async (force = true) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/career-moves', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ force }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.message ?? `Error ${res.status}`)
-        return
-      }
-      if (data.moves?.length > 0) {
-        setMoves(data.moves)
-      } else if (data.error) {
-        setError(data.message ?? data.error)
-      } else {
-        setError('No moves returned. Please try again.')
-      }
-    } catch (e) {
-      setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   // ── No strategy report ────────────────────────────────────────
   if (!hasStrategyReport) {
@@ -247,86 +117,88 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
             <p className="text-sm text-mid mt-1 leading-relaxed">
               Your career moves are generated from your actual profile, criteria gaps, and field — not generic advice.
             </p>
+            <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline mt-2 inline-block">
+              Run strategy report →
+            </Link>
           </div>
         </div>
       </div>
     )
   }
 
-  // ── Loading state ─────────────────────────────────────────────
-  if (loading) return <LoadingSkeleton />
+  // ── Not Pro ───────────────────────────────────────────────────
+  if (!isProState) {
+    const visibleMoves = initialMoves?.slice(0, 1) ?? []
+    const lockedCount = (initialMoves?.length ?? 0) - visibleMoves.length
 
-  // ── No moves yet ──────────────────────────────────────────────
-  if (!moves || moves.length === 0) {
     return (
       <div className="space-y-3">
-        <div className="card border border-dashed">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <p className="font-semibold text-navy text-sm">Your moves are ready to generate</p>
-              <p className="text-sm text-mid mt-1">Takes ~15 seconds. Personalized to your exact profile and criteria gaps.</p>
-            </div>
-            <button
-              onClick={() => handleGenerate(true)}
-              className="btn-teal text-xs py-2 px-4 flex-shrink-0"
-            >
-              Generate moves →
-            </button>
-          </div>
-          {error && <p className="text-xs text-red-500 mt-3 bg-red-50 p-2 rounded">{error}</p>}
+        {visibleMoves.map(move => <MoveCard key={move.id} move={move} />)}
+        {lockedCount > 0 && Array.from({ length: Math.min(lockedCount, 2) }).map((_, i) => (
+          <MoveCard key={`locked-${i}`} move={initialMoves![visibleMoves.length + i]} locked />
+        ))}
+        <div className="card bg-navy text-white text-center py-5">
+          <p className="font-bold">Unlock all career moves</p>
+          <p className="text-blue-200 text-sm mt-1 max-w-xs mx-auto">
+            See exactly what to do this week, this month, and next quarter.
+          </p>
+          <Link href="/subscribe" className="inline-block mt-4 bg-teal text-white font-bold py-2.5 px-6 rounded-xl hover:bg-teal/90 transition-colors text-sm">
+            Go Pro — $49/month
+          </Link>
         </div>
       </div>
     )
   }
 
-  // ── Moves: free shows 1 + locked, Pro shows all ───────────────
-  const visibleMoves = isProState ? moves : moves.slice(0, 1)
-  const lockedMoves  = isProState ? [] : moves.slice(1)
+  // ── Pro: no moves generated yet ───────────────────────────────
+  if (!initialMoves || initialMoves.length === 0) {
+    return (
+      <div className="card border border-dashed">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-semibold text-navy text-sm">No career moves generated yet</p>
+            <p className="text-sm text-mid mt-1">Head to Career Moves to generate your personalized 90-day plan.</p>
+          </div>
+          <Link href="/career-moves" className="btn-teal text-xs py-2 px-4 flex-shrink-0">
+            Go to Career Moves →
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Pro: show preview of existing moves ───────────────────────
+  const previewMoves = initialMoves.slice(0, 2)
+  const remaining = initialMoves.length - previewMoves.length
+  const done = initialMoves.filter((m: CareerMove & { completed?: boolean; status?: string }) =>
+    m.status === 'done' || m.completed
+  ).length
 
   return (
     <div className="space-y-3">
-      {/* Pro member header */}
-      {isProState && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ProBadge />
-            <p className="text-xs text-mid">All moves unlocked</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/career-moves" className="text-xs text-mid hover:text-navy transition-colors">
-              Full view →
-            </Link>
-            <button
-              onClick={() => handleGenerate(true)}
-              className="text-xs text-teal font-semibold hover:underline"
-            >
-              Refresh
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Progress summary */}
+      <div className="flex items-center justify-between text-xs text-mid">
+        <span className="font-semibold text-navy">{done} of {initialMoves.length} moves done</span>
+        <Link href="/career-moves" className="text-teal font-semibold hover:underline">
+          Manage all moves →
+        </Link>
+      </div>
 
-      {visibleMoves.map(move => <MoveCard key={move.id} move={move} />)}
-      {lockedMoves.map(move => <MoveCard key={move.id} move={move} locked />)}
+      {previewMoves.map(move => <MoveCard key={move.id} move={move} />)}
 
-      {/* Upgrade CTA — free only */}
-      {!isProState && lockedMoves.length > 0 && (
-        <div className="card bg-navy text-white text-center py-5">
-          <ProBadge />
-          <p className="font-bold mt-2">Unlock all {moves.length} career moves</p>
-          <p className="text-blue-200 text-sm mt-1 max-w-xs mx-auto">
-            See exactly what to do this week, this month, and next quarter to move your score.
+      {remaining > 0 && (
+        <Link
+          href="/career-moves"
+          className="card border border-dashed flex items-center justify-between py-3 hover:border-teal/40 hover:bg-teal/[0.02] transition-all group"
+        >
+          <p className="text-sm text-mid group-hover:text-navy transition-colors">
+            +{remaining} more move{remaining > 1 ? 's' : ''} — click to manage
           </p>
-          <a
-            href="/subscribe"
-            className="inline-block mt-4 bg-teal text-white font-bold py-2.5 px-6 rounded-xl hover:bg-teal/90 transition-colors text-sm"
-          >
-            Go Pro — $49/month
-          </a>
-        </div>
+          <svg className="w-4 h-4 text-mid group-hover:text-teal transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </Link>
       )}
-
-      {error && <p className="text-xs text-red-500 bg-red-50 p-2 rounded">{error}</p>}
     </div>
   )
 }
