@@ -17,6 +17,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateCareerMoves } from '@/lib/ai/career-moves'
+import type { TargetPathway } from '@/lib/ai/career-moves'
 import { computeGreenCardScore } from '@/lib/scoring'
 import { checkRateLimit } from '@/lib/rate-limit'
 import type { StrategyAnswers } from '@/lib/types'
@@ -29,6 +30,9 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({}))
     const forceRefresh = body?.force === true
+    const targetPathway = (['NIW', 'EB-1A', 'Both'].includes(body?.targetPathway)
+      ? body.targetPathway
+      : undefined) as TargetPathway | undefined
 
     // Rate limit: 15 generations per 24h per user
     const rateLimit = await checkRateLimit(user.id, 'career-moves')
@@ -99,7 +103,7 @@ export async function POST(req: Request) {
     const score = computeGreenCardScore(answers)
     const linkedInUrl = profile?.linkedin_url as string | undefined
     const reportData = report.report_data as Record<string, unknown> | null
-    const result = await generateCareerMoves(answers, score, linkedInUrl, reportData)
+    const result = await generateCareerMoves(answers, score, linkedInUrl, reportData, targetPathway)
 
     // Persist — try career_move_sets, fall back to profiles.career_moves
     let newSetId: string = 'legacy'

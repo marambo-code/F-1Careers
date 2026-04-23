@@ -1,12 +1,139 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-// Note: useRef kept for NotesField debounce
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { GreenCardScore } from '@/lib/scoring'
 import type { MoveSet, TrackedMove } from './page'
 import type { MoveStatus } from '@/app/api/career-moves/update/route'
+import type { TargetPathway } from '@/lib/ai/career-moves'
+
+// ── Pathway selector ─────────────────────────────────────────────
+
+function PathwaySelector({
+  value,
+  onChange,
+  niwScore,
+  eb1aScore,
+  recommendedPathway,
+}: {
+  value: TargetPathway
+  onChange: (p: TargetPathway) => void
+  niwScore: number | null
+  eb1aScore: number | null
+  recommendedPathway: string | null
+}) {
+  const options: Array<{
+    key: TargetPathway
+    label: string
+    sublabel: string
+    score: number | null
+    description: string
+  }> = [
+    {
+      key: 'NIW',
+      label: 'NIW',
+      sublabel: 'EB-2 National Interest Waiver',
+      score: niwScore,
+      description: 'Moves target Prongs 1–3. Best if your work has national importance.',
+    },
+    {
+      key: 'EB-1A',
+      label: 'EB-1A',
+      sublabel: 'Extraordinary Ability',
+      score: eb1aScore,
+      description: 'Moves target §i–§ix criteria. Best for building a strong evidence portfolio.',
+    },
+    {
+      key: 'Both',
+      label: 'Both',
+      sublabel: '2 NIW + 2 EB-1A moves',
+      score: null,
+      description: 'Pursue both pathways simultaneously with a split set of moves.',
+    },
+  ]
+
+  return (
+    <div className="card border border-border space-y-4">
+      <div>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-bold text-navy">Which pathway should your moves target?</p>
+          {recommendedPathway && (
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal/10 text-teal border border-teal/20">
+              Recommended: {recommendedPathway}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-mid mt-1">
+          Your moves will be strictly tailored to this pathway — no mixed criteria.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {options.map(opt => {
+          const selected = value === opt.key
+          const isRecommended = recommendedPathway &&
+            (opt.key === 'NIW' ? recommendedPathway.includes('NIW') :
+             opt.key === 'EB-1A' ? recommendedPathway.includes('EB-1A') : false)
+
+          return (
+            <button
+              key={opt.key}
+              onClick={() => onChange(opt.key)}
+              className={`relative text-left rounded-2xl border-2 p-4 transition-all ${
+                selected
+                  ? 'border-teal bg-teal/[0.04] shadow-sm'
+                  : 'border-border hover:border-teal/30 hover:bg-gray-50/80'
+              }`}
+            >
+              {isRecommended && (
+                <span className="absolute -top-2.5 left-3 text-[10px] font-black px-2 py-0.5 rounded-full bg-teal text-white">
+                  Recommended
+                </span>
+              )}
+
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className={`text-base font-black ${selected ? 'text-teal' : 'text-navy'}`}>
+                    {opt.label}
+                  </p>
+                  <p className="text-[11px] text-mid font-medium mt-0.5">{opt.sublabel}</p>
+                </div>
+                <div className="flex-shrink-0 mt-0.5">
+                  {selected ? (
+                    <div className="w-5 h-5 rounded-full bg-teal flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                  )}
+                </div>
+              </div>
+
+              {opt.score !== null && (
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${selected ? 'bg-teal' : 'bg-gray-300'}`}
+                      style={{ width: `${opt.score}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs font-bold tabular-nums ${selected ? 'text-teal' : 'text-mid'}`}>
+                    {opt.score}/100
+                  </span>
+                </div>
+              )}
+
+              <p className="text-xs text-mid mt-2.5 leading-snug">{opt.description}</p>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 // ── Status config ─────────────────────────────────────────────────
 
@@ -390,6 +517,10 @@ export default function CareerMovesClient({
   const [isProState, setIsProState] = useState(isPro)
   const [confirmRegen, setConfirmRegen] = useState(false)
 
+  // Pathway selection — pre-populate from greenCardScore best pathway
+  const defaultPathway: TargetPathway = greenCardScore?.bestPathway?.includes('NIW') ? 'NIW' : 'EB-1A'
+  const [selectedPathway, setSelectedPathway] = useState<TargetPathway>(defaultPathway)
+
   // Re-check Pro status client-side — only upgrade, never downgrade.
   // The server-side check is authoritative; this only catches the edge case
   // where the page loaded before the subscription was written (post-payment race).
@@ -425,7 +556,7 @@ export default function CareerMovesClient({
       const res = await fetch('/api/career-moves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ force }),
+        body: JSON.stringify({ force, targetPathway: selectedPathway }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.message ?? `Error ${res.status}`); return }
@@ -554,12 +685,23 @@ export default function CareerMovesClient({
 
       {/* ── Confirm regen ────────────────────────────────────────── */}
       {confirmRegen && (
-        <div className="card border-2 border-orange-200 bg-orange-50 space-y-3">
-          <p className="font-semibold text-navy text-sm">Generate a fresh set of moves?</p>
-          <p className="text-sm text-mid">Your current set will be archived below — your notes and progress are saved forever.</p>
-          <div className="flex gap-3">
-            <button onClick={() => handleGenerate(true)} className="btn-teal text-xs py-2 px-4">Yes, generate new</button>
-            <button onClick={() => setConfirmRegen(false)} className="text-sm text-mid hover:text-navy">Cancel</button>
+        <div className="space-y-3">
+          <PathwaySelector
+            value={selectedPathway}
+            onChange={setSelectedPathway}
+            niwScore={niwScore}
+            eb1aScore={eb1aScore}
+            recommendedPathway={greenCardScore?.bestPathway ?? null}
+          />
+          <div className="card border-2 border-orange-200 bg-orange-50 space-y-3">
+            <p className="font-semibold text-navy text-sm">Generate a fresh {selectedPathway} set?</p>
+            <p className="text-sm text-mid">Your current set will be archived below — notes and progress saved forever.</p>
+            <div className="flex gap-3">
+              <button onClick={() => handleGenerate(true)} className="btn-teal text-xs py-2 px-4">
+                Yes, generate {selectedPathway} moves
+              </button>
+              <button onClick={() => setConfirmRegen(false)} className="text-sm text-mid hover:text-navy">Cancel</button>
+            </div>
           </div>
         </div>
       )}
@@ -591,19 +733,32 @@ export default function CareerMovesClient({
 
       {/* ── No moves yet ─────────────────────────────────────────── */}
       {!loading && !currentSet && (
-        <div className="card border-2 border-dashed text-center py-12">
-          <p className="font-semibold text-navy text-lg">No moves generated yet</p>
-          <p className="text-sm text-mid mt-2 mb-6 max-w-xs mx-auto">
-            {isProState
-              ? 'Generate your personalized 90-day campaign — takes about 15 seconds.'
-              : 'Upgrade to Pro to get your personalized career moves.'}
-          </p>
-          {isProState ? (
-            <button onClick={() => handleGenerate(false)} className="btn-teal">Generate my career moves →</button>
-          ) : (
-            <Link href="/subscribe" className="btn-teal">Go Pro to unlock →</Link>
+        <div className="space-y-4">
+          {isProState && (
+            <PathwaySelector
+              value={selectedPathway}
+              onChange={setSelectedPathway}
+              niwScore={niwScore}
+              eb1aScore={eb1aScore}
+              recommendedPathway={greenCardScore?.bestPathway ?? null}
+            />
           )}
-          {error && <p className="text-xs text-red-500 mt-4">{error}</p>}
+          <div className="card border-2 border-dashed text-center py-10">
+            <p className="font-semibold text-navy text-lg">No moves generated yet</p>
+            <p className="text-sm text-mid mt-2 mb-6 max-w-xs mx-auto">
+              {isProState
+                ? `Generate your personalized 90-day ${selectedPathway} campaign — takes about 15 seconds.`
+                : 'Upgrade to Pro to get your personalized career moves.'}
+            </p>
+            {isProState ? (
+              <button onClick={() => handleGenerate(false)} className="btn-teal">
+                Generate {selectedPathway} career moves →
+              </button>
+            ) : (
+              <Link href="/subscribe" className="btn-teal">Go Pro to unlock →</Link>
+            )}
+            {error && <p className="text-xs text-red-500 mt-4">{error}</p>}
+          </div>
         </div>
       )}
 
@@ -614,7 +769,12 @@ export default function CareerMovesClient({
           {/* Progress bar */}
           <div className="card py-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-black text-navy uppercase tracking-widest">Your progress</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-black text-navy uppercase tracking-widest">Your progress</p>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal/10 text-teal border border-teal/20">
+                  {selectedPathway}
+                </span>
+              </div>
               <p className="text-xs text-mid">
                 Generated {new Date(currentSet.generated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
