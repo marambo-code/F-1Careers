@@ -106,11 +106,12 @@ export default async function DashboardPage() {
   if (!user) redirect('/login')
 
   // Fetch all data in parallel
-  const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult] = await Promise.all([
+  const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult, currentMoveSetResult] = await Promise.all([
     supabase.from('profiles').select('*, country_of_birth').eq('id', user.id).single(),
     supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end').eq('user_id', user.id).maybeSingle(),
     supabase.from('score_history').select('green_card_score, niw_score, eb1a_score, created_at').eq('user_id', user.id).order('created_at', { ascending: true }).limit(12),
+    supabase.from('career_move_sets').select('moves').eq('user_id', user.id).eq('is_current', true).maybeSingle(),
   ])
 
   const profile = profileResult.data
@@ -147,9 +148,10 @@ export default async function DashboardPage() {
   // Profile strength
   const strength = profileStrength(profile as Record<string, unknown> | null, !!(profile?.linkedin_url))
 
-  // Career moves
+  // Career moves — prefer career_move_sets (new), fall back to profiles.career_moves (legacy)
+  const setMoves = (currentMoveSetResult.data?.moves ?? null) as CareerMove[] | null
   const cachedMoves = profile?.career_moves as { moves: CareerMove[] } | null
-  const careerMoves = cachedMoves?.moves ?? null
+  const careerMoves = (setMoves && setMoves.length > 0) ? setMoves : (cachedMoves?.moves ?? null)
 
   // Country of birth for backlog alerts
   const countryOfBirth = (profile as Record<string, unknown> | null)?.country_of_birth as string | undefined

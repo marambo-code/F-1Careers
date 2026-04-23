@@ -150,20 +150,20 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
     )
   }
 
-  // ── Pro: no moves generated yet ───────────────────────────────
+  // ── Pro: no moves cached on dashboard — just link to the page ────
   if (!initialMoves || initialMoves.length === 0) {
     return (
-      <div className="card border border-dashed">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <p className="font-semibold text-navy text-sm">No career moves generated yet</p>
-            <p className="text-sm text-mid mt-1">Head to Career Moves to generate your personalized 90-day plan.</p>
-          </div>
-          <Link href="/career-moves" className="btn-teal text-xs py-2 px-4 flex-shrink-0">
-            Go to Career Moves →
-          </Link>
-        </div>
-      </div>
+      <Link
+        href="/career-moves"
+        className="card border border-dashed flex items-center justify-between py-4 hover:border-teal/40 hover:bg-teal/[0.02] transition-all group"
+      >
+        <p className="text-sm text-mid group-hover:text-navy transition-colors">
+          See your career moves
+        </p>
+        <svg className="w-4 h-4 text-mid group-hover:text-teal transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </Link>
     )
   }
 
