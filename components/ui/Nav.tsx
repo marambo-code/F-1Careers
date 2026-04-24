@@ -8,11 +8,12 @@ import { createClient } from '@/lib/supabase/client'
 // ── Desktop nav links ─────────────────────────────────────────────
 
 const desktopLinks = [
-  { href: '/dashboard',     label: 'Dashboard' },
-  { href: '/strategy',      label: 'GC Strategy' },
-  { href: '/career-moves',  label: 'Career Moves' },
-  { href: '/rfe',           label: 'RFE Analyzer' },
-  { href: '/profile',       label: 'Profile' },
+  { href: '/dashboard',          label: 'Dashboard' },
+  { href: '/strategy',           label: 'GC Strategy' },
+  { href: '/career-moves',       label: 'Career Moves' },
+  { href: '/petition-builder',   label: 'Petition Builder' },
+  { href: '/rfe',                label: 'RFE Analyzer' },
+  { href: '/profile',            label: 'Profile' },
 ]
 
 // ── Bottom tab bar items (mobile only) ────────────────────────────
@@ -33,6 +34,15 @@ const tabItems = [
     icon: (active: boolean) => (
       <svg className={`w-5 h-5 ${active ? 'text-teal' : 'text-mid'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.5 : 2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/petition-builder',
+    label: 'Petition',
+    icon: (active: boolean) => (
+      <svg className={`w-5 h-5 ${active ? 'text-teal' : 'text-mid'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 2.5 : 2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
   },

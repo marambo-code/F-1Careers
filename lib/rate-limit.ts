@@ -7,9 +7,10 @@
 import { createServiceClient } from '@/lib/supabase/server'
 
 const LIMITS: Record<string, number> = {
-  'career-moves': 15,    // 15 generations per 24h (Pro users)
-  'strategy-gen': 5,     // 5 strategy report generations per 24h
-  'rfe-gen': 5,          // 5 RFE generations per 24h
+  'career-moves': 15,          // 15 generations per 24h (Pro users)
+  'strategy-gen': 5,           // 5 strategy report generations per 24h
+  'rfe-gen': 5,                // 5 RFE generations per 24h
+  'narrative-feedback': 10,    // 10 adversarial reviews per 24h
 }
 
 export interface RateLimitResult {

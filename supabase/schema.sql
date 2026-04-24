@@ -237,3 +237,20 @@ create or replace view public.user_reports_view as
     p.status as payment_status
   from public.reports r
   left join public.payments p on p.report_id = r.id;
+
+-- ─── PETITION BUILDER ────────────────────────────────────────────
+create table if not exists public.petition_progress (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  pathway text not null default 'NIW' check (pathway in ('NIW', 'EB-1A')),
+  evidence_items jsonb not null default '[]',
+  narrative_text text not null default '',
+  service_center text not null default 'NSC',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(user_id)
+);
+alter table public.petition_progress enable row level security;
+drop policy if exists "Users manage own petition progress" on public.petition_progress;
+create policy "Users manage own petition progress" on public.petition_progress
+  for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
