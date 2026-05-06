@@ -47,6 +47,7 @@ export async function GET() {
       evidence_items: progress.evidence_items,
       narrative_text: progress.narrative_text ?? '',
       service_center: progress.service_center ?? 'NSC',
+      generated_petition: progress.generated_petition ?? null,
     })
   } catch (error) {
     console.error('[petition-builder GET]', error)

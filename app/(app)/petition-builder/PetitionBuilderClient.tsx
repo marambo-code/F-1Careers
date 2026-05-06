@@ -22,7 +22,15 @@ interface NarrativeFeedback {
   next_step: string
 }
 
-type Tab = 'evidence' | 'narrative' | 'signal'
+type Tab = 'evidence' | 'narrative' | 'signal' | 'generate'
+
+interface PetitionPackage {
+  personal_statement: string
+  cover_letter: string
+  generated_at: string
+  pathway: string
+  word_count: number
+}
 
 // ── Runway counter ───────────────────────────────────────────────────────────
 
@@ -478,6 +486,190 @@ function SignalTrack({
   )
 }
 
+// ── Generate track ───────────────────────────────────────────────────────────
+
+function GenerateTrack({
+  items,
+  narrative,
+  pathway,
+  savedPacket,
+  onGenerated,
+}: {
+  items: EvidenceItem[]
+  narrative: string
+  pathway: Pathway
+  savedPacket: PetitionPackage | null
+  onGenerated: (p: PetitionPackage) => void
+}) {
+  const [generating, setGenerating] = useState(false)
+  const [packet, setPacket] = useState<PetitionPackage | null>(savedPacket)
+  const [error, setError] = useState<string | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [activeDoc, setActiveDoc] = useState<'statement' | 'cover'>('statement')
+
+  const doneCount = items.filter(i => i.status === 'done').length
+  const inProgressCount = items.filter(i => i.status === 'in_progress').length
+  const hasNarrative = narrative.trim().length > 100
+  const readinessScore = Math.round(((doneCount + inProgressCount * 0.5) / items.length) * 100)
+
+  const readinessColor = readinessScore >= 70 ? 'text-teal' : readinessScore >= 40 ? 'text-yellow-500' : 'text-orange-500'
+  const readinessLabel = readinessScore >= 70 ? 'Strong — ready to generate' : readinessScore >= 40 ? 'Partial — generation will have gaps' : 'Early — add more evidence for better output'
+
+  const copy = async (text: string, key: string) => {
+    await navigator.clipboard.writeText(text)
+    setCopiedKey(key)
+    setTimeout(() => setCopiedKey(null), 2000)
+  }
+
+  const generate = async () => {
+    setGenerating(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/petition-builder/generate', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message ?? data.error ?? 'Generation failed')
+      setPacket(data)
+      onGenerated(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Generation failed')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+
+      {/* Readiness card */}
+      <div className="card space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-navy">Generation Readiness</h3>
+          <span className={`text-sm font-bold ${readinessColor}`}>{readinessScore}%</span>
+        </div>
+
+        <div className="h-2 rounded-full bg-navy-light overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${readinessScore >= 70 ? 'bg-teal' : readinessScore >= 40 ? 'bg-yellow-400' : 'bg-orange-400'}`}
+            style={{ width: `${readinessScore}%` }}
+          />
+        </div>
+
+        <p className="text-xs text-mid">{readinessLabel}</p>
+
+        <div className="grid grid-cols-3 gap-3 pt-1">
+          {[
+            { label: 'Evidence done', value: `${doneCount}/${items.length}`, ok: doneCount > 0 },
+            { label: 'Narrative written', value: hasNarrative ? 'Yes' : 'No', ok: hasNarrative },
+            { label: 'Pathway set', value: pathway, ok: true },
+          ].map(stat => (
+            <div key={stat.label} className={`rounded-xl p-3 border text-center ${stat.ok ? 'border-teal/20 bg-teal/4' : 'border-gray-200 bg-gray-50'}`}>
+              <p className={`text-sm font-bold ${stat.ok ? 'text-teal' : 'text-mid'}`}>{stat.value}</p>
+              <p className="text-[10px] text-mid mt-0.5">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {!hasNarrative && (
+          <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+            ⚠️ No narrative statement written. Go to the Narrative tab and write your proposed endeavor — it's the spine of the petition.
+          </p>
+        )}
+      </div>
+
+      {/* Generate button */}
+      <div className="flex items-start gap-4">
+        <button
+          onClick={generate}
+          disabled={generating}
+          className="btn-primary flex items-center gap-2"
+        >
+          {generating ? (
+            <>
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Generating petition… (~30s)
+            </>
+          ) : packet ? 'Regenerate petition' : 'Generate petition package'}
+        </button>
+        {packet && !generating && (
+          <p className="text-xs text-mid mt-2">Last generated {new Date(packet.generated_at).toLocaleDateString()} · {packet.word_count.toLocaleString()} words</p>
+        )}
+      </div>
+
+      {error && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+      )}
+
+      {/* Output */}
+      {packet && !generating && (
+        <div className="space-y-4">
+
+          {/* Doc tabs */}
+          <div className="flex gap-2 border-b border-gray-200">
+            {([
+              { id: 'statement', label: 'Personal Statement' },
+              { id: 'cover', label: 'Cover Letter' },
+            ] as const).map(d => (
+              <button
+                key={d.id}
+                onClick={() => setActiveDoc(d.id)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${activeDoc === d.id ? 'border-navy text-navy' : 'border-transparent text-mid hover:text-navy'}`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Document display */}
+          {activeDoc === 'statement' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-mid font-medium">Personal Statement · {packet.personal_statement.split(/\s+/).length.toLocaleString()} words</p>
+                <button
+                  onClick={() => copy(packet.personal_statement, 'statement')}
+                  className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
+                >
+                  {copiedKey === 'statement' ? '✓ Copied' : 'Copy all'}
+                </button>
+              </div>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 max-h-[60vh] overflow-y-auto">
+                <pre className="text-xs text-navy leading-relaxed whitespace-pre-wrap font-sans">{packet.personal_statement}</pre>
+              </div>
+            </div>
+          )}
+
+          {activeDoc === 'cover' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-mid font-medium">Cover Letter · {packet.cover_letter.split(/\s+/).length.toLocaleString()} words</p>
+                <button
+                  onClick={() => copy(packet.cover_letter, 'cover')}
+                  className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
+                >
+                  {copiedKey === 'cover' ? '✓ Copied' : 'Copy all'}
+                </button>
+              </div>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 max-h-[60vh] overflow-y-auto">
+                <pre className="text-xs text-navy leading-relaxed whitespace-pre-wrap font-sans">{packet.cover_letter}</pre>
+              </div>
+            </div>
+          )}
+
+          {/* Usage note */}
+          <div className="rounded-xl bg-navy/4 border border-navy/10 p-4">
+            <p className="text-xs font-bold text-navy mb-1">How to use this</p>
+            <p className="text-xs text-mid leading-relaxed">
+              Copy each document into Word and review carefully. Replace any bracketed placeholders with your specific details. Have an immigration attorney review before filing — this is a first draft, not legal advice.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function PetitionBuilderClient() {
@@ -488,6 +680,7 @@ export default function PetitionBuilderClient() {
   const [serviceCenter, setServiceCenter] = useState('NSC')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [generatedPacket, setGeneratedPacket] = useState<PetitionPackage | null>(null)
   const [showPathwayConfirm, setShowPathwayConfirm] = useState<Pathway | null>(null)
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -501,6 +694,7 @@ export default function PetitionBuilderClient() {
         setItems(data.evidence_items?.length ? data.evidence_items : getTemplateForPathway(data.pathway ?? 'NIW'))
         setNarrative(data.narrative_text ?? '')
         setServiceCenter(data.service_center ?? 'NSC')
+        if (data.generated_petition) setGeneratedPacket(data.generated_petition)
       })
       .finally(() => setLoading(false))
   }, [])
@@ -565,6 +759,7 @@ export default function PetitionBuilderClient() {
     { id: 'evidence', label: 'Evidence', icon: '📋' },
     { id: 'narrative', label: 'Narrative', icon: '✍️' },
     { id: 'signal', label: 'Signal', icon: '📡' },
+    { id: 'generate', label: generatedPacket ? 'Petition ✓' : 'Generate', icon: '📄' },
   ]
 
   if (loading) {
@@ -663,6 +858,15 @@ export default function PetitionBuilderClient() {
       )}
       {tab === 'signal' && (
         <SignalTrack pathway={pathway} serviceCenter={serviceCenter} onServiceCenterChange={handleServiceCenter} />
+      )}
+      {tab === 'generate' && (
+        <GenerateTrack
+          items={items}
+          narrative={narrative}
+          pathway={pathway}
+          savedPacket={generatedPacket}
+          onGenerated={setGeneratedPacket}
+        />
       )}
     </div>
   )

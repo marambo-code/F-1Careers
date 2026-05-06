@@ -254,3 +254,6 @@ alter table public.petition_progress enable row level security;
 drop policy if exists "Users manage own petition progress" on public.petition_progress;
 create policy "Users manage own petition progress" on public.petition_progress
   for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Add generated_petition column to petition_progress (run if table already exists)
+alter table public.petition_progress add column if not exists generated_petition jsonb;
