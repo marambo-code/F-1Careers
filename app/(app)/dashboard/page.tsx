@@ -2,12 +2,13 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import DeleteReportButton from '@/components/ui/DeleteReportButton'
-import CareerMovesSection from '@/components/dashboard/CareerMovesSection'
 import CountryAlert from '@/components/dashboard/CountryAlert'
 import AdminAlertBanner from '@/components/dashboard/AdminAlertBanner'
 import { computeGreenCardScoreFromSubscores } from '@/lib/scoring'
 import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
 import type { CareerMove } from '@/lib/ai/career-moves'
+import type { EvidenceItem } from '@/lib/data/petition-evidence'
+import { computeRunwayDays } from '@/lib/data/petition-evidence'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,72 +30,53 @@ function optUrgencyColor(days: number | null): string {
   return 'text-teal'
 }
 
-function profileStrength(profile: Record<string, unknown> | null, hasLinkedIn: boolean): number {
-  if (!profile) return 0
-  const fields = ['full_name', 'university', 'degree', 'field_of_study', 'graduation_date', 'visa_status', 'career_goal', 'resume_path']
-  const filled = fields.filter(f => !!profile[f]).length
-  const linkedInBonus = hasLinkedIn ? 1 : 0
-  return Math.round(((filled + linkedInBonus) / (fields.length + 1)) * 100)
+type Stage = 1 | 2 | 3 | 4 | 5
+
+function getUserStage({
+  hasStrategyReport,
+  hasCareerMoves,
+  evidenceDone,
+  evidenceTotal,
+  hasNarrative,
+  hasGeneratedPetition,
+}: {
+  hasStrategyReport: boolean
+  hasCareerMoves: boolean
+  evidenceDone: number
+  evidenceTotal: number
+  hasNarrative: boolean
+  hasGeneratedPetition: boolean
+}): Stage {
+  if (!hasStrategyReport) return 1
+  if (!hasCareerMoves || evidenceDone === 0) return 2
+  if (!hasNarrative || evidenceDone / Math.max(evidenceTotal, 1) < 0.5) return 3
+  if (!hasGeneratedPetition) return 4
+  return 5
 }
 
-// ── Score ring SVG ────────────────────────────────────────────────────────────
+const STAGES = [
+  { n: 1, label: 'Know Your Chances', short: 'Chances', icon: '📊' },
+  { n: 2, label: 'Build Your Evidence', short: 'Evidence', icon: '📋' },
+  { n: 3, label: 'Write Your Case', short: 'Case', icon: '✍️' },
+  { n: 4, label: 'Assemble Package', short: 'Package', icon: '📄' },
+  { n: 5, label: 'Ready to File', short: 'File', icon: '🚀' },
+]
+
+// ── Score ring ────────────────────────────────────────────────────────────────
 
 function ScoreRing({ score, color }: { score: number; color: string }) {
-  const radius = 44
+  const radius = 36
   const circumference = 2 * Math.PI * radius
   const filled = (score / 100) * circumference
-  const dash = `${filled} ${circumference - filled}`
-
   const strokeColor =
     color === 'teal' ? '#14B8A6' :
-    color === 'blue' ? '#3B82F6' :
-    color === 'yellow' ? '#D97706' : '#EF4444'
-
+    color === 'yellow' ? '#D97706' : '#F97316'
   return (
-    <svg width="110" height="110" viewBox="0 0 110 110" className="rotate-[-90deg]">
-      <circle cx="55" cy="55" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="8" />
-      <circle
-        cx="55" cy="55" r={radius}
-        fill="none"
-        stroke={strokeColor}
-        strokeWidth="8"
-        strokeDasharray={dash}
-        strokeLinecap="round"
-        style={{ transition: 'stroke-dasharray 0.6s ease' }}
-      />
+    <svg width="88" height="88" viewBox="0 0 88 88" className="rotate-[-90deg]">
+      <circle cx="44" cy="44" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="7" />
+      <circle cx="44" cy="44" r={radius} fill="none" stroke={strokeColor} strokeWidth="7"
+        strokeDasharray={`${filled} ${circumference - filled}`} strokeLinecap="round" />
     </svg>
-  )
-}
-
-// ── Score history mini-bar ────────────────────────────────────────────────────
-
-interface ScorePoint { green_card_score: number; created_at: string }
-
-function ScoreHistory({ history }: { history: ScorePoint[] }) {
-  if (history.length < 2) return null
-  const max = Math.max(...history.map(h => h.green_card_score), 100)
-  return (
-    <div className="space-y-1">
-      <p className="text-xs font-bold text-mid uppercase tracking-widest">Score History</p>
-      <div className="flex items-end gap-1.5 h-10">
-        {history.map((h, i) => {
-          const pct = (h.green_card_score / max) * 100
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
-              <div
-                className="w-full bg-teal rounded-sm transition-all"
-                style={{ height: `${Math.max(pct, 8)}%` }}
-              />
-              <span className="text-[9px] text-mid">{new Date(h.created_at).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</span>
-              {/* tooltip */}
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-navy text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                {h.green_card_score}/100
-              </span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
   )
 }
 
@@ -105,69 +87,117 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch all data in parallel
-  const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult, currentMoveSetResult] = await Promise.all([
+  const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult, currentMoveSetResult, petitionResult] = await Promise.all([
     supabase.from('profiles').select('*, country_of_birth').eq('id', user.id).single(),
     supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end').eq('user_id', user.id).maybeSingle(),
     supabase.from('score_history').select('green_card_score, niw_score, eb1a_score, created_at').eq('user_id', user.id).order('created_at', { ascending: true }).limit(12),
     supabase.from('career_move_sets').select('moves').eq('user_id', user.id).eq('is_current', true).maybeSingle(),
+    supabase.from('petition_progress').select('evidence_items, narrative_text, generated_petition').eq('user_id', user.id).maybeSingle(),
   ])
 
   const profile = profileResult.data
   const reports = reportsResult.data ?? []
   const subscription = subscriptionResult.data
-  const scoreHistory = (scoreHistoryResult.data ?? []) as ScorePoint[]
-
   const isPro = subscription?.status === 'active' || subscription?.status === 'trialing'
-  const completedReports = reports.filter(r => r.status === 'complete')
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
-  const profileComplete = profile?.university && profile?.degree && profile?.visa_status && profile?.career_goal && profile?.graduation_date
 
-  // ── Strategy data ──────────────────────────────────────────────────────────
+  // Strategy data
   const latestStrategyReport = reports.find(r => r.type === 'strategy' && (r.status === 'complete' || r.status === 'pending'))
   const latestPreview = latestStrategyReport?.preview_data as StrategyPreview | null
   const latestFullReport = latestStrategyReport?.report_data as StrategyReport | null
   const latestAnswers = latestStrategyReport?.questionnaire_responses as StrategyAnswers | null
-
   const niwScore = latestFullReport?.petition_readiness?.niw_score ?? latestPreview?.niw_score ?? null
   const eb1aScore = latestFullReport?.petition_readiness?.eb1a_score ?? latestPreview?.eb1a_score ?? null
   const recommendedPathway = latestFullReport?.petition_readiness?.recommended_pathway ?? latestPreview?.top_pathway ?? null
-  const hasStrategyReport = !!latestStrategyReport
-
-  // Green Card Score
   const greenCardScore = (niwScore !== null && eb1aScore !== null)
     ? computeGreenCardScoreFromSubscores(niwScore, eb1aScore)
     : null
 
-  // OPT countdown
+  // Visa countdown
   const visaExpiration = latestAnswers?.visa_expiration ?? null
   const daysLeft = visaExpiration ? daysUntil(visaExpiration) : null
   const visaStatus = latestAnswers?.visa_status ?? profile?.visa_status ?? null
 
-  // Profile strength
-  const strength = profileStrength(profile as Record<string, unknown> | null, !!(profile?.linkedin_url))
-
-  // Career moves — prefer career_move_sets (new), fall back to profiles.career_moves (legacy)
+  // Career moves
   const setMoves = (currentMoveSetResult.data?.moves ?? null) as CareerMove[] | null
   const cachedMoves = profile?.career_moves as { moves: CareerMove[] } | null
   const careerMoves = (setMoves && setMoves.length > 0) ? setMoves : (cachedMoves?.moves ?? null)
 
-  // Country of birth for backlog alerts
+  // Petition progress
+  const petitionData = petitionResult.data
+  const evidenceItems = (petitionData?.evidence_items ?? []) as EvidenceItem[]
+  const evidenceDone = evidenceItems.filter(i => i.status === 'done').length
+  const evidenceTotal = evidenceItems.length
+  const hasNarrative = (petitionData?.narrative_text ?? '').trim().length > 100
+  const hasGeneratedPetition = !!petitionData?.generated_petition
+  const runwayDays = evidenceItems.length > 0 ? computeRunwayDays(evidenceItems) : null
+
+  // Country alerts
   const countryOfBirth = (profile as Record<string, unknown> | null)?.country_of_birth as string | undefined
 
-  return (
-    <div className="space-y-8">
+  // Journey stage
+  const stage = getUserStage({
+    hasStrategyReport: !!latestStrategyReport,
+    hasCareerMoves: !!careerMoves,
+    evidenceDone,
+    evidenceTotal,
+    hasNarrative,
+    hasGeneratedPetition,
+  })
 
-      {/* ══ GREETING ═══════════════════════════════════════════════════════════ */}
+  const nextStepConfig: Record<Stage, { title: string; description: string; href: string; cta: string; color: string }> = {
+    1: {
+      title: 'Get your green card strategy',
+      description: "Answer 15 questions about your background. We'll calculate your NIW and EB-1A scores and tell you exactly which pathway fits your profile.",
+      href: '/strategy',
+      cta: 'Run strategy report →',
+      color: 'border-teal bg-teal/4',
+    },
+    2: {
+      title: 'Start building your evidence',
+      description: 'Your strategy report is ready. Now open the Petition Builder and start checking off the evidence items for your pathway. This is where your case gets built.',
+      href: '/petition-builder',
+      cta: 'Open Petition Builder →',
+      color: 'border-teal bg-teal/4',
+    },
+    3: {
+      title: 'Write your proposed endeavor',
+      description: "You have evidence started. Now write your proposed endeavor statement — the single most important sentence in any petition. The AI will review it like a USCIS adjudicator.",
+      href: '/petition-builder',
+      cta: 'Write narrative →',
+      color: 'border-blue-200 bg-blue-50/50',
+    },
+    4: {
+      title: 'Generate your petition package',
+      description: "Your evidence is solid and your narrative is reviewed. Generate your full petition package — personal statement, cover letter, and recommendation letter briefings.",
+      href: '/petition-builder',
+      cta: 'Generate petition →',
+      color: 'border-purple-200 bg-purple-50/50',
+    },
+    5: {
+      title: 'Your petition package is ready',
+      description: 'Your documents are generated. Next: review the filing checklist, assemble your exhibit package, and verify the current USCIS mailing address before you submit.',
+      href: '/filing-guide',
+      cta: 'Open filing guide →',
+      color: 'border-teal bg-teal/4',
+    },
+  }
+
+  const nextStep = nextStepConfig[stage]
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+
+      {/* ══ GREETING ════════════════════════════════════════════════════════════ */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-navy">Hello, {firstName} 👋</h1>
-          <p className="text-sm text-mid mt-0.5">Here's your green card progress</p>
+          <p className="text-sm text-mid mt-0.5">Your path to an approved petition</p>
         </div>
         {isPro && (
           <div className="flex items-center gap-2 bg-gradient-to-r from-teal/15 to-teal/5 border border-teal/25 rounded-xl px-4 py-2.5">
-            <span className="text-teal text-base">✦</span>
+            <span className="text-teal">✦</span>
             <div>
               <p className="text-xs font-black text-teal leading-none">Pro Member</p>
               {subscription?.current_period_end && (
@@ -180,315 +210,236 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* ══ ADMIN ALERTS + COUNTRY WARNINGS ════════════════════════════════════ */}
+      {/* ══ ALERTS ══════════════════════════════════════════════════════════════ */}
       <AdminAlertBanner />
       {countryOfBirth && <CountryAlert countryCode={countryOfBirth} recommendedPathway={recommendedPathway} />}
 
-      {/* ══ HERO: Green Card Score ══════════════════════════════════════════════ */}
-      <div className="card bg-navy text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-teal/5 rounded-full -translate-y-1/3 translate-x-1/3 pointer-events-none" />
-
-        {greenCardScore ? (
-          <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
-            {/* Score ring — left */}
-            <div className="relative flex-shrink-0">
-              <ScoreRing score={greenCardScore.overall} color="teal" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-black text-white leading-none">{greenCardScore.overall}</span>
-                <span className="text-[11px] text-blue-300 font-medium mt-0.5">/100</span>
-              </div>
-            </div>
-
-            {/* Text — right */}
-            <div className="flex-1 min-w-0 text-center sm:text-left">
-              <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest mb-1">Green Card Score</p>
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${
-                  greenCardScore.label === 'Exceptional' ? 'bg-teal/25 text-teal' :
-                  greenCardScore.label === 'Strong'      ? 'bg-teal/20 text-teal' :
-                  greenCardScore.label === 'Developing'  ? 'bg-yellow-400/20 text-yellow-300' :
-                                                           'bg-red-400/20 text-red-300'
-                }`}>{greenCardScore.label}</span>
-                {greenCardScore.readyToFile && (
-                  <span className="text-xs text-teal font-semibold">✓ Ready to file</span>
-                )}
-              </div>
-              <p className="text-blue-200 text-sm mt-2">
-                Best pathway: <span className="text-white font-semibold">{greenCardScore.bestPathway}</span>
-                <span className="text-blue-400 mx-2">·</span>
-                NIW <span className="text-white font-semibold">{niwScore}</span>
-                <span className="text-blue-400 mx-1.5">·</span>
-                EB-1A <span className="text-white font-semibold">{eb1aScore}</span>
-              </p>
-            </div>
+      {/* ══ JOURNEY PROGRESS ════════════════════════════════════════════════════ */}
+      <div className="card !p-0 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <p className="text-xs font-bold text-mid uppercase tracking-wide">Your petition journey</p>
+        </div>
+        <div className="px-5 py-4">
+          <div className="flex items-center gap-0">
+            {STAGES.map((s, i) => {
+              const done = s.n < stage
+              const current = s.n === stage
+              return (
+                <div key={s.n} className="flex items-center flex-1 min-w-0">
+                  <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 transition-colors ${
+                      done    ? 'bg-teal border-teal text-white' :
+                      current ? 'bg-white border-teal text-teal' :
+                                'bg-gray-50 border-gray-200 text-mid'
+                    }`}>
+                      {done ? (
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <span className="text-xs font-bold">{s.n}</span>
+                      )}
+                    </div>
+                    <span className={`text-[9px] font-semibold text-center leading-tight hidden sm:block ${current ? 'text-teal' : done ? 'text-mid' : 'text-gray-300'}`}>
+                      {s.short}
+                    </span>
+                  </div>
+                  {i < STAGES.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-1 ${done ? 'bg-teal' : 'bg-gray-200'}`} />
+                  )}
+                </div>
+              )
+            })}
           </div>
-        ) : (
-          <div className="flex items-center gap-5">
-            <div className="w-[110px] h-[110px] rounded-full border-8 border-white/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-black text-white/20">—</span>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest mb-1">Green Card Score</p>
-              <p className="text-white font-semibold">Not yet calculated</p>
-              <p className="text-blue-300 text-sm mt-1">Run a Green Card Strategy report to see your score.</p>
-              <Link href="/strategy" className="inline-block mt-3 bg-teal text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-teal/90 transition-colors">
-                Run strategy report →
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Score history (Pro only) */}
-        {isPro && scoreHistory.length >= 2 && (
-          <div className="mt-5 pt-5 border-t border-white/10">
-            <ScoreHistory history={scoreHistory} />
-          </div>
-        )}
-
-        {/* Footer strip */}
-        {isPro ? (
-          <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-2">
-            <span className="text-[11px] bg-teal/20 text-teal border border-teal/30 font-bold px-2 py-0.5 rounded-full">Pro</span>
-            <p className="text-xs text-blue-300">Score updates automatically with each new strategy report</p>
-          </div>
-        ) : greenCardScore ? (
-          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-4">
-            <p className="text-xs text-blue-300">Go Pro to track your score over time and unlock all 4 career moves</p>
-            <Link href="/subscribe" className="flex-shrink-0 text-xs bg-teal text-white font-bold px-3 py-1.5 rounded-lg hover:bg-teal/90 transition-colors whitespace-nowrap">
-              Go Pro — $49/mo
-            </Link>
-          </div>
-        ) : null}
+        </div>
       </div>
 
-      {/* ══ STATUS ROW ═════════════════════════════════════════════════════════ */}
+      {/* ══ NEXT STEP ═══════════════════════════════════════════════════════════ */}
+      <div className={`rounded-2xl border-2 p-5 ${nextStep.color}`}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-[10px] font-bold text-mid uppercase tracking-widest mb-1">
+              Stage {stage} of 5 — {STAGES[stage - 1].label}
+            </p>
+            <h2 className="text-lg font-bold text-navy">{nextStep.title}</h2>
+            <p className="text-sm text-mid mt-1.5 leading-relaxed max-w-xl">{nextStep.description}</p>
+            <Link href={nextStep.href} className="inline-flex items-center gap-2 mt-4 btn-primary text-sm">
+              {nextStep.cta}
+            </Link>
+          </div>
+          <div className="text-4xl hidden sm:block flex-shrink-0">{STAGES[stage - 1].icon}</div>
+        </div>
+      </div>
+
+      {/* ══ METRICS ROW ═════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {/* OPT Countdown */}
-        <div className="card py-4 text-center space-y-1 col-span-2 sm:col-span-1">
-          <p className="text-xs font-bold text-mid uppercase tracking-widest">
-            {visaStatus ? visaStatus.replace('F-1 ', '') : 'Visa'} Expires
-          </p>
-          {daysLeft !== null ? (
+
+        {/* Green Card Score */}
+        <div className="card py-4 text-center space-y-0.5 col-span-2 sm:col-span-1">
+          <p className="text-[10px] font-bold text-mid uppercase tracking-widest">GC Score</p>
+          {greenCardScore ? (
             <>
-              <p className={`text-4xl font-black ${optUrgencyColor(daysLeft)}`}>{daysLeft}</p>
-              <p className="text-xs text-mid">days remaining</p>
-              {daysLeft <= 180 && (
-                <p className={`text-xs font-semibold ${daysLeft <= 60 ? 'text-red-500' : 'text-yellow-600'}`}>
-                  {daysLeft <= 60 ? '⚠ File immediately' : '⏱ File soon'}
-                </p>
-              )}
+              <p className={`text-4xl font-black ${greenCardScore.overall >= 70 ? 'text-teal' : greenCardScore.overall >= 50 ? 'text-yellow-600' : 'text-orange-500'}`}>
+                {greenCardScore.overall}
+              </p>
+              <p className="text-[10px] text-mid">{greenCardScore.label}</p>
             </>
           ) : (
             <>
-              <p className="text-2xl font-black text-mid">—</p>
-              <Link href="/strategy/questionnaire" className="text-xs text-teal font-semibold hover:underline">Add expiry date</Link>
+              <p className="text-3xl font-black text-mid">—</p>
+              <Link href="/strategy" className="text-[10px] text-teal font-semibold hover:underline">Run report</Link>
             </>
           )}
         </div>
 
         {/* NIW Score */}
-        <div className="card py-4 text-center space-y-1">
-          <p className="text-xs font-bold text-mid uppercase tracking-widest">NIW Score</p>
+        <div className="card py-4 text-center space-y-0.5">
+          <p className="text-[10px] font-bold text-mid uppercase tracking-widest">NIW</p>
           {niwScore !== null ? (
             <>
               <p className={`text-4xl font-black ${niwScore >= 65 ? 'text-teal' : niwScore >= 45 ? 'text-yellow-600' : 'text-orange-500'}`}>{niwScore}</p>
-              <p className="text-xs text-mid">/100</p>
+              <p className="text-[10px] text-mid">/100</p>
             </>
           ) : (
-            <>
-              <p className="text-2xl font-black text-mid">—</p>
-              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Run analysis</Link>
-            </>
+            <p className="text-3xl font-black text-mid">—</p>
           )}
         </div>
 
         {/* EB-1A Score */}
-        <div className="card py-4 text-center space-y-1">
-          <p className="text-xs font-bold text-mid uppercase tracking-widest">EB-1A Score</p>
+        <div className="card py-4 text-center space-y-0.5">
+          <p className="text-[10px] font-bold text-mid uppercase tracking-widest">EB-1A</p>
           {eb1aScore !== null ? (
             <>
               <p className={`text-4xl font-black ${eb1aScore >= 70 ? 'text-teal' : eb1aScore >= 50 ? 'text-yellow-600' : 'text-orange-500'}`}>{eb1aScore}</p>
-              <p className="text-xs text-mid">/100</p>
+              <p className="text-[10px] text-mid">/100</p>
             </>
           ) : (
-            <>
-              <p className="text-2xl font-black text-mid">—</p>
-              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Run analysis</Link>
-            </>
+            <p className="text-3xl font-black text-mid">—</p>
           )}
         </div>
 
-        {/* Recommended pathway */}
-        <div className="card py-4 text-center space-y-1">
-          <p className="text-xs font-bold text-mid uppercase tracking-widest">Best Pathway</p>
-          {recommendedPathway ? (
+        {/* Visa countdown */}
+        <div className="card py-4 text-center space-y-0.5">
+          <p className="text-[10px] font-bold text-mid uppercase tracking-widest">
+            {visaStatus ? visaStatus.replace('F-1 ', '') : 'Visa'} Expires
+          </p>
+          {daysLeft !== null ? (
             <>
-              <p className="text-sm font-black text-navy leading-tight mt-1">{recommendedPathway}</p>
-              <Link href={latestStrategyReport ? `/strategy/report/${latestStrategyReport.id}` : '/strategy'} className="text-xs text-teal font-semibold hover:underline">
-                View report →
-              </Link>
+              <p className={`text-4xl font-black ${optUrgencyColor(daysLeft)}`}>{daysLeft}</p>
+              <p className={`text-[10px] font-semibold ${daysLeft <= 60 ? 'text-red-500' : daysLeft <= 180 ? 'text-yellow-600' : 'text-mid'}`}>
+                {daysLeft <= 60 ? '⚠ Act now' : daysLeft <= 180 ? 'File soon' : 'days left'}
+              </p>
             </>
           ) : (
             <>
-              <p className="text-2xl font-black text-mid">—</p>
-              <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">Get analysis</Link>
+              <p className="text-3xl font-black text-mid">—</p>
+              <Link href="/strategy/questionnaire" className="text-[10px] text-teal font-semibold hover:underline">Add date</Link>
             </>
           )}
         </div>
       </div>
 
-      {/* ══ PROFILE STRENGTH ═══════════════════════════════════════════════════ */}
-      <div className="card space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-bold text-navy">Profile & Evidence Strength</p>
-            <p className="text-xs text-mid mt-0.5">
-              {strength < 50 ? 'Add more information to improve your AI report accuracy.' :
-               strength < 80 ? 'Good foundation — upload resume and LinkedIn to maximize report quality.' :
-               'Strong profile — your reports will be highly personalized.'}
-            </p>
+      {/* ══ PETITION PROGRESS (if started) ══════════════════════════════════════ */}
+      {isPro && petitionData && evidenceTotal > 0 && (
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-navy">Petition Builder Progress</p>
+              <p className="text-xs text-mid mt-0.5">
+                {runwayDays !== null && runwayDays > 0
+                  ? `~${runwayDays} days to filing-ready`
+                  : runwayDays === 0 ? '🎉 Evidence package complete' : 'Track your evidence'}
+              </p>
+            </div>
+            <Link href="/petition-builder" className="text-xs text-teal font-semibold hover:underline flex-shrink-0">
+              Continue →
+            </Link>
           </div>
-          <span className={`text-2xl font-black ${strength >= 80 ? 'text-teal' : strength >= 50 ? 'text-yellow-600' : 'text-orange-500'}`}>{strength}%</span>
-        </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${strength >= 80 ? 'bg-teal' : strength >= 50 ? 'bg-yellow-400' : 'bg-orange-400'}`}
-            style={{ width: `${strength}%` }}
-          />
-        </div>
-        <div className="flex gap-4 text-xs text-mid flex-wrap">
-          <span className={profile?.full_name ? 'text-teal font-medium' : ''}>{profile?.full_name ? '✓' : '○'} Name</span>
-          <span className={profile?.visa_status ? 'text-teal font-medium' : ''}>{profile?.visa_status ? '✓' : '○'} Visa status</span>
-          <span className={profile?.resume_path ? 'text-teal font-medium' : ''}>{profile?.resume_path ? '✓' : '○'} Resume</span>
-          <span className={profile?.linkedin_url ? 'text-teal font-medium' : ''}>{profile?.linkedin_url ? '✓' : '○'} LinkedIn</span>
-          <span className={profile?.graduation_date ? 'text-teal font-medium' : ''}>{profile?.graduation_date ? '✓' : '○'} Grad date</span>
-          {strength < 100 && (
-            <Link href="/profile" className="text-teal font-semibold hover:underline ml-auto">Complete profile →</Link>
-          )}
-        </div>
-      </div>
 
-      {/* Profile completion banner */}
-      {!profileComplete && (
-        <div className="bg-teal-light border border-teal/20 rounded-xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 bg-teal/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <p className={`text-2xl font-black ${evidenceDone > 0 ? 'text-teal' : 'text-mid'}`}>
+                {evidenceDone}/{evidenceTotal}
+              </p>
+              <p className="text-[10px] text-mid font-medium mt-0.5">Evidence done</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-2xl font-black ${hasNarrative ? 'text-teal' : 'text-mid'}`}>
+                {hasNarrative ? '✓' : '○'}
+              </p>
+              <p className="text-[10px] text-mid font-medium mt-0.5">Narrative written</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-2xl font-black ${hasGeneratedPetition ? 'text-teal' : 'text-mid'}`}>
+                {hasGeneratedPetition ? '✓' : '○'}
+              </p>
+              <p className="text-[10px] text-mid font-medium mt-0.5">Docs generated</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-navy">Complete your profile for better AI accuracy</p>
-            <p className="text-sm text-mid mt-0.5">Your visa status, graduation date, and degree improve your strategy report.</p>
+
+          <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+            <div
+              className="h-full bg-teal rounded-full transition-all duration-500"
+              style={{ width: `${evidenceTotal > 0 ? Math.round((evidenceDone / evidenceTotal) * 100) : 0}%` }}
+            />
           </div>
-          <Link href="/profile" className="flex-shrink-0 btn-teal text-xs py-1.5 px-3">Complete →</Link>
         </div>
       )}
 
-      {/* ══ AI TOOLS ═══════════════════════════════════════════════════════════ */}
-      <div>
-        <h2 className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">AI Tools</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Link href="/strategy" className="card hover:shadow-card-hover transition-all group border-2 hover:border-teal/20">
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 bg-teal-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-teal/20 transition-colors">
-                <svg className="w-5 h-5 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-navy">Green Card Strategy Report</h3>
-                  <span className="text-xs font-bold text-teal">$397</span>
-                </div>
-                <p className="text-sm text-mid mt-1 leading-relaxed">Visa pathway analysis, evidence gaps, criterion breakdown, and your personalized 12-month roadmap.</p>
-                <p className="text-xs text-teal font-semibold mt-3 group-hover:underline">Start questionnaire →</p>
-              </div>
+      {/* ══ PRO UPGRADE (free users) ════════════════════════════════════════════ */}
+      {!isPro && (
+        <div className="card !p-0 overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-navy via-teal to-teal/50" />
+          <div className="p-5 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-navy">Unlock the full petition journey</p>
+              <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
+                Career moves, Petition Builder, evidence tracking, narrative review, RFE analyzer, and generated petition documents.
+              </p>
+              <Link href="/subscribe" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
+                Upgrade to Pro →
+              </Link>
             </div>
-          </Link>
-
-          <Link href="/rfe" className="card hover:shadow-card-hover transition-all group border-2 hover:border-navy/20">
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 bg-navy-light rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-navy/10 transition-colors">
-                <svg className="w-5 h-5 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-navy">RFE Analyzer</h3>
-                  <span className="text-xs font-bold text-navy">$297</span>
-                </div>
-                <p className="text-sm text-mid mt-1 leading-relaxed">Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy.</p>
-                <p className="text-xs text-navy font-semibold mt-3 group-hover:underline">Upload RFE document →</p>
-              </div>
+            <div className="text-right flex-shrink-0 hidden sm:block">
+              <p className="text-2xl font-black text-navy">$99</p>
+              <p className="text-xs text-mid">/month</p>
             </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* ══ REPORTS HISTORY ════════════════════════════════════════════════════ */}
-      <div>
-        <h2 className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">Your Reports</h2>
-
-        {reports.length === 0 ? (
-          <div className="card text-center py-12 bg-gray-50 border-dashed">
-            <div className="w-12 h-12 bg-navy-light rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-navy/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-navy font-semibold">No reports yet</p>
-            <p className="text-sm text-mid mt-1">Generate your first green card strategy report to get started.</p>
-            <Link href="/strategy" className="btn-teal inline-block mt-5">
-              Get my green card strategy →
-            </Link>
           </div>
-        ) : (
+        </div>
+      )}
+
+      {/* ══ REPORTS ═════════════════════════════════════════════════════════════ */}
+      {reports.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-mid uppercase tracking-wide">Reports</p>
+            <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline">New report →</Link>
+          </div>
           <div className="space-y-2">
-            {reports.map(report => {
+            {reports.slice(0, 5).map(report => {
               const isComplete = report.status === 'complete'
               const isGenerating = report.status === 'generating' || report.status === 'paid'
-              const isError = report.status === 'error'
-              const href = isComplete || isGenerating || isError
+              const href = isComplete || isGenerating || report.status === 'error'
                 ? `/${report.type}/report/${report.id}`
                 : `/${report.type}/preview?reportId=${report.id}`
-
               return (
-                <Link
-                  key={report.id}
-                  href={href}
-                  className="card hover:shadow-card-hover transition-all py-4 flex items-center justify-between group"
-                >
+                <Link key={report.id} href={href}
+                  className="card hover:shadow-card-hover transition-all py-3.5 flex items-center justify-between group">
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${report.type === 'strategy' ? 'bg-teal-light' : 'bg-navy-light'}`}>
-                      {report.type === 'strategy' ? (
-                        <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      )}
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${report.type === 'strategy' ? 'bg-teal/10' : 'bg-navy-light'}`}>
+                      <span className="text-sm">{report.type === 'strategy' ? '📊' : '📋'}</span>
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-navy text-sm">
-                          {report.type === 'strategy' ? 'Green Card Strategy Report' : 'RFE Analysis'}
-                        </p>
-                        {isGenerating && (
-                          <span className="text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full px-2 py-0.5">Generating…</span>
-                        )}
-                        {isError && (
-                          <span className="text-xs bg-red-50 text-red-600 border border-red-200 rounded-full px-2 py-0.5">Error</span>
-                        )}
-                        {report.status === 'pending' && (
-                          <span className="text-xs bg-gray-100 text-mid border border-border rounded-full px-2 py-0.5">Preview</span>
-                        )}
-                      </div>
-                      <p className="text-xs text-mid mt-0.5">
-                        {new Date(report.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      <p className="text-sm font-semibold text-navy">
+                        {report.type === 'strategy' ? 'Green Card Strategy Report' : 'RFE Analysis'}
                       </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-mid">
+                          {new Date(report.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                        {isGenerating && <span className="text-[10px] bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full px-2 py-0.5">Generating…</span>}
+                        {report.status === 'pending' && <span className="text-[10px] bg-gray-100 text-mid border border-border rounded-full px-2 py-0.5">Preview</span>}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -501,26 +452,34 @@ export default async function DashboardPage() {
               )
             })}
           </div>
-        )}
-      </div>
-
-      {/* ══ CAREER MOVES ═══════════════════════════════════════════════════════ */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-sm font-semibold text-mid uppercase tracking-wide">Career Moves</h2>
-            <p className="text-xs text-mid mt-0.5">Your personalized actions to move your score</p>
-          </div>
-          <Link href="/career-moves" className="text-xs text-teal font-semibold hover:underline flex-shrink-0">
-            {isPro ? 'Manage moves →' : 'Learn more →'}
-          </Link>
         </div>
-        <CareerMovesSection
-          initialMoves={careerMoves}
-          isPro={isPro}
-          hasStrategyReport={hasStrategyReport}
-        />
-      </div>
+      )}
+
+      {/* ══ CAREER MOVES TEASER ════════════════════════════════════════════════ */}
+      {careerMoves && careerMoves.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-mid uppercase tracking-wide">Career Moves</p>
+            <Link href="/career-moves" className="text-xs text-teal font-semibold hover:underline">See all →</Link>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {careerMoves.slice(0, 2).map((move, i) => (
+              <Link key={i} href="/career-moves" className="card hover:shadow-card-hover transition-all group py-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 ${
+                    move.impact === 'High' ? 'bg-teal/15 text-teal' : 'bg-navy-light text-navy'
+                  }`}>{i + 1}</div>
+                  <div>
+                    <p className="text-sm font-semibold text-navy leading-snug">{move.title}</p>
+                    <p className="text-xs text-mid mt-1 leading-relaxed line-clamp-2">{move.why}</p>
+                    <p className="text-[10px] text-teal font-semibold mt-2">{move.criterion}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   )

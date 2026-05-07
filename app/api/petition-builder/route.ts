@@ -48,6 +48,7 @@ export async function GET() {
       narrative_text: progress.narrative_text ?? '',
       service_center: progress.service_center ?? 'NSC',
       generated_petition: progress.generated_petition ?? null,
+      recommenders: progress.recommenders ?? [],
     })
   } catch (error) {
     console.error('[petition-builder GET]', error)
@@ -74,7 +75,7 @@ export async function PATCH(req: Request) {
     if (!isPro) return NextResponse.json({ error: 'pro_required' }, { status: 403 })
 
     const body = await req.json()
-    const { pathway, evidence_items, narrative_text, service_center } = body
+    const { pathway, evidence_items, narrative_text, service_center, recommenders } = body
 
     // Validate pathway
     if (pathway && !['NIW', 'EB-1A'].includes(pathway)) {
@@ -89,6 +90,7 @@ export async function PATCH(req: Request) {
         ...(evidence_items && { evidence_items }),
         ...(narrative_text !== undefined && { narrative_text }),
         ...(service_center && { service_center }),
+        ...(recommenders !== undefined && { recommenders }),
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
 

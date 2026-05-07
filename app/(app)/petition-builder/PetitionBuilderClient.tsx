@@ -22,7 +22,21 @@ interface NarrativeFeedback {
   next_step: string
 }
 
-type Tab = 'evidence' | 'narrative' | 'signal' | 'generate'
+type Tab = 'evidence' | 'narrative' | 'signal' | 'letters' | 'generate'
+
+// ── Recommender types ────────────────────────────────────────────────────────
+
+type RelationshipType = 'independent_expert' | 'collaborator' | 'supervisor' | 'employer'
+
+interface Recommender {
+  id: string
+  name: string
+  title: string
+  institution: string
+  relationship: RelationshipType
+  briefing?: string
+  briefing_generated_at?: string
+}
 
 interface PetitionPackage {
   personal_statement: string
@@ -486,6 +500,353 @@ function SignalTrack({
   )
 }
 
+// ── Letters track ────────────────────────────────────────────────────────────
+
+const RELATIONSHIP_LABELS: Record<RelationshipType, { label: string; weight: string; color: string }> = {
+  independent_expert: { label: 'Independent Expert', weight: 'Highest weight', color: 'text-teal bg-teal/8 border-teal/20' },
+  collaborator:       { label: 'Collaborator',       weight: 'High weight',    color: 'text-blue-700 bg-blue-50 border-blue-200' },
+  supervisor:         { label: 'Supervisor / Advisor', weight: 'High weight',  color: 'text-purple-700 bg-purple-50 border-purple-200' },
+  employer:           { label: 'Employer',            weight: 'Medium weight', color: 'text-gray-700 bg-gray-50 border-gray-200' },
+}
+
+function LettersTrack({
+  recommenders,
+  pathway,
+  narrative,
+  onUpdate,
+}: {
+  recommenders: Recommender[]
+  pathway: Pathway
+  narrative: string
+  onUpdate: (r: Recommender[]) => void
+}) {
+  const [adding, setAdding] = useState(false)
+  const [generatingId, setGeneratingId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const [form, setForm] = useState({
+    name: '',
+    title: '',
+    institution: '',
+    relationship: 'independent_expert' as RelationshipType,
+  })
+
+  const addRecommender = () => {
+    if (!form.name.trim()) return
+    const newRec: Recommender = {
+      id: `rec_${Date.now()}`,
+      name: form.name.trim(),
+      title: form.title.trim(),
+      institution: form.institution.trim(),
+      relationship: form.relationship,
+    }
+    const updated = [...recommenders, newRec]
+    onUpdate(updated)
+    setForm({ name: '', title: '', institution: '', relationship: 'independent_expert' })
+    setAdding(false)
+  }
+
+  const removeRecommender = (id: string) => {
+    onUpdate(recommenders.filter(r => r.id !== id))
+  }
+
+  const generateBriefing = async (rec: Recommender) => {
+    setGeneratingId(rec.id)
+    setError(null)
+    try {
+      const res = await fetch('/api/petition-builder/rec-letter-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recommender: rec, pathway, narrative }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message ?? data.error ?? 'Failed to generate briefing')
+      const updated = recommenders.map(r =>
+        r.id === rec.id
+          ? { ...r, briefing: data.briefing, briefing_generated_at: new Date().toISOString() }
+          : r
+      )
+      onUpdate(updated)
+      setExpandedId(rec.id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate briefing')
+    } finally {
+      setGeneratingId(null)
+    }
+  }
+
+  const copyBriefing = async (rec: Recommender) => {
+    if (!rec.briefing) return
+    await navigator.clipboard.writeText(rec.briefing)
+    setCopiedId(rec.id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  const independentCount = recommenders.filter(r => r.relationship === 'independent_expert').length
+  const totalCount = recommenders.length
+
+  return (
+    <div className="space-y-5">
+
+      {/* Header guidance */}
+      <div className="card !p-4 space-y-2">
+        <p className="text-xs font-bold text-navy">Why recommendation letters make or break your petition</p>
+        <p className="text-xs text-mid leading-relaxed">
+          USCIS adjudicators weight independent expert letters highest — they prove your standing in the field without any relationship bias. For NIW, 3–5 letters is standard: at least 2 from experts with no direct connection to you. For EB-1A, 6–9 letters, majority independent.
+        </p>
+        {totalCount > 0 && (
+          <div className="flex gap-3 pt-1">
+            <div className={`text-xs font-medium px-2.5 py-1 rounded-full border ${independentCount >= 2 ? 'bg-teal/8 text-teal border-teal/20' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+              {independentCount} independent {independentCount === 1 ? 'expert' : 'experts'} {independentCount >= 2 ? '✓' : `— need ${2 - independentCount} more`}
+            </div>
+            <div className="text-xs text-mid px-2.5 py-1">{totalCount} total {totalCount === 1 ? 'letter' : 'letters'}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Recommender list */}
+      {recommenders.length > 0 && (
+        <div className="space-y-3">
+          {recommenders.map(rec => {
+            const rel = RELATIONSHIP_LABELS[rec.relationship]
+            const isGenerating = generatingId === rec.id
+            const isExpanded = expandedId === rec.id
+            const hasBriefing = !!rec.briefing
+
+            return (
+              <div key={rec.id} className="card !p-0 overflow-hidden">
+                {/* Card header */}
+                <div className="px-5 py-4 flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-full bg-navy/8 flex items-center justify-center flex-shrink-0 text-sm font-bold text-navy">
+                    {rec.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-navy leading-tight">{rec.name}</p>
+                        {(rec.title || rec.institution) && (
+                          <p className="text-xs text-mid mt-0.5">
+                            {[rec.title, rec.institution].filter(Boolean).join(' · ')}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => removeRecommender(rec.id)}
+                        className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 text-lg leading-none mt-0.5"
+                        title="Remove recommender"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <span className={`mt-2 inline-flex text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full border ${rel.color}`}>
+                      {rel.label} · {rel.weight}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Briefing section */}
+                <div className="border-t border-gray-100 px-5 py-3 flex items-center justify-between gap-3">
+                  {hasBriefing ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-teal flex items-center justify-center flex-shrink-0">
+                          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="text-xs text-teal font-medium">Briefing ready</span>
+                        {rec.briefing_generated_at && (
+                          <span className="text-[10px] text-mid">· {new Date(rec.briefing_generated_at).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => copyBriefing(rec)}
+                          className="text-xs text-teal font-semibold hover:underline"
+                        >
+                          {copiedId === rec.id ? '✓ Copied' : 'Copy'}
+                        </button>
+                        <button
+                          onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                          className="text-xs text-mid hover:text-navy font-medium"
+                        >
+                          {isExpanded ? 'Hide ▲' : 'View ▼'}
+                        </button>
+                        <button
+                          onClick={() => generateBriefing(rec)}
+                          disabled={isGenerating}
+                          className="text-xs text-mid hover:text-navy"
+                        >
+                          {isGenerating ? 'Regenerating…' : 'Regenerate'}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xs text-mid">
+                        {isGenerating
+                          ? 'Writing personalized briefing… (~30s)'
+                          : 'No briefing yet — generate one to send to this recommender'}
+                      </p>
+                      <button
+                        onClick={() => generateBriefing(rec)}
+                        disabled={isGenerating}
+                        className="btn-primary !py-1.5 !px-3 !text-xs flex items-center gap-2 flex-shrink-0"
+                      >
+                        {isGenerating ? (
+                          <>
+                            <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Generating…
+                          </>
+                        ) : 'Generate Briefing'}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Expanded briefing view */}
+                {isExpanded && rec.briefing && (
+                  <div className="border-t border-gray-100">
+                    <div className="bg-gray-50 px-5 py-4 max-h-[60vh] overflow-y-auto">
+                      <pre className="text-xs text-navy leading-relaxed whitespace-pre-wrap font-sans">{rec.briefing}</pre>
+                    </div>
+                    <div className="px-5 py-3 border-t border-gray-100 bg-white">
+                      <p className="text-[10px] text-mid leading-relaxed">
+                        Send this briefing to {rec.name} before they start writing. It tells them exactly what USCIS needs from their letter — without revealing anything about the petition strategy.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {error && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+      )}
+
+      {/* Add recommender form */}
+      {adding ? (
+        <div className="card space-y-4">
+          <p className="text-sm font-bold text-navy">Add a Recommender</p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2 sm:col-span-1 space-y-1">
+              <label className="text-xs font-medium text-navy">Full name *</label>
+              <input
+                className="input text-sm"
+                placeholder="Dr. Jane Smith"
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                autoFocus
+              />
+            </div>
+            <div className="col-span-2 sm:col-span-1 space-y-1">
+              <label className="text-xs font-medium text-navy">Title / Position</label>
+              <input
+                className="input text-sm"
+                placeholder="Professor, Associate Director…"
+                value={form.title}
+                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              />
+            </div>
+            <div className="col-span-2 space-y-1">
+              <label className="text-xs font-medium text-navy">Institution / Organization</label>
+              <input
+                className="input text-sm"
+                placeholder="MIT, Google Research, Mayo Clinic…"
+                value={form.institution}
+                onChange={e => setForm(f => ({ ...f, institution: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          {/* Relationship type */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-navy">Relationship to you</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.entries(RELATIONSHIP_LABELS) as [RelationshipType, typeof RELATIONSHIP_LABELS[RelationshipType]][]).map(([key, val]) => (
+                <button
+                  key={key}
+                  onClick={() => setForm(f => ({ ...f, relationship: key }))}
+                  className={`text-left p-3 rounded-xl border text-xs transition-colors ${
+                    form.relationship === key
+                      ? 'border-navy bg-navy/4 text-navy'
+                      : 'border-gray-200 text-mid hover:border-gray-300'
+                  }`}
+                >
+                  <p className="font-semibold text-navy">{val.label}</p>
+                  <p className={`text-[10px] mt-0.5 font-medium ${key === 'independent_expert' ? 'text-teal' : 'text-mid'}`}>{val.weight}</p>
+                </button>
+              ))}
+            </div>
+            {form.relationship === 'independent_expert' && (
+              <p className="text-[10px] text-teal leading-relaxed">
+                ✓ Independent experts carry the most weight. USCIS expects 2+ letters from people with no prior working relationship with you.
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={addRecommender}
+              disabled={!form.name.trim()}
+              className="btn-primary !py-2 !px-4 !text-sm"
+            >
+              Add Recommender
+            </button>
+            <button
+              onClick={() => { setAdding(false); setForm({ name: '', title: '', institution: '', relationship: 'independent_expert' }) }}
+              className="text-sm text-mid hover:text-navy transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setAdding(true)}
+          className="w-full border-2 border-dashed border-gray-200 rounded-2xl py-4 text-sm text-mid hover:border-teal hover:text-teal transition-colors flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add a recommender
+        </button>
+      )}
+
+      {/* Guidance footer */}
+      {recommenders.length === 0 && !adding && (
+        <div className="rounded-xl bg-navy/4 border border-navy/10 p-4 space-y-2">
+          <p className="text-xs font-bold text-navy">Who should write your letters?</p>
+          <div className="space-y-1.5">
+            {[
+              { type: 'Independent experts (must have)', desc: 'Professors, researchers, or industry leaders who know your work but have never worked with you directly. Start finding these first.' },
+              { type: 'Direct collaborators', desc: 'Co-authors, research partners, or colleagues who worked alongside you on significant projects.' },
+              { type: 'Supervisors or advisors', desc: 'PhD advisor, PI, or department head who can speak to your contributions relative to others at your level.' },
+            ].map(g => (
+              <div key={g.type} className="flex gap-2">
+                <span className="text-teal text-xs mt-0.5 flex-shrink-0">→</span>
+                <div>
+                  <span className="text-xs font-semibold text-navy">{g.type}:</span>
+                  <span className="text-xs text-mid ml-1">{g.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Generate track ───────────────────────────────────────────────────────────
 
 function GenerateTrack({
@@ -506,6 +867,7 @@ function GenerateTrack({
   const [error, setError] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [activeDoc, setActiveDoc] = useState<'statement' | 'cover'>('statement')
+  const [downloading, setDownloading] = useState<string | null>(null)
 
   const doneCount = items.filter(i => i.status === 'done').length
   const inProgressCount = items.filter(i => i.status === 'in_progress').length
@@ -519,6 +881,32 @@ function GenerateTrack({
     await navigator.clipboard.writeText(text)
     setCopiedKey(key)
     setTimeout(() => setCopiedKey(null), 2000)
+  }
+
+  const download = async (docType: 'statement' | 'cover' | 'package') => {
+    if (!packet) return
+    setDownloading(docType)
+    try {
+      const res = await fetch('/api/petition-builder/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ docType, packet }),
+      })
+      if (!res.ok) throw new Error('Download failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const contentDisposition = res.headers.get('Content-Disposition') ?? ''
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
+      a.download = filenameMatch?.[1] ?? `petition-${docType}.rtf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      // silent — copy fallback still works
+    } finally {
+      setDownloading(null)
+    }
   }
 
   const generate = async () => {
@@ -576,8 +964,8 @@ function GenerateTrack({
         )}
       </div>
 
-      {/* Generate button */}
-      <div className="flex items-start gap-4">
+      {/* Generate + Download buttons */}
+      <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={generate}
           disabled={generating}
@@ -589,12 +977,40 @@ function GenerateTrack({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Generating petition… (~30s)
+              Generating… (60–90s)
             </>
-          ) : packet ? 'Regenerate petition' : 'Generate petition package'}
+          ) : packet ? 'Regenerate' : 'Generate petition package'}
         </button>
+
         {packet && !generating && (
-          <p className="text-xs text-mid mt-2">Last generated {new Date(packet.generated_at).toLocaleDateString()} · {packet.word_count.toLocaleString()} words</p>
+          <button
+            onClick={() => download('package')}
+            disabled={!!downloading}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-teal text-teal text-sm font-semibold hover:bg-teal/6 transition-colors disabled:opacity-50"
+          >
+            {downloading === 'package' ? (
+              <>
+                <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Downloading…
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download (.rtf)
+              </>
+            )}
+          </button>
+        )}
+
+        {packet && !generating && (
+          <p className="text-xs text-mid">
+            Last generated {new Date(packet.generated_at).toLocaleDateString()} · {packet.word_count.toLocaleString()} words
+          </p>
         )}
       </div>
 
@@ -627,12 +1043,24 @@ function GenerateTrack({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-mid font-medium">Personal Statement · {packet.personal_statement.split(/\s+/).length.toLocaleString()} words</p>
-                <button
-                  onClick={() => copy(packet.personal_statement, 'statement')}
-                  className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
-                >
-                  {copiedKey === 'statement' ? '✓ Copied' : 'Copy all'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => download('statement')}
+                    disabled={!!downloading}
+                    className="text-xs text-mid hover:text-navy font-medium flex items-center gap-1 disabled:opacity-40"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {downloading === 'statement' ? 'Downloading…' : '.rtf'}
+                  </button>
+                  <button
+                    onClick={() => copy(packet.personal_statement, 'statement')}
+                    className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
+                  >
+                    {copiedKey === 'statement' ? '✓ Copied' : 'Copy all'}
+                  </button>
+                </div>
               </div>
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 max-h-[60vh] overflow-y-auto">
                 <pre className="text-xs text-navy leading-relaxed whitespace-pre-wrap font-sans">{packet.personal_statement}</pre>
@@ -644,12 +1072,24 @@ function GenerateTrack({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-mid font-medium">Cover Letter · {packet.cover_letter.split(/\s+/).length.toLocaleString()} words</p>
-                <button
-                  onClick={() => copy(packet.cover_letter, 'cover')}
-                  className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
-                >
-                  {copiedKey === 'cover' ? '✓ Copied' : 'Copy all'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => download('cover')}
+                    disabled={!!downloading}
+                    className="text-xs text-mid hover:text-navy font-medium flex items-center gap-1 disabled:opacity-40"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {downloading === 'cover' ? 'Downloading…' : '.rtf'}
+                  </button>
+                  <button
+                    onClick={() => copy(packet.cover_letter, 'cover')}
+                    className="text-xs text-teal font-semibold hover:underline flex items-center gap-1"
+                  >
+                    {copiedKey === 'cover' ? '✓ Copied' : 'Copy all'}
+                  </button>
+                </div>
               </div>
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 max-h-[60vh] overflow-y-auto">
                 <pre className="text-xs text-navy leading-relaxed whitespace-pre-wrap font-sans">{packet.cover_letter}</pre>
@@ -658,11 +1098,30 @@ function GenerateTrack({
           )}
 
           {/* Usage note */}
-          <div className="rounded-xl bg-navy/4 border border-navy/10 p-4">
-            <p className="text-xs font-bold text-navy mb-1">How to use this</p>
-            <p className="text-xs text-mid leading-relaxed">
-              Copy each document into Word and review carefully. Replace any bracketed placeholders with your specific details. Have an immigration attorney review before filing — this is a first draft, not legal advice.
-            </p>
+          <div className="rounded-xl bg-navy/4 border border-navy/10 p-4 space-y-2">
+            <p className="text-xs font-bold text-navy">What to do next</p>
+            <div className="space-y-1.5">
+              {[
+                'Download both documents and open in Word or Google Docs',
+                'Replace all bracketed placeholders [ ] with your specific details',
+                'Send recommender briefings (Letters tab) to each letter writer',
+                'Assemble your exhibit package with supporting documents',
+              ].map((step, i) => (
+                <div key={i} className="flex gap-2 items-start">
+                  <span className="text-teal text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}.</span>
+                  <p className="text-xs text-mid">{step}</p>
+                </div>
+              ))}
+            </div>
+            <div className="pt-1 flex items-center gap-3">
+              <a
+                href="/filing-guide"
+                className="text-xs text-teal font-semibold hover:underline"
+              >
+                Filing checklist & submission guide →
+              </a>
+              <span className="text-xs text-mid">Not legal advice — consult an attorney before filing</span>
+            </div>
           </div>
         </div>
       )}
@@ -680,6 +1139,7 @@ export default function PetitionBuilderClient() {
   const [serviceCenter, setServiceCenter] = useState('NSC')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [recommenders, setRecommenders] = useState<Recommender[]>([])
   const [generatedPacket, setGeneratedPacket] = useState<PetitionPackage | null>(null)
   const [showPathwayConfirm, setShowPathwayConfirm] = useState<Pathway | null>(null)
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -694,6 +1154,7 @@ export default function PetitionBuilderClient() {
         setItems(data.evidence_items?.length ? data.evidence_items : getTemplateForPathway(data.pathway ?? 'NIW'))
         setNarrative(data.narrative_text ?? '')
         setServiceCenter(data.service_center ?? 'NSC')
+        if (data.recommenders?.length) setRecommenders(data.recommenders)
         if (data.generated_petition) setGeneratedPacket(data.generated_petition)
       })
       .finally(() => setLoading(false))
@@ -735,6 +1196,11 @@ export default function PetitionBuilderClient() {
     save({ service_center: code })
   }
 
+  const handleRecommenders = (updated: Recommender[]) => {
+    setRecommenders(updated)
+    save({ recommenders: updated })
+  }
+
   const handlePathwayChange = (p: Pathway) => {
     const hasDoneItems = items.some(i => i.status !== 'todo')
     if (hasDoneItems) {
@@ -755,10 +1221,12 @@ export default function PetitionBuilderClient() {
   const runwayDays = computeRunwayDays(items)
   const totalDays = items.reduce((s, i) => s + i.estimated_days, 0) * 0.6
 
+  const lettersWithBriefings = recommenders.filter(r => r.briefing).length
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'evidence', label: 'Evidence', icon: '📋' },
     { id: 'narrative', label: 'Narrative', icon: '✍️' },
     { id: 'signal', label: 'Signal', icon: '📡' },
+    { id: 'letters', label: recommenders.length > 0 ? `Letters (${lettersWithBriefings}/${recommenders.length})` : 'Letters', icon: '✉️' },
     { id: 'generate', label: generatedPacket ? 'Petition ✓' : 'Generate', icon: '📄' },
   ]
 
@@ -858,6 +1326,14 @@ export default function PetitionBuilderClient() {
       )}
       {tab === 'signal' && (
         <SignalTrack pathway={pathway} serviceCenter={serviceCenter} onServiceCenterChange={handleServiceCenter} />
+      )}
+      {tab === 'letters' && (
+        <LettersTrack
+          recommenders={recommenders}
+          pathway={pathway}
+          narrative={narrative}
+          onUpdate={handleRecommenders}
+        />
       )}
       {tab === 'generate' && (
         <GenerateTrack

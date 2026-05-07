@@ -1,3 +1,5 @@
+export const maxDuration = 300 // Vercel: allow up to 5 min (requires Pro plan)
+
 /**
  * POST /api/petition-builder/generate
  * ─────────────────────────────────────────────────────────────────

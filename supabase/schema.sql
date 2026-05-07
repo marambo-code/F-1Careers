@@ -257,3 +257,6 @@ create policy "Users manage own petition progress" on public.petition_progress
 
 -- Add generated_petition column to petition_progress (run if table already exists)
 alter table public.petition_progress add column if not exists generated_petition jsonb;
+
+-- Add recommenders column to petition_progress
+alter table public.petition_progress add column if not exists recommenders jsonb not null default '[]';

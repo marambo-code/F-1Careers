@@ -12,6 +12,7 @@ const LIMITS: Record<string, number> = {
   'rfe-gen': 5,                // 5 RFE generations per 24h
   'narrative-feedback': 10,    // 10 adversarial reviews per 24h
   'petition-gen': 5,           // 5 full petition generations per 24h
+  'rec-letter-brief': 20,      // 20 recommender briefings per 24h
 }
 
 export interface RateLimitResult {

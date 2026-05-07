@@ -1,3 +1,5 @@
+export const maxDuration = 60 // Narrative review is shorter — 60s is sufficient
+
 /**
  * POST /api/petition-builder/narrative-feedback
  * ─────────────────────────────────────────────
