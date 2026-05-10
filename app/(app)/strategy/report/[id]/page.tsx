@@ -84,6 +84,24 @@ export default async function StrategyReportPage({
 
   const pr = data.petition_readiness
 
+  // Build TOC entries based on what data exists
+  const tocSections = [
+    { id: 'exec-summary', label: 'Executive Summary', always: true },
+    { id: 'readiness', label: 'Petition Readiness Dashboard', always: true },
+    { id: 'resume-evidence', label: 'Resume Evidence Map', always: !!(data.resume_evidence_map?.length) },
+    { id: 'dhanasar', label: 'NIW Dhanasar Analysis', always: !!(data.dhanasar_analysis?.length) },
+    { id: 'proposed-endeavor', label: 'Draft Proposed Endeavor', always: !!data.draft_proposed_endeavor },
+    { id: 'expert-letters', label: 'Expert Letter Strategy', always: !!(data.expert_letters?.length) },
+    { id: 'evidence-playbook', label: 'Evidence Playbook', always: !!(data.evidence_playbook?.length) },
+    { id: 'rfe-risks', label: 'RFE Risk Pre-Emption', always: !!(data.rfe_risks?.length) },
+    { id: 'o1a-bridge', label: 'O-1A Bridge Analysis', always: !!data.o1a_bridge },
+    { id: 'career-assessment', label: 'Strategy Assessment', always: true },
+    { id: 'gap-analysis', label: 'Gap Analysis', always: !!(data.gap_analysis?.length) },
+    { id: 'sprint', label: '30-Day Sprint Plan', always: !!(data.sprint_30_day?.length) },
+    { id: 'roadmap', label: '3/6/12-Month Roadmap', always: true },
+    { id: 'attorney-briefing', label: 'Attorney Briefing', always: !!data.attorney_briefing },
+  ].filter(s => s.always)
+
   return (
     <div className="max-w-3xl space-y-12">
 
@@ -99,8 +117,71 @@ export default async function StrategyReportPage({
         <DownloadButton reportId={id} reportType="strategy" className="print:hidden" />
       </div>
 
+      {/* ── Table of Contents ── */}
+      <nav className="card bg-navy-light border-navy/10 print:hidden" aria-label="Report sections">
+        <p className="text-xs font-bold text-navy uppercase tracking-widest mb-3">Table of Contents</p>
+        <ol className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5">
+          {tocSections.map((s, i) => (
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                className="text-sm text-teal hover:text-navy font-medium flex gap-2 items-baseline group"
+              >
+                <span className="text-xs text-mid font-mono w-4 flex-shrink-0">{i + 1}.</span>
+                <span className="group-hover:underline">{s.label}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      {/* ── Executive Summary ── */}
+      <section id="exec-summary">
+        <h2 className="section-heading">Executive Summary</h2>
+        <div className="space-y-4">
+          {/* Scores + pathway */}
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div className="card text-center py-4">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-2 NIW</p>
+              <p className={`text-4xl font-black ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+            </div>
+            <div className="card text-center py-4">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-1A</p>
+              <p className={`text-4xl font-black ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+            </div>
+            <div className="card bg-navy text-white text-center py-4 flex flex-col justify-center">
+              <p className="text-xs font-bold text-teal uppercase tracking-widest mb-1">Recommended</p>
+              <p className="text-lg font-bold leading-tight">{pr?.recommended_pathway}</p>
+            </div>
+          </div>
+
+          {/* Summary paragraph */}
+          <div className="card border-l-4 border-teal">
+            <p className="text-sm text-navy leading-relaxed">{data.career_visa_assessment?.summary}</p>
+          </div>
+
+          {/* Key signals */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="card py-3">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">Filing Recommendation</p>
+              <p className="text-sm font-semibold text-navy">{pr?.filing_recommendation}</p>
+            </div>
+            <div className="card py-3">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">Visa Urgency</p>
+              <p className="text-sm font-semibold text-navy">{pr?.visa_urgency}</p>
+            </div>
+          </div>
+
+          {/* #1 Next Step callout */}
+          <div className="card bg-navy text-white">
+            <p className="text-teal text-xs font-bold uppercase tracking-widest mb-1">Your #1 Next Step</p>
+            <p className="text-sm font-semibold">{data.recommended_next_step}</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── 1. Petition Readiness Dashboard ── */}
-      <section>
+      <section id="readiness">
         <h2 className="section-heading">Petition Readiness Dashboard</h2>
         <div className="grid sm:grid-cols-2 gap-4 mb-6">
           <div className="card text-center">
@@ -138,7 +219,7 @@ export default async function StrategyReportPage({
 
       {/* ── 2. Resume Evidence Map ── */}
       {data.resume_evidence_map && data.resume_evidence_map.length > 0 && (
-        <section>
+        <section id="resume-evidence">
           <h2 className="section-heading">Resume Evidence Map</h2>
           <p className="text-sm text-mid mb-4">Every line of your resume analyzed through the lens of your recommended petition pathway.</p>
           <div className="space-y-3">
@@ -165,7 +246,7 @@ export default async function StrategyReportPage({
 
       {/* ── 3. Dhanasar Prong Deep-Dive ── */}
       {data.dhanasar_analysis && data.dhanasar_analysis.length > 0 && (
-        <section>
+        <section id="dhanasar">
           <h2 className="section-heading">NIW Dhanasar Analysis — Prong by Prong</h2>
           <p className="text-sm text-mid mb-4">Your EB-2 NIW petition turns on three prongs. Here is your case for each — with draft brief language ready to use.</p>
           <div className="space-y-6">
@@ -213,7 +294,7 @@ export default async function StrategyReportPage({
 
       {/* ── 4. Draft Proposed Endeavor ── */}
       {data.draft_proposed_endeavor && (
-        <section>
+        <section id="proposed-endeavor">
           <h2 className="section-heading">Draft Proposed Endeavor Statement</h2>
           <p className="text-sm text-mid mb-3">Petition-ready language built from your actual resume and role. Use this as your starting draft.</p>
           <div className="card bg-navy-light border-navy/10">
@@ -225,7 +306,7 @@ export default async function StrategyReportPage({
 
       {/* ── 5. Expert Letters ── */}
       {data.expert_letters && data.expert_letters.length > 0 && (
-        <section>
+        <section id="expert-letters">
           <h2 className="section-heading">Expert Letter Strategy</h2>
           <p className="text-sm text-mid mb-4">Exactly who to ask, what each letter must prove, and how to approach them.</p>
           <div className="space-y-4">
@@ -255,7 +336,7 @@ export default async function StrategyReportPage({
 
       {/* ── 6. Evidence Playbook ── */}
       {data.evidence_playbook && data.evidence_playbook.length > 0 && (
-        <section>
+        <section id="evidence-playbook">
           <h2 className="section-heading">Evidence Playbook</h2>
           <p className="text-sm text-mid mb-4">Specific gaps, exactly what to do, real named targets. No generic advice.</p>
           <div className="space-y-3">
@@ -278,7 +359,7 @@ export default async function StrategyReportPage({
 
       {/* ── 7. RFE Risk Pre-Emption ── */}
       {data.rfe_risks && data.rfe_risks.length > 0 && (
-        <section>
+        <section id="rfe-risks">
           <h2 className="section-heading">RFE Risk Pre-Emption</h2>
           <p className="text-sm text-mid mb-4">The 3 most likely reasons USCIS denies or RFEs this petition — and exactly how to preempt each before they ask.</p>
           <div className="space-y-3">
@@ -302,7 +383,7 @@ export default async function StrategyReportPage({
 
       {/* ── 8. O-1A Bridge Analysis ── */}
       {data.o1a_bridge && (
-        <section>
+        <section id="o1a-bridge">
           <h2 className="section-heading">O-1A Bridge Visa Analysis</h2>
           {data.o1a_bridge.applicable ? (
             <div className="space-y-3">
@@ -346,7 +427,7 @@ export default async function StrategyReportPage({
       )}
 
       {/* ── 9. Career + Visa Assessment ── */}
-      <section>
+      <section id="career-assessment">
         <h2 className="section-heading">Green Card Strategy Assessment</h2>
         <p className="text-mid text-sm mb-4 leading-relaxed">{data.career_visa_assessment?.summary}</p>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -364,7 +445,7 @@ export default async function StrategyReportPage({
 
       {/* ── 10. Gap Analysis ── */}
       {data.gap_analysis && data.gap_analysis.length > 0 && (
-        <section>
+        <section id="gap-analysis">
           <h2 className="section-heading">Gap Analysis</h2>
           <div className="space-y-3">
             {data.gap_analysis.map((g: GapItem, i: number) => (
@@ -384,7 +465,7 @@ export default async function StrategyReportPage({
 
       {/* ── 11. 30-Day Sprint Plan ── */}
       {data.sprint_30_day && data.sprint_30_day.length > 0 && (
-        <section>
+        <section id="sprint">
           <h2 className="section-heading">30-Day Sprint Plan</h2>
           <p className="text-sm text-mid mb-4">Week-by-week actions specific to your case. Start today.</p>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -408,7 +489,7 @@ export default async function StrategyReportPage({
       )}
 
       {/* ── 12. Roadmap ── */}
-      <section>
+      <section id="roadmap">
         <h2 className="section-heading">3 / 6 / 12-Month Roadmap</h2>
         <div className="grid sm:grid-cols-3 gap-4">
           {[
@@ -433,7 +514,7 @@ export default async function StrategyReportPage({
 
       {/* ── 13. Attorney Briefing ── */}
       {data.attorney_briefing && (
-        <section>
+        <section id="attorney-briefing">
           <h2 className="section-heading">Attorney Briefing Paragraph</h2>
           <p className="text-sm text-mid mb-3">Copy this and paste it into an email to an immigration attorney today.</p>
           <div className="card bg-gray-50 border-2 border-dashed border-border">
@@ -443,11 +524,12 @@ export default async function StrategyReportPage({
         </section>
       )}
 
-      {/* ── Recommended Next Step ── */}
-      <section className="card bg-navy text-white">
-        <p className="text-teal text-xs font-bold uppercase tracking-widest mb-2">Your #1 Next Step (Do This Today)</p>
-        <p className="text-lg font-semibold">{data.recommended_next_step}</p>
-      </section>
+      {/* ── Footer CTA ── */}
+      <div className="card bg-navy-light border-navy/10 text-center space-y-2 print:hidden">
+        <p className="text-xs font-bold text-teal uppercase tracking-widest">Ready to file?</p>
+        <p className="text-sm text-navy font-semibold">Build your complete I-140 petition package in the Petition Builder</p>
+        <a href="/petition-builder" className="btn-teal inline-block text-sm">Open Petition Builder →</a>
+      </div>
 
       {/* Disclaimer */}
       <p className="text-xs text-mid">{data.disclaimer}</p>

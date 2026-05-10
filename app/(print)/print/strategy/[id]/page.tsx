@@ -59,6 +59,36 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
+      {/* Executive Summary */}
+      <section style={{ marginBottom: '32px', pageBreakInside: 'avoid' }}>
+        <h2 style={sectionHeading('Executive Summary')}>Executive Summary</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+            <p style={{ fontSize: '8pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>EB-2 NIW</p>
+            <p style={{ fontSize: '28pt', fontWeight: 900, color: (pr?.niw_score ?? 0) >= 75 ? '#00C2A8' : (pr?.niw_score ?? 0) >= 50 ? '#B45309' : '#DC2626', margin: 0 }}>{pr?.niw_score ?? '—'}<span style={{ fontSize: '10pt', color: '#888' }}>/100</span></p>
+          </div>
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+            <p style={{ fontSize: '8pt', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>EB-1A</p>
+            <p style={{ fontSize: '28pt', fontWeight: 900, color: (pr?.eb1a_score ?? 0) >= 75 ? '#00C2A8' : (pr?.eb1a_score ?? 0) >= 50 ? '#B45309' : '#DC2626', margin: 0 }}>{pr?.eb1a_score ?? '—'}<span style={{ fontSize: '10pt', color: '#888' }}>/100</span></p>
+          </div>
+          <div style={{ backgroundColor: '#1B2B6B', borderRadius: '10px', padding: '14px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <p style={{ fontSize: '8pt', color: '#00C2A8', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>Recommended</p>
+            <p style={{ fontSize: '12pt', fontWeight: 'bold', color: 'white', margin: 0, lineHeight: 1.3 }}>{pr?.recommended_pathway}</p>
+          </div>
+        </div>
+        {data.career_visa_assessment?.summary && (
+          <div style={{ borderLeft: '4px solid #00C2A8', paddingLeft: '14px', marginBottom: '14px' }}>
+            <p style={{ fontSize: '10pt', color: '#1B2B6B', lineHeight: 1.6, margin: 0 }}>{data.career_visa_assessment.summary}</p>
+          </div>
+        )}
+        {data.recommended_next_step && (
+          <div style={{ backgroundColor: '#1B2B6B', borderRadius: '8px', padding: '12px 16px' }}>
+            <p style={{ fontSize: '8pt', color: '#00C2A8', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>Your #1 Next Step</p>
+            <p style={{ fontSize: '10pt', fontWeight: 600, color: 'white', margin: 0 }}>{data.recommended_next_step}</p>
+          </div>
+        )}
+      </section>
+
       {/* Petition Readiness Dashboard */}
       {pr && (
         <section style={{ marginBottom: '32px' }}>
