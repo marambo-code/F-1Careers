@@ -58,7 +58,7 @@ export default async function Home() {
           </p>
 
           <p className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">
-            AI-powered career and visa strategy trained on Case Law precedent, built by international students who know exactly what you&apos;re going through.
+            Career and visa strategy built on case law precedent, made by international students who know exactly what you&apos;re going through.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
@@ -168,7 +168,7 @@ export default async function Home() {
                 'Evidence mapping tied to your actual profile',
                 'Gap analysis with specific next steps',
                 '3 / 6 / 12-month career and immigration roadmap',
-                'Downloadable PDF, attorney-ready format',
+                'Downloadable PDF report',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
                   <span className="text-teal font-bold mt-0.5 flex-shrink-0">✓</span> {f}
@@ -197,7 +197,7 @@ export default async function Home() {
                 'Response strategy: Rebut, Supplement, or Narrow',
                 'Cites controlling cases (Kazarian, Dhanasar)',
                 'Priority action list ordered by urgency',
-                'Downloadable PDF, hand directly to attorney',
+                'Downloadable PDF report',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
                   <span className="text-navy font-bold mt-0.5 flex-shrink-0">✓</span> {f}

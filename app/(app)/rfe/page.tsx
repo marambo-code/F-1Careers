@@ -428,7 +428,7 @@ export default function RFEUploadPage() {
               'Evidence checklist for every issue',
               'Response strategy: Rebut / Supplement / Narrow',
               '90-day action timeline',
-              'Attorney-ready format',
+              'Professional, structured format',
             ].map(f => (
               <div key={f} className="flex items-center gap-2 text-sm text-blue-100">
                 <span className="text-teal font-bold flex-shrink-0">✓</span>

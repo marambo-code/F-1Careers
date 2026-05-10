@@ -401,7 +401,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
             <div className="text-right flex-shrink-0 hidden sm:block">
-              <p className="text-2xl font-black text-navy">$99</p>
+              <p className="text-2xl font-black text-navy">$49</p>
               <p className="text-xs text-mid">/month</p>
             </div>
           </div>

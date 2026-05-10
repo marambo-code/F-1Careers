@@ -168,7 +168,7 @@ export default async function StrategyPreviewPage({
 
           {/* Teaser — locked */}
           <div className="card border-l-4 border-l-teal">
-            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">AI Assessment Preview</p>
+            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">Your Strategy Preview</p>
             <p className="text-navy">{preview.teaser}</p>
             <div className="mt-4 space-y-2 relative">
               <div className="blur-sm select-none pointer-events-none space-y-2">
@@ -200,7 +200,7 @@ export default async function StrategyPreviewPage({
             'Complete evidence mapping tied to your resume',
             'Gap analysis with specific action items',
             '3/6/12-month career + immigration roadmap',
-            'Downloadable PDF — formatted for attorneys',
+            'Downloadable PDF report',
           ].map(item => (
             <li key={item} className="flex items-center gap-2">
               <span className="text-teal">✓</span> {item}

@@ -90,7 +90,7 @@ export default async function StrategyReportPage({
       {/* ── Header ── */}
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-xs font-bold text-teal uppercase tracking-widest">Attorney-Quality Strategy Report</span>
+          <span className="text-xs font-bold text-teal uppercase tracking-widest">Green Card Strategy Report</span>
           <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Strategy Report</h1>
           <p className="text-sm text-mid mt-1">
             Generated {new Date(report.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -167,7 +167,7 @@ export default async function StrategyReportPage({
       {data.dhanasar_analysis && data.dhanasar_analysis.length > 0 && (
         <section>
           <h2 className="section-heading">NIW Dhanasar Analysis — Prong by Prong</h2>
-          <p className="text-sm text-mid mb-4">Your EB-2 NIW petition lives and dies on three prongs. Here is your case for each — with draft brief language ready for your attorney.</p>
+          <p className="text-sm text-mid mb-4">Your EB-2 NIW petition turns on three prongs. Here is your case for each — with draft brief language ready to use.</p>
           <div className="space-y-6">
             {data.dhanasar_analysis.map((prong: DhanasarProngAnalysis) => (
               <div key={prong.prong_number} className="card space-y-4">
@@ -215,11 +215,11 @@ export default async function StrategyReportPage({
       {data.draft_proposed_endeavor && (
         <section>
           <h2 className="section-heading">Draft Proposed Endeavor Statement</h2>
-          <p className="text-sm text-mid mb-3">Petition-ready language built from your actual resume and role. Hand this to your attorney as a first draft.</p>
+          <p className="text-sm text-mid mb-3">Petition-ready language built from your actual resume and role. Use this as your starting draft.</p>
           <div className="card bg-navy-light border-navy/10">
             <p className="text-sm text-navy leading-relaxed font-medium italic">&ldquo;{data.draft_proposed_endeavor}&rdquo;</p>
           </div>
-          <p className="text-xs text-mid mt-2">⚠️ Attorney review and finalization required before filing.</p>
+          <p className="text-xs text-mid mt-2">⚠️ Review and refine this before using it in your petition.</p>
         </section>
       )}
 

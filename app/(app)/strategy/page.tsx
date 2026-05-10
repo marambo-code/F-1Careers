@@ -71,8 +71,8 @@ export default async function StrategyStartPage() {
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Green Card Strategy</span>
         <h1 className="text-2xl font-bold text-navy mt-1">Green Card Strategy Report</h1>
         <p className="text-mid mt-2 leading-relaxed">
-          AI-powered analysis of your visa pathway, evidence strength, and a personalized
-          roadmap — built specifically for international professionals navigating the US immigration system.
+          A personalized analysis of your visa pathway and evidence strength, with a clear roadmap
+          built specifically for international professionals navigating the US immigration system.
         </p>
       </div>
 
@@ -166,7 +166,7 @@ export default async function StrategyStartPage() {
           <div className="text-right text-xs text-blue-300 space-y-1">
             <p>✓ Instant delivery</p>
             <p>✓ Downloadable PDF</p>
-            <p>✓ Attorney-ready format</p>
+            <p>✓ Structured, professional format</p>
           </div>
         </div>
         <Link

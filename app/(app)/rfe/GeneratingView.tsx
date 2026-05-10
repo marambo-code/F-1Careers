@@ -8,7 +8,7 @@ const STEPS = [
   { label: 'Running USCIS objections against our denial database…',          duration: 14 },
   { label: 'Classifying issues by risk level and legal standard…',           duration: 12 },
   { label: 'Cross-referencing with successful RFE response patterns…',       duration: 14 },
-  { label: 'Building rebuttal strategy per issue with attorney guidance…',   duration: 14 },
+  { label: 'Building rebuttal strategy per issue based on case precedents…',  duration: 14 },
   { label: 'Identifying critical evidence gaps to close before deadline…',   duration: 12 },
   { label: 'Writing plain-English explanations for each USCIS objection…',   duration: 10 },
   { label: 'Prioritising your action list by urgency and impact…',           duration: 8 },

@@ -43,7 +43,7 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontSize: '10pt', fontWeight: 'bold', color: '#00C2A8', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>
-              F-1 Careers AI · Attorney-Quality Strategy Report
+              F-1 Careers · Green Card Strategy Report
             </div>
             <h1 style={{ fontSize: '22pt', fontWeight: 'bold', color: '#1B2B6B', margin: 0 }}>
               Green Card Strategy Report

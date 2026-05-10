@@ -9,14 +9,14 @@ const STEPS = [
   { label: 'Scoring your EB-1A criteria against AAO precedent decisions…',   duration: 10 },
   { label: 'Benchmarking your NIW prongs against approved Dhanasar cases…',  duration: 12 },
   { label: 'Cross-referencing your experience with successful petition patterns…', duration: 10 },
-  { label: 'Drafting your Dhanasar brief with attorney-tested language…',    duration: 14 },
+  { label: 'Drafting your Dhanasar brief language for each prong…',          duration: 14 },
   { label: 'Building your proposed endeavor from approved NIW templates…',   duration: 10 },
   { label: 'Identifying your expert letter writers based on cases like yours…', duration: 10 },
   { label: 'Mapping evidence gaps against USCIS adjudicator patterns…',      duration: 10 },
   { label: 'Scanning RFE database to preempt your vulnerabilities…',         duration: 10 },
   { label: 'Analysing O-1A approval rates for your specific profile…',       duration: 8 },
-  { label: 'Writing your personalised 30-day attorney-approved sprint…',     duration: 8 },
-  { label: 'Compiling attorney briefing and final recommendations…',         duration: 8 },
+  { label: 'Writing your personalised 30-day action plan…',                  duration: 8 },
+  { label: 'Compiling expert letter strategy and final recommendations…',    duration: 8 },
 ]
 
 const TOTAL = STEPS.reduce((a, s) => a + s.duration, 0)  // ~130 s
@@ -195,7 +195,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         <div>
           <h1 className="text-xl font-bold text-navy">Building your strategy report…</h1>
           <p className="text-sm text-mid mt-1">
-            AI + attorney-quality analysis · typically <strong>2–4 minutes</strong>
+            Deep analysis of your profile · typically <strong>2–4 minutes</strong>
           </p>
         </div>
       </div>

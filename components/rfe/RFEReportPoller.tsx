@@ -92,7 +92,7 @@ export default function RFEReportPoller({ reportId, isRetry = false }: { reportI
         <p>✓ Issue-by-issue registry with plain-English explanations</p>
         <p>✓ Risk ranking: High / Medium / Low per issue</p>
         <p>✓ Response strategy: Rebut / Supplement / Narrow</p>
-        <p>✓ Priority action list formatted for your attorney</p>
+        <p>✓ Priority action list with 87-day response timeline</p>
       </div>
     </div>
   )
