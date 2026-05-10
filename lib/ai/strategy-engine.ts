@@ -119,14 +119,16 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, retries = 2): P
 
 // ─── Shared system prompt ─────────────────────────────────────────────────────
 
-const SYSTEM = `You are a senior immigration attorney and career strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions.
+const SYSTEM = `You are a senior immigration strategist with 20+ years handling EB-1A, EB-2 NIW, O-1A, and H-1B petitions.
 
 RULES:
 1. Reference the candidate's ACTUAL employers, roles, salary — never generic placeholders
 2. Return ONLY valid JSON — no markdown, no code fences, no text outside the JSON
 3. You MUST close ALL braces and complete the JSON before stopping
 4. BE CONCISE — keep every string field under 120 characters. Do not pad or repeat
-5. Use the TODAY date for all deadline calculations`
+5. Use the TODAY date for all deadline calculations
+6. SECOND PERSON THROUGHOUT: Write all assessment and narrative fields in second person — "You are", "Your profile", "You have", "You're at the 45th percentile". Never use the candidate's name or write "the petitioner" or "they" in user-facing fields. The person reading this report is the subject.
+   Exception: draft_petition_paragraph and draft_proposed_endeavor fields must remain in third person ("the Petitioner") as they are legal documents for USCIS submission.`
 
 // ─── Candidate context block (shared across all calls) ────────────────────────
 
@@ -186,15 +188,15 @@ Return ONLY this JSON (no other text):
 {
   "petition_readiness": {
     "niw_score": <integer 0-100>,
-    "niw_benchmark": "Compare to typical successful NIW filers in their field — cite percentile range and meaning",
+    "niw_benchmark": "Second person: 'You are at the X–Y percentile of NIW filers in your field — [what that means for filing]'",
     "eb1a_score": <integer 0-100>,
-    "eb1a_assessment": "Honest 1-sentence verdict on EB-1A viability and realistic timeline",
+    "eb1a_assessment": "Second person, 1 sentence: honest verdict on EB-1A viability — e.g. 'You have a credible EB-1A case but need 12–18 months to close criterion gaps'",
     "recommended_pathway": "EB-2 NIW | EB-1A | O-1A | EB-1A + EB-2 NIW concurrent",
     "filing_recommendation": "Specific month/year to file based on TODAY + X months, after completing specific steps",
     "visa_urgency": "Calculate from TODAY and visa expiration. State exact months remaining, premium processing timeline, hard deadline."
   },
   "career_visa_assessment": {
-    "summary": "2 paragraphs: honest personalized assessment referencing their specific employers/role/salary. Second paragraph addresses their biggest concern.",
+    "summary": "2 paragraphs in second person: honest assessment referencing their specific employers/role/salary — 'Your background in X positions you…'. Second paragraph addresses their biggest concern directly — 'You asked about Y — here is the honest answer'.",
     "pathways": [
       { "pathway": "EB-2 NIW", "feasibility": "High | Medium | Low", "rationale": "Specific rationale from their evidence" },
       { "pathway": "EB-1A", "feasibility": "High | Medium | Low", "rationale": "Specific rationale with timeline" }
@@ -231,29 +233,29 @@ Return ONLY this JSON (no other text):
       "prong_number": 1,
       "prong_name": "Substantial Merit & National Importance",
       "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Specific evidence from their resume/profile satisfying this prong",
-      "critical_gap": "The single most important missing piece — be specific",
-      "draft_petition_paragraph": "3-5 sentences of actual petition brief an attorney would submit to USCIS. Use their specific work, employer names, national importance framing. Ready to file."
+      "what_you_have": "Second person: 'You have X, Y, and Z that satisfy this prong' — specific evidence from their resume",
+      "critical_gap": "Second person: 'Your most critical gap here is X — without it, USCIS will likely…'",
+      "draft_petition_paragraph": "THIRD PERSON (USCIS legal doc): 3-5 sentences of petition brief language. 'The Petitioner has demonstrated…' Use their specific work, employer names, national importance framing."
     },
     {
       "prong_number": 2,
       "prong_name": "Well-Positioned to Advance the Endeavor",
       "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Specific evidence — credentials, track record, recognitions",
-      "critical_gap": "What would make this prong airtight",
-      "draft_petition_paragraph": "3-5 sentences attorney-quality petition language for Prong 2. Reference their specific employers, salary, cross-company track record."
+      "what_you_have": "Second person: 'You bring X credentials, Y track record, and Z recognition that position you well for Prong 2'",
+      "critical_gap": "Second person: 'What would make this prong airtight is X — you currently lack this because…'",
+      "draft_petition_paragraph": "THIRD PERSON (USCIS legal doc): 3-5 sentences petition language for Prong 2. Reference their specific employers, salary, cross-company track record."
     },
     {
       "prong_number": 3,
       "prong_name": "National Benefit Justifies Waiving Job Offer Requirement",
       "score": "Strong | Moderate | Weak | Missing",
-      "what_you_have": "Evidence that the US uniquely benefits from waiving the job offer requirement",
-      "critical_gap": "What USCIS would most likely reject and why",
-      "draft_petition_paragraph": "3-5 sentences for Prong 3 — the hardest prong. Explain why no US worker pipeline replicates this person's expertise. Cite economic data or policy if relevant."
+      "what_you_have": "Second person: 'You have evidence that the US uniquely benefits from your work because…'",
+      "critical_gap": "Second person: 'The argument USCIS is most likely to reject is X — you need to address this by…'",
+      "draft_petition_paragraph": "THIRD PERSON (USCIS legal doc): 3-5 sentences for Prong 3. Explain why no US worker pipeline replicates this person's expertise. Cite economic data or policy if relevant."
     }
   ],
-  "draft_proposed_endeavor": "4-6 sentences of petition-ready proposed endeavor language. Their specific job titles, employers, products, national impact. Must pass attorney review.",
-  "attorney_briefing": "3-5 sentence paragraph ready to email to an immigration attorney. Include: name/role/employer, recommended pathway, 3 strongest evidence pieces, 2 critical gaps, visa status and expiration, desired filing timeline, call to action."
+  "draft_proposed_endeavor": "THIRD PERSON (USCIS legal doc): 4-6 sentences of petition-ready proposed endeavor language. 'The Petitioner proposes to…' — their specific job titles, employers, products, national impact.",
+  "attorney_briefing": "Second person opening, then factual: 'Here is your situation summarized for an immigration consultation: [name/role/employer, recommended pathway, 3 strongest evidence pieces, 2 critical gaps, visa status and expiration, desired filing timeline, suggested ask]'"
 }`
 
   const res = await anthropic.messages.create({
@@ -285,7 +287,7 @@ Return ONLY this JSON (no other text):
       "criterion": "${niwPrimary ? 'Primary NIW Prong (e.g. NIW Prong 2 — Well-Positioned)' : 'Primary EB-1A criterion (e.g. EB-1A Critical Role §(viii))'}",
       "eb1a_connection": "${niwPrimary ? 'Optional EB-1A cross-reference if applicable' : 'omit'}",
       "strength": "Strong | Developing | Gap",
-      "petition_argument": "How a skilled attorney writes this into the petition brief — 2-4 sentences citing the legal standard"
+      "petition_argument": "THIRD PERSON (USCIS legal doc): How this is written into the petition brief — 2-4 sentences. 'The Petitioner's role at X demonstrates…'"
     }
   ],
   "rfe_risks": [
@@ -329,37 +331,37 @@ Return ONLY this JSON (no other text):
   "expert_letters": [
     {
       "letter_number": 1,
-      "who": "Specific person type with title and org — e.g. Senior Director at Apple who supervised their BD programs",
-      "what_they_should_say": "Exactly what this letter must establish to satisfy which USCIS standard — cite the prong or criterion",
-      "how_to_approach": "Step-by-step: how to frame the ask, offer to draft it, what to include in the ask email"
+      "who": "Specific person type with title and org — e.g. 'A Senior Director at Apple who supervised your BD programs'",
+      "what_they_should_say": "Second person: 'This letter needs to establish that you X — which satisfies [prong/criterion] because…'",
+      "how_to_approach": "Second person, step-by-step: 'Reach out to X by saying Y. Offer to draft it. Include Z in your ask email.'"
     }
   ],
   "evidence_playbook": [
     {
-      "gap": "Specific named gap tied to their actual profile and recommended pathway",
+      "gap": "Second person: 'You are missing X — this matters for your [prong/criterion] because…'",
       "priority": "High | Medium | Low",
-      "specific_action": "Exactly what to do — specific enough to execute today without clarification",
+      "specific_action": "Second person imperative: 'Submit a peer review request to [real journal]. Email [specific action]. Publish [specific outlet].'",
       "named_targets": "Real publication names, real organizations, real conferences relevant to their exact field",
       "deadline": "Specific timeframe relative to TODAY (${today}) e.g. 'by [Month Year]'"
     }
   ],
   "gap_analysis": [
     {
-      "gap": "Specific gap tied to their actual profile and recommended pathway",
+      "gap": "Second person: 'Your [specific gap] is the most material weakness in your [pathway] case because…'",
       "materiality": "High | Medium | Low",
-      "action": "Specific actionable step with named resources — not generic advice"
+      "action": "Second person: 'To close this gap, you should [specific step] using [named resource]'"
     }
   ],
   "sprint_30_day": [
-    { "week": "Week 1", "actions": ["Specific action for their situation", "Action 2", "Action 3"] },
+    { "week": "Week 1", "actions": ["Second person action specific to their profile", "Action 2", "Action 3"] },
     { "week": "Week 2", "actions": ["Action 1", "Action 2"] },
     { "week": "Week 3", "actions": ["Action 1", "Action 2"] },
     { "week": "Week 4", "actions": ["Action 1 — deliver or submit something concrete"] }
   ],
   "roadmap": {
-    "three_month": ["Specific milestone for this person", "Another milestone", "Third milestone"],
-    "six_month": ["Specific milestone", "Another milestone", "Third milestone"],
-    "twelve_month": ["Specific milestone", "Another milestone", "Third milestone"]
+    "three_month": ["Second person milestone: 'You will have X in place by…'", "Another milestone", "Third milestone"],
+    "six_month": ["Second person milestone", "Another milestone", "Third milestone"],
+    "twelve_month": ["Second person milestone", "Another milestone", "Third milestone"]
   }
 }`
 
@@ -455,7 +457,7 @@ function buildLegacyPreviewPrompt(a: StrategyAnswers): string {
   return `Analyze this candidate and return a JSON preview.
 Role: ${a.current_role} at ${a.current_employer}
 Goal: ${a.career_goal} | Visa: ${a.visa_status}
-Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_strength": "Strong | Developing | Early", "teaser": "" }`
+Return ONLY this JSON: { "applicable_pathways": [], "top_pathway": "", "overall_strength": "Strong | Developing | Early", "teaser": "Second person, 1-2 sentences: e.g. 'Your strongest angle is X — here is why it positions you well.' Be specific and honest." }`
 }
 
 function buildFullPreviewPrompt(a: StrategyAnswers): string {
@@ -464,7 +466,7 @@ function buildFullPreviewPrompt(a: StrategyAnswers): string {
   const pathway = niw.score >= eb1a.score ? 'EB-2 NIW' : eb1a.score > 70 ? 'EB-1A' : 'EB-2 NIW'
   return `Candidate: ${a.current_role} at ${a.current_employer}, ${a.education_level} from ${a.university}, ${a.visa_status}.
 NIW score: ${niw.score}/100 (${niw.label}). EB-1A score: ${eb1a.score}/100. Recommended: ${pathway}.
-Return ONLY this JSON: { "applicable_pathways": ["EB-2 NIW", "EB-1A"], "top_pathway": "${pathway}", "overall_strength": "Strong | Developing | Early", "teaser": "1-2 sentence honest assessment of their strongest angle" }`
+Return ONLY this JSON: { "applicable_pathways": ["EB-2 NIW", "EB-1A"], "top_pathway": "${pathway}", "overall_strength": "Strong | Developing | Early", "teaser": "Second person, 1-2 sentences: e.g. 'Your strongest angle is X because Y.' Specific, honest, direct — address the candidate as You/Your." }`
 }
 
 function buildLegacyPrompt(a: StrategyAnswers): string {
