@@ -11,13 +11,25 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white">
 
+      {/* ── Policy Alert Banner ──────────────────────────────────────── */}
+      <div className="bg-red-600 text-white text-center px-4 py-2.5">
+        <p className="text-xs sm:text-sm font-semibold leading-snug">
+          <span className="font-extrabold">Breaking — May 22, 2026:</span> USCIS PM-602-0199 requires most foreign nationals to leave the US for green card processing.{' '}
+          <Link href="/stay-score" className="underline font-bold hover:text-red-100">Check your Stay Score →</Link>
+        </p>
+      </div>
+
       {/* ── Nav ─────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 no-underline">
             <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
-            <span className="text-[10px] font-extrabold text-teal bg-teal/10 border border-teal/25 px-2 py-0.5 rounded-md">AI</span>
           </Link>
+          <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
+            <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Stay Score</Link>
+            <Link href="/roi-calculator" className="font-medium hover:text-navy transition-colors px-3 py-2">ROI Calc</Link>
+            <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
+          </div>
           <div className="flex items-center gap-2.5">
             <Link href="/login" className="text-sm text-mid font-medium hover:text-navy transition-colors px-3 py-2">Sign in</Link>
             <Link
@@ -42,23 +54,23 @@ export default async function Home() {
           }}
         />
 
-        <div className="relative z-10 max-w-3xl mx-auto px-6 pt-24 pb-0 text-center">
-          <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-8">
-            <span className="w-1.5 h-1.5 bg-teal rounded-full animate-pulse" />
-            Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
+        <div className="relative z-10 max-w-3xl mx-auto px-6 pt-20 pb-0 text-center">
+          <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-400/40 text-red-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
+            PM-602-0199 in effect &nbsp;·&nbsp; The rules just changed
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-3">
-            Your career and visa strategy,<br />
-            <span className="text-teal">built by AI.</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-4">
+            The rules changed.<br />
+            <span className="text-teal">Here&apos;s your path to staying.</span>
           </h1>
 
-          <p className="text-[13px] font-bold tracking-[2px] uppercase text-white/40 mb-6">
-            Intelligently &nbsp;·&nbsp; Compliantly &nbsp;·&nbsp; Stress-free
+          <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
+            USCIS can now require you to leave the US to process your green card — unless you can prove <strong className="text-white">extraordinary circumstances.</strong> An approved NIW I-140 is the strongest evidence you have. We build your case.
           </p>
 
-          <p className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">
-            Career and visa strategy built on case law precedent, made by international students who know exactly what you&apos;re going through.
+          <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
+            EB-1A &amp; NIW &nbsp;·&nbsp; Dhanasar Framework &nbsp;·&nbsp; Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
@@ -69,11 +81,11 @@ export default async function Home() {
             >
               Get my free green card preview →
             </Link>
-            <Link href="#products" className="text-slate-500 text-sm font-medium hover:text-white transition-colors py-4 px-2">
-              See what&apos;s included ↓
+            <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
+              Check my Stay Score first ↓
             </Link>
           </div>
-          <p className="text-slate-600 text-xs pb-16">Preview free &nbsp;·&nbsp; Pay only for the full report</p>
+          <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
         </div>
 
         {/* Trust bar */}
@@ -82,7 +94,7 @@ export default async function Home() {
             {[
               { val: 'EB-1A & NIW', lbl: 'Both pathways analyzed' },
               { val: 'Kazarian & Dhanasar', lbl: 'Trained on controlling case law' },
-              { val: 'Career moves', lbl: 'Your 90-day action campaign' },
+              { val: 'Extraordinary circumstances', lbl: 'The exact AoS standard, documented' },
               { val: 'F-1 to green card', lbl: 'Built by those who did it' },
             ].map((item, i) => (
               <div key={i} className="py-5 px-4 text-center border-r border-white/[0.06] last:border-r-0">
@@ -90,6 +102,54 @@ export default async function Home() {
                 <span className="block text-[11px] text-slate-500 mt-0.5">{item.lbl}</span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Policy Crisis Section ─────────────────────────────────────── */}
+      <section className="bg-slate-950 text-white py-16 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-red-400 mb-3">What changed on May 22, 2026</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">
+              USCIS PM-602-0199 redefines who gets to<br className="hidden sm:block" /> stay in the US during green card processing
+            </h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-5">
+            {[
+              {
+                icon: '🚫',
+                title: 'Consular processing required',
+                body: 'Most applicants must now leave the US and apply via consulate abroad — adding months or years of separation from your life here.',
+                color: 'border-red-500/30 bg-red-500/5',
+              },
+              {
+                icon: '🌍',
+                title: '75 countries paused',
+                body: 'Immigrant visa processing suspended entirely for nationals of 75+ countries including Nigeria, Pakistan, Iran, Venezuela, and more.',
+                color: 'border-orange-500/30 bg-orange-500/5',
+              },
+              {
+                icon: '⚖️',
+                title: 'Extraordinary circumstances exception',
+                body: 'You can adjust status inside the US only if you prove "extraordinary circumstances." An approved NIW I-140 is the strongest evidence that exists.',
+                color: 'border-teal/30 bg-teal/5',
+              },
+            ].map((item, i) => (
+              <div key={i} className={`rounded-2xl border p-6 ${item.color}`}>
+                <div className="text-2xl mb-3">{item.icon}</div>
+                <p className="font-bold text-white text-sm mb-2">{item.title}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">{item.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/stay-score" className="inline-block bg-white text-navy font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
+              Check my Stay Score →
+            </Link>
+            <Link href="/roi-calculator" className="inline-block border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl hover:border-white/50 transition-colors text-sm no-underline">
+              Calculate my exposure →
+            </Link>
           </div>
         </div>
       </section>
@@ -145,9 +205,9 @@ export default async function Home() {
       <section id="products" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
-            Multiple tools. One path forward.
+            Multiple tools. One path to staying.
           </h2>
-          <p className="text-lg text-mid mt-3">For every stage of your immigration journey.</p>
+          <p className="text-lg text-mid mt-3">Every tool built for the PM-602-0199 world.</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -155,17 +215,17 @@ export default async function Home() {
             <div className="text-2xl mb-5">📊</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">Green Card Strategy Report</h3>
-              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$397</span>
+              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$497</span>
             </div>
             <p className="text-sm text-mid leading-relaxed mb-6">
-              Complete EB-1A and NIW analysis with a personalized 12-month roadmap. Free preview before you pay.
+              Complete EB-1A and NIW analysis with personalized Dhanasar framework, evidence map, and 12-month roadmap. Free preview before you pay.
             </p>
             <ul className="space-y-2.5 mb-7">
               {[
                 'All 10 EB-1A criteria scored and ranked',
                 'NIW Dhanasar three-prong analysis',
+                'Extraordinary circumstances evidence map',
                 'Visa pathway feasibility ranking',
-                'Evidence mapping tied to your actual profile',
                 'Gap analysis with specific next steps',
                 '3 / 6 / 12-month career and immigration roadmap',
                 'Downloadable PDF report',
@@ -209,6 +269,28 @@ export default async function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Secondary tools row */}
+        <div className="grid sm:grid-cols-3 gap-4 mt-5">
+          <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
+            <div className="text-xl mb-2">📍</div>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Stay Score</h3>
+            <p className="text-xs text-mid leading-relaxed">Score your risk profile 0–100. Know exactly where you stand under PM-602-0199.</p>
+            <p className="text-xs font-bold text-teal mt-3">Free →</p>
+          </Link>
+          <Link href="/roi-calculator" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
+            <div className="text-xl mb-2">💰</div>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">ROI Calculator</h3>
+            <p className="text-xs text-mid leading-relaxed">See the real cost of consular processing vs. fighting to stay. Most people are shocked.</p>
+            <p className="text-xs font-bold text-teal mt-3">Free →</p>
+          </Link>
+          <Link href="/cohort" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
+            <div className="text-xl mb-2">👥</div>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Cohort NIW Filing</h3>
+            <p className="text-xs text-mid leading-relaxed">File with 20 professionals in your field. One attorney, shared framework. $2,400 per person.</p>
+            <p className="text-xs font-bold text-teal mt-3">Join waitlist →</p>
+          </Link>
+        </div>
       </section>
 
       {/* ── Career Moves / Pro band ───────────────────────────────────── */}
@@ -222,7 +304,7 @@ export default async function Home() {
                 Personalized to your journey.
               </h2>
               <p className="text-base text-slate-500 leading-[1.7] mb-3">
-                Every month, personalized intelligent moves built specifically for your criteria gaps, your field, and your timeline. A 90-day campaign that updates as you grow.
+                Every month, personalized moves built specifically for your criteria gaps, your field, and your timeline. A 90-day campaign that updates as you grow.
               </p>
               <p className="text-base text-slate-500 leading-[1.7]">
                 Your Green Card Score tracks every report. Watch it move as you execute.
@@ -290,7 +372,7 @@ export default async function Home() {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "Want a green card path that doesn't depend entirely on your employer." },
+            { who: 'H-1B holders', desc: "PM-602-0199 puts your AoS path at risk. You need an approved I-140 with extraordinary circumstances evidence — fast." },
             { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
             { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
             { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },
@@ -326,13 +408,27 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── Employer CTA ─────────────────────────────────────────────── */}
+      <section className="bg-navy/[0.03] border-b border-border py-14 px-6">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-1">For HR teams & General Counsel</p>
+            <h3 className="text-xl font-extrabold text-navy">Don&apos;t lose your international talent to a policy memo.</h3>
+            <p className="text-sm text-mid mt-1.5 leading-relaxed">We audit your workforce, identify who&apos;s at risk, and build NIW petition frameworks for every eligible employee.</p>
+          </div>
+          <Link href="/for-employers" className="flex-shrink-0 inline-block bg-navy text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
+            Request workforce audit →
+          </Link>
+        </div>
+      </section>
+
       {/* ── Final CTA ────────────────────────────────────────────────── */}
       <section className="bg-navy text-white py-28 px-6 text-center">
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-5">
           You&apos;re already <span className="text-teal">extraordinary.</span><br />
           USCIS just needs to see it.
         </h2>
-        <p className="text-lg text-slate-500 max-w-md mx-auto mb-9 leading-relaxed">Free preview. No commitment. Just clarity.</p>
+        <p className="text-lg text-slate-500 max-w-md mx-auto mb-9 leading-relaxed">Free preview. No commitment. Just clarity on exactly where you stand.</p>
         <Link
           href="/signup"
           className="inline-block bg-teal text-white font-extrabold text-lg px-12 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
@@ -347,16 +443,18 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-navy text-[15px]">F-1 Careers</span>
-            <span className="text-[10px] font-extrabold text-teal bg-teal/10 border border-teal/25 px-1.5 py-0.5 rounded">AI</span>
           </div>
           <p className="text-[11px] text-slate-400 max-w-sm text-center leading-relaxed">
             This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
           </p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Stay Score</Link>
+            <Link href="/roi-calculator" className="text-sm text-mid hover:text-navy transition-colors">ROI Calc</Link>
+            <Link href="/cohort" className="text-sm text-mid hover:text-navy transition-colors">Cohort Filing</Link>
+            <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>
             <Link href="/privacy" className="text-sm text-mid hover:text-navy transition-colors">Privacy</Link>
             <Link href="/terms" className="text-sm text-mid hover:text-navy transition-colors">Terms</Link>
             <Link href="/login" className="text-sm text-mid hover:text-navy transition-colors">Sign in</Link>
-            <Link href="/signup" className="text-sm text-mid hover:text-navy transition-colors">Sign up</Link>
           </div>
         </div>
       </footer>

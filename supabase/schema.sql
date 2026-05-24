@@ -260,3 +260,53 @@ alter table public.petition_progress add column if not exists generated_petition
 
 -- Add recommenders column to petition_progress
 alter table public.petition_progress add column if not exists recommenders jsonb not null default '[]';
+
+-- ─── EMPLOYER LEADS ──────────────────────────────────────────────
+create table if not exists public.employer_leads (
+  id uuid default uuid_generate_v4() primary key,
+  company_name text not null,
+  contact_name text not null,
+  contact_email text not null,
+  company_size text,
+  international_headcount text,
+  message text,
+  source text default 'employer-page',
+  created_at timestamptz not null default now()
+);
+alter table public.employer_leads enable row level security;
+-- Only service role can read; anyone can insert (public form)
+drop policy if exists "Public can submit employer leads" on public.employer_leads;
+create policy "Public can submit employer leads" on public.employer_leads
+  for insert with check (true);
+
+-- ─── COHORT WAITLIST ─────────────────────────────────────────────
+create table if not exists public.cohort_waitlist (
+  id uuid default uuid_generate_v4() primary key,
+  email text not null,
+  full_name text,
+  field text not null,
+  current_visa text,
+  years_in_field text,
+  source text default 'cohort-page',
+  created_at timestamptz not null default now(),
+  unique(email, field)
+);
+alter table public.cohort_waitlist enable row level security;
+drop policy if exists "Public can join cohort waitlist" on public.cohort_waitlist;
+create policy "Public can join cohort waitlist" on public.cohort_waitlist
+  for insert with check (true);
+-- Allow reading counts by field (no personal data exposed)
+drop policy if exists "Public can read cohort counts" on public.cohort_waitlist;
+create policy "Public can read cohort counts" on public.cohort_waitlist
+  for select using (true);
+
+-- ─── PM-602-0199 POLICY ALERT ────────────────────────────────────
+-- Run this to insert the active policy alert in the dashboard
+-- (admin_alerts table was created in a prior migration)
+-- insert into public.admin_alerts (title, message, severity, active)
+-- values (
+--   'Policy Alert — PM-602-0199 (May 22, 2026)',
+--   'USCIS now requires most foreign nationals to leave the US for green card consular processing unless extraordinary circumstances are proven. An approved NIW I-140 is the strongest evidence. File premium processing now.',
+--   'critical',
+--   true
+-- ) on conflict do nothing;
