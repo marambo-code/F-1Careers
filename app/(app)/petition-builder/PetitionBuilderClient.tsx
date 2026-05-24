@@ -461,7 +461,7 @@ function SignalTrack({
           <p className="text-xs text-mid mt-0.5">Determines processing time and RFE likelihood. Set by USCIS based on your state.</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SERVICE_CENTERS.map(sc => (
             <button
               key={sc.code}
@@ -737,8 +737,8 @@ function LettersTrack({
         <div className="card space-y-4">
           <p className="text-sm font-bold text-navy">Add a Recommender</p>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2 sm:col-span-1 space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-navy">Full name *</label>
               <input
                 className="input text-sm"
@@ -748,7 +748,7 @@ function LettersTrack({
                 autoFocus
               />
             </div>
-            <div className="col-span-2 sm:col-span-1 space-y-1">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-navy">Title / Position</label>
               <input
                 className="input text-sm"
@@ -771,7 +771,7 @@ function LettersTrack({
           {/* Relationship type */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-navy">Relationship to you</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {(Object.entries(RELATIONSHIP_LABELS) as [RelationshipType, typeof RELATIONSHIP_LABELS[RelationshipType]][]).map(([key, val]) => (
                 <button
                   key={key}
@@ -944,7 +944,7 @@ function GenerateTrack({
 
         <p className="text-xs text-mid">{readinessLabel}</p>
 
-        <div className="grid grid-cols-3 gap-3 pt-1">
+        <div className="grid grid-cols-3 gap-2 pt-1">
           {[
             { label: 'Evidence done', value: `${doneCount}/${items.length}`, ok: doneCount > 0 },
             { label: 'Narrative written', value: hasNarrative ? 'Yes' : 'No', ok: hasNarrative },
@@ -1299,13 +1299,13 @@ export default function PetitionBuilderClient() {
       <RunwayCounter days={Math.round(runwayDays)} total={Math.round(totalDays)} />
 
       {/* ── Tabs ─────────────────────────────────────────────────────── */}
-      <div className="border-b border-gray-200">
-        <div className="flex gap-0">
+      <div className="border-b border-gray-200 -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div className="flex gap-0 overflow-x-auto scrollbar-none">
           {tabs.map(t => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap flex-shrink-0 ${
                 tab === t.id
                   ? 'border-navy text-navy'
                   : 'border-transparent text-mid hover:text-navy'

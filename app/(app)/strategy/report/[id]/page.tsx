@@ -140,16 +140,16 @@ export default async function StrategyReportPage({
         <h2 className="section-heading">Executive Summary</h2>
         <div className="space-y-4">
           {/* Scores + pathway */}
-          <div className="grid sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="card text-center py-4">
               <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-2 NIW</p>
-              <p className={`text-4xl font-black ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
             </div>
             <div className="card text-center py-4">
               <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-1A</p>
-              <p className={`text-4xl font-black ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
             </div>
-            <div className="card bg-navy text-white text-center py-4 flex flex-col justify-center">
+            <div className="card bg-navy text-white text-center py-4 flex flex-col justify-center col-span-2 sm:col-span-1">
               <p className="text-xs font-bold text-teal uppercase tracking-widest mb-1">Recommended</p>
               <p className="text-lg font-bold leading-tight">{pr?.recommended_pathway}</p>
             </div>

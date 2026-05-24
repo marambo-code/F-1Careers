@@ -151,7 +151,7 @@ export default async function FilingGuidePage() {
         <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 3 — Prepare Filing Fee Payment</h2>
 
         <div className="card !p-4 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
             {[
               { label: 'I-140 base fee', amount: '$700', note: 'Required' },
               { label: 'Premium processing', amount: '$2,805', note: 'Optional — 15 business days' },
@@ -306,7 +306,7 @@ export default async function FilingGuidePage() {
       {/* Resources */}
       <section className="space-y-3">
         <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Official Resources</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { label: 'USCIS I-140 page', url: 'https://www.uscis.gov/i-140', desc: 'Official form, instructions, mailing addresses' },
             { label: 'USCIS case status', url: 'https://egov.uscis.gov', desc: 'Check your receipt number status online' },

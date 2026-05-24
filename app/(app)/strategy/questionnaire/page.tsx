@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/lib/types'
@@ -127,7 +127,7 @@ const STEPS = [
 // ─── Helpers ──────────────────────────────────────────────────────
 
 function CriterionRater({
-  label, value, onChange,
+  value, onChange,
 }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <div className="flex gap-1.5 flex-wrap">
@@ -145,6 +145,11 @@ function CriterionRater({
       ))}
     </div>
   )
+}
+
+function FieldError({ msg }: { msg?: string }) {
+  if (!msg) return null
+  return <p className="text-xs text-red-500 mt-1 font-medium">{msg}</p>
 }
 
 // ─── Page ─────────────────────────────────────────────────────────
@@ -196,17 +201,51 @@ export default function QuestionnairePage() {
   const [visaExpiration, setVisaExpiration] = useState<string>('')
   const [resumeUploading, setResumeUploading] = useState(false)
   const [resumeFileName, setResumeFileName] = useState<string>('')
+  const [resumeFromProfile, setResumeFromProfile] = useState(false)
   const [linkedInUrl, setLinkedInUrl] = useState<string>('')
   const [jobHistory, setJobHistory] = useState<{ role: string; employer: string; duration: string }[]>([])
   const [showSecondEdu, setShowSecondEdu] = useState(false)
   const [secondEdu, setSecondEdu] = useState({ university: '', degree: '', field: '' })
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const firstErrorRef = useRef<HTMLDivElement>(null)
 
-  const set = (key: string, val: string | number) =>
+  const set = (key: string, val: string | number) => {
     setAnswers(a => ({ ...a, [key]: val }))
+    setTouched(t => ({ ...t, [key]: true }))
+  }
 
+  // ── Validation ─────────────────────────────────────────────────
+  const step0Errors: Record<string, string> = {}
+  if (!answers.field_of_work)    step0Errors.field_of_work    = 'Please select your primary field'
+  if (!answers.subfield.trim())  step0Errors.subfield          = 'Please enter your specific role or subfield'
+  if (!answers.education_level)  step0Errors.education_level   = 'Please select your highest degree'
+  if (!answers.work_description.trim()) step0Errors.work_description = 'Please describe your work — this is the core of your petition'
+
+  const step2Errors: Record<string, string> = {}
+  if (!answers.proposed_endeavor.trim()) step2Errors.proposed_endeavor = 'Please describe your proposed US endeavor'
+
+  const step0Valid = Object.keys(step0Errors).length === 0
+  const step2Valid = Object.keys(step2Errors).length === 0
+
+  const handleContinue = () => {
+    if (step === 0 && !step0Valid) {
+      // Mark all step-0 required fields as touched so errors show
+      setTouched(t => ({ ...t, field_of_work: true, subfield: true, education_level: true, work_description: true }))
+      setTimeout(() => firstErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50)
+      return
+    }
+    if (step === 2 && !step2Valid) {
+      setTouched(t => ({ ...t, proposed_endeavor: true }))
+      return
+    }
+    setStep(s => s + 1)
+  }
+
+  // ── Resume upload ───────────────────────────────────────────────
   const handleResumeUpload = async (file: File) => {
     setResumeUploading(true)
     setResumeFileName(file.name)
+    setResumeFromProfile(false)
     try {
       const formData = new FormData()
       formData.append('resume', file)
@@ -224,15 +263,14 @@ export default function QuestionnairePage() {
     }
   }
 
+  // ── Load profile ────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
       supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
         if (data) {
           setProfile(data)
-          // Pre-populate LinkedIn from profile
           if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
-          // Pre-populate education_level from profile.degree if not already set
           if (data.degree) {
             const d = data.degree.toLowerCase()
             const mapped =
@@ -243,13 +281,34 @@ export default function QuestionnairePage() {
               ''
             if (mapped) setAnswers(a => ({ ...a, education_level: mapped }))
           }
+
+          // Auto-load resume from profile if available
+          if (data.resume_path) {
+            setResumeUploading(true)
+            fetch('/api/strategy/profile-resume')
+              .then(r => r.json())
+              .then(body => {
+                if (body.text) {
+                  setResumeText(body.text)
+                  setResumeFileName(body.filename ?? 'resume from profile')
+                  setResumeFromProfile(true)
+                }
+              })
+              .catch(() => { /* silently fail — user can upload manually */ })
+              .finally(() => setResumeUploading(false))
+          }
         }
         setLoading(false)
       })
     })
   }, [])
 
+  // ── Submit ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
+    // Final validation before submitting
+    if (!step0Valid) { setError('Please go back and fill in all required fields.'); return }
+    if (!step2Valid) { setError('Please describe your proposed US endeavor on Step 3.'); return }
+
     setSubmitting(true)
     setError(null)
     try {
@@ -297,7 +356,7 @@ export default function QuestionnairePage() {
         router.push(`/strategy/preview?reportId=${report.id}`)
       } else {
         const body = await res.json().catch(() => ({}))
-        setError(`AI generation failed: ${body?.error ?? res.statusText}. Please try again.`)
+        setError(`Generation failed: ${body?.error ?? res.statusText}. Please try again.`)
         setSubmitting(false)
       }
     } catch (e: unknown) {
@@ -308,13 +367,19 @@ export default function QuestionnairePage() {
 
   if (loading) return <div className="text-mid">Loading...</div>
 
-  // ── Count met EB-1A criteria (rating ≥ 2 = meets threshold) ──
   const crKeys = ['cr_awards','cr_membership','cr_press','cr_judging','cr_contributions',
     'cr_scholarly','cr_display','cr_critical_role','cr_high_salary','cr_commercial'] as const
   const metCount = crKeys.filter(k => (answers[k] as number) >= 2).length
 
+  // Bachelor's / Other = no second degree needed (user already stated highest degree)
+  const showAddSecondDegree = !['bachelors', 'other', ''].includes(answers.education_level)
+
+  // Helper: should we show inline error for a field?
+  const err = (field: string, errors: Record<string, string>) =>
+    touched[field] ? errors[field] : undefined
+
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-2xl space-y-6">
       {/* Progress */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -340,6 +405,8 @@ export default function QuestionnairePage() {
       {/* ── STEP 1: Background ── */}
       {step === 0 && (
         <div className="card space-y-5">
+
+          {/* Profile data banner */}
           {(profile.full_name || profile.visa_status) && (
             <div className="bg-teal-light rounded-xl p-4 space-y-2 border border-teal/20">
               <p className="text-sm font-bold text-teal">✓ Profile data loaded — automatically included in your report</p>
@@ -355,10 +422,15 @@ export default function QuestionnairePage() {
             </div>
           )}
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          {/* Field + Subfield */}
+          <div ref={firstErrorRef} className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Primary Field of Work <span className="text-red-500">*</span></label>
-              <select className="input" value={answers.field_of_work} onChange={e => set('field_of_work', e.target.value)}>
+              <select
+                className={`input ${touched.field_of_work && step0Errors.field_of_work ? 'border-red-400 focus:ring-red-300' : ''}`}
+                value={answers.field_of_work}
+                onChange={e => set('field_of_work', e.target.value)}
+              >
                 <option value="">Select your field</option>
                 <option value="stem_cs">STEM — Computer Science / AI / Software</option>
                 <option value="stem_bio">STEM — Biology / Biotech / Life Sciences</option>
@@ -372,22 +444,33 @@ export default function QuestionnairePage() {
                 <option value="law">Law / Government / Policy</option>
                 <option value="other">Other</option>
               </select>
+              <FieldError msg={err('field_of_work', step0Errors)} />
             </div>
             <div>
               <label className="label">Specific Role / Subfield <span className="text-red-500">*</span></label>
               <input
-                className="input"
+                className={`input ${touched.subfield && step0Errors.subfield ? 'border-red-400 focus:ring-red-300' : ''}`}
                 value={answers.subfield}
                 onChange={e => set('subfield', e.target.value)}
                 placeholder="e.g. NLP research, oncology drug discovery, fintech"
               />
+              <FieldError msg={err('subfield', step0Errors)} />
             </div>
           </div>
 
+          {/* Education + Years */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Highest Degree Earned <span className="text-red-500">*</span></label>
-              <select className="input" value={answers.education_level} onChange={e => set('education_level', e.target.value)}>
+              <select
+                className={`input ${touched.education_level && step0Errors.education_level ? 'border-red-400 focus:ring-red-300' : ''}`}
+                value={answers.education_level}
+                onChange={e => {
+                  set('education_level', e.target.value)
+                  // If switching to bachelors/other, close second degree panel
+                  if (['bachelors', 'other'].includes(e.target.value)) setShowSecondEdu(false)
+                }}
+              >
                 <option value="">Select</option>
                 <option value="phd">PhD / Doctorate</option>
                 <option value="md">MD / Medical Degree</option>
@@ -395,9 +478,10 @@ export default function QuestionnairePage() {
                 <option value="bachelors">Bachelor's Degree</option>
                 <option value="other">Other / None</option>
               </select>
+              <FieldError msg={err('education_level', step0Errors)} />
             </div>
             <div>
-              <label className="label">Total Years in This Field <span className="text-red-500">*</span></label>
+              <label className="label">Total Years in This Field</label>
               <select className="input" value={answers.years_in_field} onChange={e => set('years_in_field', e.target.value)}>
                 <option value="">Select</option>
                 <option value="1">Less than 1 year</option>
@@ -409,6 +493,7 @@ export default function QuestionnairePage() {
             </div>
           </div>
 
+          {/* Role + Employer */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Current Role / Title</label>
@@ -420,6 +505,7 @@ export default function QuestionnairePage() {
             </div>
           </div>
 
+          {/* Salary + Timeline */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Annual US Salary (USD)</label>
@@ -437,6 +523,7 @@ export default function QuestionnairePage() {
             </div>
           </div>
 
+          {/* Work description */}
           <div>
             <label className="label">
               Describe Your Work & Its Significance <span className="text-red-500">*</span>
@@ -445,12 +532,13 @@ export default function QuestionnairePage() {
               What do you actually do? What makes it significant? Who benefits? Be as specific as possible — this is the core of your petition narrative.
             </p>
             <textarea
-              className="input"
+              className={`input ${touched.work_description && step0Errors.work_description ? 'border-red-400 focus:ring-red-300' : ''}`}
               rows={5}
               value={answers.work_description}
               onChange={e => set('work_description', e.target.value)}
               placeholder="e.g. I develop large language model alignment techniques at Anthropic. My research on constitutional AI has been adopted by 3 major AI labs and cited 400+ times. My work directly reduces AI safety risks that are a stated national priority in the Executive Order on AI (Oct 2023)..."
             />
+            <FieldError msg={err('work_description', step0Errors)} />
           </div>
 
           {/* Resume Upload */}
@@ -461,6 +549,16 @@ export default function QuestionnairePage() {
             <p className="text-xs text-mid mb-2">
               Uploading your resume dramatically improves report quality — the AI will extract specific evidence, cite real accomplishments, and draft petition language using your actual experience.
             </p>
+
+            {/* Profile resume banner */}
+            {resumeFromProfile && resumeText && !resumeUploading && (
+              <div className="mb-2 flex items-center gap-2 bg-teal-light border border-teal/20 rounded-xl px-4 py-2.5">
+                <span className="text-teal text-sm">✓</span>
+                <p className="text-sm text-teal font-semibold flex-1">Resume loaded from your profile — <span className="font-normal">{resumeFileName}</span></p>
+                <span className="text-xs text-teal/60">Upload below to replace</span>
+              </div>
+            )}
+
             <label className={`flex items-center gap-3 border-2 border-dashed rounded-xl px-4 py-4 cursor-pointer transition-colors ${
               resumeText ? 'border-teal bg-teal-light' : 'border-border bg-gray-50 hover:border-teal/40'
             }`}>
@@ -476,11 +574,11 @@ export default function QuestionnairePage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Parsing resume...
+                  {resumeFromProfile ? 'Loading resume from profile...' : 'Parsing resume...'}
                 </span>
               ) : resumeText ? (
                 <span className="flex items-center gap-2 text-sm text-teal font-semibold">
-                  <span>✓</span> {resumeFileName} — parsed successfully
+                  <span>✓</span> {resumeFileName}
                   <span className="font-normal text-mid ml-1">(click to replace)</span>
                 </span>
               ) : (
@@ -500,14 +598,13 @@ export default function QuestionnairePage() {
               className="input max-w-xs"
               value={visaExpiration}
               onChange={e => setVisaExpiration(e.target.value)}
-              placeholder="YYYY-MM"
             />
           </div>
 
           {/* LinkedIn URL */}
           <div>
             <label className="label">LinkedIn URL <span className="text-teal text-xs font-semibold ml-1">Recommended</span></label>
-            <p className="text-xs text-mid mb-1.5">Helps the AI identify stronger recommenders and context for your expert letter strategy.</p>
+            <p className="text-xs text-mid mb-1.5">Helps identify stronger recommenders and context for your expert letter strategy.</p>
             <input
               className="input"
               value={linkedInUrl}
@@ -516,45 +613,49 @@ export default function QuestionnairePage() {
             />
           </div>
 
-          {/* Second Degree */}
-          <div>
-            {!showSecondEdu ? (
-              <button
-                type="button"
-                onClick={() => setShowSecondEdu(true)}
-                className="text-sm text-teal font-semibold hover:underline"
-              >
-                + Add a second degree
-              </button>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="label mb-0">Second Degree</label>
-                  <button type="button" onClick={() => setShowSecondEdu(false)} className="text-xs text-mid hover:text-red-500">Remove</button>
+          {/* Second Degree — only shown for PhD, MD, Master's */}
+          {showAddSecondDegree && (
+            <div>
+              {!showSecondEdu ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSecondEdu(true)}
+                  className="text-sm text-teal font-semibold hover:underline"
+                >
+                  + Add undergraduate / second degree
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="label mb-0">Second Degree</label>
+                    <button type="button" onClick={() => setShowSecondEdu(false)} className="text-xs text-mid hover:text-red-500">Remove</button>
+                  </div>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    <input className="input" placeholder="University" value={secondEdu.university} onChange={e => setSecondEdu(s => ({ ...s, university: e.target.value }))} />
+                    <input className="input" placeholder="Degree (e.g. B.S.)" value={secondEdu.degree} onChange={e => setSecondEdu(s => ({ ...s, degree: e.target.value }))} />
+                    <input className="input" placeholder="Field of study" value={secondEdu.field} onChange={e => setSecondEdu(s => ({ ...s, field: e.target.value }))} />
+                  </div>
                 </div>
-                <div className="grid sm:grid-cols-3 gap-3">
-                  <input className="input" placeholder="University" value={secondEdu.university} onChange={e => setSecondEdu(s => ({ ...s, university: e.target.value }))} />
-                  <input className="input" placeholder="Degree (e.g. B.S.)" value={secondEdu.degree} onChange={e => setSecondEdu(s => ({ ...s, degree: e.target.value }))} />
-                  <input className="input" placeholder="Field of study" value={secondEdu.field} onChange={e => setSecondEdu(s => ({ ...s, field: e.target.value }))} />
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Previous Roles */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <label className="label mb-0">Previous Roles</label>
-                <p className="text-xs text-mid mt-0.5">Prior employers — significantly improves evidence mapping and recommender identification.</p>
-              </div>
+            <div>
+              <label className="label mb-0">Previous Roles</label>
+              <p className="text-xs text-mid mt-0.5">Prior employers — significantly improves evidence mapping and recommender identification.</p>
             </div>
             {jobHistory.map((job, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
-                <input className="input text-sm" placeholder="Role / Title" value={job.role} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, role: e.target.value } : j))} />
-                <input className="input text-sm" placeholder="Employer" value={job.employer} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, employer: e.target.value } : j))} />
-                <input className="input text-sm w-28" placeholder="e.g. 2021–23" value={job.duration} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, duration: e.target.value } : j))} />
-                <button type="button" onClick={() => setJobHistory(h => h.filter((_, idx) => idx !== i))} className="text-mid hover:text-red-500 text-lg leading-none px-1">×</button>
+              <div key={i} className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1fr_auto_auto] sm:gap-2 sm:items-center">
+                <div className="grid grid-cols-2 gap-2 sm:contents">
+                  <input className="input text-sm" placeholder="Role / Title" value={job.role} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, role: e.target.value } : j))} />
+                  <input className="input text-sm" placeholder="Employer" value={job.employer} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, employer: e.target.value } : j))} />
+                </div>
+                <div className="flex gap-2 sm:contents">
+                  <input className="input text-sm flex-1 sm:w-24" placeholder="2021–23" value={job.duration} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, duration: e.target.value } : j))} />
+                  <button type="button" onClick={() => setJobHistory(h => h.filter((_, idx) => idx !== i))} className="text-mid hover:text-red-500 text-lg leading-none px-2 flex-shrink-0">×</button>
+                </div>
               </div>
             ))}
             {jobHistory.length < 4 && (
@@ -651,7 +752,7 @@ export default function QuestionnairePage() {
                   Current: <span className={`font-semibold ${val >= 3 ? 'text-teal' : val >= 2 ? 'text-yellow-700' : 'text-orange-600'}`}>{STRENGTH[val]}</span>
                   {val === 0 && ' — Significant gap; this prong needs development before filing'}
                   {val === 1 && ' — Weak; needs strengthening to meet USCIS standard'}
-                  {val === 2 && ' — Arguable; a strong attorney brief could support this'}
+                  {val === 2 && ' — Arguable; a strong petition brief could support this'}
                   {val === 3 && ' — Strong; well-supported for this prong'}
                   {val === 4 && ' — Exceptional; compelling case for this prong'}
                 </p>
@@ -668,12 +769,13 @@ export default function QuestionnairePage() {
               Be concrete — mention the field, the problem you are solving, and why the US benefits.
             </p>
             <textarea
-              className="input"
+              className={`input ${touched.proposed_endeavor && step2Errors.proposed_endeavor ? 'border-red-400 focus:ring-red-300' : ''}`}
               rows={5}
               value={answers.proposed_endeavor}
               onChange={e => set('proposed_endeavor', e.target.value)}
-              placeholder="e.g. I will continue developing novel immunotherapy protocols targeting treatment-resistant pancreatic cancer at Memorial Sloan Kettering. My research addresses a cancer with a 5-year survival rate of 12%, which the NIH has identified as a priority area. My specific expertise in KRAS inhibitor combination therapy is not available from any current US-trained researcher in this niche..."
+              placeholder="e.g. I will continue developing novel immunotherapy protocols targeting treatment-resistant pancreatic cancer at Memorial Sloan Kettering. My research addresses a cancer with a 5-year survival rate of 12%, which the NIH has identified as a priority area..."
             />
+            <FieldError msg={err('proposed_endeavor', step2Errors)} />
           </div>
         </div>
       )}
@@ -714,11 +816,11 @@ export default function QuestionnairePage() {
             />
           </div>
 
-          {/* Summary preview before submit */}
-          <div className="bg-gray-50 border border-border rounded-xl p-4 space-y-1 text-sm">
+          {/* Summary preview */}
+          <div className="bg-gray-50 border border-border rounded-xl p-4 space-y-1.5 text-sm">
             <p className="font-semibold text-navy mb-2">Review before generating</p>
             <p className="text-mid"><span className="text-navy font-medium">Field:</span> {answers.field_of_work || '—'} {answers.subfield ? `(${answers.subfield})` : ''}</p>
-            <p className="text-mid"><span className="text-navy font-medium">Education:</span> {answers.education_level || '—'}, {answers.years_in_field ? `${answers.years_in_field}yr experience` : '—'}</p>
+            <p className="text-mid"><span className="text-navy font-medium">Education:</span> {answers.education_level || '—'}{answers.years_in_field ? `, ${answers.years_in_field}yr experience` : ''}</p>
             <p className="text-mid">
               <span className="text-navy font-medium">EB-1A criteria met:</span>{' '}
               <span className={metCount >= 3 ? 'text-teal font-semibold' : 'text-orange-600 font-semibold'}>{metCount}/10 at Moderate+</span>
@@ -730,7 +832,7 @@ export default function QuestionnairePage() {
             <p className="text-mid">
               <span className="text-navy font-medium">Resume:</span>{' '}
               {resumeText
-                ? <span className="text-teal font-semibold">✓ {resumeFileName} uploaded</span>
+                ? <span className="text-teal font-semibold">✓ {resumeFileName}</span>
                 : <span className="text-orange-600">Not uploaded — report will be less specific</span>
               }
             </p>
@@ -738,6 +840,20 @@ export default function QuestionnairePage() {
               <p className="text-mid"><span className="text-navy font-medium">Visa expires:</span> {visaExpiration}</p>
             )}
           </div>
+
+          {/* Missing required fields warning */}
+          {(!step0Valid || !step2Valid) && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm text-orange-700">
+              <p className="font-semibold mb-1">⚠️ Missing required information</p>
+              <ul className="space-y-0.5 text-xs">
+                {!answers.field_of_work && <li>• Primary field of work (Step 1)</li>}
+                {!answers.subfield.trim() && <li>• Specific role / subfield (Step 1)</li>}
+                {!answers.education_level && <li>• Highest degree earned (Step 1)</li>}
+                {!answers.work_description.trim() && <li>• Work description (Step 1)</li>}
+                {!answers.proposed_endeavor.trim() && <li>• Proposed US endeavor (Step 3)</li>}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
@@ -760,9 +876,8 @@ export default function QuestionnairePage() {
 
         {step < STEPS.length - 1 ? (
           <button
-            onClick={() => setStep(s => s + 1)}
-            disabled={step === 0 && (!answers.field_of_work || !answers.subfield || !answers.work_description)}
-            className="btn-primary disabled:opacity-50"
+            onClick={handleContinue}
+            className="btn-primary"
           >
             Continue →
           </button>
