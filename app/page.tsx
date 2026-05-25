@@ -55,18 +55,22 @@ export default async function Home() {
         />
 
         <div className="relative z-10 max-w-3xl mx-auto px-6 pt-20 pb-0 text-center">
-          <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-8">
+          <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 bg-teal rounded-full animate-pulse" />
-            Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
+            For international professionals in the US &nbsp;·&nbsp; F-1 · OPT · H-1B · L-1
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-4">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
             The rules are changing.<br />
             <span className="text-teal">Here&apos;s Your Path to Staying Compliantly.</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            US immigration policy is evolving fast in 2026. Proving <strong className="text-white">extraordinary circumstances</strong> is becoming the standard for staying in the US through green card processing. An approved NIW I-140 is the strongest evidence you can build. We help you build it.
+          <p className="text-base sm:text-lg font-semibold text-white/60 max-w-xl mx-auto leading-relaxed mb-3">
+            Built for the <span className="text-white">1.3 million international students and professionals</span> currently in the United States — navigating F-1, OPT, H-1B, and every visa in between.
+          </p>
+
+          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
+            2026 immigration policy is rewriting who can stay for green card processing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard. An approved NIW I-140 is the strongest evidence you can build. We help you build it.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
@@ -367,8 +371,9 @@ export default async function Home() {
       {/* ── Who it's for ─────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">Built for the entire journey.</h2>
-          <p className="text-lg text-mid mt-3">From your first OPT to your green card approval.</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[2px] text-teal mb-3">Who this is for</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">International talent in the US.<br className="hidden sm:block" /> Every stage of the journey.</h2>
+          <p className="text-lg text-mid mt-3 max-w-xl mx-auto">If you hold or have held an F-1, OPT, H-1B, or similar visa and are working toward permanent residence — this is built for you.</p>
         </div>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
