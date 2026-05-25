@@ -315,8 +315,7 @@ export default function ExposureScorePage() {
   const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
 
   const handleCopy = () => {
-    const scoreData = result ? getScoreLabel(result.score) : null
-    const text = `My Immigration Exposure Score: ${result?.score}/100 — ${scoreData?.label}\n\n(Lower score = stronger protection. Higher score = more at risk of being required to leave the US for green card processing.)\n\nWith US immigration policy shifting rapidly in 2026, every international professional should know their score.\n\nGet yours free in 2 minutes: https://f1careers.app/stay-score`
+    const text = `I just checked my immigration exposure score. Most people I know haven't heard of PM-602-0199 yet. That's a problem.\n\nFree tool, 2 minutes: https://f1careers.app/stay-score`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })
