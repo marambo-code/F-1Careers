@@ -36,7 +36,7 @@ const shared = [
 
 /* ─── employer path ─────────────────────────────────────── */
 const employerPath = [
-  { label: 'H-1B Lottery', note: '1 in 3 odds — every year' },
+  { label: 'H-1B Lottery', note: '1 in 3 odds · $100K employer fee · every year' },
   { label: 'PERM Labor Cert.', note: 'Employer-controlled · 2–3 years' },
   { label: 'EB-2 / EB-3', note: 'Priority date backlogs · years of waiting' },
   { label: 'Green Card', note: 'Eventually. On their timeline.', final: true },

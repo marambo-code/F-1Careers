@@ -139,6 +139,8 @@ interface Inputs {
   education: string; years: string
   country: string; countryOther: string
   contributions: string[]
+  sevisTerminated: string   // 'yes' | 'no' | ''
+  programYears: string      // '1-2' | '3-4' | '5+' | 'na' | ''
 }
 
 function computeExposure(inputs: Inputs) {
@@ -211,7 +213,26 @@ function computeExposure(inputs: Inputs) {
     ? "Advanced degree satisfies the NIW Dhanasar advanced degree analysis — solid foundation."
     : "Additional evidence of outsized professional impact is essential to compensate at the bachelor's level."
 
-  const total = Math.min(100, countryPoints + visaPoints + evidencePoints + yearsPoints + eduPoints)
+  // 6. SEVIS Termination History (0–15 pts)
+  const sevisPoints = inputs.sevisTerminated === 'yes' ? 15 : 0
+  const sevisNote = inputs.sevisTerminated === 'yes'
+    ? 'A prior SEVIS termination — even if reversed — is a significant adverse factor in discretionary AoS review. Officers conduct totality-of-circumstances analysis and a termination on record materially raises your exposure. Proactive extraordinary circumstances documentation is essential.'
+    : 'No SEVIS termination on record — neutral factor in discretionary review.'
+
+  // 7. Duration of Status / Program Length (0–10 pts) — only relevant for F-1
+  const isF1 = ['F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT'].includes(inputs.visa) || (inputs.visa === 'Other' && inputs.visaOther.toLowerCase().includes('f-1'))
+  const dsPoints = isF1
+    ? (inputs.programYears === '5+' ? 10 : inputs.programYears === '3-4' ? 6 : 0)
+    : 0
+  const dsNote = !isF1
+    ? 'Duration of Status changes apply to F-1 visa holders. Not applicable to your current status.'
+    : inputs.programYears === '5+'
+    ? 'Your program exceeds the proposed 4-year D/S cap. Under the DHS final rule (expected September 2026), you will need to file an I-539 extension. This is an active deadline — OPT/STEM OPT applications must be filed within 30 days of program end under the new rule.'
+    : inputs.programYears === '3-4'
+    ? 'Your program approaches the 4-year D/S cap. Monitor the DHS final rule timeline closely — if enacted September 2026, PhD students in year 3+ will need I-539 extensions.'
+    : 'Your program falls within the proposed 4-year D/S limit. Lower exposure from the D/S rule change.'
+
+  const total = Math.min(100, countryPoints + visaPoints + evidencePoints + yearsPoints + eduPoints + sevisPoints + dsPoints)
 
   return {
     score: total,
@@ -221,6 +242,8 @@ function computeExposure(inputs: Inputs) {
       { label: 'Evidence Gap', points: evidencePoints, max: 20, note: evidenceNote },
       { label: 'Career Tenure', points: yearsPoints, max: 10, note: yearsNote },
       { label: 'Education Level', points: eduPoints, max: 10, note: eduNote },
+      ...(inputs.sevisTerminated === 'yes' ? [{ label: 'SEVIS Termination History', points: sevisPoints, max: 15, note: sevisNote }] : []),
+      ...(isF1 && inputs.programYears && inputs.programYears !== 'na' ? [{ label: 'Duration of Status Risk', points: dsPoints, max: 10, note: dsNote }] : []),
     ],
   }
 }
@@ -262,6 +285,7 @@ export default function ExposureScorePage() {
   const [inputs, setInputs] = useState<Inputs>({
     visa: '', visaOther: '', field: '', fieldOther: '',
     education: '', years: '', country: '', countryOther: '', contributions: [],
+    sevisTerminated: '', programYears: '',
   })
   const [result, setResult] = useState<ReturnType<typeof computeExposure> | null>(null)
   const [copied, setCopied] = useState(false)
@@ -277,12 +301,16 @@ export default function ExposureScorePage() {
   const effectiveCountry = inputs.country === 'Other' ? inputs.countryOther : inputs.country
   const countryTier = effectiveCountry ? getCountryTier(effectiveCountry) : null
 
+  const isF1Status = ['F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT'].includes(inputs.visa) || (inputs.visa === 'Other' && inputs.visaOther.toLowerCase().includes('f-1'))
+
   const canSubmit = inputs.visa &&
     (inputs.visa !== 'Other' || inputs.visaOther.trim()) &&
     inputs.field &&
     (inputs.field !== 'other' || inputs.fieldOther.trim()) &&
     inputs.education && inputs.years && inputs.country &&
-    (inputs.country !== 'Other' || inputs.countryOther.trim())
+    (inputs.country !== 'Other' || inputs.countryOther.trim()) &&
+    inputs.sevisTerminated &&
+    (!isF1Status || inputs.programYears)
 
   const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
 
@@ -309,8 +337,8 @@ export default function ExposureScorePage() {
 
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-            Immigration Policy Alert — 2026
+          <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+            USCIS PM-602-0199 in effect — May 21, 2026
           </div>
           <h1 className="text-3xl font-black text-navy leading-tight">
             Immigration Exposure Score
@@ -321,8 +349,8 @@ export default function ExposureScorePage() {
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" /> Higher score = more at risk</span>
           </div>
           <p className="text-mid text-sm max-w-md mx-auto leading-relaxed">
-            US immigration policy is shifting rapidly. New travel bans, immigrant visa processing pauses, and heightened AoS scrutiny affect over 75 countries.
-            This tool gives you an accurate, evidence-based assessment of your exposure — in under 2 minutes.
+            Adjustment of status is now officially discretionary. Duration of Status is ending. SEVIS terminations are being enforced.
+            This tool scores your exposure across all active risk factors — in under 2 minutes.
           </p>
         </div>
 
@@ -415,6 +443,43 @@ export default function ExposureScorePage() {
                 </div>
               )}
             </div>
+
+            {/* SEVIS Termination */}
+            <div>
+              <label className="label">Has your SEVIS record ever been terminated or flagged?</label>
+              <p className="text-xs text-mid mb-2 leading-relaxed">Include cases that were later reversed or reinstated — a prior termination remains a factor in discretionary review.</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { val: 'no', label: 'No — never terminated' },
+                  { val: 'yes', label: 'Yes — terminated or flagged' },
+                ].map(opt => (
+                  <button key={opt.val} onClick={() => set('sevisTerminated', opt.val)}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.sevisTerminated === opt.val ? (opt.val === 'yes' ? 'bg-red-600 text-white border-red-600' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Duration of Status — F-1 only */}
+            {isF1Status && (
+              <div>
+                <label className="label">How long is your degree program?</label>
+                <p className="text-xs text-mid mb-2 leading-relaxed">DHS is finalizing a rule replacing Duration of Status with a 4-year hard cap (expected September 2026). Students in programs longer than 4 years will need to file an I-539 extension.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { val: '1-2', label: '1–2 years' },
+                    { val: '3-4', label: '3–4 years' },
+                    { val: '5+', label: '5+ years (PhD / long program)' },
+                  ].map(opt => (
+                    <button key={opt.val} onClick={() => set('programYears', opt.val)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.programYears === opt.val ? (opt.val === '5+' ? 'bg-orange-600 text-white border-orange-600' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Evidence */}
             <div>
@@ -533,7 +598,7 @@ export default function ExposureScorePage() {
         )}
 
         <div className="text-center space-y-1.5 pb-4">
-          <p className="text-xs text-mid">Based on PP 10998 (Jan 1 2026), State Dept 75-country immigrant visa pause (Jan 21 2026), and USCIS PM-602-0199 · Not legal advice</p>
+          <p className="text-xs text-mid">Based on PP 10998 (Jan 1, 2026) · State Dept 75-country immigrant visa pause (Jan 21, 2026) · USCIS PM-602-0199 (May 21, 2026) · DHS D/S final rule (pending) · Not legal advice</p>
           <p className="text-xs text-mid">
             <Link href="/roi-calculator" className="text-teal hover:underline">Calculate your financial exposure →</Link>
             {' · '}

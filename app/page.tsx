@@ -14,7 +14,7 @@ export default async function Home() {
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
       <div className="bg-amber-600 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
-          US immigration policy is shifting rapidly in 2026 — new rules are redefining who can stay for green card processing.{' '}
+          USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief — not a right. DHS is ending Duration of Status for F-1.{' '}
           <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Exposure Score →</Link>
         </p>
       </div>
@@ -62,7 +62,7 @@ export default async function Home() {
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
             The rules are changing.<br />
-            <span className="text-teal">Here&apos;s Your Path to Staying Compliantly.</span>
+            <span className="text-teal">Here&apos;s Your Path to Residing Compliantly.</span>
           </h1>
 
           <p className="text-base sm:text-lg font-semibold text-white/60 max-w-xl mx-auto leading-relaxed mb-3">
@@ -114,31 +114,34 @@ export default async function Home() {
       <section className="bg-white border-b border-border py-16 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-3">A rapidly shifting landscape</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-3">Three rules. Now official.</p>
             <h2 className="text-2xl md:text-3xl font-extrabold text-navy leading-tight">
-              The standards for staying in the US<br className="hidden sm:block" /> during green card processing are changing
+              The rules for residing in the US<br className="hidden sm:block" /> as a green card applicant have changed
             </h2>
             <p className="text-base text-mid mt-3 max-w-xl mx-auto leading-relaxed">
-              Recent policy developments have raised the bar for adjustment of status inside the US.
-              Proving extraordinary circumstances — and having the documentation to back it up — is
-              becoming essential. This is the environment F-1 Careers was built for.
+              These are not proposed rules or policy signals. They are in effect. USCIS PM-602-0199 was issued May 21, 2026. F-1 Careers was built specifically for this environment.
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                heading: 'Consular processing as default',
-                body: 'New guidance positions departure and consular processing as the expected path for many applicants, rather than the exception.',
+                heading: 'AoS is now discretionary',
+                body: 'USCIS PM-602-0199 (May 21, 2026) officially classifies adjustment of status as extraordinary discretionary relief — not an entitlement.',
                 accent: 'border-l-red-400',
               },
               {
-                heading: 'Visa processing restrictions expanding',
-                body: 'Nationals of numerous countries face immigrant visa processing restrictions, making adjustment of status inside the US the only realistic option.',
+                heading: 'Extraordinary circumstances required',
+                body: 'Adjudicators now conduct a totality-of-circumstances analysis. An approved NIW I-140 is the clearest evidence you can present.',
                 accent: 'border-l-orange-400',
               },
               {
-                heading: 'The extraordinary circumstances standard',
-                body: 'Adjustment of status is being preserved for those who can document extraordinary circumstances — a standard an approved NIW I-140 directly satisfies.',
+                heading: 'Duration of Status ending',
+                body: 'DHS has submitted a final rule replacing open-ended D/S with a 4-year hard cap for F-1 students. Grace period cut to 30 days. Expected September 2026.',
+                accent: 'border-l-yellow-400',
+              },
+              {
+                heading: 'Consular processing blocked for 75+ countries',
+                body: 'Nationals of 75+ countries face travel bans and immigrant visa processing pauses, making AoS inside the US their only viable path.',
                 accent: 'border-l-teal',
               },
             ].map((item, i) => (
