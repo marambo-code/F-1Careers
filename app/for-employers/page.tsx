@@ -93,7 +93,7 @@ export default function ForEmployersPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-navy font-bold text-lg">F-1 Careers</Link>
           <div className="flex items-center gap-4">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Stay Score</Link>
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Exposure Score</Link>
             <Link href="/login" className="text-sm text-teal font-semibold hover:underline">Sign in →</Link>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function ForEmployersPage() {
             <span className="text-teal">to a Policy Memo</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            USCIS PM-602-0199 (May 22, 2026) means your international employees may be forced to leave the US to process their green cards. Some can be protected. We tell you exactly which ones — and how.
+            The 2026 immigration policy environment means your international employees may be required to leave the US to process their green cards. The situation is evolving — and proactive teams are already acting. We tell you exactly which employees are at risk, and how to protect them.
           </p>
           <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-4 rounded-xl hover:bg-teal/90 transition-colors text-lg">
             Request a workforce audit →

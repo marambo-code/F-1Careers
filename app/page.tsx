@@ -12,10 +12,10 @@ export default async function Home() {
     <div className="min-h-screen bg-white">
 
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
-      <div className="bg-red-600 text-white text-center px-4 py-2.5">
+      <div className="bg-amber-600 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
-          <span className="font-extrabold">Breaking — May 22, 2026:</span> USCIS PM-602-0199 requires most foreign nationals to leave the US for green card processing.{' '}
-          <Link href="/stay-score" className="underline font-bold hover:text-red-100">Check your Stay Score →</Link>
+          US immigration policy is shifting rapidly in 2026 — new rules are redefining who can stay for green card processing.{' '}
+          <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Exposure Score →</Link>
         </p>
       </div>
 
@@ -26,7 +26,7 @@ export default async function Home() {
             <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
           </Link>
           <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
-            <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Stay Score</Link>
+            <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Exposure Score</Link>
             <Link href="/roi-calculator" className="font-medium hover:text-navy transition-colors px-3 py-2">ROI Calc</Link>
             <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
           </div>
@@ -55,18 +55,18 @@ export default async function Home() {
         />
 
         <div className="relative z-10 max-w-3xl mx-auto px-6 pt-20 pb-0 text-center">
-          <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-400/40 text-red-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
-            PM-602-0199 in effect &nbsp;·&nbsp; The rules just changed
+          <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-8">
+            <span className="w-1.5 h-1.5 bg-teal rounded-full animate-pulse" />
+            Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-4">
-            The rules changed.<br />
-            <span className="text-teal">Here&apos;s your path to staying.</span>
+            The rules are changing.<br />
+            <span className="text-teal">Here&apos;s Your Path to Staying Compliantly.</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            USCIS can now require you to leave the US to process your green card — unless you can prove <strong className="text-white">extraordinary circumstances.</strong> An approved NIW I-140 is the strongest evidence you have. We build your case.
+            US immigration policy is evolving fast in 2026. Proving <strong className="text-white">extraordinary circumstances</strong> is becoming the standard for staying in the US through green card processing. An approved NIW I-140 is the strongest evidence you can build. We help you build it.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
@@ -82,7 +82,7 @@ export default async function Home() {
               Get my free green card preview →
             </Link>
             <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
-              Check my Stay Score first ↓
+              Check my Exposure Score first ↓
             </Link>
           </div>
           <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
@@ -106,49 +106,50 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Policy Crisis Section ─────────────────────────────────────── */}
-      <section className="bg-slate-950 text-white py-16 px-6">
+      {/* ── Policy Context Section ────────────────────────────────────── */}
+      <section className="bg-white border-b border-border py-16 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-red-400 mb-3">What changed on May 22, 2026</p>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">
-              USCIS PM-602-0199 redefines who gets to<br className="hidden sm:block" /> stay in the US during green card processing
+            <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-3">A rapidly shifting landscape</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-navy leading-tight">
+              The standards for staying in the US<br className="hidden sm:block" /> during green card processing are changing
             </h2>
+            <p className="text-base text-mid mt-3 max-w-xl mx-auto leading-relaxed">
+              Recent policy developments have raised the bar for adjustment of status inside the US.
+              Proving extraordinary circumstances — and having the documentation to back it up — is
+              becoming essential. This is the environment F-1 Careers was built for.
+            </p>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
               {
-                icon: '🚫',
-                title: 'Consular processing required',
-                body: 'Most applicants must now leave the US and apply via consulate abroad — adding months or years of separation from your life here.',
-                color: 'border-red-500/30 bg-red-500/5',
+                heading: 'Consular processing as default',
+                body: 'New guidance positions departure and consular processing as the expected path for many applicants, rather than the exception.',
+                accent: 'border-l-red-400',
               },
               {
-                icon: '🌍',
-                title: '75 countries paused',
-                body: 'Immigrant visa processing suspended entirely for nationals of 75+ countries including Nigeria, Pakistan, Iran, Venezuela, and more.',
-                color: 'border-orange-500/30 bg-orange-500/5',
+                heading: 'Visa processing restrictions expanding',
+                body: 'Nationals of numerous countries face immigrant visa processing restrictions, making adjustment of status inside the US the only realistic option.',
+                accent: 'border-l-orange-400',
               },
               {
-                icon: '⚖️',
-                title: 'Extraordinary circumstances exception',
-                body: 'You can adjust status inside the US only if you prove "extraordinary circumstances." An approved NIW I-140 is the strongest evidence that exists.',
-                color: 'border-teal/30 bg-teal/5',
+                heading: 'The extraordinary circumstances standard',
+                body: 'Adjustment of status is being preserved for those who can document extraordinary circumstances — a standard an approved NIW I-140 directly satisfies.',
+                accent: 'border-l-teal',
               },
             ].map((item, i) => (
-              <div key={i} className={`rounded-2xl border p-6 ${item.color}`}>
-                <div className="text-2xl mb-3">{item.icon}</div>
-                <p className="font-bold text-white text-sm mb-2">{item.title}</p>
-                <p className="text-xs text-slate-400 leading-relaxed">{item.body}</p>
+              <div key={i} className={`rounded-xl border border-border border-l-4 ${item.accent} p-6 bg-slate-50`}>
+                <p className="font-bold text-navy text-sm mb-2">{item.heading}</p>
+                <p className="text-xs text-mid leading-relaxed">{item.body}</p>
               </div>
             ))}
           </div>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/stay-score" className="inline-block bg-white text-navy font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
-              Check my Stay Score →
+            <Link href="/stay-score" className="inline-block bg-navy text-white font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
+              Check my Exposure Score →
             </Link>
-            <Link href="/roi-calculator" className="inline-block border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl hover:border-white/50 transition-colors text-sm no-underline">
-              Calculate my exposure →
+            <Link href="/roi-calculator" className="inline-block border border-border text-navy font-semibold px-8 py-3.5 rounded-xl hover:border-navy transition-colors text-sm no-underline">
+              Calculate my financial exposure →
             </Link>
           </div>
         </div>
@@ -274,8 +275,8 @@ export default async function Home() {
         <div className="grid sm:grid-cols-3 gap-4 mt-5">
           <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
             <div className="text-xl mb-2">📍</div>
-            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Stay Score</h3>
-            <p className="text-xs text-mid leading-relaxed">Score your risk profile 0–100. Know exactly where you stand under PM-602-0199.</p>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Exposure Score</h3>
+            <p className="text-xs text-mid leading-relaxed">Score your immigration exposure 0–100. Know exactly where you stand and what to do.</p>
             <p className="text-xs font-bold text-teal mt-3">Free →</p>
           </Link>
           <Link href="/roi-calculator" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
@@ -448,7 +449,7 @@ export default async function Home() {
             This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Stay Score</Link>
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Exposure Score</Link>
             <Link href="/roi-calculator" className="text-sm text-mid hover:text-navy transition-colors">ROI Calc</Link>
             <Link href="/cohort" className="text-sm text-mid hover:text-navy transition-colors">Cohort Filing</Link>
             <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>

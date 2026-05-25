@@ -62,7 +62,7 @@ export default function ROICalculatorPage() {
       <nav className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-navy font-bold text-lg">F-1 Careers</Link>
-          <Link href="/stay-score" className="text-sm text-teal font-semibold hover:underline">← Stay Score</Link>
+          <Link href="/stay-score" className="text-sm text-teal font-semibold hover:underline">← Exposure Score</Link>
         </div>
       </nav>
 
@@ -77,8 +77,8 @@ export default function ROICalculatorPage() {
             <span className="text-teal">to Leave the US?</span>
           </h1>
           <p className="text-sm text-mid max-w-md mx-auto leading-relaxed">
-            Under PM-602-0199, consular processing means months or years outside the US.
-            Calculate your actual financial exposure — and compare it to the cost of fighting to stay.
+            Under the current and evolving immigration policy environment, consular processing means months or years outside the US.
+            Calculate your actual financial exposure — and compare it to the cost of proactively protecting your position.
           </p>
         </div>
 
@@ -109,8 +109,8 @@ export default function ROICalculatorPage() {
             </select>
             {countryData?.risk === 'paused' && (
               <div className="mt-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <p className="text-sm font-bold text-red-700">Consular processing is currently suspended for your country.</p>
-                <p className="text-xs text-red-600 mt-1">Your only viable path to a green card right now is adjustment of status inside the US — which requires demonstrating extraordinary circumstances. Your ROI for filing NIW premium processing is effectively infinite.</p>
+                <p className="text-sm font-bold text-red-700">Consular processing is subject to significant restrictions for your country of nationality.</p>
+                <p className="text-xs text-red-600 mt-1">Adjustment of status inside the US is likely your most viable path — which requires demonstrating extraordinary circumstances. Given this, your ROI for filing NIW with premium processing is effectively incalculable.</p>
                 <Link href="/login" className="inline-block mt-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
                   Build my AoS case now →
                 </Link>
@@ -218,8 +218,8 @@ export default function ROICalculatorPage() {
 
         <div className="text-center text-xs text-mid pb-4 space-y-1">
           <p>Calculations are estimates for illustrative purposes only · Not legal or financial advice</p>
-          <p>Based on USCIS PM-602-0199 (May 21, 2026)</p>
-          <p><Link href="/stay-score" className="text-teal hover:underline">← Calculate your Stay Score</Link> · <Link href="/cohort" className="text-teal hover:underline">Group filing program →</Link></p>
+          <p>Based on current USCIS policy guidance · Policy landscape is actively evolving</p>
+          <p><Link href="/stay-score" className="text-teal hover:underline">← Calculate your Exposure Score</Link> · <Link href="/cohort" className="text-teal hover:underline">Group filing program →</Link></p>
         </div>
       </div>
     </div>
