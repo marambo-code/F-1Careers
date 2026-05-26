@@ -116,10 +116,10 @@ export default async function Home() {
           <div className="text-center mb-10">
             <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-3">Three rules. Now official.</p>
             <h2 className="text-2xl md:text-3xl font-extrabold text-navy leading-tight">
-              The rules for residing in the US<br className="hidden sm:block" /> as a green card applicant have changed
+              The rules for residing in the US<br className="hidden sm:block" /> as a green card applicant are constantly changing
             </h2>
             <p className="text-base text-mid mt-3 max-w-xl mx-auto leading-relaxed">
-              These are not proposed rules or policy signals. They are in effect. USCIS PM-602-0199 was issued May 21, 2026. F-1 Careers was built specifically for this environment.
+              F-1 Careers was built specifically for this environment.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
