@@ -106,11 +106,11 @@ export default function ForEmployersPage() {
             For HR Leaders & General Counsel
           </div>
           <h1 className="text-4xl font-black leading-tight">
-            Don't Lose Your International Talent<br />
-            <span className="text-teal">to PM-602-0199</span>
+            Your International Workforce<br />
+            <span className="text-teal">Has Never Been More Exposed</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            USCIS PM-602-0199 (May 21, 2026) makes adjustment of status officially discretionary. ICE has declared OPT fraud enforcement a national priority, 10,000+ cases identified. DHS is ending Duration of Status for F-1 holders. Three simultaneous threats to your international workforce. We map every one of them.
+            The rules for F-1, OPT, and H-1B employees are changing simultaneously. Adjustment of status is now discretionary relief, not an entitlement. OPT fraud enforcement is escalating across the country. Duration of Status for F-1 holders is ending. Three compounding risks to your international team. We map every one of them and build the documentation that protects your people.
           </p>
           <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-4 rounded-xl hover:bg-teal/90 transition-colors text-lg">
             Request a workforce audit →
@@ -146,7 +146,7 @@ export default function ForEmployersPage() {
             <h2 className="text-xl font-black text-navy text-center">What we do for your team</h2>
             <div className="space-y-3">
               {[
-                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and NIW eligibility, and flag who is at risk under PM-602-0199.' },
+                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and NIW eligibility, and flag who is most exposed under the current policy environment.' },
                 { n: '2', title: 'NIW eligibility scoring', desc: 'Each employee receives a personalized NIW eligibility score based on their field, education, publications, leadership, and salary. We identify exactly who has a strong extraordinary circumstances case.' },
                 { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete NIW petition framework, field-level national importance argument, evidence map, Dhanasar analysis, ready for attorney review.' },
                 { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
