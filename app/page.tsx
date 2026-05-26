@@ -219,9 +219,10 @@ export default async function Home() {
       <section id="products" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
-            Multiple tools. One path forward.
+            Multiple tools. One path towards planning and filing intelligently.
           </h2>
           <p className="text-lg text-mid mt-3">Every tool built for the evolving landscape.</p>
+          <p className="text-sm text-mid mt-2">Get your diagnostic and strategy reports now.</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
