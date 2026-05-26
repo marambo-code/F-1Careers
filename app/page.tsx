@@ -171,17 +171,23 @@ export default async function Home() {
           <div className="flex-1">
             <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Our story</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.2] mb-5">
-              From F-1 visa to EB-1A.<br />We&apos;ve navigated every step.
+              From F-1 to EB-1A, EB-2 NIW, and O-1.<br />We&apos;ve navigated every step compliantly.
             </h2>
             <p className="text-base text-mid leading-[1.75] mb-4">
-              Not from a textbook. From years of first-hand experience navigating the same system you&apos;re in right now.
+              From years of first-hand experience navigating the same system you&apos;re in right now — for ourselves and others, as the landscape evolved.
             </p>
             <p className="text-base text-mid leading-[1.75] mb-4">
-              We built F-1 Careers because generations of international students had already figured this out. That knowledge deserved a home.
+              We built F-1 Careers because generations of international students had already figured this out. That knowledge deserved a home — and we&apos;re committed to democratizing it.
             </p>
-            <p className="text-base text-navy font-semibold leading-[1.75]">
+            <p className="text-base text-navy font-semibold leading-[1.75] mb-6">
               The tool we wish we had. Trained on the case law that actually decides your petition.
             </p>
+            <div className="flex flex-wrap gap-2 items-center">
+              {['Harvard', 'MIT', 'Stanford', 'Tufts'].map(u => (
+                <span key={u} className="text-[11px] font-bold bg-navy/8 text-navy px-2.5 py-1 rounded-full">{u}</span>
+              ))}
+              <span className="text-[11px] text-mid">+ users across <strong className="text-navy">93 countries</strong></span>
+            </div>
           </div>
 
           <div
