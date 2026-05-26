@@ -61,8 +61,8 @@ export default async function Home() {
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
-            The rules are changing.<br />
-            <span className="text-teal">Here&apos;s Your Path to Residing Compliantly.</span>
+            Your visa and career strategy,<br />
+            <span className="text-teal">built for international professionals.</span>
           </h1>
 
           <p className="text-base sm:text-lg font-semibold text-white/60 max-w-xl mx-auto leading-relaxed mb-3">
@@ -70,7 +70,7 @@ export default async function Home() {
           </p>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            2026 immigration policy is rewriting who can stay for green card processing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard. An approved NIW I-140 is the strongest evidence you can build. We help you build it.
+            2026 immigration policy is constantly changing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard for staying. An approved NIW I-140 is the strongest evidence you can build. We help you build it.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
