@@ -171,6 +171,7 @@ function computeExposure(inputs: Inputs) {
   // 2. Visa Status Exposure (0–25 pts)
   const visaExp: Record<string, number> = {
     'EB-2 NIW Pending': 2, 'O-1': 5, 'H-1B': 10, 'L-1': 10, 'H-1B1': 13,
+    'F-1 Student': 16, 'J-1': 20,
     'F-1 OPT STEM': 17, 'F-1 OPT': 21, 'F-1 CPT': 25, 'Other': 16,
   }
   const visaPoints = visaExp[inputs.visa] ?? 16
@@ -180,6 +181,10 @@ function computeExposure(inputs: Inputs) {
     ? 'O-1 holders have cleared an extraordinary ability standard already — strong favorable factor in discretionary AoS review.'
     : ['H-1B', 'L-1'].includes(inputs.visa)
     ? 'Dual-intent visa — generally viewed favorably in discretionary review, but does not independently guarantee AoS approval.'
+    : inputs.visa === 'F-1 Student'
+    ? 'As a current F-1 student, the proposed D/S 4-year cap is directly relevant to your situation. Building your evidence record now — before you reach OPT — puts you significantly ahead when it matters most.'
+    : inputs.visa === 'J-1'
+    ? 'J-1 holders subject to the 212(e) two-year home residency requirement face an additional barrier — you cannot adjust status or obtain an immigrant visa until the requirement is fulfilled or waived. Confirm whether your J-1 carries a 212(e) requirement; if so, a waiver is a prerequisite to any green card path.'
     : inputs.visa === 'F-1 OPT STEM'
     ? 'STEM OPT provides a work authorization runway but limited protection. An I-140 filing is your most important next move.'
     : ['F-1 OPT', 'F-1 CPT'].includes(inputs.visa)
@@ -251,7 +256,7 @@ function computeExposure(inputs: Inputs) {
     : 'No SEVIS termination on record — neutral factor in discretionary review.'
 
   // 7. Duration of Status / Program Length (0–10 pts) — only relevant for F-1
-  const isF1 = ['F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT'].includes(inputs.visa) || (inputs.visa === 'Other' && inputs.visaOther.toLowerCase().includes('f-1'))
+  const isF1 = ['F-1 Student', 'F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT', 'J-1'].includes(inputs.visa) || (inputs.visa === 'Other' && (inputs.visaOther.toLowerCase().includes('f-1') || inputs.visaOther.toLowerCase().includes('j-1')))
   const dsPoints = isF1
     ? (inputs.programYears === '5+' ? 10 : inputs.programYears === '3-4' ? 6 : 0)
     : 0
@@ -339,7 +344,7 @@ export default function ExposureScorePage() {
   const effectiveCountry = inputs.country === 'Other' ? inputs.countryOther : inputs.country
   const countryTier = effectiveCountry ? getCountryTier(effectiveCountry) : null
 
-  const isF1Status = ['F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT'].includes(inputs.visa) || (inputs.visa === 'Other' && inputs.visaOther.toLowerCase().includes('f-1'))
+  const isF1Status = ['F-1 Student', 'F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT', 'J-1'].includes(inputs.visa) || (inputs.visa === 'Other' && (inputs.visaOther.toLowerCase().includes('f-1') || inputs.visaOther.toLowerCase().includes('j-1')))
 
   const canSubmit = inputs.visa &&
     (inputs.visa !== 'Other' || inputs.visaOther.trim()) &&
@@ -399,7 +404,7 @@ export default function ExposureScorePage() {
             <div>
               <label className="label">Current visa / immigration status</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {['H-1B', 'L-1', 'O-1', 'F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT', 'H-1B1', 'EB-2 NIW Pending', 'Other'].map(v => (
+                {['F-1 Student', 'J-1', 'F-1 CPT', 'F-1 OPT', 'F-1 OPT STEM', 'H-1B', 'H-1B1', 'L-1', 'O-1', 'EB-2 NIW Pending', 'Other'].map(v => (
                   <button key={v} onClick={() => set('visa', v)}
                     className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.visa === v ? 'bg-navy text-white border-navy' : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                     {v}
