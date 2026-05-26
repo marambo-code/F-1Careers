@@ -16,6 +16,7 @@ export default async function AdminAlertBanner() {
       .select('id, title, message, severity')
       .eq('active', true)
       .order('created_at', { ascending: false })
+      .limit(3)
 
     if (!alerts || alerts.length === 0) return null
 

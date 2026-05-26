@@ -146,7 +146,7 @@ export default function RFEUploadPage() {
         <div>
           <p className="text-sm font-bold text-amber-900">Don't miss your RFE deadline</p>
           <p className="text-sm text-amber-800 mt-0.5 leading-relaxed">
-            RFEs have strict deadlines (typically 87 days). Missing it or responding incorrectly results in automatic denial. Our AI reads the RFE and tells you exactly what USCIS is asking for and how to respond.
+            RFEs have strict deadlines (typically 87 days). Missing it or responding incorrectly results in automatic denial. We analyze your RFE and tell you exactly what USCIS is asking for and how to respond.
           </p>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function RFEUploadPage() {
         <div className="card space-y-4">
           <div>
             <h2 className="text-base font-bold text-navy">What type of petition is your RFE for?</h2>
-            <p className="text-xs text-mid mt-0.5">This determines which USCIS criteria the AI evaluates against.</p>
+            <p className="text-xs text-mid mt-0.5">This determines which USCIS criteria we evaluate against.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {PETITION_TYPES.map(p => (
@@ -221,7 +221,7 @@ export default function RFEUploadPage() {
         <div className="card space-y-4">
           <div>
             <h2 className="text-base font-bold text-navy">What&apos;s your field?</h2>
-            <p className="text-xs text-mid mt-0.5">Helps the AI calibrate evidence standards and cite field-relevant benchmarks.</p>
+            <p className="text-xs text-mid mt-0.5">Helps us calibrate evidence standards and cite field-relevant benchmarks.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {FIELD_OPTIONS.map(f => (

@@ -245,7 +245,7 @@ function ProfileContent() {
           <div>
             <p className="font-bold text-navy">Welcome to F-1 Careers!</p>
             <p className="text-sm text-mid mt-1 leading-relaxed">
-              Fill out your profile, the AI uses this to personalize your green card strategy.
+              Fill out your profile, we use this to personalize your green card strategy.
             </p>
             <p className="text-xs text-mid mt-2">
               Already set up?{' '}
@@ -433,7 +433,7 @@ function ProfileContent() {
               <input className="input" value={profile.job_title ?? ''} onChange={e => setProfile(p => ({ ...p, job_title: e.target.value }))} placeholder="Software Engineer, Researcher…" />
             </div>
           </div>
-          <p className="text-[11px] text-mid -mt-1">Already working? These help the AI tailor your green card strategy to your current role.</p>
+          <p className="text-[11px] text-mid -mt-1">Already working? These help us tailor your green card strategy to your current role.</p>
         </div>
 
         {/* Resume */}
@@ -608,7 +608,6 @@ function ProfileContent() {
         )}
 
         <div>
-          <p className="text-xs font-semibold text-red-600 mb-2">Danger zone</p>
           <p className="text-xs text-mid mb-3 leading-relaxed">
             Permanently removes your account, all reports, and cancels your subscription. This cannot be undone.
           </p>

@@ -107,7 +107,7 @@ export default async function StrategyStartPage() {
           </svg>
           <div>
             <p className="text-sm font-semibold text-yellow-800">Resume recommended</p>
-            <p className="text-sm text-yellow-700 mt-0.5">Upload your resume in your profile for the most accurate AI analysis.</p>
+            <p className="text-sm text-yellow-700 mt-0.5">Upload your resume in your profile for the most accurate analysis.</p>
             <Link href="/profile" className="text-sm font-semibold text-yellow-800 underline mt-1 inline-block">
               Upload resume →
             </Link>
@@ -173,7 +173,7 @@ export default async function StrategyStartPage() {
           href="/strategy/questionnaire"
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl text-center block hover:bg-teal/90 transition-colors text-sm"
         >
-          Start questionnaire, takes 5 minutes →
+          Start questionnaire (approx. 15 min of careful completion) →
         </Link>
         <p className="text-xs text-blue-300 text-center mt-3">
           You&apos;ll preview your results for free before being asked to pay.
