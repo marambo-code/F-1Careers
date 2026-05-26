@@ -66,7 +66,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-base sm:text-lg font-semibold text-white/60 max-w-xl mx-auto leading-relaxed mb-3">
-            Built for the <span className="text-white">1.3 million international students and professionals</span> currently in the United States — navigating F-1, OPT, H-1B, and every visa in between.
+            Built for the <span className="text-white">1.3 million international students and professionals</span> currently in the United States, navigating F-1, OPT, H-1B, and every visa in between.
           </p>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
