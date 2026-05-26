@@ -354,7 +354,7 @@ export default function ExposureScorePage() {
   const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
 
   const handleCopy = () => {
-    const text = `This is what I use to track my immigration exposure and know when to act. Policy changed May 21 — if you're on F-1, OPT, or H-1B, your number matters now more than ever.\n\n→ f1careers.app/stay-score`
+    const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast — every F-1, OPT, and H-1B professional should know where they stand.\n\n→ f1careers.app/stay-score`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })
@@ -528,10 +528,10 @@ export default function ExposureScorePage() {
 
               {/* I-140 */}
               <div>
-                <label className="label">Do you have an approved I-140 petition on record?</label>
-                <p className="text-xs text-mid mb-2">An approved I-140 is the definitive "extraordinary circumstances" evidence under PM-602-0199 — the single most protective document you can hold.</p>
+                <label className="label">Do you have an approved I-140 petition?</label>
+                <p className="text-xs text-mid mb-2">An approved I-140 is the single most protective document you can hold under PM-602-0199 — it is USCIS's own documented recognition that your presence serves the national interest.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'yes', label: 'Yes — I-140 approved' }, { val: 'no', label: 'No — not yet filed or pending' }].map(opt => (
+                  {[{ val: 'yes', label: 'Yes — I-140 approved' }, { val: 'no', label: 'No — not yet' }].map(opt => (
                     <button key={opt.val} onClick={() => set('i140Approved', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.i140Approved === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -540,26 +540,26 @@ export default function ExposureScorePage() {
                 </div>
               </div>
 
-              {/* Prior violations */}
+              {/* Prior violations — reframed as status consistency */}
               <div>
-                <label className="label">Have you ever overstayed a visa, worked without authorization, or violated the terms of your immigration status?</label>
-                <p className="text-xs text-mid mb-2">PM-602-0199 lists these as <em>highly relevant</em> adverse factors. Includes brief overstays, CPT/OPT violations, or working before authorization was granted.</p>
+                <label className="label">Have you maintained continuous lawful immigration status throughout your time in the US?</label>
+                <p className="text-xs text-mid mb-2">Consistent status maintenance is a primary positive factor in discretionary review. Any gaps — even brief ones — are relevant to how USCIS weighs your application under PM-602-0199.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'no', label: 'No — always maintained status' }, { val: 'yes', label: 'Yes — one or more violations' }].map(opt => (
+                  {[{ val: 'no', label: 'Yes — continuous lawful status' }, { val: 'yes', label: 'No — gaps or issues exist' }].map(opt => (
                     <button key={opt.val} onClick={() => set('priorViolations', opt.val)}
-                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.priorViolations === opt.val ? (opt.val === 'yes' ? 'bg-red-600 text-white border-red-600' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.priorViolations === opt.val ? (opt.val === 'yes' ? 'bg-orange-500 text-white border-orange-500' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* US family */}
+              {/* US family — reframed as equities */}
               <div>
-                <label className="label">Do you have a US citizen or lawful permanent resident spouse, child, or parent?</label>
-                <p className="text-xs text-mid mb-2">PM-602-0199 explicitly requires officers to weigh family ties as a positive equitable factor in the discretionary analysis.</p>
+                <label className="label">Do you have meaningful roots in the United States — family, long-term residence, or deep community ties?</label>
+                <p className="text-xs text-mid mb-2">PM-602-0199 explicitly requires officers to weigh equitable factors including family ties, length of residence, and community contributions. These strengthen your discretionary position.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'yes', label: 'Yes — USC or LPR immediate family' }, { val: 'no', label: 'No immediate USC / LPR family' }].map(opt => (
+                  {[{ val: 'yes', label: 'Yes — significant ties' }, { val: 'no', label: 'Limited ties so far' }].map(opt => (
                     <button key={opt.val} onClick={() => set('usFamily', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.usFamily === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -568,14 +568,14 @@ export default function ExposureScorePage() {
                 </div>
               </div>
 
-              {/* Social media */}
+              {/* Social media — reframed as risk awareness */}
               <div>
-                <label className="label">Do any of your public social media accounts contain political statements, criticism of US immigration enforcement, or content that could be flagged in a government review?</label>
-                <p className="text-xs text-mid mb-2">USCIS and State Dept now routinely screen public social media. Immigration attorneys explicitly advise clients to audit accounts before any AoS filing — PM-602-0199's moral character factor covers conduct on record.</p>
+                <label className="label">Have you reviewed your public social media presence with your immigration filing in mind?</label>
+                <p className="text-xs text-mid mb-2">USCIS and State Dept now screen public social media as part of the application review process. Immigration attorneys recommend auditing accounts before any AoS filing — this is standard advice in 2026.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'no', label: 'No — clean public presence' }, { val: 'yes', label: 'Yes — potentially flaggable content' }].map(opt => (
+                  {[{ val: 'no', label: 'Yes — reviewed and clean' }, { val: 'yes', label: 'Not yet reviewed' }].map(opt => (
                     <button key={opt.val} onClick={() => set('socialMediaRisk', opt.val)}
-                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.socialMediaRisk === opt.val ? (opt.val === 'yes' ? 'bg-orange-500 text-white border-orange-500' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.socialMediaRisk === opt.val ? (opt.val === 'yes' ? 'bg-navy text-white border-navy' : 'bg-teal text-white border-teal') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
                     </button>
                   ))}
