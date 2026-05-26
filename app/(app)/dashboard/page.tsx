@@ -391,19 +391,39 @@ export default async function DashboardPage() {
         <div className="card !p-0 overflow-hidden">
           <div className="h-1 bg-gradient-to-r from-navy via-teal to-teal/50" />
           <div className="p-5 flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-bold text-navy">Unlock the full petition journey</p>
-              <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
-                Career moves, Petition Builder, evidence tracking, narrative review, RFE analyzer, and generated petition documents.
-              </p>
-              <Link href="/subscribe" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
-                Upgrade to Pro →
-              </Link>
-            </div>
-            <div className="text-right flex-shrink-0 hidden sm:block">
-              <p className="text-2xl font-black text-navy">$49</p>
-              <p className="text-xs text-mid">/month</p>
-            </div>
+            {latestStrategyReport ? (
+              <>
+                <div>
+                  <p className="text-sm font-bold text-navy">Unlock the full petition journey</p>
+                  <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
+                    Career moves, Petition Builder, evidence tracking, narrative review, RFE analyzer, and generated petition documents.
+                  </p>
+                  <Link href="/subscribe" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
+                    Upgrade to Pro →
+                  </Link>
+                </div>
+                <div className="text-right flex-shrink-0 hidden sm:block">
+                  <p className="text-2xl font-black text-navy">$49</p>
+                  <p className="text-xs text-mid">/month</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-sm font-bold text-navy">Start with your strategy report</p>
+                  <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
+                    Your Green Card Score and career moves are anchored to your strategy report. Run it first — preview is free, pay only if you want the full report.
+                  </p>
+                  <Link href="/strategy" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
+                    Run my strategy report →
+                  </Link>
+                </div>
+                <div className="text-right flex-shrink-0 hidden sm:block">
+                  <p className="text-2xl font-black text-navy">$497</p>
+                  <p className="text-xs text-mid">one-time</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

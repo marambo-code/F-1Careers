@@ -84,7 +84,7 @@ function SuccessContent() {
           <div className="card text-left space-y-2.5">
             {[
               'Living Green Card Score, updates with every strategy report',
-              'All 4 AI-personalized career moves, specific to your profile',
+              'All 4 personalized career moves, specific to your profile',
               'Notes and progress tracker on every move',
               'Score history, track your trajectory over time',
             ].map(item => (

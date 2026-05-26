@@ -49,9 +49,9 @@ export default async function PetitionBuilderPage() {
 
             <div className="pt-2">
               <Link href="/subscribe" className="btn-primary inline-flex items-center gap-2">
-                Upgrade to Pro, $29/mo
+                Upgrade to Pro →
               </Link>
-              <p className="text-xs text-mid mt-3">Includes Petition Builder, Career Moves, RFE Analyzer, and unlimited strategy reports.</p>
+              <p className="text-xs text-mid mt-3">$49/mo or $399/yr. Includes Petition Builder, Career Moves, RFE Analyzer, and more. Strategy reports purchased separately.</p>
             </div>
           </div>
         </div>
