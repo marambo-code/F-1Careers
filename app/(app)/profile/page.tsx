@@ -245,7 +245,7 @@ function ProfileContent() {
           <div>
             <p className="font-bold text-navy">Welcome to F-1 Careers!</p>
             <p className="text-sm text-mid mt-1 leading-relaxed">
-              Fill out your profile — the AI uses this to personalize your green card strategy.
+              Fill out your profile, the AI uses this to personalize your green card strategy.
             </p>
             <p className="text-xs text-mid mt-2">
               Already set up?{' '}
@@ -371,7 +371,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <p className="text-[11px] text-mid -mt-1">Enter your most recent or highest degree — the one most relevant to your green card pathway.</p>
+          <p className="text-[11px] text-mid -mt-1">Enter your most recent or highest degree, the one most relevant to your green card pathway.</p>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
@@ -490,7 +490,7 @@ function ProfileContent() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {isWelcome ? 'Saved — taking you to dashboard…' : 'Changes saved'}
+              {isWelcome ? 'Saved, taking you to dashboard…' : 'Changes saved'}
             </div>
           )}
         </div>
@@ -509,7 +509,7 @@ function ProfileContent() {
                 </div>
                 {subscription.cancel_at_period_end ? (
                   <p className="text-xs text-orange-600 mt-1 font-medium">
-                    Cancels {periodEnd} — your access continues until then
+                    Cancels {periodEnd}, your access continues until then
                   </p>
                 ) : (
                   <p className="text-xs text-mid mt-1">Next renewal: {periodEnd}</p>

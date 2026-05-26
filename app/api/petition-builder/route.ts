@@ -1,6 +1,6 @@
 /**
- * GET  /api/petition-builder  — fetch user's petition progress
- * PATCH /api/petition-builder  — upsert pathway, evidence_items, narrative, service_center
+ * GET  /api/petition-builder , fetch user's petition progress
+ * PATCH /api/petition-builder , upsert pathway, evidence_items, narrative, service_center
  */
 
 import { NextResponse } from 'next/server'
@@ -33,7 +33,7 @@ export async function GET() {
       .maybeSingle()
 
     if (!progress) {
-      // Return default NIW template — no row yet
+      // Return default NIW template, no row yet
       return NextResponse.json({
         pathway: 'NIW',
         evidence_items: getTemplateForPathway('NIW'),

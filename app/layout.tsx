@@ -9,7 +9,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'F-1 Careers — Green Card Strategy for International Professionals',
+  title: 'F-1 Careers, Green Card Strategy for International Professionals',
   description: 'Personalized green card strategy for international students and professionals navigating the US job market and immigration system.',
 }
 

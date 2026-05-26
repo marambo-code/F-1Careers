@@ -11,8 +11,8 @@ function niwBenchmark(score: number, field: string): string {
 
   if (score >= 80) return `Top 10% of NIW filers in ${fieldLabel}. Exceptionally strong case.`
   if (score >= 65) return `Above average for ${fieldLabel}. Typical successful NIW filers score 65–75.`
-  if (score >= 50) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're close — targeted gap-filling will get you there.`
-  if (score >= 35) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're at the 35th percentile — gaps need addressing before filing.`
+  if (score >= 50) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're close, targeted gap-filling will get you there.`
+  if (score >= 35) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're at the 35th percentile, gaps need addressing before filing.`
   return `Typical successful NIW filers in ${fieldLabel} score 65–75. Significant development needed before a viable petition.`
 }
 
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     // Generate AI preview (pathways, strength, teaser)
     const aiPreview = await generateStrategyPreview(answers)
 
-    // Inject algorithmically computed scores — same functions used by the full report
+    // Inject algorithmically computed scores, same functions used by the full report
     const niw = computeNIWScore(answers)
     const eb1a = computeEB1AScore(answers)
 

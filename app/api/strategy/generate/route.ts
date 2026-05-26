@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     // Already done
     if (report.status === 'complete') return NextResponse.json({ status: 'complete' })
-    // Already in progress — don't start a second one
+    // Already in progress, don't start a second one
     if (report.status === 'generating') return NextResponse.json({ status: 'generating' })
 
     // Allow generation for 'paid' state, and also 'error' state (retry)

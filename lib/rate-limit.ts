@@ -35,7 +35,7 @@ export async function checkRateLimit(userId: string, route: string): Promise<Rat
     .maybeSingle()
 
   if (!existing) {
-    // First call — create record
+    // First call, create record
     await service.from('rate_limits').insert({ user_id: userId, route, count: 1, window_start: new Date().toISOString() })
     return { allowed: true, remaining: limit - 1, resetAt: new Date(Date.now() + 24 * 60 * 60 * 1000) }
   }

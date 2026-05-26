@@ -65,7 +65,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const doneRef = useRef(false)       // prevent double navigation
   const postDoneRef = useRef(false)   // true once the generate POST has returned
 
-  // Called when we know generation is complete — transition to the report.
+  // Called when we know generation is complete, transition to the report.
   const handleComplete = useCallback(() => {
     if (doneRef.current) return
     doneRef.current = true
@@ -73,7 +73,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     router.push(`/${reportType}/report/${reportId}`)
   }, [router, reportId, reportType])
 
-  // ── Fire generation POST on mount — with auto-retry on network errors ─
+  // ── Fire generation POST on mount, with auto-retry on network errors ─
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
@@ -89,10 +89,10 @@ export default function GeneratingView({ reportId, reportType }: Props) {
           postDoneRef.current = true
           if (b.status === 'complete') handleComplete()
           else if (b.error) setError(b.error)
-          // 'generating' = another request already in flight — poll will catch it
+          // 'generating' = another request already in flight, poll will catch it
         })
         .catch(e => {
-          // "Failed to fetch" = true network error (no response at all — different from a
+          // "Failed to fetch" = true network error (no response at all, different from a
           // server error like "timed out" which comes back as b.error via .then()).
           // Only retry on true network errors, not on server-reported failures.
           if (attempt < MAX_NETWORK_RETRIES) {
@@ -100,7 +100,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
             setTimeout(firePost, 4000)
           } else {
             postDoneRef.current = true
-            setError(`Network error — please check your connection and click Retry below.`)
+            setError(`Network error, please check your connection and click Retry below.`)
           }
         })
     }
@@ -119,7 +119,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
           if (pollRef.current) clearInterval(pollRef.current)
           // Only set error from poll if the POST hasn't already surfaced a real error message
           if (!postDoneRef.current) {
-            setError('Generation failed — click Retry below.')
+            setError('Generation failed, click Retry below.')
           }
         }
       } catch { /* keep polling through transient network blips */ }
@@ -168,7 +168,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         </h2>
         <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-left">
           {timedOut
-            ? 'Your report may still be generating in the background. Click Retry to check — your payment is safe.'
+            ? 'Your report may still be generating in the background. Click Retry to check, your payment is safe.'
             : error}
         </p>
         <a
@@ -237,7 +237,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
       {/* Reassurance footer */}
       <div className="text-center space-y-1">
         <p className="text-xs text-mid">🔒 Payment secured · Report saved automatically</p>
-        <p className="text-xs text-mid">You can close this tab — your report will be ready in your dashboard.</p>
+        <p className="text-xs text-mid">You can close this tab, your report will be ready in your dashboard.</p>
       </div>
     </div>
   )

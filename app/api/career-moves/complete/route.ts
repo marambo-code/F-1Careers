@@ -18,7 +18,7 @@ export async function PATCH(req: Request) {
 
     const service = createServiceClient()
 
-    // Find the target set — fall back to is_current if no set_id provided
+    // Find the target set, fall back to is_current if no set_id provided
     let query = service.from('career_move_sets').select('id, moves').eq('user_id', user.id)
     if (set_id) {
       query = query.eq('id', set_id)

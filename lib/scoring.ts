@@ -1,14 +1,14 @@
 /**
  * lib/scoring.ts
  * ─────────────────────────────────────────────────────────────────
- * Green Card Score — single 0-100 composite that reflects a user's
+ * Green Card Score, single 0-100 composite that reflects a user's
  * current petition readiness across both NIW and EB-1A pathways.
  *
  * Formula design goals
  *  • Higher is always better; 70+ = ready to file, 85+ = strong case
  *  • Weighted toward the BEST pathway (NIW or EB-1A), not the average
  *  • Days-left urgency applies a small pressure factor (not a penalty)
- *  • Output is deterministic — same inputs always produce the same score
+ *  • Output is deterministic, same inputs always produce the same score
  */
 
 import type { StrategyAnswers } from '@/lib/types'
@@ -46,7 +46,7 @@ export function computeGreenCardScore(
   // Weighted composite: 75% best pathway + 25% secondary
   const composite = best * 0.75 + other * 0.25
 
-  // Small urgency bonus (max +4 pts) — rewards taking action sooner
+  // Small urgency bonus (max +4 pts), rewards taking action sooner
   // Users with < 6 months left get the full bonus
   let urgencyBonus = 0
   if (daysLeft !== undefined && daysLeft <= 180) {

@@ -8,7 +8,7 @@ import type {
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from './GeneratingView'
 
-// Always fetch fresh data — never serve a cached version of this page
+// Always fetch fresh data, never serve a cached version of this page
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
@@ -247,8 +247,8 @@ export default async function StrategyReportPage({
       {/* ── 3. Dhanasar Prong Deep-Dive ── */}
       {data.dhanasar_analysis && data.dhanasar_analysis.length > 0 && (
         <section id="dhanasar">
-          <h2 className="section-heading">NIW Dhanasar Analysis — Prong by Prong</h2>
-          <p className="text-sm text-mid mb-4">Your EB-2 NIW petition turns on three prongs. Here is your case for each — with draft brief language ready to use.</p>
+          <h2 className="section-heading">NIW Dhanasar Analysis, Prong by Prong</h2>
+          <p className="text-sm text-mid mb-4">Your EB-2 NIW petition turns on three prongs. Here is your case for each, with draft brief language ready to use.</p>
           <div className="space-y-6">
             {data.dhanasar_analysis.map((prong: DhanasarProngAnalysis) => (
               <div key={prong.prong_number} className="card space-y-4">
@@ -259,7 +259,7 @@ export default async function StrategyReportPage({
                       {prong.prong_number}
                     </span>
                     <div>
-                      <p className="font-bold text-navy text-sm">Prong {prong.prong_number} — {prong.prong_name}</p>
+                      <p className="font-bold text-navy text-sm">Prong {prong.prong_number}, {prong.prong_name}</p>
                     </div>
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${prongScoreBadge[prong.score] ?? 'bg-gray-100 text-mid'}`}>
@@ -280,7 +280,7 @@ export default async function StrategyReportPage({
                     <p className="text-sm text-navy">{prong.critical_gap}</p>
                   </div>
 
-                  {/* Draft petition paragraph — the showpiece */}
+                  {/* Draft petition paragraph, the showpiece */}
                   <div className="bg-navy-light rounded-xl p-4 border border-navy/10">
                     <p className="text-xs font-bold text-navy uppercase tracking-widest mb-2">📄 Draft Petition Brief Language</p>
                     <p className="text-sm text-navy leading-relaxed italic">{prong.draft_petition_paragraph}</p>
@@ -361,7 +361,7 @@ export default async function StrategyReportPage({
       {data.rfe_risks && data.rfe_risks.length > 0 && (
         <section id="rfe-risks">
           <h2 className="section-heading">RFE Risk Pre-Emption</h2>
-          <p className="text-sm text-mid mb-4">The 3 most likely reasons USCIS denies or RFEs this petition — and exactly how to preempt each before they ask.</p>
+          <p className="text-sm text-mid mb-4">The 3 most likely reasons USCIS denies or RFEs this petition, and exactly how to preempt each before they ask.</p>
           <div className="space-y-3">
             {data.rfe_risks.map((risk: RFERiskItem, i: number) => (
               <div key={i} className="card space-y-2 border-l-4 border-orange-300">

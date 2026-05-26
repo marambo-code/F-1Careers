@@ -1,5 +1,5 @@
 // Email notifications via Resend
-// Sign up free at resend.com — add RESEND_API_KEY to .env.local + Vercel env vars
+// Sign up free at resend.com, add RESEND_API_KEY to .env.local + Vercel env vars
 // Add FROM_EMAIL to env vars (e.g. reports@f1careers.com or onboarding@resend.dev for testing)
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
@@ -8,7 +8,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://f1careers-app.vercel
 
 async function sendEmail(to: string, subject: string, html: string) {
   if (!RESEND_API_KEY) {
-    console.log('[email] RESEND_API_KEY not set — skipping email to', to)
+    console.log('[email] RESEND_API_KEY not set, skipping email to', to)
     return
   }
 

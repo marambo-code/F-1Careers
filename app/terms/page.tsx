@@ -1,26 +1,26 @@
 import Link from 'next/link'
 
-export const metadata = { title: 'Terms of Service — F-1 Careers' }
+export const metadata = { title: 'Terms of Service, F-1 Careers' }
 
 const SECTIONS = [
   {
     title: '1. Acceptance',
-    body: `By creating an account, purchasing a report, or using any part of F-1 Careers — including the free public Risk Score and ROI Calculator tools — you agree to these Terms. If you do not agree, do not use the service.`,
+    body: `By creating an account, purchasing a report, or using any part of F-1 Careers, including the free public Risk Score and ROI Calculator tools, you agree to these Terms. If you do not agree, do not use the service.`,
   },
   {
     title: '2. Description of service',
     body: `F-1 Careers provides:
 
-Free public tools — the Immigration Risk Score (assesses your risk profile under current immigration policy including USCIS PM-602-0199) and the NIW ROI Calculator (estimates financial exposure of delaying green card filing).
+Free public tools, the Immigration Risk Score (assesses your risk profile under current immigration policy including USCIS PM-602-0199) and the NIW ROI Calculator (estimates financial exposure of delaying green card filing).
 
-AI-generated reports (account required) — personalized Green Card Strategy reports and RFE (Request for Evidence) analyses based on questionnaire responses.
+AI-generated reports (account required), personalized Green Card Strategy reports and RFE (Request for Evidence) analyses based on questionnaire responses.
 
-Employer workforce audit services — immigration risk assessments and NIW eligibility scoring for companies with international employees.
+Employer workforce audit services, immigration risk assessments and NIW eligibility scoring for companies with international employees.
 
 All outputs are educational tools. They reflect AI analysis based on information you provide and are not legal advice, not legal opinions, and not a guarantee of any immigration outcome.`,
   },
   {
-    title: '3. Not legal advice — please read carefully',
+    title: '3. Not legal advice, please read carefully',
     body: `F-1 Careers is not a law firm. We do not provide legal representation, legal advice, or attorney-client relationships of any kind. No use of this platform creates an attorney-client relationship.
 
 Our reports, scores, and recommendations are informational only. They are designed to help you understand your situation and prepare for conversations with licensed legal counsel.
@@ -41,7 +41,7 @@ Employer audit services are billed per the pricing agreed at the time of engagem
     title: '5. Accuracy of information',
     body: `Our reports and scores are only as accurate as the information you provide. You are responsible for providing truthful and complete answers in questionnaires and profile fields.
 
-Providing false information to generate immigration reports — and then using those outputs in actual filings — is your legal responsibility and may constitute fraud in an immigration proceeding.
+Providing false information to generate immigration reports, and then using those outputs in actual filings, is your legal responsibility and may constitute fraud in an immigration proceeding.
 
 Immigration law and USCIS policy change frequently. Our tools and reports reflect information available at the time of generation. The free Risk Score tool includes a model version stamp indicating the policy date of its scoring engine. Always verify current requirements with USCIS.gov or a licensed attorney.`,
   },
@@ -117,7 +117,7 @@ export default function TermsPage() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
           <p className="font-bold text-yellow-900 text-sm">⚠️ Not legal advice</p>
           <p className="text-yellow-800 text-sm mt-1 leading-relaxed">
-            F-1 Careers provides AI-generated immigration strategy information for educational purposes only. Nothing on this platform constitutes legal advice or creates an attorney-client relationship. Immigration decisions are complex, fact-specific, and subject to rapid policy change — including USCIS PM-602-0199 (May 2026) which makes adjustment of status officially discretionary. Always consult a licensed immigration attorney before filing any petition or making decisions about your immigration status.
+            F-1 Careers provides AI-generated immigration strategy information for educational purposes only. Nothing on this platform constitutes legal advice or creates an attorney-client relationship. Immigration decisions are complex, fact-specific, and subject to rapid policy change, including USCIS PM-602-0199 (May 2026) which makes adjustment of status officially discretionary. Always consult a licensed immigration attorney before filing any petition or making decisions about your immigration status.
           </p>
         </div>
 

@@ -87,25 +87,25 @@ export interface StrategyAnswers {
   work_description: string
 
   // ── Step 2: EB-1A Criteria (0–4) ────────────────────────────────
-  /** §204.5(h)(3)(i)  — Awards & prizes in the field */
+  /** §204.5(h)(3)(i) , Awards & prizes in the field */
   cr_awards: number
-  /** §204.5(h)(3)(ii) — Membership in associations requiring outstanding achievement */
+  /** §204.5(h)(3)(ii), Membership in associations requiring outstanding achievement */
   cr_membership: number
   /** §204.5(h)(3)(iii)— Published material about the alien in professional media */
   cr_press: number
-  /** §204.5(h)(3)(iv) — Judging the work of others */
+  /** §204.5(h)(3)(iv), Judging the work of others */
   cr_judging: number
-  /** §204.5(h)(3)(v)  — Original contributions of major significance */
+  /** §204.5(h)(3)(v) , Original contributions of major significance */
   cr_contributions: number
-  /** §204.5(h)(3)(vi) — Scholarly articles in professional journals */
+  /** §204.5(h)(3)(vi), Scholarly articles in professional journals */
   cr_scholarly: number
   /** §204.5(h)(3)(vii)— Artistic display/exhibition in prestigious venues */
   cr_display: number
   /** §204.5(h)(3)(viii)— Critical or leading role in distinguished orgs */
   cr_critical_role: number
-  /** §204.5(h)(3)(ix) — High salary relative to peers */
+  /** §204.5(h)(3)(ix), High salary relative to peers */
   cr_high_salary: number
-  /** §204.5(h)(3)(x)  — Commercial success in performing arts */
+  /** §204.5(h)(3)(x) , Commercial success in performing arts */
   cr_commercial: number
 
   // ── Step 2: Evidence notes (optional free text per key criterion) ─
@@ -115,7 +115,7 @@ export interface StrategyAnswers {
   notes_press: string
   notes_critical_role: string
 
-  // ── Step 3: EB-2 NIW — Dhanasar Three-Prong Analysis (0–4) ─────
+  // ── Step 3: EB-2 NIW, Dhanasar Three-Prong Analysis (0–4) ─────
   /** Prong 1: Substantial merit & national importance */
   niw_prong1: number
   /** Prong 2: Well-positioned to advance the endeavor */
@@ -146,7 +146,7 @@ export interface StrategyAnswers {
   // ── Resume & Timeline ────────────────────────────────────────────
   /** Parsed text from uploaded resume PDF */
   resume_text?: string
-  /** e.g. "2026-09" — when current visa/status expires */
+  /** e.g. "2026-09", when current visa/status expires */
   visa_expiration?: string
 
   // ── Legacy fields (kept for backward compat with existing reports) ─
@@ -216,7 +216,7 @@ export interface PetitionReadiness {
 
 export interface ResumeEvidenceItem {
   resume_line: string
-  /** Primary mapping — leads with NIW prong if NIW is recommended pathway */
+  /** Primary mapping, leads with NIW prong if NIW is recommended pathway */
   criterion: string
   /** Optional EB-1A cross-reference shown as secondary label */
   eb1a_connection?: string

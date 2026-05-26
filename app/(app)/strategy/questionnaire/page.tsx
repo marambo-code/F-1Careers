@@ -102,17 +102,17 @@ const CRITERIA = [
 const NIW_PRONGS = [
   {
     id: 'prong1',
-    label: 'Prong 1 — Substantial Merit & National Importance',
+    label: 'Prong 1, Substantial Merit & National Importance',
     desc: 'Does your proposed endeavor have inherent merit and significance that extends beyond your employer or locality? Is it in an area important to the US (science, tech, education, health, economy, culture)?',
   },
   {
     id: 'prong2',
-    label: 'Prong 2 — Well-Positioned to Advance the Endeavor',
+    label: 'Prong 2, Well-Positioned to Advance the Endeavor',
     desc: 'Does your education, skills, knowledge, record of success, and specific plan position you to successfully advance this endeavor? Do you have a track record that supports this?',
   },
   {
     id: 'prong3',
-    label: 'Prong 3 — On Balance, Benefit Justifies Waiving Job Offer',
+    label: 'Prong 3, On Balance, Benefit Justifies Waiving Job Offer',
     desc: 'On balance, would it be beneficial to the US to waive the normal labor certification requirement? Does your work\'s national importance outweigh the general US worker protections?',
   },
 ]
@@ -219,7 +219,7 @@ export default function QuestionnairePage() {
   if (!answers.field_of_work)    step0Errors.field_of_work    = 'Please select your primary field'
   if (!answers.subfield.trim())  step0Errors.subfield          = 'Please enter your specific role or subfield'
   if (!answers.education_level)  step0Errors.education_level   = 'Please select your highest degree'
-  if (!answers.work_description.trim()) step0Errors.work_description = 'Please describe your work — this is the core of your petition'
+  if (!answers.work_description.trim()) step0Errors.work_description = 'Please describe your work, this is the core of your petition'
 
   const step2Errors: Record<string, string> = {}
   if (!answers.proposed_endeavor.trim()) step2Errors.proposed_endeavor = 'Please describe your proposed US endeavor'
@@ -294,7 +294,7 @@ export default function QuestionnairePage() {
                   setResumeFromProfile(true)
                 }
               })
-              .catch(() => { /* silently fail — user can upload manually */ })
+              .catch(() => { /* silently fail, user can upload manually */ })
               .finally(() => setResumeUploading(false))
           }
         }
@@ -409,7 +409,7 @@ export default function QuestionnairePage() {
           {/* Profile data banner */}
           {(profile.full_name || profile.visa_status) && (
             <div className="bg-teal-light rounded-xl p-4 space-y-2 border border-teal/20">
-              <p className="text-sm font-bold text-teal">✓ Profile data loaded — automatically included in your report</p>
+              <p className="text-sm font-bold text-teal">✓ Profile data loaded, automatically included in your report</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
                 {profile.full_name    && <p><span className="text-teal/60">Name:</span> <span className="text-navy font-medium">{profile.full_name}</span></p>}
                 {profile.visa_status  && <p><span className="text-teal/60">Visa status:</span> <span className="text-navy font-medium">{profile.visa_status}</span></p>}
@@ -418,7 +418,7 @@ export default function QuestionnairePage() {
                 {profile.field_of_study && <p><span className="text-teal/60">Field of study:</span> <span className="text-navy font-medium">{profile.field_of_study}</span></p>}
                 {profile.career_goal  && <p><span className="text-teal/60">Career goal:</span> <span className="text-navy font-medium">{profile.career_goal}</span></p>}
               </div>
-              <p className="text-xs text-teal/60">Fill in the fields below — the more detail you add, the more specific your report will be.</p>
+              <p className="text-xs text-teal/60">Fill in the fields below, the more detail you add, the more specific your report will be.</p>
             </div>
           )}
 
@@ -432,10 +432,10 @@ export default function QuestionnairePage() {
                 onChange={e => set('field_of_work', e.target.value)}
               >
                 <option value="">Select your field</option>
-                <option value="stem_cs">STEM — Computer Science / AI / Software</option>
-                <option value="stem_bio">STEM — Biology / Biotech / Life Sciences</option>
-                <option value="stem_phys">STEM — Physics / Chemistry / Materials</option>
-                <option value="stem_eng">STEM — Engineering (non-software)</option>
+                <option value="stem_cs">STEM, Computer Science / AI / Software</option>
+                <option value="stem_bio">STEM, Biology / Biotech / Life Sciences</option>
+                <option value="stem_phys">STEM, Physics / Chemistry / Materials</option>
+                <option value="stem_eng">STEM, Engineering (non-software)</option>
                 <option value="medicine">Medicine / Healthcare / Clinical Research</option>
                 <option value="business">Business / Finance / Economics</option>
                 <option value="arts">Arts / Film / Design / Music / Architecture</option>
@@ -529,7 +529,7 @@ export default function QuestionnairePage() {
               Describe Your Work & Its Significance <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-mid mb-1.5">
-              What do you actually do? What makes it significant? Who benefits? Be as specific as possible — this is the core of your petition narrative.
+              What do you actually do? What makes it significant? Who benefits? Be as specific as possible, this is the core of your petition narrative.
             </p>
             <textarea
               className={`input ${touched.work_description && step0Errors.work_description ? 'border-red-400 focus:ring-red-300' : ''}`}
@@ -547,14 +547,14 @@ export default function QuestionnairePage() {
               Upload Resume / CV <span className="text-teal text-xs font-semibold ml-1">Highly Recommended</span>
             </label>
             <p className="text-xs text-mid mb-2">
-              Uploading your resume dramatically improves report quality — the AI will extract specific evidence, cite real accomplishments, and draft petition language using your actual experience.
+              Uploading your resume dramatically improves report quality, the AI will extract specific evidence, cite real accomplishments, and draft petition language using your actual experience.
             </p>
 
             {/* Profile resume banner */}
             {resumeFromProfile && resumeText && !resumeUploading && (
               <div className="mb-2 flex items-center gap-2 bg-teal-light border border-teal/20 rounded-xl px-4 py-2.5">
                 <span className="text-teal text-sm">✓</span>
-                <p className="text-sm text-teal font-semibold flex-1">Resume loaded from your profile — <span className="font-normal">{resumeFileName}</span></p>
+                <p className="text-sm text-teal font-semibold flex-1">Resume loaded from your profile, <span className="font-normal">{resumeFileName}</span></p>
                 <span className="text-xs text-teal/60">Upload below to replace</span>
               </div>
             )}
@@ -613,7 +613,7 @@ export default function QuestionnairePage() {
             />
           </div>
 
-          {/* Second Degree — only shown for PhD, MD, Master's */}
+          {/* Second Degree, only shown for PhD, MD, Master's */}
           {showAddSecondDegree && (
             <div>
               {!showSecondEdu ? (
@@ -644,7 +644,7 @@ export default function QuestionnairePage() {
           <div className="space-y-3">
             <div>
               <label className="label mb-0">Previous Roles</label>
-              <p className="text-xs text-mid mt-0.5">Prior employers — significantly improves evidence mapping and recommender identification.</p>
+              <p className="text-xs text-mid mt-0.5">Prior employers, significantly improves evidence mapping and recommender identification.</p>
             </div>
             {jobHistory.map((job, i) => (
               <div key={i} className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1fr_auto_auto] sm:gap-2 sm:items-center">
@@ -723,8 +723,8 @@ export default function QuestionnairePage() {
             <span className="text-2xl">{metCount >= 3 ? '✅' : '⚠️'}</span>
             <span>
               {metCount >= 3
-                ? `${metCount} criteria at Moderate or above — meets EB-1A threshold`
-                : `${metCount} of 3+ required criteria at Moderate or above — gaps will be addressed in your report`}
+                ? `${metCount} criteria at Moderate or above, meets EB-1A threshold`
+                : `${metCount} of 3+ required criteria at Moderate or above, gaps will be addressed in your report`}
             </span>
           </div>
         </div>
@@ -734,7 +734,7 @@ export default function QuestionnairePage() {
       {step === 2 && (
         <div className="space-y-5">
           <div className="card bg-navy-light border-navy/10 text-sm text-mid leading-relaxed">
-            <strong className="text-navy">EB-2 NIW — Dhanasar Analysis.</strong>{' '}
+            <strong className="text-navy">EB-2 NIW, Dhanasar Analysis.</strong>{' '}
             The National Interest Waiver lets you self-petition without a job offer if your work benefits the US. USCIS uses the <em>Matter of Dhanasar</em> three-prong test. Rate each prong honestly.
           </div>
 
@@ -750,11 +750,11 @@ export default function QuestionnairePage() {
                 <CriterionRater label={p.label} value={val} onChange={v => set(key, v)} />
                 <p className="text-xs text-mid">
                   Current: <span className={`font-semibold ${val >= 3 ? 'text-teal' : val >= 2 ? 'text-yellow-700' : 'text-orange-600'}`}>{STRENGTH[val]}</span>
-                  {val === 0 && ' — Significant gap; this prong needs development before filing'}
-                  {val === 1 && ' — Weak; needs strengthening to meet USCIS standard'}
-                  {val === 2 && ' — Arguable; a strong petition brief could support this'}
-                  {val === 3 && ' — Strong; well-supported for this prong'}
-                  {val === 4 && ' — Exceptional; compelling case for this prong'}
+                  {val === 0 && ', Significant gap; this prong needs development before filing'}
+                  {val === 1 && ', Weak; needs strengthening to meet USCIS standard'}
+                  {val === 2 && ', Arguable; a strong petition brief could support this'}
+                  {val === 3 && ', Strong; well-supported for this prong'}
+                  {val === 4 && ', Exceptional; compelling case for this prong'}
                 </p>
               </div>
             )
@@ -766,7 +766,7 @@ export default function QuestionnairePage() {
             </label>
             <p className="text-xs text-mid">
               Describe specifically what you will do in the US and why it is of national importance.
-              Be concrete — mention the field, the problem you are solving, and why the US benefits.
+              Be concrete, mention the field, the problem you are solving, and why the US benefits.
             </p>
             <textarea
               className={`input ${touched.proposed_endeavor && step2Errors.proposed_endeavor ? 'border-red-400 focus:ring-red-300' : ''}`}
@@ -787,8 +787,8 @@ export default function QuestionnairePage() {
             <label className="label">Would your current employer write a support letter for a visa petition?</label>
             <select className="input" value={answers.employer_support} onChange={e => set('employer_support', e.target.value)}>
               <option value="">Select</option>
-              <option value="Yes, would write support letter">Yes — they would write a support letter</option>
-              <option value="Possibly, need to ask">Possibly — haven't asked yet</option>
+              <option value="Yes, would write support letter">Yes, they would write a support letter</option>
+              <option value="Possibly, need to ask">Possibly, haven't asked yet</option>
               <option value="No / Not applicable">No / Not applicable</option>
               <option value="Self-employed / own company">Self-employed / own company</option>
             </select>
@@ -798,10 +798,10 @@ export default function QuestionnairePage() {
             <label className="label">Have you worked with an immigration attorney?</label>
             <select className="input" value={answers.attorney_consulted} onChange={e => set('attorney_consulted', e.target.value)}>
               <option value="">Select</option>
-              <option value="Yes, currently working with one">Yes — currently working with one</option>
-              <option value="Yes, in the past">Yes — consulted in the past</option>
-              <option value="No, but interested">No — but interested</option>
-              <option value="No, prefer to self-file">No — prefer to self-file</option>
+              <option value="Yes, currently working with one">Yes, currently working with one</option>
+              <option value="Yes, in the past">Yes, consulted in the past</option>
+              <option value="No, but interested">No, but interested</option>
+              <option value="No, prefer to self-file">No, prefer to self-file</option>
             </select>
           </div>
 
@@ -812,7 +812,7 @@ export default function QuestionnairePage() {
               rows={4}
               value={answers.biggest_concern}
               onChange={e => set('biggest_concern', e.target.value)}
-              placeholder="e.g. I'm not sure if I have enough evidence for EB-1A vs NIW — which should I pursue first? Or: My OPT expires in 8 months and I need a path that doesn't require employer sponsorship..."
+              placeholder="e.g. I'm not sure if I have enough evidence for EB-1A vs NIW, which should I pursue first? Or: My OPT expires in 8 months and I need a path that doesn't require employer sponsorship..."
             />
           </div>
 
@@ -833,7 +833,7 @@ export default function QuestionnairePage() {
               <span className="text-navy font-medium">Resume:</span>{' '}
               {resumeText
                 ? <span className="text-teal font-semibold">✓ {resumeFileName}</span>
-                : <span className="text-orange-600">Not uploaded — report will be less specific</span>
+                : <span className="text-orange-600">Not uploaded, report will be less specific</span>
               }
             </p>
             {visaExpiration && (

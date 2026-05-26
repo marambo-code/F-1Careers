@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     const service = createServiceClient()
 
-    // Create user with email already confirmed — no confirmation email needed
+    // Create user with email already confirmed, no confirmation email needed
     const { data, error } = await service.auth.admin.createUser({
       email,
       password,

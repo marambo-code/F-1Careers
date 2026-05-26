@@ -14,7 +14,7 @@ export default async function Home() {
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
       <div className="bg-amber-600 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
-          USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief — not a right. DHS is ending Duration of Status for F-1.{' '}
+          USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief, not a right. DHS is ending Duration of Status for F-1.{' '}
           <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Risk Score →</Link>
         </p>
       </div>
@@ -126,7 +126,7 @@ export default async function Home() {
             {[
               {
                 heading: 'AoS is now discretionary',
-                body: 'USCIS PM-602-0199 (May 21, 2026) officially classifies adjustment of status as extraordinary discretionary relief — not an entitlement.',
+                body: 'USCIS PM-602-0199 (May 21, 2026) officially classifies adjustment of status as extraordinary discretionary relief, not an entitlement.',
                 accent: 'border-l-red-400',
               },
               {
@@ -171,22 +171,22 @@ export default async function Home() {
           <div className="flex-1">
             <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Our story</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.2] mb-5">
-              From F-1 to EB-1A, EB-2 NIW, and O-1.<br />We&apos;ve navigated every step compliantly.
+              From F-1 to EB-1A, EB-2 NIW, and O-1.<br />We&apos;ve navigated every step intelligently and compliantly.
             </h2>
             <p className="text-base text-mid leading-[1.75] mb-4">
-              From years of first-hand experience navigating the same system you&apos;re in right now — for ourselves and others, as the landscape evolved.
+              From years of first-hand experience navigating the same system you&apos;re in right now, for ourselves and others, as the landscape evolved.
             </p>
             <p className="text-base text-mid leading-[1.75] mb-4">
-              We built F-1 Careers because generations of international students had already figured this out. That knowledge deserved a home — and we&apos;re committed to democratizing it.
+              We built F-1 Careers because generations of international students had already figured this out. That knowledge deserved a home, and we&apos;re committed to democratizing it so that you can plan ahead.
             </p>
             <p className="text-base text-navy font-semibold leading-[1.75] mb-6">
               The tool we wish we had. Trained on the case law that actually decides your petition.
             </p>
             <div className="flex flex-wrap gap-2 items-center">
-              {['Harvard', 'MIT', 'Stanford', 'Tufts'].map(u => (
+              {['Harvard', 'MIT', 'Stanford', 'Yale', 'Princeton', 'Columbia', 'Cornell', 'Tufts', 'Carnegie Mellon', 'UC Berkeley', 'UCLA', 'Georgia Tech', 'UIUC', 'Purdue', 'NYU', 'Johns Hopkins', 'Caltech', 'Duke', 'UT Austin', 'UMich'].map(u => (
                 <span key={u} className="text-[11px] font-bold bg-navy/8 text-navy px-2.5 py-1 rounded-full">{u}</span>
               ))}
-              <span className="text-[11px] text-mid">+ users across <strong className="text-navy">93 countries</strong></span>
+              <span className="text-[11px] text-mid">+ users across <strong className="text-navy">93+ countries</strong></span>
             </div>
           </div>
 
@@ -344,7 +344,7 @@ export default async function Home() {
                     <span className="text-[10px] text-slate-500 ml-auto">Low effort</span>
                   </div>
                   <p className="text-[13px] font-bold text-white leading-[1.4] mb-1.5">Submit review for NeurIPS 2025 Programme Committee</p>
-                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iv — Judging the Work of Others</p>
+                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iv, Judging the Work of Others</p>
                   <p className="text-[12px] text-slate-500 leading-[1.55]">One formal review invitation documents a new criterion entirely. OpenReview.net is actively recruiting reviewers now.</p>
                   <p className="text-[11px] font-bold text-teal mt-2.5">▲ +10-14 pts on EB-1A score</p>
                 </div>
@@ -356,7 +356,7 @@ export default async function Home() {
                     <span className="text-[10px] text-slate-500 ml-auto">Low effort</span>
                   </div>
                   <p className="text-[13px] font-bold text-white leading-[1.4] mb-1.5">Get quoted in MIT Technology Review on your research</p>
-                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iii — Press and Media Coverage</p>
+                  <p className="text-[11px] text-teal font-semibold mb-2">EB-1A §iii, Press and Media Coverage</p>
                   <p className="text-[12px] text-slate-500 leading-[1.55]">Your university press office can pitch this today. One credible media mention covers §iii with minimal time investment.</p>
                   <p className="text-[11px] font-bold text-teal mt-2.5">▲ +8-12 pts on EB-1A score</p>
                 </div>
@@ -382,12 +382,12 @@ export default async function Home() {
         <div className="text-center mb-12">
           <p className="text-[11px] font-extrabold uppercase tracking-[2px] text-teal mb-3">Who this is for</p>
           <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">International talent in the US.<br className="hidden sm:block" /> Every stage of the journey.</h2>
-          <p className="text-lg text-mid mt-3 max-w-xl mx-auto">If you hold or have held an F-1, OPT, H-1B, or similar visa and are working toward permanent residence — this is built for you.</p>
+          <p className="text-lg text-mid mt-3 max-w-xl mx-auto">If you hold or have held an F-1, OPT, H-1B, or similar visa and are working toward permanent residence, this is built for you.</p>
         </div>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "PM-602-0199 puts your AoS path at risk. You need an approved I-140 with extraordinary circumstances evidence — fast." },
+            { who: 'H-1B holders', desc: "PM-602-0199 puts your AoS path at risk. You need an approved I-140 with extraordinary circumstances evidence, fast." },
             { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
             { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
             { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },

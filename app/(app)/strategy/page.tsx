@@ -6,7 +6,7 @@ import type { StrategyPreview } from '@/lib/types'
 const DELIVERABLES = [
   {
     title: 'Career + Visa Pathway Assessment',
-    description: 'Which pathways fit your trajectory (EB1A, EB-2 NIW, O-1, H-1B) — ranked by feasibility with rationale.',
+    description: 'Which pathways fit your trajectory (EB1A, EB-2 NIW, O-1, H-1B), ranked by feasibility with rationale.',
   },
   {
     title: 'Criterion-Level Breakdown',
@@ -26,7 +26,7 @@ const DELIVERABLES = [
   },
   {
     title: 'Recommended Next Step',
-    description: 'One clear, specific action — document collection, employer conversations, or attorney consultation.',
+    description: 'One clear, specific action, document collection, employer conversations, or attorney consultation.',
   },
 ]
 
@@ -54,7 +54,7 @@ export default async function StrategyStartPage() {
     generating: 'Generating…',
     pending: 'Preview ready',
     paid: 'Generating…',
-    error: 'Error — retry',
+    error: 'Error, retry',
   }
   const statusColor: Record<string, string> = {
     complete: 'text-teal bg-teal-light',
@@ -173,7 +173,7 @@ export default async function StrategyStartPage() {
           href="/strategy/questionnaire"
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl text-center block hover:bg-teal/90 transition-colors text-sm"
         >
-          Start questionnaire — takes 5 minutes →
+          Start questionnaire, takes 5 minutes →
         </Link>
         <p className="text-xs text-blue-300 text-center mt-3">
           You&apos;ll preview your results for free before being asked to pay.

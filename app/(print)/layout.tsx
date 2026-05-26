@@ -1,4 +1,4 @@
-// Clean print layout — no nav, no sidebar, just content + auto-print trigger
+// Clean print layout, no nav, no sidebar, just content + auto-print trigger
 export default function PrintLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">

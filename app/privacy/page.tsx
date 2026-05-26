@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export const metadata = { title: 'Privacy Policy — F-1 Careers' }
+export const metadata = { title: 'Privacy Policy, F-1 Careers' }
 
 const SECTIONS = [
   {
@@ -24,7 +24,7 @@ const SECTIONS = [
       },
       {
         label: 'Payments',
-        text: `When you subscribe or purchase a report, your payment is processed by Stripe. We do not store card numbers or full payment details — only a Stripe customer ID and subscription status.`,
+        text: `When you subscribe or purchase a report, your payment is processed by Stripe. We do not store card numbers or full payment details, only a Stripe customer ID and subscription status.`,
       },
       {
         label: 'Employer leads',
@@ -40,14 +40,14 @@ We use your email to send report-ready notifications and service updates. We do 
 
 We use Stripe to process subscription payments and one-time report purchases.
 
-We use Supabase (hosted on AWS) to store your data securely with row-level security — your data is accessible only by your account.`,
+We use Supabase (hosted on AWS) to store your data securely with row-level security, your data is accessible only by your account.`,
   },
   {
     title: '4. Third-party processors',
-    body: `Anthropic — AI report generation (your questionnaire data is sent to their API)
-Stripe — payment processing
-Supabase — database and authentication (hosted on AWS)
-Vercel — application hosting
+    body: `Anthropic, AI report generation (your questionnaire data is sent to their API)
+Stripe, payment processing
+Supabase, database and authentication (hosted on AWS)
+Vercel, application hosting
 
 We do not sell your data to any third party. We do not use your data for advertising.`,
   },
@@ -69,7 +69,7 @@ If you are located in the European Economic Area, you have additional rights und
   },
   {
     title: '7. Security',
-    body: `All data is transmitted over HTTPS. Your database records are protected by Supabase Row Level Security — meaning your data is inaccessible to other users at the database level. Passwords are hashed and never stored in plain text.
+    body: `All data is transmitted over HTTPS. Your database records are protected by Supabase Row Level Security, meaning your data is inaccessible to other users at the database level. Passwords are hashed and never stored in plain text.
 
 We follow industry best practices for API key management and perform regular security reviews.`,
   },
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
         </div>
 
         <p className="text-mid leading-relaxed text-sm">
-          F-1 Careers is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights. We designed this service for a community that often has significant concerns about data privacy — we take that seriously.
+          F-1 Careers is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights. We designed this service for a community that often has significant concerns about data privacy, we take that seriously.
         </p>
 
         {SECTIONS.map(({ title, body, subsections }) => (

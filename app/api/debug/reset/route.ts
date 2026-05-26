@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 // Resets stuck/corrupt reports so the report page auto-regenerates on next visit
-// POST with { reportId } — or GET with ?reportId=xxx for convenience
+// POST with { reportId }, or GET with ?reportId=xxx for convenience
 export async function POST(req: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     .eq('id', reportId)
     .eq('user_id', user.id)
 
-  return NextResponse.json({ ok: true, message: `Report ${reportId} reset — visit the report page to regenerate` })
+  return NextResponse.json({ ok: true, message: `Report ${reportId} reset, visit the report page to regenerate` })
 }
 
 export async function GET(req: Request) {
@@ -37,5 +37,5 @@ export async function GET(req: Request) {
     .eq('id', reportId)
     .eq('user_id', user.id)
 
-  return NextResponse.json({ ok: true, message: `Report ${reportId} reset — visit the report page to regenerate` })
+  return NextResponse.json({ ok: true, message: `Report ${reportId} reset, visit the report page to regenerate` })
 }

@@ -32,29 +32,29 @@ export async function POST(
     return NextResponse.json({ error: 'Report not found' }, { status: 404 })
   }
 
-  // Already done — return immediately
+  // Already done, return immediately
   if (report.status === 'complete') {
     return NextResponse.json({ status: 'complete' })
   }
 
   const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
 
-  // Generating — only block retry if started < 5 minutes ago (parallel calls finish in ~45s)
+  // Generating, only block retry if started < 5 minutes ago (parallel calls finish in ~45s)
   if (report.status === 'generating') {
     if (ageMs < 5 * 60 * 1000) {
       return NextResponse.json({ status: 'generating' })
     }
-    // Stale generating — fall through and restart
+    // Stale generating, fall through and restart
     console.log(`[strategy/generate] Restarting stale generating report ${id} (${Math.round(ageMs / 60000)}min old)`)
   }
 
-  // Error state — fall through and restart (user explicitly requested retry)
+  // Error state, fall through and restart (user explicitly requested retry)
   if (report.status === 'error') {
     console.log(`[strategy/generate] Restarting errored report ${id}`)
   }
 
   if (!report.questionnaire_responses) {
-    return NextResponse.json({ error: 'No questionnaire data — please resubmit the form.' }, { status: 422 })
+    return NextResponse.json({ error: 'No questionnaire data, please resubmit the form.' }, { status: 422 })
   }
 
   // Lock the row

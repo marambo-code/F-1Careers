@@ -4,18 +4,18 @@
  * HOW TO UPDATE:
  *   1. Short-term: edit this file and redeploy.
  *   2. Long-term: migrate to a Supabase `country_tiers` table and fetch
- *      from the client — the calculator falls back to this static data.
+ *      from the client, the calculator falls back to this static data.
  *
  * TIERS:
- *   'ban'      — full travel ban (PP 10998): no immigrant visa consular path;
+ *   'ban'     , full travel ban (PP 10998): no immigrant visa consular path;
  *                nationals cannot obtain a new immigrant visa abroad.
- *   'blocked'  — immigrant visa pause (State Dept, Jan 21 2026): consular
+ *   'blocked' , immigrant visa pause (State Dept, Jan 21 2026): consular
  *                processing suspended, no published resumption date.
- *   'backlog'  — EB priority date backlog: consular path exists but wait is
+ *   'backlog' , EB priority date backlog: consular path exists but wait is
  *                years-long due to per-country quotas.
- *   'open'     — standard: consulate operational, no special restrictions.
+ *   'open'    , standard: consulate operational, no special restrictions.
  *
- * RISK LOGIC (critical — do not confuse):
+ * RISK LOGIC (critical, do not confuse):
  *   'ban'  = HIGHEST exposure. No consular fallback. If status disrupted,
  *            there is no path to return via immigrant visa.
  *   'blocked' = HIGH exposure. No fallback path right now.
@@ -40,124 +40,124 @@ export interface CountryEntry {
 export const TIERS_LAST_VERIFIED = '2026-05-26'
 
 // ---------------------------------------------------------------------------
-// Full Travel Ban — PP 10998 (effective Jan 1, 2026)
+// Full Travel Ban, PP 10998 (effective Jan 1, 2026)
 // Nationals cannot obtain new immigrant visas through consular processing.
 // AoS is the only path. If status is lost, return may be impossible.
 // ---------------------------------------------------------------------------
 const BAN_COUNTRIES: Record<string, CountryEntry> = {
-  'Afghanistan':       { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Afghanistan', policyNote: 'Full travel ban — PP 10998' },
-  'Burma / Myanmar':   { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Burma / Myanmar', policyNote: 'Full travel ban — PP 10998' },
-  'Burkina Faso':      { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Burkina Faso', policyNote: 'Full travel ban — PP 10998' },
-  'Chad':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Chad', policyNote: 'Full travel ban — PP 10998' },
-  'Republic of Congo': { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Republic of Congo', policyNote: 'Full travel ban — PP 10998' },
+  'Afghanistan':       { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Afghanistan', policyNote: 'Full travel ban, PP 10998' },
+  'Burma / Myanmar':   { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Burma / Myanmar', policyNote: 'Full travel ban, PP 10998' },
+  'Burkina Faso':      { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Burkina Faso', policyNote: 'Full travel ban, PP 10998' },
+  'Chad':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Chad', policyNote: 'Full travel ban, PP 10998' },
+  'Republic of Congo': { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Republic of Congo', policyNote: 'Full travel ban, PP 10998' },
   'Cuba':              { tier: 'ban', minMonths: 24, maxMonths:  84, label: 'Cuba', policyNote: 'Partial travel ban + immigrant visa restrictions' },
-  'Equatorial Guinea': { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Equatorial Guinea', policyNote: 'Full travel ban — PP 10998' },
-  'Eritrea':           { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Eritrea', policyNote: 'Full travel ban — PP 10998' },
-  'Haiti':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Haiti', policyNote: 'Full travel ban — PP 10998' },
-  'Iran':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Iran', policyNote: 'Full travel ban — PP 10998' },
-  'Laos':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Laos', policyNote: 'Full travel ban — PP 10998' },
-  'Libya':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Libya', policyNote: 'Full travel ban — PP 10998' },
-  'Mali':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Mali', policyNote: 'Full travel ban — PP 10998' },
-  'Niger':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Niger', policyNote: 'Full travel ban — PP 10998' },
-  'Sierra Leone':      { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Sierra Leone', policyNote: 'Full travel ban — PP 10998' },
-  'Somalia':           { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Somalia', policyNote: 'Full travel ban — PP 10998' },
-  'South Sudan':       { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'South Sudan', policyNote: 'Full travel ban — PP 10998' },
-  'Sudan':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Sudan', policyNote: 'Full travel ban — PP 10998' },
-  'Syria':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Syria', policyNote: 'Full travel ban — PP 10998' },
+  'Equatorial Guinea': { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Equatorial Guinea', policyNote: 'Full travel ban, PP 10998' },
+  'Eritrea':           { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Eritrea', policyNote: 'Full travel ban, PP 10998' },
+  'Haiti':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Haiti', policyNote: 'Full travel ban, PP 10998' },
+  'Iran':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Iran', policyNote: 'Full travel ban, PP 10998' },
+  'Laos':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Laos', policyNote: 'Full travel ban, PP 10998' },
+  'Libya':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Libya', policyNote: 'Full travel ban, PP 10998' },
+  'Mali':              { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Mali', policyNote: 'Full travel ban, PP 10998' },
+  'Niger':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Niger', policyNote: 'Full travel ban, PP 10998' },
+  'Sierra Leone':      { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Sierra Leone', policyNote: 'Full travel ban, PP 10998' },
+  'Somalia':           { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Somalia', policyNote: 'Full travel ban, PP 10998' },
+  'South Sudan':       { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'South Sudan', policyNote: 'Full travel ban, PP 10998' },
+  'Sudan':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Sudan', policyNote: 'Full travel ban, PP 10998' },
+  'Syria':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Syria', policyNote: 'Full travel ban, PP 10998' },
   'Venezuela':         { tier: 'ban', minMonths: 24, maxMonths:  84, label: 'Venezuela', policyNote: 'Partial travel ban + immigrant visa restrictions' },
-  'Yemen':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Yemen', policyNote: 'Full travel ban — PP 10998' },
+  'Yemen':             { tier: 'ban', minMonths: 36, maxMonths: 120, label: 'Yemen', policyNote: 'Full travel ban, PP 10998' },
 }
 
 // ---------------------------------------------------------------------------
 // Immigrant Visa Pause + Partial Travel Ban (PP 10998 partial suspension)
 // ---------------------------------------------------------------------------
 const PARTIAL_BAN_BLOCKED: Record<string, CountryEntry> = {
-  'Angola':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Angola', policyNote: 'Partial travel ban — PP 10998' },
-  'Benin':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Benin', policyNote: 'Partial travel ban — PP 10998' },
-  'Burundi':      { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Burundi', policyNote: 'Partial travel ban — PP 10998' },
-  'Gabon':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Gabon', policyNote: 'Partial travel ban — PP 10998' },
+  'Angola':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Angola', policyNote: 'Partial travel ban, PP 10998' },
+  'Benin':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Benin', policyNote: 'Partial travel ban, PP 10998' },
+  'Burundi':      { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Burundi', policyNote: 'Partial travel ban, PP 10998' },
+  'Gabon':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Gabon', policyNote: 'Partial travel ban, PP 10998' },
   'Gambia':       { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Gambia', policyNote: 'Partial travel ban + immigrant visa pause' },
   'Ivory Coast':  { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Ivory Coast (Côte d\'Ivoire)', policyNote: 'Partial travel ban + immigrant visa pause' },
-  'Malawi':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Malawi', policyNote: 'Partial travel ban — PP 10998' },
-  'Mauritania':   { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Mauritania', policyNote: 'Partial travel ban — PP 10998' },
+  'Malawi':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Malawi', policyNote: 'Partial travel ban, PP 10998' },
+  'Mauritania':   { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Mauritania', policyNote: 'Partial travel ban, PP 10998' },
   'Nigeria':      { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Nigeria', policyNote: 'Partial travel ban + immigrant visa pause' },
   'Senegal':      { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Senegal', policyNote: 'Partial travel ban + immigrant visa pause' },
   'Tanzania':     { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Tanzania', policyNote: 'Partial travel ban + immigrant visa pause' },
   'Togo':         { tier: 'blocked', minMonths: 18, maxMonths: 60, label: 'Togo', policyNote: 'Partial travel ban + immigrant visa pause' },
-  'Tonga':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Tonga', policyNote: 'Partial travel ban — PP 10998' },
-  'Turkmenistan': { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Turkmenistan', policyNote: 'Partial travel ban — PP 10998' },
-  'Zambia':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Zambia', policyNote: 'Partial travel ban — PP 10998' },
-  'Zimbabwe':     { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Zimbabwe', policyNote: 'Partial travel ban — PP 10998' },
+  'Tonga':        { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Tonga', policyNote: 'Partial travel ban, PP 10998' },
+  'Turkmenistan': { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Turkmenistan', policyNote: 'Partial travel ban, PP 10998' },
+  'Zambia':       { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Zambia', policyNote: 'Partial travel ban, PP 10998' },
+  'Zimbabwe':     { tier: 'blocked', minMonths: 18, maxMonths: 54, label: 'Zimbabwe', policyNote: 'Partial travel ban, PP 10998' },
 }
 
 // ---------------------------------------------------------------------------
-// Immigrant Visa Pause — State Dept (Jan 21, 2026) — no resumption date set
+// Immigrant Visa Pause, State Dept (Jan 21, 2026), no resumption date set
 // ---------------------------------------------------------------------------
 const IV_PAUSE_BLOCKED: Record<string, CountryEntry> = {
-  'Albania':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Albania', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Algeria':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Algeria', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Armenia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Armenia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Azerbaijan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Azerbaijan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Bahamas':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bahamas', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Bangladesh':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bangladesh', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Barbados':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Barbados', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Belarus':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Belarus', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Belize':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Belize', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Bhutan':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bhutan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Bosnia':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bosnia and Herzegovina', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Brazil':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Brazil', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Cambodia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cambodia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Cameroon':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cameroon', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Cape Verde':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cape Verde', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Colombia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Colombia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'DR Congo':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'DR Congo (Democratic Republic)', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Egypt':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Egypt', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Ethiopia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Ethiopia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Fiji':             { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Fiji', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Georgia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Georgia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Ghana':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Ghana', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Grenada':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Grenada', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Guatemala':        { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Guatemala', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Guinea':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Guinea', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Iraq':             { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Iraq', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Jamaica':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Jamaica', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Jordan':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Jordan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Kazakhstan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kazakhstan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Kosovo':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kosovo', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Kuwait':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kuwait', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Kyrgyzstan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kyrgyzstan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Lebanon':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Lebanon', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Liberia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Liberia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Moldova':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Moldova', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Mongolia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Mongolia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Montenegro':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Montenegro', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Morocco':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Morocco', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Mozambique':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Mozambique', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Nepal':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Nepal', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Nicaragua':        { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Nicaragua', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'North Macedonia':  { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'North Macedonia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Pakistan':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Pakistan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Russia':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Russia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Rwanda':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Rwanda', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Thailand':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Thailand', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Tunisia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Tunisia', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Uganda':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uganda', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Uruguay':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uruguay', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
-  'Uzbekistan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uzbekistan', policyNote: 'Immigrant visa pause — State Dept Jan 2026' },
+  'Albania':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Albania', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Algeria':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Algeria', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Armenia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Armenia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Azerbaijan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Azerbaijan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Bahamas':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bahamas', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Bangladesh':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bangladesh', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Barbados':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Barbados', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Belarus':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Belarus', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Belize':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Belize', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Bhutan':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bhutan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Bosnia':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Bosnia and Herzegovina', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Brazil':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Brazil', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Cambodia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cambodia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Cameroon':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cameroon', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Cape Verde':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Cape Verde', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Colombia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Colombia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'DR Congo':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'DR Congo (Democratic Republic)', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Egypt':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Egypt', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Ethiopia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Ethiopia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Fiji':             { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Fiji', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Georgia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Georgia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Ghana':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Ghana', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Grenada':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Grenada', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Guatemala':        { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Guatemala', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Guinea':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Guinea', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Iraq':             { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Iraq', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Jamaica':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Jamaica', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Jordan':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Jordan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Kazakhstan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kazakhstan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Kosovo':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kosovo', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Kuwait':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kuwait', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Kyrgyzstan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Kyrgyzstan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Lebanon':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Lebanon', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Liberia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Liberia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Moldova':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Moldova', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Mongolia':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Mongolia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Montenegro':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Montenegro', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Morocco':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Morocco', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Mozambique':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Mozambique', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Nepal':            { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Nepal', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Nicaragua':        { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Nicaragua', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'North Macedonia':  { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'North Macedonia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Pakistan':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Pakistan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Russia':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Russia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Rwanda':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Rwanda', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Thailand':         { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Thailand', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Tunisia':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Tunisia', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Uganda':           { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uganda', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Uruguay':          { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uruguay', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
+  'Uzbekistan':       { tier: 'blocked', minMonths: 12, maxMonths: 36, label: 'Uzbekistan', policyNote: 'Immigrant visa pause, State Dept Jan 2026' },
 }
 
 // ---------------------------------------------------------------------------
-// EB Priority Date Backlog — per-country quota creates multi-year waits
+// EB Priority Date Backlog, per-country quota creates multi-year waits
 // ---------------------------------------------------------------------------
 const BACKLOG_COUNTRIES: Record<string, CountryEntry> = {
-  'India':       { tier: 'backlog', minMonths: 36, maxMonths: 84, label: 'India', policyNote: 'Severe EB priority date backlog — 3–7+ year estimated wait' },
-  'China':       { tier: 'backlog', minMonths: 24, maxMonths: 60, label: 'China (mainland-born)', policyNote: 'Significant EB backlog — 2–5+ year estimated wait' },
-  'Mexico':      { tier: 'backlog', minMonths: 12, maxMonths: 36, label: 'Mexico', policyNote: 'EB backlog in several categories — 1–3 year estimated wait' },
-  'Philippines': { tier: 'backlog', minMonths: 12, maxMonths: 30, label: 'Philippines', policyNote: 'EB backlog in several categories — 1–2.5 year estimated wait' },
+  'India':       { tier: 'backlog', minMonths: 36, maxMonths: 84, label: 'India', policyNote: 'Severe EB priority date backlog, 3–7+ year estimated wait' },
+  'China':       { tier: 'backlog', minMonths: 24, maxMonths: 60, label: 'China (mainland-born)', policyNote: 'Significant EB backlog, 2–5+ year estimated wait' },
+  'Mexico':      { tier: 'backlog', minMonths: 12, maxMonths: 36, label: 'Mexico', policyNote: 'EB backlog in several categories, 1–3 year estimated wait' },
+  'Philippines': { tier: 'backlog', minMonths: 12, maxMonths: 30, label: 'Philippines', policyNote: 'EB backlog in several categories, 1–2.5 year estimated wait' },
 }
 
 // ---------------------------------------------------------------------------
-// Consulate Operational — standard processing, no special restrictions
+// Consulate Operational, standard processing, no special restrictions
 // ---------------------------------------------------------------------------
 const OPEN_COUNTRIES: Record<string, CountryEntry> = {
   'Andorra':              { tier: 'open', minMonths: 8,  maxMonths: 15, label: 'Andorra' },
@@ -247,7 +247,7 @@ const OPEN_COUNTRIES: Record<string, CountryEntry> = {
 }
 
 // ---------------------------------------------------------------------------
-// Combined export — single source of truth
+// Combined export, single source of truth
 // ---------------------------------------------------------------------------
 export const COUNTRY_DATA: Record<string, CountryEntry> = {
   ...BAN_COUNTRIES,
@@ -260,8 +260,8 @@ export const COUNTRY_DATA: Record<string, CountryEntry> = {
 export const TIER_ORDER: Tier[] = ['ban', 'blocked', 'backlog', 'open']
 
 export const TIER_GROUP_LABELS: Record<Tier, string> = {
-  ban:     '── Full Travel Ban (PP 10998) — highest risk ──',
-  blocked: '── Immigrant Visa Pause (Jan 2026) — high risk ──',
-  backlog: '── EB Priority Date Backlog — elevated risk ──',
-  open:    '── Consulate Operational — baseline risk ──',
+  ban:     '── Full Travel Ban (PP 10998), highest risk ──',
+  blocked: '── Immigrant Visa Pause (Jan 2026), high risk ──',
+  backlog: '── EB Priority Date Backlog, elevated risk ──',
+  open:    '── Consulate Operational, baseline risk ──',
 }

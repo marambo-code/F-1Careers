@@ -7,8 +7,8 @@
  * Body: { billing: 'monthly' | 'annual' }
  *
  * Env vars required:
- *   STRIPE_SUBSCRIPTION_PRICE_ID         — monthly price ID
- *   STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID  — annual price ID (optional, falls back to monthly)
+ *   STRIPE_SUBSCRIPTION_PRICE_ID        , monthly price ID
+ *   STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID , annual price ID (optional, falls back to monthly)
  */
 
 import { NextResponse } from 'next/server'

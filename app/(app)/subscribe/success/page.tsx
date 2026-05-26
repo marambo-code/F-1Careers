@@ -14,7 +14,7 @@ function SuccessContent() {
   useEffect(() => {
     if (!sessionId) { setStatus('done'); return }
 
-    // Immediately provision subscription — don't wait for webhook
+    // Immediately provision subscription, don't wait for webhook
     fetch('/api/subscriptions/activate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,10 +83,10 @@ function SuccessContent() {
 
           <div className="card text-left space-y-2.5">
             {[
-              'Living Green Card Score — updates with every strategy report',
+              'Living Green Card Score, updates with every strategy report',
               'All 4 AI-personalized career moves, specific to your profile',
               'Notes and progress tracker on every move',
-              'Score history — track your trajectory over time',
+              'Score history, track your trajectory over time',
             ].map(item => (
               <div key={item} className="flex items-start gap-2.5 text-sm">
                 <span className="text-teal font-bold mt-0.5 flex-shrink-0">✓</span>

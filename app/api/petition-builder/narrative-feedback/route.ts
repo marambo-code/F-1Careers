@@ -1,4 +1,4 @@
-export const maxDuration = 60 // Narrative review is shorter — 60s is sufficient
+export const maxDuration = 60 // Narrative review is shorter, 60s is sufficient
 
 /**
  * POST /api/petition-builder/narrative-feedback
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!narrative?.trim()) return NextResponse.json({ error: 'No narrative provided' }, { status: 400 })
 
     const pathwayContext = pathway === 'EB-1A'
-      ? 'EB-1A Extraordinary Ability (8 CFR §204.5(h)). The petition must demonstrate extraordinary ability — the sustained national or international acclaim of the beneficiary in their field.'
+      ? 'EB-1A Extraordinary Ability (8 CFR §204.5(h)). The petition must demonstrate extraordinary ability, the sustained national or international acclaim of the beneficiary in their field.'
       : 'EB-2 NIW National Interest Waiver under Matter of Dhanasar (26 I&N Dec. 884). The three prongs are: (1) the proposed endeavor has substantial merit and national importance; (2) the petitioner is well-positioned to advance the endeavor; (3) on balance, it would be beneficial to the United States to waive the job offer requirement.'
 
     const message = await anthropic.messages.create({
@@ -58,11 +58,11 @@ export async function POST(req: Request) {
 
 The petitioner is filing under: ${pathwayContext}
 
-Below is their proposed endeavor / personal statement draft. Review it adversarially — your job is to find every weakness BEFORE they file, so they can fix it.
+Below is their proposed endeavor / personal statement draft. Review it adversarially, your job is to find every weakness BEFORE they file, so they can fix it.
 
 Flag:
 1. Any sentence where the framing is about the petitioner's personal career benefit rather than national benefit to the United States
-2. Vague language that an adjudicator could reject ("significant contributions," "advancing the field" — without specifics)
+2. Vague language that an adjudicator could reject ("significant contributions," "advancing the field", without specifics)
 3. Any place where the "proposed endeavor" is undefined, inconsistent, or would be interpreted differently by different readers
 4. Missing legal elements required under the framework above
 5. Language that sounds like it was written to impress rather than to legally argue

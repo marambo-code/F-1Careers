@@ -6,10 +6,10 @@
  * Set STRIPE_SUBSCRIPTION_WEBHOOK_SECRET in Vercel env vars.
  *
  * Events handled:
- *  • checkout.session.completed (subscription mode) — initial provisioning
- *  • customer.subscription.updated — status/period changes
- *  • customer.subscription.deleted — cancellation
- *  • invoice.payment_failed — mark as past_due
+ *  • checkout.session.completed (subscription mode), initial provisioning
+ *  • customer.subscription.updated, status/period changes
+ *  • customer.subscription.deleted, cancellation
+ *  • invoice.payment_failed, mark as past_due
  */
 
 import { NextResponse } from 'next/server'

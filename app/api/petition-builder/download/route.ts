@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────
  * Generates a downloadable RTF document from the petition package.
  * RTF is a pure-text format that Word, Google Docs, and Pages all
- * open natively — no npm packages required.
+ * open natively, no npm packages required.
  *
  * Accepts: { docType: 'statement' | 'cover' | 'package', packet: PetitionPackage }
  */
@@ -35,7 +35,7 @@ function textToRtf(title: string, content: string): string {
     else if (trimmed.match(/^(Prong|Criterion|Exhibit|Section|Part)\s+\w+[:\-]/i)) {
       body += `\\pard\\sb180\\sa60\\b ${escapeRtf(trimmed)}\\b0\\par\n`
     }
-    // Empty line — paragraph break
+    // Empty line, paragraph break
     else if (!trimmed) {
       body += '\\pard\\sa120\\par\n'
     }

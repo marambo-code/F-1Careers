@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────────────
  * Generates (or returns cached) career moves for the authenticated user.
  *
- * Career moves are stored in `career_move_sets` — each generation creates
+ * Career moves are stored in `career_move_sets`, each generation creates
  * a new row (is_current=true) and archives the previous set (is_current=false).
  * This preserves full history across regenerations.
  *
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'no_answers' }, { status: 200 })
     }
 
-    // Check cache — try career_move_sets first, fall back to profiles.career_moves
+    // Check cache, try career_move_sets first, fall back to profiles.career_moves
     let cachedSetId: string | null = null
     try {
       const { data: currentSet } = await service
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
       }
       cachedSetId = currentSet?.id ?? null
     } catch {
-      // career_move_sets table may not exist yet — fall through to legacy check
+      // career_move_sets table may not exist yet, fall through to legacy check
     }
 
     // Legacy cache check: profiles.career_moves
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     const reportData = report.report_data as Record<string, unknown> | null
     const result = await generateCareerMoves(answers, score, linkedInUrl, reportData, targetPathway)
 
-    // Persist — try career_move_sets, fall back to profiles.career_moves
+    // Persist, try career_move_sets, fall back to profiles.career_moves
     let newSetId: string = 'legacy'
     try {
       // Archive old current sets
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
 
       if (newSet?.id) newSetId = newSet.id
     } catch {
-      // Table doesn't exist yet — persist to profiles.career_moves instead
+      // Table doesn't exist yet, persist to profiles.career_moves instead
     }
 
     // Always keep profiles.career_moves in sync as fallback storage

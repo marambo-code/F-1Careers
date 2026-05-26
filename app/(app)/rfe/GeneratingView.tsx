@@ -66,7 +66,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
     router.push(`/${reportType}/report/${reportId}`)
   }, [router, reportId, reportType])
 
-  // ── Fire generation POST on mount — with auto-retry on network errors ─
+  // ── Fire generation POST on mount, with auto-retry on network errors ─
   useEffect(() => {
     if (generateCalled.current) return
     generateCalled.current = true
@@ -89,7 +89,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
             setTimeout(firePost, 4000)
           } else {
             postDoneRef.current = true
-            setError(`Network error — please check your connection and click Retry below.`)
+            setError(`Network error, please check your connection and click Retry below.`)
           }
         })
     }
@@ -107,7 +107,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         else if (b.status === 'error') {
           if (pollRef.current) clearInterval(pollRef.current)
           if (!postDoneRef.current) {
-            setError('Generation failed — click Retry below.')
+            setError('Generation failed, click Retry below.')
           }
         }
       } catch { /* keep polling through transient network blips */ }
@@ -150,7 +150,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         </h2>
         <p className="text-sm text-mid bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {timedOut
-            ? 'Your report may still be generating in the background. Click Retry to check — your payment is safe.'
+            ? 'Your report may still be generating in the background. Click Retry to check, your payment is safe.'
             : error}
         </p>
         <a href={`/${reportType}/report/${reportId}`} className="btn-teal inline-block">
@@ -210,7 +210,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
 
       <div className="text-center space-y-1">
         <p className="text-xs text-mid">🔒 Payment secured · Report saved automatically</p>
-        <p className="text-xs text-mid">You can close this tab — your report will be ready in your dashboard.</p>
+        <p className="text-xs text-mid">You can close this tab, your report will be ready in your dashboard.</p>
       </div>
     </div>
   )

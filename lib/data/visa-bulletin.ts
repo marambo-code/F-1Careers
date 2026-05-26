@@ -35,7 +35,7 @@ export const COUNTRY_BACKLOGS: Record<string, CountryBacklog> = {
     eb3: { date: 'Jun 2013', waitYears: 12 },
     severity: 'critical',
     headline: 'EB-2 NIW backlog is ~12 years for Indian nationals',
-    recommendation: 'EB-1A is your most viable path — it has a significantly shorter wait. Prioritize building 3+ EB-1A criteria now.',
+    recommendation: 'EB-1A is your most viable path, it has a significantly shorter wait. Prioritize building 3+ EB-1A criteria now.',
   },
   CN: {
     country: 'China',
@@ -57,7 +57,7 @@ export const COUNTRY_BACKLOGS: Record<string, CountryBacklog> = {
     eb3: { date: 'Feb 2024', waitYears: 1 },
     severity: 'minimal',
     headline: 'EB-3 has a ~1-year backlog for Filipino nationals',
-    recommendation: 'EB-1A and EB-2 NIW are current — no backlog. EB-3 has a minor delay.',
+    recommendation: 'EB-1A and EB-2 NIW are current, no backlog. EB-3 has a minor delay.',
   },
   MX: {
     country: 'Mexico',
@@ -68,7 +68,7 @@ export const COUNTRY_BACKLOGS: Record<string, CountryBacklog> = {
     eb3: { date: 'Jun 2022', waitYears: 3 },
     severity: 'moderate',
     headline: 'EB-3 has a ~3-year backlog for Mexican nationals',
-    recommendation: 'EB-1A and EB-2 NIW are current — focus on these pathways.',
+    recommendation: 'EB-1A and EB-2 NIW are current, focus on these pathways.',
   },
   SV: {
     country: 'El Salvador',
@@ -94,9 +94,9 @@ export interface ExecutiveAlert {
 }
 
 // Manually updated when EOs or USCIS policy changes affect specific nationalities
-// Add/remove entries here as needed — no DB required for country-level alerts
+// Add/remove entries here as needed, no DB required for country-level alerts
 export const EXECUTIVE_ALERTS: ExecutiveAlert[] = [
-  // Example — update as policies change:
+  // Example, update as policies change:
   // {
   //   id: 'eo-2025-xx',
   //   title: 'Executive Order: Temporary Suspension',
@@ -130,7 +130,7 @@ export function getBacklogSeverityColor(severity: BacklogSeverity): string {
   }
 }
 
-// ISO 3166-1 alpha-2 — comprehensive world country list
+// ISO 3166-1 alpha-2, comprehensive world country list
 export const COUNTRIES = [
   { code: 'AF', name: 'Afghanistan' },
   { code: 'AL', name: 'Albania' },

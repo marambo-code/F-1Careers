@@ -69,7 +69,7 @@ export default async function RFEPrintPage({ params }: { params: Promise<{ id: s
       {/* ── Priority Action List ─────────────────────────────── */}
       <section style={{ marginBottom: '28px', backgroundColor: '#FEF2F2', border: '2px solid #FECACA', borderRadius: '10px', padding: '16px 20px' }}>
         <h2 style={{ fontSize: '12pt', fontWeight: 'bold', color: '#DC2626', marginBottom: '10px', marginTop: 0 }}>
-          ⚡ Priority Action List — Address In This Order
+          ⚡ Priority Action List, Address In This Order
         </h2>
         <ol style={{ margin: 0, padding: '0 0 0 18px' }}>
           {data.priority_action_list?.map((action, i) => (
@@ -153,7 +153,7 @@ export default async function RFEPrintPage({ params }: { params: Promise<{ id: s
             {issue.draft_rebuttal_paragraph && (
               <div style={{ backgroundColor: '#F0FFFE', borderRadius: '8px', padding: '12px 14px', border: '1px solid #A7F3D0', marginBottom: '10px' }}>
                 <p style={{ fontSize: '7.5pt', fontWeight: 'bold', color: '#00C2A8', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 5px 0' }}>
-                  ✏ Draft Rebuttal Language — Ready to Use
+                  ✏ Draft Rebuttal Language, Ready to Use
                 </p>
                 <p style={{ fontSize: '9.5pt', color: '#1B2B6B', margin: 0, lineHeight: 1.7, fontStyle: 'italic' }}>
                   {issue.draft_rebuttal_paragraph}

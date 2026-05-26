@@ -7,7 +7,7 @@ export const maxDuration = 300 // Vercel: allow up to 5 min (requires Pro plan)
  * using the user's profile, narrative, and completed evidence items.
  *
  * Stores the result in petition_progress.generated_petition.
- * Rate limit: 5 generations per 24h (expensive — uses 2 AI calls).
+ * Rate limit: 5 generations per 24h (expensive, uses 2 AI calls).
  */
 
 import { NextResponse } from 'next/server'

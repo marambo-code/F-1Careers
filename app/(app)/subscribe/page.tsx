@@ -11,9 +11,9 @@ const FEATURES_FREE = [
 ]
 
 const FEATURES_PRO = [
-  'Living Green Card Score — updates as your profile grows',
+  'Living Green Card Score, updates as your profile grows',
   'All 4 AI-personalized career moves, refreshed monthly',
-  'Score history chart — see your trajectory over time',
+  'Score history chart, see your trajectory over time',
   'Priority email support',
   'Early access to new features',
 ]
@@ -58,7 +58,7 @@ export default function SubscribePage() {
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Pro Membership</span>
         <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Score, always current</h1>
         <p className="text-mid mt-2">
-          Your petition strength changes as your career grows. A Pro membership turns your score into a living signal — so you always know exactly where you stand and what to do next.
+          Your petition strength changes as your career grows. A Pro membership turns your score into a living signal, so you always know exactly where you stand and what to do next.
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export default function SubscribePage() {
           ) : (
             <div>
               <p className="text-2xl font-bold text-navy">$399<span className="text-base font-normal text-mid">/year</span></p>
-              <p className="text-xs text-teal font-semibold mt-0.5">$33/mo — save $189 vs monthly</p>
+              <p className="text-xs text-teal font-semibold mt-0.5">$33/mo, save $189 vs monthly</p>
             </div>
           )}
           <p className="text-sm text-mid mb-4 mt-1">Cancel anytime</p>
@@ -141,7 +141,7 @@ export default function SubscribePage() {
           disabled={loading}
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors disabled:opacity-50"
         >
-          {loading ? 'Redirecting to checkout...' : billing === 'annual' ? 'Start annual plan — $399/year' : 'Start monthly plan — $49/month'}
+          {loading ? 'Redirecting to checkout...' : billing === 'annual' ? 'Start annual plan, $399/year' : 'Start monthly plan, $49/month'}
         </button>
         <p className="text-blue-300 text-xs text-center mt-3">
           Secured by Stripe · Cancel anytime from your account
@@ -158,7 +158,7 @@ export default function SubscribePage() {
           },
           {
             q: 'What are career moves?',
-            a: 'AI-generated, hyper-specific actions tied to weak EB-1A criteria or NIW prongs in your profile. For example: "Submit a peer review for a Nature Methods manuscript" — not generic advice.',
+            a: 'AI-generated, hyper-specific actions tied to weak EB-1A criteria or NIW prongs in your profile. For example: "Submit a peer review for a Nature Methods manuscript", not generic advice.',
           },
           {
             q: 'Can I cancel?',

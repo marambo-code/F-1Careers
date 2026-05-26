@@ -8,14 +8,14 @@ const COHORT_FIELDS = [
     value: 'ai_ml',
     label: 'AI / Machine Learning',
     icon: '🤖',
-    niw: 'National priority field — Executive Order on AI (Oct 2023) explicitly cites AI safety as national priority',
+    niw: 'National priority field, Executive Order on AI (Oct 2023) explicitly cites AI safety as national priority',
     cost: '$2,400',
   },
   {
     value: 'biotech',
     label: 'Biotech / Life Sciences',
     icon: '🧬',
-    niw: 'FDA priority areas, NIH funding alignment — strong national importance argument across subfields',
+    niw: 'FDA priority areas, NIH funding alignment, strong national importance argument across subfields',
     cost: '$2,400',
   },
   {
@@ -29,21 +29,21 @@ const COHORT_FIELDS = [
     value: 'clean_energy',
     label: 'Clean Energy / Climate',
     icon: '⚡',
-    niw: 'IRA priorities and DOE clean energy goals — strong legislative and regulatory national importance backing',
+    niw: 'IRA priorities and DOE clean energy goals, strong legislative and regulatory national importance backing',
     cost: '$2,400',
   },
   {
     value: 'software_eng',
     label: 'Software Engineering / Cybersecurity',
     icon: '💻',
-    niw: 'Critical infrastructure, national security software — especially strong for cybersecurity professionals',
+    niw: 'Critical infrastructure, national security software, especially strong for cybersecurity professionals',
     cost: '$2,400',
   },
   {
     value: 'finance_econ',
     label: 'Finance / Economics / Quantitative',
     icon: '📊',
-    niw: 'Demonstrable economic contribution with clear quantitative impact — arguable national importance case',
+    niw: 'Demonstrable economic contribution with clear quantitative impact, arguable national importance case',
     cost: '$2,600',
   },
 ]
@@ -109,14 +109,14 @@ export default function CohortPage() {
         {/* Hero */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 bg-navy/8 text-navy text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-            New Program — Filing Together
+            New Program, Filing Together
           </div>
           <h1 className="text-4xl font-black text-navy leading-tight">
             NIW Cohort Filing
           </h1>
           <p className="text-lg text-mid max-w-xl mx-auto leading-relaxed">
             The same national importance argument protects 20 AI engineers. Why pay $10,000 each
-            when you can file together — same attorney, shared infrastructure, fraction of the cost.
+            when you can file together, same attorney, shared infrastructure, fraction of the cost.
           </p>
           <div className="inline-flex items-center gap-3 bg-teal-light border border-teal/20 rounded-xl px-5 py-3">
             <span className="text-2xl font-black text-teal">$2,400–$2,600</span>
@@ -130,8 +130,8 @@ export default function CohortPage() {
           <div className="space-y-4">
             {[
               { n: '1', title: 'Join your field\'s waitlist', desc: 'Choose your field below. When 15–20 people in the same field have joined, we open the cohort.' },
-              { n: '2', title: 'Complete your profile', desc: 'Each cohort member gets a personalized NIW petition framework generated from their specific career — evidence map, Dhanasar analysis, draft language.' },
-              { n: '3', title: 'Attorney review & filing', desc: 'A vetted immigration attorney reviews and finalizes each petition. The field-level national importance argument is shared across the cohort — dramatically reducing attorney time per case.' },
+              { n: '2', title: 'Complete your profile', desc: 'Each cohort member gets a personalized NIW petition framework generated from their specific career, evidence map, Dhanasar analysis, draft language.' },
+              { n: '3', title: 'Attorney review & filing', desc: 'A vetted immigration attorney reviews and finalizes each petition. The field-level national importance argument is shared across the cohort, dramatically reducing attorney time per case.' },
               { n: '4', title: 'Premium processing recommended', desc: 'Add $2,805 USCIS premium processing fee for a 45-business-day I-140 decision. Your approved I-140 is your strongest evidence of extraordinary circumstances for adjustment of status.' },
             ].map(step => (
               <div key={step.n} className="flex gap-4 items-start">
@@ -196,7 +196,7 @@ export default function CohortPage() {
                 <div className="w-14 h-14 bg-teal-light rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
                 <h3 className="text-lg font-bold text-navy">You're on the waitlist for {selectedFieldData?.label}</h3>
                 <p className="text-sm text-mid">We'll email you the moment your cohort reaches 15 members and is ready to open. Average time to open: 2–3 weeks given current demand.</p>
-                <p className="text-sm text-mid">While you wait — <Link href="/login" className="text-teal font-semibold hover:underline">build your NIW evidence package</Link> so you're ready to file the day the cohort opens.</p>
+                <p className="text-sm text-mid">While you wait, <Link href="/login" className="text-teal font-semibold hover:underline">build your NIW evidence package</Link> so you're ready to file the day the cohort opens.</p>
               </div>
             ) : (
               <>

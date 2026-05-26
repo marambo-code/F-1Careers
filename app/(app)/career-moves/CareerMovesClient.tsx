@@ -65,7 +65,7 @@ function PathwaySelector({
           )}
         </div>
         <p className="text-xs text-mid mt-1">
-          Your moves will be strictly tailored to this pathway — no mixed criteria.
+          Your moves will be strictly tailored to this pathway, no mixed criteria.
         </p>
       </div>
 
@@ -364,7 +364,7 @@ function MoveTrackerCard({ move, setId, locked, readonly, onStatusChange, onNote
           </div>
         )}
 
-        {/* Notes field — only on active, non-locked, non-readonly moves */}
+        {/* Notes field, only on active, non-locked, non-readonly moves */}
         {!locked && !readonly && onNotesChange && (
           <NotesField
             moveId={move.id}
@@ -517,11 +517,11 @@ export default function CareerMovesClient({
   const [isProState, setIsProState] = useState(isPro)
   const [confirmRegen, setConfirmRegen] = useState(false)
 
-  // Pathway selection — pre-populate from greenCardScore best pathway
+  // Pathway selection, pre-populate from greenCardScore best pathway
   const defaultPathway: TargetPathway = greenCardScore?.bestPathway?.includes('NIW') ? 'NIW' : 'EB-1A'
   const [selectedPathway, setSelectedPathway] = useState<TargetPathway>(defaultPathway)
 
-  // Re-check Pro status client-side — only upgrade, never downgrade.
+  // Re-check Pro status client-side, only upgrade, never downgrade.
   // The server-side check is authoritative; this only catches the edge case
   // where the page loaded before the subscription was written (post-payment race).
   useEffect(() => {
@@ -533,7 +533,7 @@ export default function CareerMovesClient({
           if (data?.status === 'active' || data?.status === 'trialing') {
             setIsProState(true)
           }
-          // Never downgrade — trust server-side isPro prop
+          // Never downgrade, trust server-side isPro prop
         })
     })
   }, [])
@@ -615,14 +615,14 @@ export default function CareerMovesClient({
         </div>
         <div className="card border-2 border-dashed border-teal/20 text-center py-12">
           <p className="font-bold text-navy text-lg">Run a strategy report first</p>
-          <p className="text-mid text-sm mt-2 mb-5 max-w-xs mx-auto">Your moves are generated from your actual criteria scores — not templates.</p>
+          <p className="text-mid text-sm mt-2 mb-5 max-w-xs mx-auto">Your moves are generated from your actual criteria scores, not templates.</p>
           <Link href="/strategy" className="btn-teal">Get my green card strategy →</Link>
         </div>
       </div>
     )
   }
 
-  // ── Not Pro — show paywall ───────────────────────────────────────
+  // ── Not Pro, show paywall ───────────────────────────────────────
   if (!isProState) {
     return (
       <div className="max-w-2xl space-y-6">
@@ -635,7 +635,7 @@ export default function CareerMovesClient({
           <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full bg-teal/25 text-teal border border-teal/30">✦ PRO</span>
           <p className="text-2xl font-bold">Unlock your 4 career moves</p>
           <p className="text-blue-200 text-sm max-w-sm mx-auto leading-relaxed">
-            AI-generated, hyper-specific actions tied to your weakest EB-1A criteria or NIW prongs. Not generic advice — personalized to your profile.
+            AI-generated, hyper-specific actions tied to your weakest EB-1A criteria or NIW prongs. Not generic advice, personalized to your profile.
           </p>
           <div className="text-left max-w-xs mx-auto space-y-2.5 pt-2">
             {[
@@ -652,7 +652,7 @@ export default function CareerMovesClient({
           </div>
           <div className="pt-2">
             <p className="text-3xl font-bold">$49<span className="text-base font-normal text-blue-300">/month</span></p>
-            <p className="text-blue-300 text-xs mt-0.5">or $399/year — save $189</p>
+            <p className="text-blue-300 text-xs mt-0.5">or $399/year, save $189</p>
           </div>
           <Link href="/subscribe" className="inline-block bg-teal text-white font-bold py-3 px-10 rounded-xl hover:bg-teal/90 transition-colors">
             Go Pro to unlock →
@@ -670,7 +670,7 @@ export default function CareerMovesClient({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-navy">Career Moves</h1>
-          <p className="text-mid text-sm mt-0.5">Track every action toward your green card — nothing gets lost.</p>
+          <p className="text-mid text-sm mt-0.5">Track every action toward your green card, nothing gets lost.</p>
         </div>
         {isProState && currentSet && (
           <button
@@ -695,7 +695,7 @@ export default function CareerMovesClient({
           />
           <div className="card border-2 border-orange-200 bg-orange-50 space-y-3">
             <p className="font-semibold text-navy text-sm">Generate a fresh {selectedPathway} set?</p>
-            <p className="text-sm text-mid">Your current set will be archived below — notes and progress saved forever.</p>
+            <p className="text-sm text-mid">Your current set will be archived below, notes and progress saved forever.</p>
             <div className="flex gap-3">
               <button onClick={() => handleGenerate(true)} className="btn-teal text-xs py-2 px-4">
                 Yes, generate {selectedPathway} moves
@@ -747,7 +747,7 @@ export default function CareerMovesClient({
             <p className="font-semibold text-navy text-lg">No moves generated yet</p>
             <p className="text-sm text-mid mt-2 mb-6 max-w-xs mx-auto">
               {isProState
-                ? `Generate your personalized 90-day ${selectedPathway} campaign — takes about 15 seconds.`
+                ? `Generate your personalized 90-day ${selectedPathway} campaign, takes about 15 seconds.`
                 : 'Upgrade to Pro to get your personalized career moves.'}
             </p>
             {isProState ? (
@@ -787,7 +787,7 @@ export default function CareerMovesClient({
             <div className="card bg-teal/5 border border-teal/20 text-center py-6 space-y-2">
               <p className="text-2xl">🎉</p>
               <p className="font-bold text-navy">You completed all moves in this set!</p>
-              <p className="text-sm text-mid">Generate a fresh set to keep momentum — your scores will be higher now.</p>
+              <p className="text-sm text-mid">Generate a fresh set to keep momentum, your scores will be higher now.</p>
               <button onClick={() => handleGenerate(true)} className="btn-teal mt-2">Generate next set →</button>
             </div>
           )}

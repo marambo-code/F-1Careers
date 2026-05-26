@@ -33,7 +33,7 @@ export default async function FilingGuidePage() {
         </p>
         <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200">
           <span className="text-orange-600 text-xs">⚠️</span>
-          <span className="text-xs text-orange-700 font-medium">Not legal advice. Immigration law changes frequently — verify all details at uscis.gov before filing.</span>
+          <span className="text-xs text-orange-700 font-medium">Not legal advice. Immigration law changes frequently, verify all details at uscis.gov before filing.</span>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ export default async function FilingGuidePage() {
 
       {/* ─── Step 1: Forms ─────────────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 1 — Complete the Required Forms</h2>
+        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 1, Complete the Required Forms</h2>
 
         <div className="space-y-3">
           <FormCard
@@ -64,15 +64,15 @@ export default async function FilingGuidePage() {
             fullName="Immigrant Petition for Alien Workers"
             description={
               isNIW
-                ? 'The core petition form. Select "National Interest Waiver" under Part 2, Question 2. You are both the petitioner and beneficiary — check "Self" where applicable.'
+                ? 'The core petition form. Select "National Interest Waiver" under Part 2, Question 2. You are both the petitioner and beneficiary, check "Self" where applicable.'
                 : 'The core petition form. Select "Extraordinary Ability" (EB-1A) under Part 2, Question 1. You are both the petitioner and beneficiary.'
             }
             url="https://www.uscis.gov/i-140"
             fee={isNIW ? '$700' : '$700'}
             notes={[
-              'Download the latest version from uscis.gov — do not use old versions',
+              'Download the latest version from uscis.gov, do not use old versions',
               'Fill out Part 5 (Basic Information About the Beneficiary) with your own information',
-              isNIW ? 'Part 6 requires your employer info — for NIW self-petitions, use your own name/employer' : null,
+              isNIW ? 'Part 6 requires your employer info, for NIW self-petitions, use your own name/employer' : null,
               'Sign in blue or black ink, or sign digitally if filing online',
             ].filter(Boolean) as string[]}
           />
@@ -86,7 +86,7 @@ export default async function FilingGuidePage() {
             optional
             notes={[
               'Only file concurrently if your visa category and country of birth have a current priority date',
-              'India and China-born applicants in EB-2/EB-3 face backlogs of 10+ years — do not file I-485 now',
+              'India and China-born applicants in EB-2/EB-3 face backlogs of 10+ years, do not file I-485 now',
               'Filing I-485 concurrently allows you to apply for work authorization (I-765) and travel permit (I-131)',
             ]}
           />
@@ -95,7 +95,7 @@ export default async function FilingGuidePage() {
 
       {/* ─── Step 2: Documents ─────────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 2 — Assemble Your Exhibit Package</h2>
+        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 2, Assemble Your Exhibit Package</h2>
         <p className="text-xs text-mid leading-relaxed">
           Your exhibits are the physical evidence that supports the claims in your personal statement.
           Organize them in the exact order your cover letter references them (Exhibit A, B, C…).
@@ -105,7 +105,7 @@ export default async function FilingGuidePage() {
         <div className="card !p-0 overflow-hidden">
           <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
             <p className="text-xs font-bold text-navy uppercase tracking-wide">
-              {isNIW ? 'NIW — Recommended Exhibit Order' : 'EB-1A — Recommended Exhibit Order'}
+              {isNIW ? 'NIW, Recommended Exhibit Order' : 'EB-1A, Recommended Exhibit Order'}
             </p>
           </div>
           <div className="divide-y divide-gray-50">
@@ -148,13 +148,13 @@ export default async function FilingGuidePage() {
 
       {/* ─── Step 3: Fee payment ───────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 3 — Prepare Filing Fee Payment</h2>
+        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 3, Prepare Filing Fee Payment</h2>
 
         <div className="card !p-4 space-y-3">
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
             {[
               { label: 'I-140 base fee', amount: '$700', note: 'Required' },
-              { label: 'Premium processing', amount: '$2,805', note: 'Optional — 15 business days' },
+              { label: 'Premium processing', amount: '$2,805', note: 'Optional, 15 business days' },
               { label: 'Biometrics (I-485)', amount: '$85', note: 'Only if filing I-485 concurrently' },
               { label: 'I-485 filing fee', amount: '$1,440', note: 'Only if filing I-485 concurrently' },
             ].map(fee => (
@@ -171,7 +171,7 @@ export default async function FilingGuidePage() {
             {[
               'Check or money order payable to "U.S. Department of Homeland Security"',
               'Credit card: complete Form G-1450 (Authorization for Credit Card Transactions)',
-              'Do NOT make check payable to USCIS — it must say "U.S. Department of Homeland Security"',
+              'Do NOT make check payable to USCIS, it must say "U.S. Department of Homeland Security"',
             ].map((note, i) => (
               <div key={i} className="flex gap-2">
                 <span className="text-teal text-xs flex-shrink-0">·</span>
@@ -183,7 +183,7 @@ export default async function FilingGuidePage() {
           <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-3">
             <p className="text-xs font-semibold text-yellow-900">Should you use premium processing?</p>
             <p className="text-xs text-yellow-800 mt-1 leading-relaxed">
-              Premium processing ($2,805) guarantees a decision in 15 business days — either approval, denial, or RFE.
+              Premium processing ($2,805) guarantees a decision in 15 business days, either approval, denial, or RFE.
               Standard processing for NIW is currently 6–12 months. If you need status certainty quickly, premium is worth it.
               If your case is strong and you're not in a rush, standard is fine.
             </p>
@@ -193,7 +193,7 @@ export default async function FilingGuidePage() {
 
       {/* ─── Step 4: Assembly ──────────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 4 — Assemble and Mail the Package</h2>
+        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 4, Assemble and Mail the Package</h2>
 
         <div className="card !p-4 space-y-4">
           <div>
@@ -235,7 +235,7 @@ export default async function FilingGuidePage() {
               <p>USCIS Attn: I-140</p>
               <p>2501 S State Hwy 121 Business</p>
               <p>Suite 400, Lewisville, TX 75067</p>
-              <p className="mt-2 text-orange-700 font-sans font-semibold not-italic">⚠️ Verify at uscis.gov before mailing — addresses change</p>
+              <p className="mt-2 text-orange-700 font-sans font-semibold not-italic">⚠️ Verify at uscis.gov before mailing, addresses change</p>
             </div>
           </div>
 
@@ -260,7 +260,7 @@ export default async function FilingGuidePage() {
 
       {/* ─── Step 5: After filing ──────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 5 — After You File</h2>
+        <h2 className="text-base font-bold text-navy border-b border-gray-100 pb-2">Step 5, After You File</h2>
 
         <div className="card !p-4 space-y-3">
           <div className="space-y-3">
@@ -268,7 +268,7 @@ export default async function FilingGuidePage() {
               {
                 title: 'Receipt notice (Form I-797)',
                 timing: '2–4 weeks after mailing',
-                description: 'USCIS sends a receipt notice confirming they received your petition. It includes a receipt number (WAC, LIN, EAC, or SRC) — use this to check status at egov.uscis.gov.',
+                description: 'USCIS sends a receipt notice confirming they received your petition. It includes a receipt number (WAC, LIN, EAC, or SRC), use this to check status at egov.uscis.gov.',
               },
               {
                 title: 'Request for Evidence (RFE)',
@@ -294,7 +294,7 @@ export default async function FilingGuidePage() {
           <div className="rounded-xl bg-teal/6 border border-teal/20 p-4">
             <p className="text-xs font-bold text-navy mb-1">Got an RFE?</p>
             <p className="text-xs text-mid leading-relaxed mb-2">
-              F-1 Careers has an RFE Response Builder that helps you structure a strong response. RFEs are common — they are not denials.
+              F-1 Careers has an RFE Response Builder that helps you structure a strong response. RFEs are common, they are not denials.
             </p>
             <Link href="/rfe" className="text-xs text-teal font-semibold hover:underline">
               Open RFE Response Builder →
@@ -310,7 +310,7 @@ export default async function FilingGuidePage() {
           {[
             { label: 'USCIS I-140 page', url: 'https://www.uscis.gov/i-140', desc: 'Official form, instructions, mailing addresses' },
             { label: 'USCIS case status', url: 'https://egov.uscis.gov', desc: 'Check your receipt number status online' },
-            { label: 'Visa Bulletin', url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html', desc: 'Priority date cutoffs — check monthly' },
+            { label: 'Visa Bulletin', url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html', desc: 'Priority date cutoffs, check monthly' },
             { label: 'USCIS processing times', url: 'https://egov.uscis.gov/processing-times/', desc: 'Current estimated wait times by form type' },
           ].map(r => (
             <a
@@ -402,11 +402,11 @@ function FormCard({
 const NIW_EXHIBITS = [
   { label: 'Personal Statement', description: 'Your attorney brief arguing all three Dhanasar prongs. This is the narrative you generated in the Petition Builder.', prong: 'All prongs' },
   { label: 'Curriculum Vitae', description: 'Complete CV including all publications, presentations, grants, and professional achievements.', prong: 'Prong 2 support' },
-  { label: 'Publication list with citation counts', description: 'List of all peer-reviewed publications with citation counts pulled from Google Scholar or Web of Science.', prong: 'Prong 2 — Well-positioned' },
+  { label: 'Publication list with citation counts', description: 'List of all peer-reviewed publications with citation counts pulled from Google Scholar or Web of Science.', prong: 'Prong 2, Well-positioned' },
   { label: 'Copies of top publications', description: 'Full text of 3–5 most significant published works. Include the full paper, not just abstract.', prong: 'Prong 1 & 2' },
   { label: 'Evidence of citations', description: 'Screenshots or printouts showing papers citing your work. Include the citing paper title and author.', prong: 'Prong 2' },
-  { label: 'Peer review invitation letters', description: 'Any emails or letters from journals/conferences inviting you to review manuscripts.', prong: 'Prong 2 — Field recognition' },
-  { label: 'National priority documentation', description: 'Government reports, agency priorities, Congressional findings, or grant announcements establishing that your field is a national priority.', prong: 'Prong 1 — National importance' },
+  { label: 'Peer review invitation letters', description: 'Any emails or letters from journals/conferences inviting you to review manuscripts.', prong: 'Prong 2, Field recognition' },
+  { label: 'National priority documentation', description: 'Government reports, agency priorities, Congressional findings, or grant announcements establishing that your field is a national priority.', prong: 'Prong 1, National importance' },
   { label: 'Recommendation letters', description: 'Signed original letters from 3–5 experts. Majority should be independent (no prior working relationship). Stack independent letters first.', prong: 'Prong 2 & 3' },
   { label: 'Degree and transcript', description: 'Copy of advanced degree (PhD, MD, or equivalent). Include official or unofficial transcript.', prong: 'Background' },
   { label: 'Awards and recognition', description: 'Certificates, announcements, or documentation of competitive awards, grants, or honors.', prong: 'Prong 2' },
@@ -417,7 +417,7 @@ const EB1A_EXHIBITS = [
   { label: 'Personal Statement', description: 'Your attorney brief addressing each EB-1A criterion satisfied and arguing the final merits determination.', prong: 'All criteria' },
   { label: 'Curriculum Vitae', description: 'Complete CV. For EB-1A, include all award nominations, judging roles, media mentions, and salary data.', prong: 'Overview' },
   { label: 'Awards and prizes documentation', description: 'Official announcement, certificate, or correspondence confirming nationally/internationally recognized award. Include the competition scope.', prong: 'Criterion (i)' },
-  { label: 'Association membership evidence', description: 'Documentation that membership required outstanding achievement — include the association\'s bylaws or selection criteria.', prong: 'Criterion (ii)' },
+  { label: 'Association membership evidence', description: 'Documentation that membership required outstanding achievement, include the association\'s bylaws or selection criteria.', prong: 'Criterion (ii)' },
   { label: 'Published media coverage', description: 'Full print of articles about you in major publications or professional journals. Include publication name, date, circulation.', prong: 'Criterion (iii)' },
   { label: 'Peer review evidence', description: 'Invitations to review manuscripts; conference program committees; editorial board memberships.', prong: 'Criterion (iv)' },
   { label: 'Original contribution evidence', description: 'Papers, patents, or technical reports documenting original contributions. Include citation data and commentary from others in the field.', prong: 'Criterion (v)' },

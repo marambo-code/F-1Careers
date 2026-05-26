@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   } catch (err) {
     // Most common cause: STRIPE_WEBHOOK_SECRET in Vercel doesn't match the signing secret
     // shown in Stripe Dashboard → Developers → Webhooks → [your endpoint] → Signing secret
-    console.error('[stripe/webhook] Signature verification failed — STRIPE_WEBHOOK_SECRET likely wrong in Vercel env vars:', err instanceof Error ? err.message : err)
+    console.error('[stripe/webhook] Signature verification failed, STRIPE_WEBHOOK_SECRET likely wrong in Vercel env vars:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       product_type,
     })
 
-    // Mark report as paid — generation happens client-side via /api/*/generate
+    // Mark report as paid, generation happens client-side via /api/*/generate
     await supabase
       .from('reports')
       .update({

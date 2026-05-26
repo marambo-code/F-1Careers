@@ -38,7 +38,7 @@ export default async function Home() {
             <span className="text-teal">built by AI.</span>
           </h1>
           <p className="text-blue-200 text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            F-1 Careers analyzes your profile against USCIS criteria and tells you exactly which visa pathway fits — and exactly what to do next.
+            F-1 Careers analyzes your profile against USCIS criteria and tells you exactly which visa pathway fits, and exactly what to do next.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup" className="bg-teal text-white font-bold text-lg px-8 py-4 rounded-2xl hover:bg-teal/90 transition-all hover:scale-105 shadow-lg shadow-teal/30">
@@ -100,7 +100,7 @@ export default async function Home() {
                 'Evidence mapping tied to your profile',
                 'Gap analysis with specific action items',
                 '3 / 6 / 12-month career + immigration roadmap',
-                'Downloadable PDF — attorney-ready format',
+                'Downloadable PDF, attorney-ready format',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
                   <span className="text-teal font-bold mt-0.5">✓</span> {f}
@@ -108,7 +108,7 @@ export default async function Home() {
               ))}
             </ul>
             <Link href="/signup" className="block w-full bg-teal text-white font-bold py-3.5 rounded-xl text-center hover:bg-teal/90 transition-colors text-sm">
-              Start questionnaire — preview free →
+              Start questionnaire, preview free →
             </Link>
           </div>
 
@@ -136,7 +136,7 @@ export default async function Home() {
                 'Response strategy: Rebut / Supplement / Narrow',
                 'Cites controlling cases (Kazarian, Dhanasar, etc.)',
                 'Priority action list ordered by urgency',
-                'Downloadable PDF — hand directly to attorney',
+                'Downloadable PDF, hand directly to attorney',
               ].map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-mid">
                   <span className="text-navy font-bold mt-0.5">✓</span> {f}
@@ -144,7 +144,7 @@ export default async function Home() {
               ))}
             </ul>
             <Link href="/signup" className="block w-full bg-navy text-white font-bold py-3.5 rounded-xl text-center hover:bg-navy/90 transition-colors text-sm">
-              Upload RFE — preview free →
+              Upload RFE, preview free →
             </Link>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default async function Home() {
               {
                 step: '02',
                 title: 'Get your free preview',
-                body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis — before paying anything.',
+                body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis, before paying anything.',
               },
               {
                 step: '03',
@@ -210,7 +210,7 @@ export default async function Home() {
         <div className="max-w-2xl mx-auto px-6 text-center space-y-6">
           <h2 className="text-4xl font-bold">Stop guessing. Start knowing.</h2>
           <p className="text-blue-200 leading-relaxed">
-            Most international professionals spend years uncertain about which visa path is right for them. Get clarity in 5 minutes — free preview, no commitment.
+            Most international professionals spend years uncertain about which visa path is right for them. Get clarity in 5 minutes, free preview, no commitment.
           </p>
           <Link href="/signup" className="inline-block bg-teal text-white font-bold text-lg px-10 py-4 rounded-2xl hover:bg-teal/90 transition-all hover:scale-105 shadow-lg shadow-teal/30">
             Get started free →

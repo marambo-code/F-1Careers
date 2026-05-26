@@ -202,7 +202,7 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
                 {issue.draft_rebuttal_paragraph && (
                   <div className="bg-teal-light border border-teal/20 rounded-lg p-4">
                     <p className="text-xs font-bold text-teal uppercase tracking-wide mb-2">
-                      ✏ Draft Rebuttal Language — Ready to Use
+                      ✏ Draft Rebuttal Language, Ready to Use
                     </p>
                     <p className="text-sm text-navy leading-relaxed italic">{issue.draft_rebuttal_paragraph}</p>
                   </div>

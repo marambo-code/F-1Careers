@@ -66,7 +66,7 @@ function buildNIWPrompt(
 
 Write a complete, attorney-quality I-140 support letter / personal statement for the petitioner below. This is a self-petition under EB-2 National Interest Waiver, adjudicated under Matter of Dhanasar (26 I&N Dec. 884).
 
-LEGAL FRAMEWORK — DHANASAR THREE-PRONG TEST:
+LEGAL FRAMEWORK, DHANASAR THREE-PRONG TEST:
 Prong 1: The proposed endeavor has substantial merit and national importance
 Prong 2: The petitioner is well-positioned to advance the proposed endeavor
 Prong 3: On balance, it would be beneficial to the United States to waive the job offer and labor certification requirements
@@ -79,7 +79,7 @@ Current Role: ${profile.job_title || 'Researcher/Professional'} at ${profile.cur
 Visa Status: ${profile.visa_status || 'F-1/H-1B'}
 Country of Birth: ${profile.country_of_birth || '[Country]'}
 
-PROPOSED ENDEAVOR (petitioner's own words — use this exact language throughout):
+PROPOSED ENDEAVOR (petitioner's own words, use this exact language throughout):
 ${narrative || '[Petitioner has not yet written their proposed endeavor statement]'}
 
 EVIDENCE COLLECTED:
@@ -88,18 +88,18 @@ ${evidenceSummary}
 ${strategyContext ? `ADDITIONAL CONTEXT FROM STRATEGY REPORT:\n${strategyContext}` : ''}
 
 WRITING INSTRUCTIONS:
-1. Open with a 2-paragraph introduction establishing the proposed endeavor and why it serves the national interest. Use the EXACT proposed endeavor language from above — do not paraphrase it.
+1. Open with a 2-paragraph introduction establishing the proposed endeavor and why it serves the national interest. Use the EXACT proposed endeavor language from above, do not paraphrase it.
 2. Argue Prong 1 for at least 3-4 paragraphs. Connect the work to specific US national priorities (cite relevant federal initiatives, agency priorities, or legislation if applicable to the field).
-3. Argue Prong 2 for at least 4-5 paragraphs. Use every piece of evidence listed above. Be specific — if peer review invitations are listed, reference them as demonstrating field recognition. If citations are listed, frame them as evidence of the field adopting the petitioner's contributions.
-4. Argue Prong 3 for 2-3 paragraphs. Explain why requiring a job offer would be contrary to national interest — the petitioner is uniquely positioned to advance this endeavor independently.
+3. Argue Prong 2 for at least 4-5 paragraphs. Use every piece of evidence listed above. Be specific, if peer review invitations are listed, reference them as demonstrating field recognition. If citations are listed, frame them as evidence of the field adopting the petitioner's contributions.
+4. Argue Prong 3 for 2-3 paragraphs. Explain why requiring a job offer would be contrary to national interest, the petitioner is uniquely positioned to advance this endeavor independently.
 5. Close with a paragraph requesting approval.
 
 STYLE RULES:
 - Write in third person ("the Petitioner" or their name)
-- Legal brief tone — assertive, not hedging. Say "demonstrates" not "may demonstrate"
+- Legal brief tone, assertive, not hedging. Say "demonstrates" not "may demonstrate"
 - Every claim must point to specific evidence. Never make an unsupported assertion.
 - Do NOT write a CV narrative. This is a legal argument.
-- Do NOT use phrases like "Dr. Smith is passionate about..." — this is not a personal essay
+- Do NOT use phrases like "Dr. Smith is passionate about...", this is not a personal essay
 - Target 2,500–3,500 words for the personal statement
 - Use clear section headers for each Prong
 
@@ -116,7 +116,7 @@ function buildEB1APrompt(
 
 Write a complete, attorney-quality I-140 support letter / personal statement for the petitioner below. This is a self-petition under EB-1A Extraordinary Ability, adjudicated under 8 CFR §204.5(h).
 
-LEGAL FRAMEWORK — EB-1A:
+LEGAL FRAMEWORK, EB-1A:
 The petitioner must demonstrate extraordinary ability in their field through sustained national or international acclaim. They must meet at least 3 of 10 regulatory criteria, OR provide evidence of a one-time achievement (major internationally recognized award).
 
 The 10 criteria (8 CFR §204.5(h)(3)):
@@ -149,13 +149,13 @@ ${strategyContext ? `ADDITIONAL CONTEXT FROM STRATEGY REPORT:\n${strategyContext
 
 WRITING INSTRUCTIONS:
 1. Open with a 2-paragraph introduction establishing the petitioner's extraordinary ability and the specific criteria they satisfy.
-2. For each criterion that has corresponding evidence in the list above, write a dedicated section with a bold header (e.g., "Criterion (iv) — Participation as Judge of Others' Work"). Argue why the evidence satisfies the criterion's legal standard. Be specific and assertive.
+2. For each criterion that has corresponding evidence in the list above, write a dedicated section with a bold header (e.g., "Criterion (iv), Participation as Judge of Others' Work"). Argue why the evidence satisfies the criterion's legal standard. Be specific and assertive.
 3. After addressing individual criteria, write a "Final Merits Determination" section arguing that even if individual criteria are borderline, the totality of evidence demonstrates the sustained acclaim required for EB-1A.
 4. Close with a paragraph requesting approval.
 
 STYLE RULES:
 - Write in third person ("the Petitioner" or their name)
-- Legal brief tone — assertive, not hedging
+- Legal brief tone, assertive, not hedging
 - Every criterion section must tie to SPECIFIC evidence from the list
 - Never make unsupported claims
 - Do NOT write a personal narrative or CV summary
@@ -183,9 +183,9 @@ ${evidenceSummary}
 Write a cover letter (400–600 words) that:
 1. Opens by identifying the petition type and petitioner
 2. States which legal standard is being met (Dhanasar prongs for NIW / criteria count for EB-1A)
-3. Lists each exhibit with a one-line description of what it is and which prong/criterion it supports — formatted as:
-   Exhibit A: [Description] — supports [Prong/Criterion]
-   Exhibit B: [Description] — supports [Prong/Criterion]
+3. Lists each exhibit with a one-line description of what it is and which prong/criterion it supports, formatted as:
+   Exhibit A: [Description], supports [Prong/Criterion]
+   Exhibit B: [Description], supports [Prong/Criterion]
    (Create exhibit labels based on the evidence items above, in logical order)
 4. Closes by requesting approval and listing attachments
 

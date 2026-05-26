@@ -110,7 +110,7 @@ export default function ForEmployersPage() {
             <span className="text-teal">to PM-602-0199</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            USCIS PM-602-0199 (May 21, 2026) makes adjustment of status officially discretionary. ICE has declared OPT fraud enforcement a national priority — 10,000+ cases identified. DHS is ending Duration of Status for F-1 holders. Three simultaneous threats to your international workforce. We map every one of them.
+            USCIS PM-602-0199 (May 21, 2026) makes adjustment of status officially discretionary. ICE has declared OPT fraud enforcement a national priority, 10,000+ cases identified. DHS is ending Duration of Status for F-1 holders. Three simultaneous threats to your international workforce. We map every one of them.
           </p>
           <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-4 rounded-xl hover:bg-teal/90 transition-colors text-lg">
             Request a workforce audit →
@@ -129,8 +129,8 @@ export default function ForEmployersPage() {
 
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { stat: '$150K–$300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity — industry standard estimate', color: 'text-red-500' },
-              { stat: '$2,805', label: 'Cost of NIW premium processing', note: 'The USCIS fee for a 45-business-day I-140 decision — your employee\'s strongest protection', color: 'text-teal' },
+              { stat: '$150K–$300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity, industry standard estimate', color: 'text-red-500' },
+              { stat: '$2,805', label: 'Cost of NIW premium processing', note: 'The USCIS fee for a 45-business-day I-140 decision, your employee\'s strongest protection', color: 'text-teal' },
               { stat: '100×', label: 'ROI of proactive filing', note: 'For every dollar spent on premium processing, you protect $100+ in retention value', color: 'text-navy' },
             ].map((item, i) => (
               <div key={i} className="card text-center space-y-2">
@@ -146,11 +146,11 @@ export default function ForEmployersPage() {
             <h2 className="text-xl font-black text-navy text-center">What we do for your team</h2>
             <div className="space-y-3">
               {[
-                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and NIW eligibility — and flag who is at risk under PM-602-0199.' },
+                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and NIW eligibility, and flag who is at risk under PM-602-0199.' },
                 { n: '2', title: 'NIW eligibility scoring', desc: 'Each employee receives a personalized NIW eligibility score based on their field, education, publications, leadership, and salary. We identify exactly who has a strong extraordinary circumstances case.' },
-                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete NIW petition framework — field-level national importance argument, evidence map, Dhanasar analysis — ready for attorney review.' },
-                { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files — not blank intake forms.' },
-                { n: '5', title: 'OPT compliance audit', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records — work site accuracy, authorization dates, E-Verify status — and flag any exposure before ICE does.' },
+                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete NIW petition framework, field-level national importance argument, evidence map, Dhanasar analysis, ready for attorney review.' },
+                { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
+                { n: '5', title: 'OPT compliance audit', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
               ].map((step) => (
                 <div key={step.n} className="card flex gap-4 items-start">
                   <div className="w-9 h-9 rounded-full bg-navy text-white text-sm font-black flex items-center justify-center flex-shrink-0">{step.n}</div>

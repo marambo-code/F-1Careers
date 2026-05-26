@@ -102,7 +102,7 @@ export default function RFEUploadPage() {
       router.push(`/rfe/preview?reportId=${report.id}`)
     } else {
       const body = await res.json().catch(() => ({}))
-      setError(body?.error ?? 'Analysis failed — please try again.')
+      setError(body?.error ?? 'Analysis failed, please try again.')
       setUploading(false)
     }
   }
@@ -132,7 +132,7 @@ export default function RFEUploadPage() {
         </div>
         <h1 className="text-2xl font-black text-navy">Respond to your RFE with confidence</h1>
         <p className="text-mid mt-1.5 text-sm leading-relaxed">
-          Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy — formatted to hand directly to your attorney.
+          Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy, formatted to hand directly to your attorney.
         </p>
       </div>
 
@@ -303,7 +303,7 @@ export default function RFEUploadPage() {
             <svg className="w-4 h-4 text-mid flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <p className="text-xs text-mid">Private & secure — your document is never shared and processed only to generate your analysis.</p>
+            <p className="text-xs text-mid">Private & secure, your document is never shared and processed only to generate your analysis.</p>
           </div>
         </div>
       )}
@@ -420,7 +420,7 @@ export default function RFEUploadPage() {
           <div>
             <p className="text-[11px] font-bold text-blue-300 uppercase tracking-widest">One-time · No subscription</p>
             <p className="text-4xl font-black text-white mt-2">$297</p>
-            <p className="text-blue-300 text-sm mt-1">Preview free — pay only when you see your analysis</p>
+            <p className="text-blue-300 text-sm mt-1">Preview free, pay only when you see your analysis</p>
           </div>
           <div className="space-y-2">
             {[

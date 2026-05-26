@@ -69,7 +69,7 @@ export default async function RFEPreviewPage({
         }).eq('id', reportId)
       }
     } catch {
-      // Stripe error — fall through to pay button
+      // Stripe error, fall through to pay button
     }
 
     if (stripeVerified) redirect(`/rfe/report/${reportId}`)
@@ -94,7 +94,7 @@ export default async function RFEPreviewPage({
 
       {preview ? (
         <>
-          {/* Denial risk — the most important signal, shown first */}
+          {/* Denial risk, the most important signal, shown first */}
           <div className={`rounded-xl border-2 p-5 ${rs.banner}`}>
             <div className="flex items-center gap-3 mb-3">
               <span className={`text-sm font-bold px-3 py-1 rounded-full border ${rs.badge}`}>
@@ -125,7 +125,7 @@ export default async function RFEPreviewPage({
 
           {/* Blurred teaser of full report */}
           <div className="card border-l-4 border-l-navy">
-            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">Locked — full analysis includes</p>
+            <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-3">Locked, full analysis includes</p>
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
                 <div key={i} className="blur-sm select-none pointer-events-none border border-border rounded-lg p-3">

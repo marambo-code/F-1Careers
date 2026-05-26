@@ -145,7 +145,7 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
       {/* Dhanasar Analysis */}
       {data.dhanasar_analysis && data.dhanasar_analysis.length > 0 && (
         <section style={{ marginBottom: '32px', pageBreakBefore: 'auto' }}>
-          <h2 style={sectionHeading('NIW Dhanasar Analysis — Prong by Prong')}>NIW Dhanasar Analysis — Prong by Prong</h2>
+          <h2 style={sectionHeading('NIW Dhanasar Analysis, Prong by Prong')}>NIW Dhanasar Analysis, Prong by Prong</h2>
           {data.dhanasar_analysis.map((prong: DhanasarProngAnalysis) => (
             <div key={prong.prong_number} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px 18px', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -153,7 +153,7 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
                   <span style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#1B2B6B', color: 'white', fontSize: '11pt', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {prong.prong_number}
                   </span>
-                  <strong style={{ fontSize: '11pt', color: '#1B2B6B' }}>Prong {prong.prong_number} — {prong.prong_name}</strong>
+                  <strong style={{ fontSize: '11pt', color: '#1B2B6B' }}>Prong {prong.prong_number}, {prong.prong_name}</strong>
                 </div>
                 <span style={{ fontSize: '9pt', fontWeight: 'bold', color: prongColor[prong.score] ?? '#555', padding: '3px 10px', borderRadius: '999px', backgroundColor: prongColor[prong.score] ? `${prongColor[prong.score]}20` : '#f3f4f6' }}>{prong.score}</span>
               </div>

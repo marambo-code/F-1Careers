@@ -273,7 +273,7 @@ function NarrativeTrack({
         <p className="text-xs font-bold text-navy mb-1">What to write here</p>
         <p className="text-xs text-mid leading-relaxed">
           Write 2–4 sentences describing the specific work you will pursue after your green card is approved.
-          This is your <span className="font-semibold text-navy">proposed endeavor</span> — the single most important phrase in your petition.
+          This is your <span className="font-semibold text-navy">proposed endeavor</span>, the single most important phrase in your petition.
           Every document you file must use this exact language. The AI will review it the way a USCIS adjudicator would.
         </p>
       </div>
@@ -418,7 +418,7 @@ function SignalTrack({
         <div>
           <p className="text-sm font-bold">Filing climate: {filingClimate.label}</p>
           <p className="text-xs opacity-80 mt-0.5">
-            {pathway} overall approval rate is currently {signals.overall.rate}% — {signals.overall.trend === 'down' ? 'down from recent highs' : signals.overall.trend === 'up' ? 'trending upward' : 'holding steady'}.
+            {pathway} overall approval rate is currently {signals.overall.rate}%, {signals.overall.trend === 'down' ? 'down from recent highs' : signals.overall.trend === 'up' ? 'trending upward' : 'holding steady'}.
           </p>
         </div>
       </div>
@@ -493,7 +493,7 @@ function SignalTrack({
       <div className="card !p-4 space-y-2">
         <p className="text-xs font-bold text-navy">How to use this data</p>
         <p className="text-xs text-mid leading-relaxed">
-          Approval rates fluctuate quarterly. A drop below 50% overall is a signal to wait until your evidence is stronger — marginal cases get denied faster in high-scrutiny periods. Strong cases (score 80+) can file in any climate.
+          Approval rates fluctuate quarterly. A drop below 50% overall is a signal to wait until your evidence is stronger, marginal cases get denied faster in high-scrutiny periods. Strong cases (score 80+) can file in any climate.
         </p>
       </div>
     </div>
@@ -594,7 +594,7 @@ function LettersTrack({
       <div className="card !p-4 space-y-2">
         <p className="text-xs font-bold text-navy">Why recommendation letters make or break your petition</p>
         <p className="text-xs text-mid leading-relaxed">
-          USCIS adjudicators weight independent expert letters highest — they prove your standing in the field without any relationship bias. For NIW, 3–5 letters is standard: at least 2 from experts with no direct connection to you. For EB-1A, 6–9 letters, majority independent.
+          USCIS adjudicators weight independent expert letters highest, they prove your standing in the field without any relationship bias. For NIW, 3–5 letters is standard: at least 2 from experts with no direct connection to you. For EB-1A, 6–9 letters, majority independent.
         </p>
         {totalCount > 0 && (
           <div className="flex gap-3 pt-1">
@@ -688,7 +688,7 @@ function LettersTrack({
                       <p className="text-xs text-mid">
                         {isGenerating
                           ? 'Writing personalized briefing… (~30s)'
-                          : 'No briefing yet — generate one to send to this recommender'}
+                          : 'No briefing yet, generate one to send to this recommender'}
                       </p>
                       <button
                         onClick={() => generateBriefing(rec)}
@@ -717,7 +717,7 @@ function LettersTrack({
                     </div>
                     <div className="px-5 py-3 border-t border-gray-100 bg-white">
                       <p className="text-[10px] text-mid leading-relaxed">
-                        Send this briefing to {rec.name} before they start writing. It tells them exactly what USCIS needs from their letter — without revealing anything about the petition strategy.
+                        Send this briefing to {rec.name} before they start writing. It tells them exactly what USCIS needs from their letter, without revealing anything about the petition strategy.
                       </p>
                     </div>
                   </div>
@@ -875,7 +875,7 @@ function GenerateTrack({
   const readinessScore = Math.round(((doneCount + inProgressCount * 0.5) / items.length) * 100)
 
   const readinessColor = readinessScore >= 70 ? 'text-teal' : readinessScore >= 40 ? 'text-yellow-500' : 'text-orange-500'
-  const readinessLabel = readinessScore >= 70 ? 'Strong — ready to generate' : readinessScore >= 40 ? 'Partial — generation will have gaps' : 'Early — add more evidence for better output'
+  const readinessLabel = readinessScore >= 70 ? 'Strong, ready to generate' : readinessScore >= 40 ? 'Partial, generation will have gaps' : 'Early, add more evidence for better output'
 
   const copy = async (text: string, key: string) => {
     await navigator.clipboard.writeText(text)
@@ -903,7 +903,7 @@ function GenerateTrack({
       a.click()
       URL.revokeObjectURL(url)
     } catch {
-      // silent — copy fallback still works
+      // silent, copy fallback still works
     } finally {
       setDownloading(null)
     }
@@ -959,7 +959,7 @@ function GenerateTrack({
 
         {!hasNarrative && (
           <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
-            ⚠️ No narrative statement written. Go to the Narrative tab and write your proposed endeavor — it's the spine of the petition.
+            ⚠️ No narrative statement written. Go to the Narrative tab and write your proposed endeavor, it's the spine of the petition.
           </p>
         )}
       </div>
@@ -1120,7 +1120,7 @@ function GenerateTrack({
               >
                 Filing checklist & submission guide →
               </a>
-              <span className="text-xs text-mid">Not legal advice — consult an attorney before filing</span>
+              <span className="text-xs text-mid">Not legal advice, consult an attorney before filing</span>
             </div>
           </div>
         </div>

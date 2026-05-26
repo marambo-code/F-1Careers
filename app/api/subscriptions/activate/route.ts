@@ -3,11 +3,11 @@
  * ─────────────────────────────────────────────────────────────────
  * Called immediately from the success page after Stripe redirects.
  * Verifies the checkout session with Stripe and writes the subscription
- * record to Supabase right away — so the user sees Pro instantly
+ * record to Supabase right away, so the user sees Pro instantly
  * without waiting for the webhook to arrive.
  *
  * The webhook (/api/subscriptions/webhook) will also fire and upsert
- * the same record — that's fine, upsert is idempotent.
+ * the same record, that's fine, upsert is idempotent.
  */
 
 import { NextResponse } from 'next/server'
@@ -32,10 +32,10 @@ export async function POST(req: Request) {
       expand: ['subscription'],
     })
 
-    console.log(`[activate] session ${sessionId} — status: ${session.status}, payment_status: ${session.payment_status}`)
+    console.log(`[activate] session ${sessionId}, status: ${session.status}, payment_status: ${session.payment_status}`)
 
     if (session.payment_status !== 'paid' && session.status !== 'complete') {
-      console.error(`[activate] payment not confirmed — status: ${session.status}, payment_status: ${session.payment_status}`)
+      console.error(`[activate] payment not confirmed, status: ${session.status}, payment_status: ${session.payment_status}`)
       return NextResponse.json({ error: 'Payment not confirmed yet' }, { status: 402 })
     }
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       console.error(`[activate] no subscription on session ${sessionId}`)
       return NextResponse.json({ error: 'No subscription found on session' }, { status: 400 })
     }
-    console.log(`[activate] subscription ${sub.id} — status: ${sub.status}`)
+    console.log(`[activate] subscription ${sub.id}, status: ${sub.status}`)
 
     const service = createServiceClient()
 

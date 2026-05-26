@@ -57,7 +57,7 @@ export async function POST(
 
     if (textIsMissing) {
       const rfePath = report.rfe_document_path as string | null
-      console.log(`[rfe/generate] rfe_document_text missing/short — falling back to storage path: ${rfePath}`)
+      console.log(`[rfe/generate] rfe_document_text missing/short, falling back to storage path: ${rfePath}`)
       if (!rfePath) {
         await service.from('reports').update({ status: 'error' }).eq('id', id)
         return NextResponse.json({
@@ -74,11 +74,11 @@ export async function POST(
       const parsed = await pdfParse(Buffer.from(await fileData.arrayBuffer()))
       rfeText = parsed.text.slice(0, 50000) as string
 
-      // Detect scanned / image-only PDFs — no selectable text
+      // Detect scanned / image-only PDFs, no selectable text
       if (!rfeText || rfeText.trim().length < 100) {
         await service.from('reports').update({ status: 'error' }).eq('id', id)
         return NextResponse.json({
-          error: 'Your RFE PDF appears to be a scanned image (no selectable text). Please export or scan it as a text-based PDF and re-upload. Most USCIS RFE PDFs are text-based — try opening it and copying text to confirm.',
+          error: 'Your RFE PDF appears to be a scanned image (no selectable text). Please export or scan it as a text-based PDF and re-upload. Most USCIS RFE PDFs are text-based, try opening it and copying text to confirm.',
         }, { status: 422 })
       }
 

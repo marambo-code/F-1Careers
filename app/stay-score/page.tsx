@@ -5,15 +5,15 @@ import Link from 'next/link'
 
 // ─── AUTHORITATIVE COUNTRY RISK TIERS ──────────────────────────────────────
 // Sources:
-//   • PP 10998 (Proclamation, Dec 16 2025, effective Jan 1 2026) — travel ban
-//   • State Dept Immigrant Visa Pause, effective Jan 21 2026 — 75 countries
+//   • PP 10998 (Proclamation, Dec 16 2025, effective Jan 1 2026), travel ban
+//   • State Dept Immigrant Visa Pause, effective Jan 21 2026, 75 countries
 //
-// Tier 0: PP 10998 FULL suspension — all immigrant AND nonimmigrant visas suspended
+// Tier 0: PP 10998 FULL suspension, all immigrant AND nonimmigrant visas suspended
 // Tier 1: PP 10998 PARTIAL suspension AND on 75-country immigrant visa pause
 // Tier 2: PP 10998 PARTIAL suspension only (not on immigrant visa pause)
 // Tier 3: On 75-country immigrant visa pause only (no travel ban)
-// Tier 4: EB priority date backlog — no ban, but severe multi-year waits
-// Tier 5: Open — no current restrictions
+// Tier 4: EB priority date backlog, no ban, but severe multi-year waits
+// Tier 5: Open, no current restrictions
 const COUNTRY_TIER: Record<string, 0 | 1 | 2 | 3 | 4 | 5> = {
   // ── Tier 0: PP 10998 Full Suspension ───────────────────────────────────
   'Afghanistan': 0, 'Burma': 0, 'Myanmar': 0, 'Burkina Faso': 0, 'Chad': 0,
@@ -53,7 +53,7 @@ function getCountryTier(country: string): 0 | 1 | 2 | 3 | 4 | 5 {
   return COUNTRY_TIER[country] ?? 5
 }
 
-// ─── Country dropdown — comprehensive alphabetical list ─────────────────────
+// ─── Country dropdown, comprehensive alphabetical list ─────────────────────
 const ALL_COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
   'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
@@ -114,7 +114,7 @@ const FIELDS = [
   { value: 'law',       label: 'Law / Government / Public Policy' },
   { value: 'arts',      label: 'Arts / Design / Architecture / Media' },
   { value: 'sports',    label: 'Athletics / Sports' },
-  { value: 'other',     label: 'Other — specify below' },
+  { value: 'other',     label: 'Other, specify below' },
 ]
 
 // ─── Evidence Criteria (10 USCIS-aligned criteria) ──────────────────────────
@@ -123,11 +123,11 @@ const CONTRIBUTION_CRITERIA = [
   { id: 'citations',      label: 'Work cited, referenced, or built upon by other researchers, professionals, or institutions', sub: 'Google Scholar, Semantic Scholar, referenced in industry literature' },
   { id: 'patents',        label: 'Patents filed or granted, or original IP licensed or adopted by others', sub: 'US or international utility/design patents, technology licensing agreements' },
   { id: 'peer_review',    label: 'Invited to peer-review, evaluate grant applications, or serve on editorial or scientific boards', sub: 'Journal reviewer, conference program committee, NIH/NSF reviewer, editorial board' },
-  { id: 'invited_speaker',label: 'Invited speaker at conferences, institutions, or professional panels', sub: 'Named or invited — not just an accepted abstract; includes keynotes and guest lectures' },
-  { id: 'awards',         label: 'Received competitive awards, prizes, fellowships, or grants for professional achievement', sub: 'External competitive recognition — not routine internal employee awards' },
-  { id: 'media',          label: 'Featured in press, media, or professional publications specifically about your work', sub: 'Newspapers, magazines, industry outlets, podcasts — not self-published content' },
+  { id: 'invited_speaker',label: 'Invited speaker at conferences, institutions, or professional panels', sub: 'Named or invited, not just an accepted abstract; includes keynotes and guest lectures' },
+  { id: 'awards',         label: 'Received competitive awards, prizes, fellowships, or grants for professional achievement', sub: 'External competitive recognition, not routine internal employee awards' },
+  { id: 'media',          label: 'Featured in press, media, or professional publications specifically about your work', sub: 'Newspapers, magazines, industry outlets, podcasts, not self-published content' },
   { id: 'critical_role',  label: 'Critical, senior, or otherwise distinguished role at a nationally or internationally recognized organization', sub: 'Position of genuine authority, influence, or expertise within a recognized institution' },
-  { id: 'high_salary',    label: 'Compensation demonstrably above the median for your occupation, experience, and region', sub: 'Documented via offer letters or compensation data — typically top 15% for your field' },
+  { id: 'high_salary',    label: 'Compensation demonstrably above the median for your occupation, experience, and region', sub: 'Documented via offer letters or compensation data, typically top 15% for your field' },
   { id: 'leadership',     label: 'Founded an organization, led significant teams, or mentored professionals who achieved recognition', sub: 'Founder roles, large-team management, or documented mentorship of notable individuals' },
 ]
 
@@ -157,7 +157,7 @@ function computeExposure(inputs: Inputs) {
   const countryExp: Record<number, number> = { 0: 35, 1: 30, 2: 26, 3: 20, 4: 12, 5: 4 }
   const countryPoints = countryExp[tier]
   const countryNote = tier === 0
-    ? `${effectiveCountry} is subject to a full suspension of immigrant AND non-immigrant visa issuance under Proclamation 10998. Consular processing is not an available path. Adjustment of status inside the US is your only option — building an extraordinary circumstances case is existential, not optional.`
+    ? `${effectiveCountry} is subject to a full suspension of immigrant AND non-immigrant visa issuance under Proclamation 10998. Consular processing is not an available path. Adjustment of status inside the US is your only option, building an extraordinary circumstances case is existential, not optional.`
     : tier === 1
     ? `${effectiveCountry} is subject to both a partial travel ban (Proclamation 10998) and the 75-country immigrant visa pause. Consular processing is effectively blocked. AoS inside the US is your primary viable path.`
     : tier === 2
@@ -165,7 +165,7 @@ function computeExposure(inputs: Inputs) {
     : tier === 3
     ? `${effectiveCountry} is on the State Department's 75-country immigrant visa pause (effective Jan 21, 2026). Green card consular processing is currently suspended. AoS inside the US is your only active path.`
     : tier === 4
-    ? `${effectiveCountry} nationals face severe EB priority date backlogs — current wait times can reach 3–10+ years for consular processing. Filing a strong AoS case now substantially reduces the exposure window.`
+    ? `${effectiveCountry} nationals face severe EB priority date backlogs, current wait times can reach 3–10+ years for consular processing. Filing a strong AoS case now substantially reduces the exposure window.`
     : `Your consulate is currently operational. Consular processing remains an option, though AoS inside the US still provides stronger protection against future policy shifts.`
 
   // 2. Visa Status Exposure (0–25 pts)
@@ -176,32 +176,32 @@ function computeExposure(inputs: Inputs) {
   }
   const visaPoints = visaExp[inputs.visa] ?? 16
   const visaNote = inputs.visa === 'EB-2 NIW Pending'
-    ? 'An approved NIW I-140 is the single strongest evidence of national interest — your AoS position is substantially protected.'
+    ? 'An approved NIW I-140 is the single strongest evidence of national interest, your AoS position is substantially protected.'
     : inputs.visa === 'O-1'
-    ? 'O-1 holders have cleared an extraordinary ability standard already — strong favorable factor in discretionary AoS review.'
+    ? 'O-1 holders have cleared an extraordinary ability standard already, strong favorable factor in discretionary AoS review.'
     : ['H-1B', 'L-1'].includes(inputs.visa)
-    ? 'Dual-intent visa — generally viewed favorably in discretionary review, but does not independently guarantee AoS approval.'
+    ? 'Dual-intent visa, generally viewed favorably in discretionary review, but does not independently guarantee AoS approval.'
     : inputs.visa === 'F-1 Student'
-    ? 'As a current F-1 student, the proposed D/S 4-year cap is directly relevant to your situation. Building your evidence record now — before you reach OPT — puts you significantly ahead when it matters most.'
+    ? 'As a current F-1 student, the proposed D/S 4-year cap is directly relevant to your situation. Building your evidence record now, before you reach OPT, puts you significantly ahead when it matters most.'
     : inputs.visa === 'J-1'
-    ? 'J-1 holders subject to the 212(e) two-year home residency requirement face an additional barrier — you cannot adjust status or obtain an immigrant visa until the requirement is fulfilled or waived. Confirm whether your J-1 carries a 212(e) requirement; if so, a waiver is a prerequisite to any green card path.'
+    ? 'J-1 holders subject to the 212(e) two-year home residency requirement face an additional barrier, you cannot adjust status or obtain an immigrant visa until the requirement is fulfilled or waived. Confirm whether your J-1 carries a 212(e) requirement; if so, a waiver is a prerequisite to any green card path.'
     : inputs.visa === 'F-1 OPT STEM'
     ? 'STEM OPT provides a work authorization runway but limited protection. An I-140 filing is your most important next move.'
     : ['F-1 OPT', 'F-1 CPT'].includes(inputs.visa)
     ? 'F-1 status provides the least discretionary insulation. Filing NIW with premium processing should be your top priority.'
-    : 'Your status situation requires personalized analysis — the full strategy report will map your specific options.'
+    : 'Your status situation requires personalized analysis, the full strategy report will map your specific options.'
 
   // 3. Evidence Gap Exposure (0–20 pts, fewer credentials = more exposed)
   const evidencePoints = selectedCount >= 6 ? 2 : selectedCount >= 4 ? 6 : selectedCount >= 2 ? 11 : selectedCount === 1 ? 15 : 20
   const evidenceNote = selectedCount >= 6
-    ? `${selectedCount} documented criteria — strong evidentiary record. The full report converts this into a structured petition framework.`
+    ? `${selectedCount} documented criteria, strong evidentiary record. The full report converts this into a structured petition framework.`
     : selectedCount >= 4
-    ? `${selectedCount} documented criteria — solid foundation. Your report will identify 2–3 additional criteria you can build within 60–90 days.`
+    ? `${selectedCount} documented criteria, solid foundation. Your report will identify 2–3 additional criteria you can build within 60–90 days.`
     : selectedCount >= 2
-    ? `${selectedCount} documented criteria — some foundation, but gaps that need closing. Your report will prioritize the highest-leverage moves.`
+    ? `${selectedCount} documented criteria, some foundation, but gaps that need closing. Your report will prioritize the highest-leverage moves.`
     : selectedCount === 1
-    ? 'Minimal documented evidence at this stage. This is your most urgent gap to close — the strategy report will give you a concrete 90-day plan.'
-    : 'No documented extraordinary evidence yet. This is critical to address — your full report will show you the fastest evidence-building path.'
+    ? 'Minimal documented evidence at this stage. This is your most urgent gap to close, the strategy report will give you a concrete 90-day plan.'
+    : 'No documented extraordinary evidence yet. This is critical to address, your full report will show you the fastest evidence-building path.'
 
   // 4. Career Tenure (0–10 pts, less experience = more exposed)
   const yearsExp: Record<string, number> = { '1': 10, '3': 7, '6': 5, '11': 3, '16': 1 }
@@ -211,7 +211,7 @@ function computeExposure(inputs: Inputs) {
     : inputs.years === '11'
     ? 'Established professional track record supports lawful US presence argument.'
     : inputs.years === '6'
-    ? 'Meaningful career tenure — solid foundation for the career impact argument.'
+    ? 'Meaningful career tenure, solid foundation for the career impact argument.'
     : 'Earlier-career candidates should emphasize outsized impact and trajectory over years of tenure.'
 
   // 5. Education (0–10 pts, lower degree = more exposed)
@@ -220,42 +220,42 @@ function computeExposure(inputs: Inputs) {
   const eduNote = ['phd', 'md'].includes(inputs.education)
     ? 'Terminal degree is a primary positive factor in discretionary AoS analysis and satisfies the NIW advanced degree prong directly.'
     : inputs.education === 'masters'
-    ? "Advanced degree satisfies the NIW Dhanasar advanced degree analysis — solid foundation."
+    ? "Advanced degree satisfies the NIW Dhanasar advanced degree analysis, solid foundation."
     : "Additional evidence of outsized professional impact is essential to compensate at the bachelor's level."
 
-  // 6. Approved I-140 — major mitigating factor (-18 pts)
+  // 6. Approved I-140, major mitigating factor (-18 pts)
   // An approved I-140 is the definitive "extraordinary circumstances" evidence under PM-602-0199
   const i140Points = inputs.i140Approved === 'yes' ? -18 : 0
   const i140Note = inputs.i140Approved === 'yes'
-    ? 'An approved I-140 is the single strongest evidence of national interest you can hold. Under PM-602-0199, this directly satisfies the extraordinary circumstances standard — it is documented USCIS recognition that your presence serves national interest.'
-    : 'No approved I-140 on record. Filing NIW with premium processing is the highest-leverage move available to you — an approved I-140 is definitive extraordinary circumstances documentation.'
+    ? 'An approved I-140 is the single strongest evidence of national interest you can hold. Under PM-602-0199, this directly satisfies the extraordinary circumstances standard, it is documented USCIS recognition that your presence serves national interest.'
+    : 'No approved I-140 on record. Filing NIW with premium processing is the highest-leverage move available to you, an approved I-140 is definitive extraordinary circumstances documentation.'
 
-  // 7. Prior Immigration Violations — PM-602-0199 §(a)(i): explicitly "highly relevant" adverse factor (+15 pts)
+  // 7. Prior Immigration Violations, PM-602-0199 §(a)(i): explicitly "highly relevant" adverse factor (+15 pts)
   const violationsPoints = inputs.priorViolations === 'yes' ? 15 : 0
   const violationsNote = inputs.priorViolations === 'yes'
     ? 'Prior violations (overstay, unauthorized employment, status breach) are explicitly listed in PM-602-0199 as highly relevant adverse factors in the totality-of-circumstances discretionary analysis. This is your most urgent issue to address with immigration counsel.'
-    : 'No prior violations — a significant positive factor. USCIS officers are directed to weigh consistent status compliance favorably in discretionary review.'
+    : 'No prior violations, a significant positive factor. USCIS officers are directed to weigh consistent status compliance favorably in discretionary review.'
 
-  // 8. US Citizen or LPR Immediate Family — PM-602-0199 §(b): explicit positive equitable factor (-8 pts)
+  // 8. US Citizen or LPR Immediate Family, PM-602-0199 §(b): explicit positive equitable factor (-8 pts)
   const usFamilyPoints = inputs.usFamily === 'yes' ? -8 : 0
   const usFamilyNote = inputs.usFamily === 'yes'
-    ? 'US citizen or LPR immediate family ties are explicitly listed in PM-602-0199 as a positive equitable factor. Officers are required to weigh this in the totality-of-circumstances analysis — it meaningfully strengthens your discretionary position.'
-    : 'No immediate US citizen or LPR family ties. While not required, family ties are an explicit positive factor under PM-602-0199 — other equities (career impact, community) become more important to document.'
+    ? 'US citizen or LPR immediate family ties are explicitly listed in PM-602-0199 as a positive equitable factor. Officers are required to weigh this in the totality-of-circumstances analysis, it meaningfully strengthens your discretionary position.'
+    : 'No immediate US citizen or LPR family ties. While not required, family ties are an explicit positive factor under PM-602-0199, other equities (career impact, community) become more important to document.'
 
-  // 9. Social Media Risk — flagged by USCIS/State Dept; PM-602-0199 moral character factor (+10 pts)
+  // 9. Social Media Risk, flagged by USCIS/State Dept; PM-602-0199 moral character factor (+10 pts)
   // Immigration attorneys now explicitly advise clients to review public social media before filing
   const socialMediaPoints = inputs.socialMediaRisk === 'yes' ? 10 : 0
   const socialMediaNote = inputs.socialMediaRisk === 'yes'
     ? 'USCIS and State Dept now routinely screen public social media. Immigration attorneys advise that posts criticizing US immigration enforcement, expressing political affiliations, or discussing visa strategy can be flagged under PM-602-0199\'s moral character and conduct factors. Review and archive public accounts before filing.'
-    : 'No flagged social media content — neutral factor. Note that USCIS screens public accounts; immigration attorneys recommend auditing your social media presence before any AoS filing.'
+    : 'No flagged social media content, neutral factor. Note that USCIS screens public accounts; immigration attorneys recommend auditing your social media presence before any AoS filing.'
 
   // 6. SEVIS Termination History (0–15 pts)
   const sevisPoints = inputs.sevisTerminated === 'yes' ? 15 : 0
   const sevisNote = inputs.sevisTerminated === 'yes'
-    ? 'A prior SEVIS termination — even if reversed — is a significant adverse factor in discretionary AoS review. Officers conduct totality-of-circumstances analysis and a termination on record materially raises your exposure. Proactive extraordinary circumstances documentation is essential.'
-    : 'No SEVIS termination on record — neutral factor in discretionary review.'
+    ? 'A prior SEVIS termination, even if reversed, is a significant adverse factor in discretionary AoS review. Officers conduct totality-of-circumstances analysis and a termination on record materially raises your exposure. Proactive extraordinary circumstances documentation is essential.'
+    : 'No SEVIS termination on record, neutral factor in discretionary review.'
 
-  // 7. Duration of Status / Program Length (0–10 pts) — only relevant for F-1
+  // 7. Duration of Status / Program Length (0–10 pts), only relevant for F-1
   const isF1 = ['F-1 Student', 'F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT', 'J-1'].includes(inputs.visa) || (inputs.visa === 'Other' && (inputs.visaOther.toLowerCase().includes('f-1') || inputs.visaOther.toLowerCase().includes('j-1')))
   const dsPoints = isF1
     ? (inputs.programYears === '5+' ? 10 : inputs.programYears === '3-4' ? 6 : 0)
@@ -263,9 +263,9 @@ function computeExposure(inputs: Inputs) {
   const dsNote = !isF1
     ? 'Duration of Status changes apply to F-1 visa holders. Not applicable to your current status.'
     : inputs.programYears === '5+'
-    ? 'Your program exceeds the proposed 4-year D/S cap. Under the DHS final rule (expected September 2026), you will need to file an I-539 extension. This is an active deadline — OPT/STEM OPT applications must be filed within 30 days of program end under the new rule.'
+    ? 'Your program exceeds the proposed 4-year D/S cap. Under the DHS final rule (expected September 2026), you will need to file an I-539 extension. This is an active deadline, OPT/STEM OPT applications must be filed within 30 days of program end under the new rule.'
     : inputs.programYears === '3-4'
-    ? 'Your program approaches the 4-year D/S cap. Monitor the DHS final rule timeline closely — if enacted September 2026, PhD students in year 3+ will need I-539 extensions.'
+    ? 'Your program approaches the 4-year D/S cap. Monitor the DHS final rule timeline closely, if enacted September 2026, PhD students in year 3+ will need I-539 extensions.'
     : 'Your program falls within the proposed 4-year D/S limit. Lower exposure from the D/S rule change.'
 
   const raw = countryPoints + visaPoints + evidencePoints + yearsPoints + eduPoints
@@ -296,14 +296,14 @@ function getScoreLabel(score: number) {
     sub: 'Immediate action required',
     color: 'text-red-600', ring: '#DC2626',
     bg: 'bg-red-50 border-red-200',
-    advice: 'Your profile has critical vulnerability. Without an approved I-140, consular processing or indefinite US departure is a near-term realistic scenario for your situation. The strategy report will map your most urgent options — some can be activated within weeks.',
+    advice: 'Your profile has critical vulnerability. Without an approved I-140, consular processing or indefinite US departure is a near-term realistic scenario for your situation. The strategy report will map your most urgent options, some can be activated within weeks.',
   }
   if (score >= 50) return {
     label: 'High Exposure',
     sub: 'Urgent action needed',
     color: 'text-orange-600', ring: '#EA580C',
     bg: 'bg-orange-50 border-orange-200',
-    advice: 'Material exposure to consular processing requirements. Your full report will identify the fastest evidence-building path — several gaps are realistically closeable within 60–90 days.',
+    advice: 'Material exposure to consular processing requirements. Your full report will identify the fastest evidence-building path, several gaps are realistically closeable within 60–90 days.',
   }
   if (score >= 25) return {
     label: 'Moderate Exposure',
@@ -317,7 +317,7 @@ function getScoreLabel(score: number) {
     sub: 'Strong current position',
     color: 'text-teal-600', ring: '#00C2A8',
     bg: 'bg-teal-50 border-teal-200',
-    advice: 'Your profile demonstrates solid grounds for extraordinary circumstances protection. Filing your NIW I-140 with premium processing now locks in that protection — an approved I-140 is definitive evidence of national interest.',
+    advice: 'Your profile demonstrates solid grounds for extraordinary circumstances protection. Filing your NIW I-140 with premium processing now locks in that protection, an approved I-140 is definitive evidence of national interest.',
   }
 }
 
@@ -359,7 +359,7 @@ export default function RiskScorePage() {
   const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
 
   const handleCopy = () => {
-    const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast — every F-1, OPT, and H-1B professional should know where they stand.\n\n→ f1careers.app/stay-score`
+    const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast, every F-1, OPT, and H-1B professional should know where they stand.\n\n→ f1careers.app/stay-score`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })
@@ -381,7 +381,7 @@ export default function RiskScorePage() {
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-            USCIS PM-602-0199 in effect — May 21, 2026
+            USCIS PM-602-0199 in effect, May 21, 2026
           </div>
           <h1 className="text-3xl font-black text-navy leading-tight">
             Immigration Risk Score
@@ -393,7 +393,7 @@ export default function RiskScorePage() {
           </div>
           <p className="text-mid text-sm max-w-md mx-auto leading-relaxed">
             Adjustment of status is now officially discretionary. Duration of Status is ending. SEVIS terminations are being enforced.
-            This tool scores your exposure across all active risk factors — in under 2 minutes.
+            This tool scores your exposure across all active risk factors, in under 2 minutes.
           </p>
         </div>
 
@@ -471,8 +471,8 @@ export default function RiskScorePage() {
                 <div className="mt-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                   <p className="text-xs font-semibold text-red-700">
                     {countryTier === 0
-                      ? 'Full visa suspension in effect — consular processing is not a viable path for nationals of your country.'
-                      : 'Partial travel ban + immigrant visa pause in effect — consular processing is severely restricted for your country.'}
+                      ? 'Full visa suspension in effect, consular processing is not a viable path for nationals of your country.'
+                      : 'Partial travel ban + immigrant visa pause in effect, consular processing is severely restricted for your country.'}
                   </p>
                 </div>
               )}
@@ -480,7 +480,7 @@ export default function RiskScorePage() {
                 <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                   <p className="text-xs font-semibold text-amber-800">
                     {countryTier === 2
-                      ? 'Partial travel ban applies — immigrant visas and key nonimmigrant categories restricted for your country.'
+                      ? 'Partial travel ban applies, immigrant visas and key nonimmigrant categories restricted for your country.'
                       : 'Immigrant visa processing is currently paused for your country of nationality (State Dept pause, effective Jan 21, 2026).'}
                   </p>
                 </div>
@@ -490,11 +490,11 @@ export default function RiskScorePage() {
             {/* SEVIS Termination */}
             <div>
               <label className="label">Has your SEVIS record ever been terminated or flagged?</label>
-              <p className="text-xs text-mid mb-2 leading-relaxed">Include cases that were later reversed or reinstated — a prior termination remains a factor in discretionary review.</p>
+              <p className="text-xs text-mid mb-2 leading-relaxed">Include cases that were later reversed or reinstated, a prior termination remains a factor in discretionary review.</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { val: 'no', label: 'No — never terminated' },
-                  { val: 'yes', label: 'Yes — terminated or flagged' },
+                  { val: 'no', label: 'No, never terminated' },
+                  { val: 'yes', label: 'Yes, terminated or flagged' },
                 ].map(opt => (
                   <button key={opt.val} onClick={() => set('sevisTerminated', opt.val)}
                     className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.sevisTerminated === opt.val ? (opt.val === 'yes' ? 'bg-red-600 text-white border-red-600' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
@@ -504,7 +504,7 @@ export default function RiskScorePage() {
               </div>
             </div>
 
-            {/* Duration of Status — F-1 only */}
+            {/* Duration of Status, F-1 only */}
             {isF1Status && (
               <div>
                 <label className="label">How long is your degree program?</label>
@@ -528,15 +528,15 @@ export default function RiskScorePage() {
             <div className="space-y-5 pt-2 border-t border-gray-100">
               <div>
                 <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1">PM-602-0199 Discretionary Factors</p>
-                <p className="text-xs text-mid leading-relaxed">These are the exact factors USCIS officers are now required to weigh in your adjustment of status review. Answer honestly — this is for your assessment only.</p>
+                <p className="text-xs text-mid leading-relaxed">These are the exact factors USCIS officers are now required to weigh in your adjustment of status review. Answer honestly, this is for your assessment only.</p>
               </div>
 
               {/* I-140 */}
               <div>
                 <label className="label">Do you have an approved I-140 petition?</label>
-                <p className="text-xs text-mid mb-2">An approved I-140 is the single most protective document you can hold under PM-602-0199 — it is USCIS's own documented recognition that your presence serves the national interest.</p>
+                <p className="text-xs text-mid mb-2">An approved I-140 is the single most protective document you can hold under PM-602-0199, it is USCIS's own documented recognition that your presence serves the national interest.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'yes', label: 'Yes — I-140 approved' }, { val: 'no', label: 'No — not yet' }].map(opt => (
+                  {[{ val: 'yes', label: 'Yes, I-140 approved' }, { val: 'no', label: 'No, not yet' }].map(opt => (
                     <button key={opt.val} onClick={() => set('i140Approved', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.i140Approved === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -545,12 +545,12 @@ export default function RiskScorePage() {
                 </div>
               </div>
 
-              {/* Prior violations — reframed as status consistency */}
+              {/* Prior violations, reframed as status consistency */}
               <div>
                 <label className="label">Have you maintained continuous lawful immigration status throughout your time in the US?</label>
-                <p className="text-xs text-mid mb-2">Consistent status maintenance is a primary positive factor in discretionary review. Any gaps — even brief ones — are relevant to how USCIS weighs your application under PM-602-0199.</p>
+                <p className="text-xs text-mid mb-2">Consistent status maintenance is a primary positive factor in discretionary review. Any gaps, even brief ones, are relevant to how USCIS weighs your application under PM-602-0199.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'no', label: 'Yes — continuous lawful status' }, { val: 'yes', label: 'No — gaps or issues exist' }].map(opt => (
+                  {[{ val: 'no', label: 'Yes, continuous lawful status' }, { val: 'yes', label: 'No, gaps or issues exist' }].map(opt => (
                     <button key={opt.val} onClick={() => set('priorViolations', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.priorViolations === opt.val ? (opt.val === 'yes' ? 'bg-orange-500 text-white border-orange-500' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -559,12 +559,12 @@ export default function RiskScorePage() {
                 </div>
               </div>
 
-              {/* US family — reframed as equities */}
+              {/* US family, reframed as equities */}
               <div>
-                <label className="label">Do you have meaningful roots in the United States — family, long-term residence, or deep community ties?</label>
+                <label className="label">Do you have meaningful roots in the United States, family, long-term residence, or deep community ties?</label>
                 <p className="text-xs text-mid mb-2">PM-602-0199 explicitly requires officers to weigh equitable factors including family ties, length of residence, and community contributions. These strengthen your discretionary position.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'yes', label: 'Yes — significant ties' }, { val: 'no', label: 'Limited ties so far' }].map(opt => (
+                  {[{ val: 'yes', label: 'Yes, significant ties' }, { val: 'no', label: 'Limited ties so far' }].map(opt => (
                     <button key={opt.val} onClick={() => set('usFamily', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.usFamily === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -573,12 +573,12 @@ export default function RiskScorePage() {
                 </div>
               </div>
 
-              {/* Social media — reframed as risk awareness */}
+              {/* Social media, reframed as risk awareness */}
               <div>
                 <label className="label">Have you reviewed your public social media presence with your immigration filing in mind?</label>
-                <p className="text-xs text-mid mb-2">USCIS and State Dept now screen public social media as part of the application review process. Immigration attorneys recommend auditing accounts before any AoS filing — this is standard advice in 2026.</p>
+                <p className="text-xs text-mid mb-2">USCIS and State Dept now screen public social media as part of the application review process. Immigration attorneys recommend auditing accounts before any AoS filing, this is standard advice in 2026.</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[{ val: 'no', label: 'Yes — reviewed and clean' }, { val: 'yes', label: 'Not yet reviewed' }].map(opt => (
+                  {[{ val: 'no', label: 'Yes, reviewed and clean' }, { val: 'yes', label: 'Not yet reviewed' }].map(opt => (
                     <button key={opt.val} onClick={() => set('socialMediaRisk', opt.val)}
                       className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.socialMediaRisk === opt.val ? (opt.val === 'yes' ? 'bg-navy text-white border-navy' : 'bg-teal text-white border-teal') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
                       {opt.label}
@@ -594,7 +594,7 @@ export default function RiskScorePage() {
                 <label className="label mb-0.5">Professional evidence record</label>
                 <p className="text-xs text-mid leading-relaxed">
                   Select every item that applies. These correspond to the specific evidentiary standards USCIS uses in extraordinary circumstances analysis.
-                  This is a documentation inventory — be precise.
+                  This is a documentation inventory, be precise.
                 </p>
               </div>
               <div className="space-y-2">
@@ -705,7 +705,7 @@ export default function RiskScorePage() {
             <div className="card bg-navy text-white text-center space-y-3">
               <p className="text-xs font-bold text-teal uppercase tracking-widest">Reduce Your Exposure</p>
               <p className="text-lg font-bold leading-snug">Get your complete Extraordinary Circumstances Evidence Package</p>
-              <p className="text-sm text-white/70 leading-relaxed">A full NIW strategy report, Dhanasar framework analysis, draft petition language, and the exact evidence map you need — built from your actual resume and career record.</p>
+              <p className="text-sm text-white/70 leading-relaxed">A full NIW strategy report, Dhanasar framework analysis, draft petition language, and the exact evidence map you need, built from your actual resume and career record.</p>
               <Link href="/login" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors">
                 Build my evidence package →
               </Link>

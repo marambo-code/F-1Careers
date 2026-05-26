@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import LoginForm from './LoginForm'
 
-// Server component — Suspense here satisfies Next.js 15 prerender requirement
+// Server component, Suspense here satisfies Next.js 15 prerender requirement
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-4">

@@ -163,14 +163,14 @@ export default async function DashboardPage() {
     },
     3: {
       title: 'Write your proposed endeavor',
-      description: "You have evidence started. Now write your proposed endeavor statement — the single most important sentence in any petition. The AI will review it like a USCIS adjudicator.",
+      description: "You have evidence started. Now write your proposed endeavor statement, the single most important sentence in any petition. The AI will review it like a USCIS adjudicator.",
       href: '/petition-builder',
       cta: 'Write narrative →',
       color: 'border-blue-200 bg-blue-50/50',
     },
     4: {
       title: 'Generate your petition package',
-      description: "Your evidence is solid and your narrative is reviewed. Generate your full petition package — personal statement, cover letter, and recommendation letter briefings.",
+      description: "Your evidence is solid and your narrative is reviewed. Generate your full petition package, personal statement, cover letter, and recommendation letter briefings.",
       href: '/petition-builder',
       cta: 'Generate petition →',
       color: 'border-purple-200 bg-purple-50/50',
@@ -259,7 +259,7 @@ export default async function DashboardPage() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-[10px] font-bold text-mid uppercase tracking-widest mb-1">
-              Stage {stage} of 5 — {STAGES[stage - 1].label}
+              Stage {stage} of 5, {STAGES[stage - 1].label}
             </p>
             <h2 className="text-lg font-bold text-navy">{nextStep.title}</h2>
             <p className="text-sm text-mid mt-1.5 leading-relaxed max-w-xl">{nextStep.description}</p>

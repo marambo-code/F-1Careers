@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
-// Standard client — respects RLS — use in server components and route handlers
+// Standard client, respects RLS, use in server components and route handlers
 export async function createClient() {
   const cookieStore = await cookies()
 
@@ -20,7 +20,7 @@ export async function createClient() {
               cookieStore.set(name, value, options as never)
             )
           } catch {
-            // Called from Server Component — middleware handles session refresh
+            // Called from Server Component, middleware handles session refresh
           }
         },
       },
@@ -28,7 +28,7 @@ export async function createClient() {
   )
 }
 
-// Service role client — bypasses RLS — use ONLY in webhooks and trusted server actions
+// Service role client, bypasses RLS, use ONLY in webhooks and trusted server actions
 export function createServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

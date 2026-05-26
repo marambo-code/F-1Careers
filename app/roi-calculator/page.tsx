@@ -24,7 +24,7 @@ function fmt(n: number) {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 }
 function fmtRange(lo: number, hi: number) {
-  return `${fmt(lo)} – ${fmt(hi)}`
+  return `${fmt(lo)} - ${fmt(hi)}`
 }
 
 // ─── Grouped country list for the <select> ─────────────────────────────────
@@ -43,16 +43,16 @@ const GROUPED_COUNTRIES = TIER_ORDER.map(tier => ({
 //
 //  IMPORTANT: a closed consular path increases exposure, it does not reduce it.
 //
-//  • 'open'    — if status disrupted, you can leave and return via consulate.
+//  • 'open'   , if status disrupted, you can leave and return via consulate.
 //                Exposure = months outside US × income impact + relocation.
 //
-//  • 'backlog' — consulate works but EB queue = years of career mobility loss
+//  • 'backlog', consulate works but EB queue = years of career mobility loss
 //                even with approved I-140. Exposure = backlog wait cost.
 //
-//  • 'blocked' — consular processing is SUSPENDED. AoS is your only path.
+//  • 'blocked', consular processing is SUSPENDED. AoS is your only path.
 //                No fallback if you lose status. Exposure multiplier rises.
 //
-//  • 'ban'     — NO consular path. If you leave or lose status you may be
+//  • 'ban'    , NO consular path. If you leave or lose status you may be
 //                PERMANENTLY unable to return via immigrant visa.
 //                Exposure = career preservation value at risk, not trip length.
 //
@@ -74,39 +74,39 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
     return {
       rows: [
         {
-          label: `Income impact — ${minM}–${maxM} months outside the US`,
+          label: `Income impact, ${minM}–${maxM} months outside the US`,
           conservative: incomeLow,
           worst: incomeHigh,
-          noteConservative: `${minM} months at 35% reduction — employer allows partial remote during consular processing`,
-          noteWorst: `${maxM} months at full loss — employer cannot hold the role during processing`,
+          noteConservative: `${minM} months at 35% reduction, employer allows partial remote during consular processing`,
+          noteWorst: `${maxM} months at full loss, employer cannot hold the role during processing`,
         },
         {
-          label: 'Career disruption — promotions, equity, seniority',
+          label: 'Career disruption, promotions, equity, seniority',
           conservative: careerLow,
           worst: careerHigh,
-          noteConservative: '8% of annual comp — one performance cycle affected',
-          noteWorst: '20% of annual comp — promotion missed, equity unvested, team restructured',
+          noteConservative: '8% of annual comp, one performance cycle affected',
+          noteWorst: '20% of annual comp, promotion missed, equity unvested, team restructured',
         },
         {
           label: 'Relocation, housing, and setup costs',
           conservative: relocLow,
           worst: relocHigh,
-          noteConservative: '$15K — solo trip, short-term housing',
-          noteWorst: '$45K — full family relocation, school transitions, storage',
+          noteConservative: '$15K, solo trip, short-term housing',
+          noteWorst: '$45K, full family relocation, school transitions, storage',
         },
         {
           label: 'Healthcare and insurance coverage gap',
           conservative: healthLow,
           worst: healthHigh,
-          noteConservative: '$6K — approximately 6 months without US employer coverage',
-          noteWorst: `${fmt(healthHigh)} — full ${maxM}-month gap`,
+          noteConservative: '$6K, approximately 6 months without US employer coverage',
+          noteWorst: `${fmt(healthHigh)}, full ${maxM}-month gap`,
         },
         {
           label: 'Spousal income and career disruption',
           conservative: spouseLow,
           worst: spouseHigh,
           noteConservative: 'Conservative: spouse maintains US employment remotely',
-          noteWorst: '$30K — spouse must also leave or take career pause',
+          noteWorst: '$30K, spouse must also leave or take career pause',
         },
       ],
       totalLow:  incomeLow + careerLow + relocLow + healthLow + spouseLow,
@@ -131,39 +131,39 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
     return {
       rows: [
         {
-          label: `Career mobility cost — ${minM}–${maxM} months locked to sponsoring employer`,
+          label: `Career mobility cost, ${minM}–${maxM} months locked to sponsoring employer`,
           conservative: mobilityLow,
           worst: mobilityHigh,
-          noteConservative: `${minM} months unable to freely change jobs — estimated at 30% of annual comp lost in missed opportunities`,
-          noteWorst: `${maxM} months (full backlog wait) — locked to current employer or forced restart, 45% annual comp equivalent`,
+          noteConservative: `${minM} months unable to freely change jobs, estimated at 30% of annual comp lost in missed opportunities`,
+          noteWorst: `${maxM} months (full backlog wait), locked to current employer or forced restart, 45% annual comp equivalent`,
         },
         {
           label: 'Compensation gap vs. peers with unrestricted work authorization',
           conservative: compGapLow,
           worst: compGapHigh,
-          noteConservative: '10% of annual comp — limited negotiating leverage without GC',
-          noteWorst: '25% of annual comp — missed offers, suppressed raises, constrained mobility',
+          noteConservative: '10% of annual comp, limited negotiating leverage without GC',
+          noteWorst: '25% of annual comp, missed offers, suppressed raises, constrained mobility',
         },
         {
           label: 'Relocation and departure costs if status disrupted',
           conservative: relocLow,
           worst: relocHigh,
-          noteConservative: '$15K — solo departure if forced to leave',
-          noteWorst: '$50K — full family relocation, school transitions',
+          noteConservative: '$15K, solo departure if forced to leave',
+          noteWorst: '$50K, full family relocation, school transitions',
         },
         {
           label: 'Healthcare gap during any departure',
           conservative: healthLow,
           worst: healthHigh,
-          noteConservative: '$12K — one year without employer coverage',
-          noteWorst: `${fmt(healthHigh)} — full backlog duration gap`,
+          noteConservative: '$12K, one year without employer coverage',
+          noteWorst: `${fmt(healthHigh)}, full backlog duration gap`,
         },
         {
           label: 'Spousal career disruption',
           conservative: spouseLow,
           worst: spouseHigh,
           noteConservative: 'Conservative: spouse maintains US employment',
-          noteWorst: '$40K — spouse dependent on your status',
+          noteWorst: '$40K, spouse dependent on your status',
         },
       ],
       totalLow:  mobilityLow + compGapLow + relocLow + healthLow + spouseLow,
@@ -176,7 +176,7 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
   if (tier === 'blocked') {
     // Blocked = no consular fallback. AoS-only. Higher multiplier than open.
     // Losing status = far worse outcome because you cannot process abroad.
-    const incomeLow  = mo * minM * 0.65  // higher than open — no fallback path
+    const incomeLow  = mo * minM * 0.65  // higher than open, no fallback path
     const incomeHigh = mo * maxM * 1.20  // over 100% because extended limbo likely
     const careerLow  = annualSalary * 0.15
     const careerHigh = annualSalary * 0.35
@@ -189,44 +189,44 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
     return {
       rows: [
         {
-          label: `Income at risk — ${minM}–${maxM} month exposure window (no consular fallback)`,
+          label: `Income at risk, ${minM}–${maxM} month exposure window (no consular fallback)`,
           conservative: incomeLow,
           worst: incomeHigh,
-          noteConservative: `${minM} months at 65% impact — consular processing is paused, so extended AoS limbo is likely if status disrupted`,
-          noteWorst: `${maxM} months at 120% — forced departure with no defined return path; continued income may require leaving US employment entirely`,
+          noteConservative: `${minM} months at 65% impact, consular processing is paused, so extended AoS limbo is likely if status disrupted`,
+          noteWorst: `${maxM} months at 120%, forced departure with no defined return path; continued income may require leaving US employment entirely`,
         },
         {
-          label: 'Career disruption — no consular fallback amplifies every setback',
+          label: 'Career disruption, no consular fallback amplifies every setback',
           conservative: careerLow,
           worst: careerHigh,
-          noteConservative: '15% of annual comp — position at risk while IV pause is in effect',
-          noteWorst: '35% of annual comp — career restart in home country or extended gap',
+          noteConservative: '15% of annual comp, position at risk while IV pause is in effect',
+          noteWorst: '35% of annual comp, career restart in home country or extended gap',
         },
         {
           label: 'Relocation and housing',
           conservative: relocLow,
           worst: relocHigh,
-          noteConservative: '$20K — forced departure into indefinite wait',
-          noteWorst: '$60K — full family relocation, uncertain return timeline',
+          noteConservative: '$20K, forced departure into indefinite wait',
+          noteWorst: '$60K, full family relocation, uncertain return timeline',
         },
         {
           label: 'Healthcare gap (IV pause has no published end date)',
           conservative: healthLow,
           worst: healthHigh,
-          noteConservative: '$10K — conservative 12-month gap',
-          noteWorst: `${fmt(healthHigh)} — full ${maxM}-month exposure`,
+          noteConservative: '$10K, conservative 12-month gap',
+          noteWorst: `${fmt(healthHigh)}, full ${maxM}-month exposure`,
         },
         {
-          label: 'Spousal disruption — uncertainty compounds across household',
+          label: 'Spousal disruption, uncertainty compounds across household',
           conservative: spouseLow,
           worst: spouseHigh,
-          noteConservative: '$5K — limited disruption if spouse has independent status',
-          noteWorst: '$45K — household income at risk',
+          noteConservative: '$5K, limited disruption if spouse has independent status',
+          noteWorst: '$45K, household income at risk',
         },
       ],
       totalLow:  incomeLow + careerLow + relocLow + healthLow + spouseLow,
       totalHigh: incomeHigh + careerHigh + relocHigh + healthHigh + spouseHigh,
-      exposureLabel: 'Exposure without a fallback path — consular processing is paused',
+      exposureLabel: 'Exposure without a fallback path, consular processing is paused',
       timelineLabel: `IV pause planning estimate: ${minM}–${maxM} months (no end date published)`,
     }
   }
@@ -234,12 +234,12 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
   // tier === 'ban'
   // MAXIMUM exposure. No consular path at all.
   // If you leave or lose status: there is NO immigrant visa path back via a consulate.
-  // This is not about "time outside the US" — it is about career preservation.
+  // This is not about "time outside the US", it is about career preservation.
   // The conservative scenario: you maintain status, but carry full career risk with zero safety net.
   // The worst-case scenario: status disrupted → forced departure → no return path → career loss.
   const careerYears   = 10  // planning horizon: 10 years of US career at risk
   const incomeLow     = annualSalary * careerYears * 0.30  // 30% of 10-yr career at risk (conservative)
-  const incomeHigh    = annualSalary * careerYears * 0.80  // 80% — forced departure likely = most of career
+  const incomeHigh    = annualSalary * careerYears * 0.80  // 80%, forced departure likely = most of career
   const careerLow     = annualSalary * 0.25
   const careerHigh    = annualSalary * 0.60
   const relocLow      = 20_000
@@ -251,45 +251,45 @@ function computeExposure(annualSalary: number, tier: Tier, minM: number, maxM: n
   return {
     rows: [
       {
-        label: `Career income at risk — full travel ban means no consular return path`,
+        label: `Career income at risk, full travel ban means no consular return path`,
         conservative: incomeLow,
         worst: incomeHigh,
-        noteConservative: `30% of a 10-year career horizon — the minimum planning exposure when you have no immigrant visa fallback`,
-        noteWorst: `80% of a 10-year career horizon — if status is disrupted, nationals of your country cannot obtain a new immigrant visa through any consulate. US career may be unrecoverable.`,
+        noteConservative: `30% of a 10-year career horizon, the minimum planning exposure when you have no immigrant visa fallback`,
+        noteWorst: `80% of a 10-year career horizon, if status is disrupted, nationals of your country cannot obtain a new immigrant visa through any consulate. US career may be unrecoverable.`,
       },
       {
         label: 'Career disruption and permanent mobility loss',
         conservative: careerLow,
         worst: careerHigh,
-        noteConservative: '25% of annual comp — every promotion, offer, and equity decision affected under full ban',
-        noteWorst: '60% of annual comp — career restart in home country, permanent US career loss',
+        noteConservative: '25% of annual comp, every promotion, offer, and equity decision affected under full ban',
+        noteWorst: '60% of annual comp, career restart in home country, permanent US career loss',
       },
       {
         label: 'Relocation and one-way departure costs',
         conservative: relocLow,
         worst: relocHigh,
-        noteConservative: '$20K — minimal forced departure',
-        noteWorst: '$75K — full family relocation; under a full ban, this may be permanent',
+        noteConservative: '$20K, minimal forced departure',
+        noteWorst: '$75K, full family relocation; under a full ban, this may be permanent',
       },
       {
         label: 'Healthcare, insurance, and benefits gap',
         conservative: healthLow,
         worst: healthHigh,
-        noteConservative: '$15K — minimum gap estimate under an indefinite ban',
-        noteWorst: `${fmt(healthHigh)} — ongoing, open-ended`,
+        noteConservative: '$15K, minimum gap estimate under an indefinite ban',
+        noteWorst: `${fmt(healthHigh)}, ongoing, open-ended`,
       },
       {
         label: 'Spousal and family income disruption',
         conservative: spouseLow,
         worst: spouseHigh,
-        noteConservative: '$10K — household disruption under ban conditions',
-        noteWorst: '$60K — household income likely follows forced departure',
+        noteConservative: '$10K, household disruption under ban conditions',
+        noteWorst: '$60K, household income likely follows forced departure',
       },
     ],
     totalLow:  incomeLow + careerLow + relocLow + healthLow + spouseLow,
     totalHigh: incomeHigh + careerHigh + relocHigh + healthHigh + spouseHigh,
-    exposureLabel: 'Career preservation value at risk — full ban, no consular return path',
-    timelineLabel: `Full travel ban — no consular processing available for nationals of your country`,
+    exposureLabel: 'Career preservation value at risk, full ban, no consular return path',
+    timelineLabel: `Full travel ban, no consular processing available for nationals of your country`,
   }
 }
 
@@ -345,10 +345,10 @@ export default function ROICalculatorPage() {
   const tc = tierColors[tier]
 
   const tierRiskLabels: Record<Tier, string> = {
-    ban:     'MAXIMUM RISK — No consular path',
-    blocked: 'HIGH RISK — Consular processing suspended',
-    backlog: 'ELEVATED RISK — EB backlog',
-    open:    'BASELINE — Consulate operational',
+    ban:     'MAXIMUM RISK, No consular path',
+    blocked: 'HIGH RISK, Consular processing suspended',
+    backlog: 'ELEVATED RISK, EB backlog',
+    open:    'BASELINE, Consulate operational',
   }
 
   return (
@@ -373,7 +373,7 @@ export default function ROICalculatorPage() {
           </h1>
           <p className="text-sm text-mid max-w-md mx-auto leading-relaxed">
             This calculator estimates what's at risk if you don't have an approved NIW I-140 today.
-            A closed consular path means higher exposure — not lower. Your country's situation
+            A closed consular path means higher exposure, not lower. Your country's situation
             determines how much career value you are currently carrying unprotected.
           </p>
         </div>
@@ -421,7 +421,7 @@ export default function ROICalculatorPage() {
                   ))}
                 </optgroup>
               ))}
-              <option value="__other__">── Other / Not listed — type below ──</option>
+              <option value="__other__">── Other / Not listed, type below ──</option>
             </select>
 
             {isOther && (
@@ -434,7 +434,7 @@ export default function ROICalculatorPage() {
                   autoFocus
                 />
                 <p className="text-xs text-mid leading-relaxed">
-                  Your country isn't in our database — we'll use standard consular processing estimates.
+                  Your country isn't in our database, we'll use standard consular processing estimates.
                   If your country has travel or visa restrictions not reflected here, your actual exposure
                   may be higher. Email <a href="mailto:support@f1careers.app" className="text-teal hover:underline">support@f1careers.app</a> to request it be added.
                 </p>
@@ -448,8 +448,8 @@ export default function ROICalculatorPage() {
                 {countryEntry.policyNote && (
                   <p className={`text-xs leading-relaxed ${tc.text} opacity-80`}>
                     {countryEntry.policyNote}
-                    {tier === 'ban' && ' — no immigrant visa consular path available. AoS is your only option. Any status disruption may be permanent.'}
-                    {tier === 'blocked' && ' — no immigrant visa consular processing right now. AoS-only. No fallback if status is disrupted.'}
+                    {tier === 'ban' && ', no immigrant visa consular path available. AoS is your only option. Any status disruption may be permanent.'}
+                    {tier === 'blocked' && ', no immigrant visa consular processing right now. AoS-only. No fallback if status is disrupted.'}
                   </p>
                 )}
               </div>
@@ -472,7 +472,7 @@ export default function ROICalculatorPage() {
             Calculate my financial exposure →
           </button>
           <p className="text-xs text-center text-mid">
-            Shown as a range — outcomes depend on your employer, family situation, and whether policy changes
+            Shown as a range, outcomes depend on your employer, family situation, and whether policy changes
           </p>
         </div>
 
@@ -483,7 +483,7 @@ export default function ROICalculatorPage() {
             {/* Timeline / Risk card */}
             <div className={`card border-2 text-center space-y-2 py-6 ${tc.bg} ${tc.border}`}>
               <p className={`text-xs font-bold uppercase tracking-widest ${tc.text}`}>
-                {tier === 'ban'    ? 'Career at risk — no consular path' :
+                {tier === 'ban'    ? 'Career at risk, no consular path' :
                  tier === 'blocked'? 'Consular path suspended' :
                  tier === 'backlog'? 'EB priority date backlog' :
                                     'Estimated consular processing window'}
@@ -495,7 +495,7 @@ export default function ROICalculatorPage() {
                     Full travel ban in effect. If you leave or lose status, nationals of your country cannot
                     currently obtain a new immigrant visa at any consulate. Adjustment of Status inside the
                     US is your only path to a green card. The exposure below reflects career preservation
-                    value at risk — not time outside the US.
+                    value at risk, not time outside the US.
                   </p>
                 </>
               ) : (
@@ -503,9 +503,9 @@ export default function ROICalculatorPage() {
                   <p className="text-4xl font-black text-navy">{minMonths}–{maxMonths} months</p>
                   <p className={`text-sm max-w-sm mx-auto leading-relaxed ${tc.text} opacity-80`}>
                     {tier === 'blocked'
-                      ? `Planning estimate only — immigrant visa pause has no published end date. Actual exposure is open-ended.`
+                      ? `Planning estimate only, immigrant visa pause has no published end date. Actual exposure is open-ended.`
                       : tier === 'backlog'
-                      ? `Priority date backlog estimate — actual wait depends on annual EB visa bulletin movement.`
+                      ? `Priority date backlog estimate, actual wait depends on annual EB visa bulletin movement.`
                       : `Typical consular processing window for this category and nationality.`}
                   </p>
                 </>
@@ -523,8 +523,8 @@ export default function ROICalculatorPage() {
             </div>
             <p className="text-xs text-mid text-center">
               {scenario === 'conservative'
-                ? 'Conservative: minimum realistic impact — employer cooperative, shorter timeline'
-                : 'Worst-case: full status disruption — job loss, family relocation, no return path'}
+                ? 'Conservative: minimum realistic impact, employer cooperative, shorter timeline'
+                : 'Worst-case: full status disruption, job loss, family relocation, no return path'}
             </p>
 
             {/* Total exposure headline */}
@@ -543,7 +543,7 @@ export default function ROICalculatorPage() {
               </p>
               {tier === 'ban' && (
                 <p className="text-xs text-red-400 pt-1 font-semibold">
-                  Full ban: if status is disrupted without an approved I-140, this figure may represent permanent career loss — not a temporary disruption.
+                  Full ban: if status is disrupted without an approved I-140, this figure may represent permanent career loss, not a temporary disruption.
                 </p>
               )}
             </div>
@@ -551,7 +551,7 @@ export default function ROICalculatorPage() {
             {/* Cost breakdown */}
             <div className="card space-y-3">
               <p className="text-xs font-bold text-navy uppercase tracking-widest mb-1">
-                Cost breakdown — {scenario === 'conservative' ? 'conservative' : 'worst-case'}
+                Cost breakdown, {scenario === 'conservative' ? 'conservative' : 'worst-case'}
               </p>
               {exposure.rows.map((row, i) => (
                 <div key={i} className="flex items-start justify-between gap-4 py-2.5 border-b border-gray-100 last:border-0">
@@ -584,7 +584,7 @@ export default function ROICalculatorPage() {
               </div>
               <div className="bg-teal/8 rounded-xl p-4 text-center space-y-1">
                 <p className="text-xs text-mid">Return on investment (cost of protection vs. cost of exposure)</p>
-                <p className="text-4xl font-black text-navy">{roiLow}× – {roiHigh}×</p>
+                <p className="text-4xl font-black text-navy">{roiLow}× - {roiHigh}×</p>
                 <p className="text-sm text-mid">
                   Every dollar invested in your NIW protects <strong className="text-navy">{roiLow}–{roiHigh} dollars</strong> of career value
                 </p>
@@ -595,9 +595,9 @@ export default function ROICalculatorPage() {
             <div className="card space-y-3">
               <p className="text-sm font-bold text-navy">What an approved NIW I-140 actually gives you</p>
               {[
-                { pt: '45 business days', detail: 'I-140 decision via premium processing — approximately 9 weeks from filing' },
-                { pt: 'USCIS certification', detail: 'A formal finding that your work is in the national interest — the strongest evidence for adjustment of status under PM-602-0199\'s "extraordinary circumstances" standard' },
-                { pt: 'Priority date locked', detail: 'Your place in line is fixed from the I-140 filing date — immune to future policy changes' },
+                { pt: '45 business days', detail: 'I-140 decision via premium processing, approximately 9 weeks from filing' },
+                { pt: 'USCIS certification', detail: 'A formal finding that your work is in the national interest, the strongest evidence for adjustment of status under PM-602-0199\'s "extraordinary circumstances" standard' },
+                { pt: 'Priority date locked', detail: 'Your place in line is fixed from the I-140 filing date, immune to future policy changes' },
                 { pt: 'AoS protection', detail: tier === 'ban'
                   ? 'With a travel ban in effect, this is your only green card path. Without it, you are entirely unprotected.'
                   : 'Allows you to stay in the US and adjust status without relying on consular processing' },
@@ -620,7 +620,7 @@ export default function ROICalculatorPage() {
                 and the exact evidence map USCIS needs to approve your adjustment of status.
               </p>
               <Link href="/login" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors">
-                Get my evidence package — $497 →
+                Get my evidence package, $497 →
               </Link>
             </div>
           </div>
@@ -632,7 +632,7 @@ export default function ROICalculatorPage() {
           <p>
             Country policy data last verified: <strong>{TIERS_LAST_VERIFIED}</strong>.
             Sources: PP 10998 (Jan 1, 2026) · State Dept immigrant visa pause (Jan 21, 2026) · USCIS EB Visa Bulletin (May 2026).
-            Policy changes frequently — verify current status at <a href="https://travel.state.gov" target="_blank" rel="noopener noreferrer" className="text-teal hover:underline">travel.state.gov</a>.
+            Policy changes frequently, verify current status at <a href="https://travel.state.gov" target="_blank" rel="noopener noreferrer" className="text-teal hover:underline">travel.state.gov</a>.
           </p>
           <p>
             <Link href="/stay-score" className="text-teal hover:underline">← Check your Risk Score</Link>

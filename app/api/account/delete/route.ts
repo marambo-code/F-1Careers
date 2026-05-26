@@ -33,7 +33,7 @@ export async function DELETE() {
       try {
         await stripe.subscriptions.cancel(sub.stripe_subscription_id)
       } catch (e) {
-        // Non-fatal — subscription may already be canceled
+        // Non-fatal, subscription may already be canceled
         console.warn('[account/delete] Stripe cancel warning:', e instanceof Error ? e.message : e)
       }
     }
@@ -52,7 +52,7 @@ export async function DELETE() {
       console.warn('[account/delete] Storage cleanup warning:', e)
     }
 
-    // 3. Delete auth user — cascades to profiles, reports, payments, subscriptions, score_history
+    // 3. Delete auth user, cascades to profiles, reports, payments, subscriptions, score_history
     const { error: deleteErr } = await service.auth.admin.deleteUser(user.id)
     if (deleteErr) throw new Error(`Auth delete failed: ${deleteErr.message}`)
 

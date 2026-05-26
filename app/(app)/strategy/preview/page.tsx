@@ -24,10 +24,10 @@ export default async function StrategyPreviewPage({
 
   if (!report) redirect('/strategy')
 
-  // Already complete — go straight to report
+  // Already complete, go straight to report
   if (report.status === 'complete') redirect(`/strategy/report/${reportId}`)
 
-  // Already generating or paid — go to report page (shows poller)
+  // Already generating or paid, go to report page (shows poller)
   if (report.status === 'generating' || report.status === 'paid') {
     redirect(`/strategy/report/${reportId}`)
   }
@@ -47,7 +47,7 @@ export default async function StrategyPreviewPage({
     redirect(`/strategy/report/${reportId}`)
   }
 
-  // Check 2: report has a stripe_session_id — verify directly with Stripe
+  // Check 2: report has a stripe_session_id, verify directly with Stripe
   // This recovers the case where the webhook failed (e.g. wrong secret at payment time)
   if (report.stripe_session_id) {
     let stripeVerified = false
@@ -77,7 +77,7 @@ export default async function StrategyPreviewPage({
         }).eq('id', reportId)
       }
     } catch {
-      // Stripe API error — fall through to show pay button
+      // Stripe API error, fall through to show pay button
     }
 
     // Redirect OUTSIDE the try/catch so Next.js NEXT_REDIRECT isn't swallowed
@@ -148,9 +148,9 @@ export default async function StrategyPreviewPage({
               }`}>{preview.eb1a_score ?? '—'}</p>
               <p className="text-xs text-mid">/100</p>
               <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">
-                {(preview.eb1a_score ?? 0) >= 70 ? 'Competitive EB-1A case — full breakdown in report.' :
-                 (preview.eb1a_score ?? 0) >= 50 ? 'Developing EB-1A case — 12–18 months of credential building needed.' :
-                 'EB-1A is premature — focus on NIW pathway first.'}
+                {(preview.eb1a_score ?? 0) >= 70 ? 'Competitive EB-1A case, full breakdown in report.' :
+                 (preview.eb1a_score ?? 0) >= 50 ? 'Developing EB-1A case, 12–18 months of credential building needed.' :
+                 'EB-1A is premature, focus on NIW pathway first.'}
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default async function StrategyPreviewPage({
             </div>
           </div>
 
-          {/* Teaser — locked */}
+          {/* Teaser, locked */}
           <div className="card border-l-4 border-l-teal">
             <p className="text-sm font-semibold text-mid uppercase tracking-wide mb-2">Your Strategy Preview</p>
             <p className="text-navy">{preview.teaser}</p>

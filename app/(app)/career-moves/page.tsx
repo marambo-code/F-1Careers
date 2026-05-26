@@ -97,7 +97,7 @@ export default async function CareerMovesPage() {
         if (migrated) {
           currentSet = migrated as MoveSet
         } else {
-          // Table may not exist yet — show moves directly from profile
+          // Table may not exist yet, show moves directly from profile
           currentSet = {
             id: 'legacy',
             generated_at: legacy.generated_at ?? new Date().toISOString(),
@@ -106,7 +106,7 @@ export default async function CareerMovesPage() {
           }
         }
       } catch {
-        // Table doesn't exist — display legacy moves directly
+        // Table doesn't exist, display legacy moves directly
         currentSet = {
           id: 'legacy',
           generated_at: legacy.generated_at ?? new Date().toISOString(),
