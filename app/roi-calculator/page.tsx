@@ -158,7 +158,7 @@ export default function ROICalculatorPage() {
       <nav className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-navy font-bold text-lg">F-1 Careers</Link>
-          <Link href="/stay-score" className="text-sm text-teal font-semibold hover:underline">← Exposure Score</Link>
+          <Link href="/stay-score" className="text-sm text-teal font-semibold hover:underline">← Risk Score</Link>
         </div>
       </nav>
 
@@ -387,7 +387,7 @@ export default function ROICalculatorPage() {
           <p>Estimates are illustrative ranges, not guarantees · Individual outcomes vary significantly · Not legal or financial advice</p>
           <p>Country data reflects PP 10998 (Jan 1 2026), State Dept immigrant visa pause (Jan 21 2026), and current EB visa bulletin priority dates</p>
           <p>
-            <Link href="/stay-score" className="text-teal hover:underline">← Check your Exposure Score</Link>
+            <Link href="/stay-score" className="text-teal hover:underline">← Check your Risk Score</Link>
             {' · '}
             <Link href="/cohort" className="text-teal hover:underline">Group filing program →</Link>
           </p>

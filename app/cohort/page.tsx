@@ -98,7 +98,7 @@ export default function CohortPage() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-navy font-bold text-lg">F-1 Careers</Link>
           <div className="flex items-center gap-4">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Exposure Score</Link>
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Risk Score</Link>
             <Link href="/login" className="text-sm text-teal font-semibold hover:underline">Sign in →</Link>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default function CohortPage() {
         <div className="text-center text-xs text-mid pb-4 space-y-2">
           <p>F-1 Careers Cohort Filing is in beta. Final pricing and attorney partnerships confirmed before cohort opens.</p>
           <p>
-            <Link href="/stay-score" className="text-teal hover:underline">Calculate your Exposure Score</Link>
+            <Link href="/stay-score" className="text-teal hover:underline">Calculate your Risk Score</Link>
             {' · '}
             <Link href="/roi-calculator" className="text-teal hover:underline">ROI Calculator</Link>
             {' · '}

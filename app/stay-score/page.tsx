@@ -322,7 +322,7 @@ function getScoreLabel(score: number) {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────
-export default function ExposureScorePage() {
+export default function RiskScorePage() {
   const [step, setStep] = useState(0)
   const [inputs, setInputs] = useState<Inputs>({
     visa: '', visaOther: '', field: '', fieldOther: '',
@@ -384,7 +384,7 @@ export default function ExposureScorePage() {
             USCIS PM-602-0199 in effect — May 21, 2026
           </div>
           <h1 className="text-3xl font-black text-navy leading-tight">
-            Immigration Exposure Score
+            Immigration Risk Score
           </h1>
           <div className="inline-flex items-center gap-3 bg-slate-100 rounded-xl px-4 py-2 text-xs text-mid">
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-teal inline-block" /> Lower score = stronger protection</span>
@@ -620,7 +620,7 @@ export default function ExposureScorePage() {
 
             <button onClick={handleCompute} disabled={!canSubmit}
               className="w-full btn-teal py-4 text-base font-bold disabled:opacity-40">
-              Calculate my Exposure Score →
+              Calculate my Risk Score →
             </button>
             <p className="text-xs text-center text-mid">Free · No login · Under 2 minutes</p>
           </div>
@@ -631,7 +631,7 @@ export default function ExposureScorePage() {
 
             {/* Score card */}
             <div className={`card text-center space-y-3 border-2 ${scoreData.bg}`}>
-              <p className="text-xs font-bold uppercase tracking-widest text-mid">Immigration Exposure Score</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-mid">Immigration Risk Score</p>
               <p className="text-[10px] text-mid">Lower = stronger protection · Higher = more at risk</p>
               <p className="text-[9px] text-gray-400 font-mono">Model v2.2 · Policy data current as of May 21, 2026 · Same inputs always return this score</p>
               <div className="relative inline-flex items-center justify-center">

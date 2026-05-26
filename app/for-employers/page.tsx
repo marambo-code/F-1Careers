@@ -93,7 +93,7 @@ export default function ForEmployersPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-navy font-bold text-lg">F-1 Careers</Link>
           <div className="flex items-center gap-4">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Exposure Score</Link>
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Risk Score</Link>
             <Link href="/login" className="text-sm text-teal font-semibold hover:underline">Sign in →</Link>
           </div>
         </div>

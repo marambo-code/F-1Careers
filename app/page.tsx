@@ -15,7 +15,7 @@ export default async function Home() {
       <div className="bg-amber-600 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
           USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief — not a right. DHS is ending Duration of Status for F-1.{' '}
-          <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Exposure Score →</Link>
+          <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Risk Score →</Link>
         </p>
       </div>
 
@@ -26,7 +26,7 @@ export default async function Home() {
             <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
           </Link>
           <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
-            <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Exposure Score</Link>
+            <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Risk Score</Link>
             <Link href="/roi-calculator" className="font-medium hover:text-navy transition-colors px-3 py-2">ROI Calc</Link>
             <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
           </div>
@@ -86,7 +86,7 @@ export default async function Home() {
               Get my free green card preview →
             </Link>
             <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
-              Check my Exposure Score first ↓
+              Check my Risk Score first ↓
             </Link>
           </div>
           <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
@@ -153,7 +153,7 @@ export default async function Home() {
           </div>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/stay-score" className="inline-block bg-navy text-white font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
-              Check my Exposure Score →
+              Check my Risk Score →
             </Link>
             <Link href="/roi-calculator" className="inline-block border border-border text-navy font-semibold px-8 py-3.5 rounded-xl hover:border-navy transition-colors text-sm no-underline">
               Calculate my financial exposure →
@@ -282,7 +282,7 @@ export default async function Home() {
         <div className="grid sm:grid-cols-3 gap-4 mt-5">
           <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
             <div className="text-xl mb-2">📍</div>
-            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Exposure Score</h3>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Risk Score</h3>
             <p className="text-xs text-mid leading-relaxed">Score your immigration exposure 0–100. Know exactly where you stand and what to do.</p>
             <p className="text-xs font-bold text-teal mt-3">Free →</p>
           </Link>
@@ -457,7 +457,7 @@ export default async function Home() {
             This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Exposure Score</Link>
+            <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>
             <Link href="/roi-calculator" className="text-sm text-mid hover:text-navy transition-colors">ROI Calc</Link>
             <Link href="/cohort" className="text-sm text-mid hover:text-navy transition-colors">Cohort Filing</Link>
             <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>
