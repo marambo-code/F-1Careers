@@ -3,55 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-const TIERS = [
-  {
-    name: 'Startup',
-    price: '$2,500',
-    period: 'one-time audit',
-    employees: 'Up to 25 international employees',
-    features: [
-      'Individual risk assessment per employee',
-      'NIW eligibility score per profile',
-      'Company-level risk summary report',
-      'Priority filing recommendations',
-      'Email support',
-    ],
-    cta: 'Request startup audit',
-    highlight: false,
-  },
-  {
-    name: 'Growth',
-    price: '$7,500',
-    period: 'annual',
-    employees: 'Up to 100 international employees',
-    features: [
-      'Everything in Startup',
-      'Quarterly workforce immigration audits',
-      'NIW petition frameworks per eligible employee',
-      'Attorney referral with pre-built case files',
-      'HR team training session',
-      'Dedicated account manager',
-    ],
-    cta: 'Request demo',
-    highlight: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: 'annual',
-    employees: '100+ international employees',
-    features: [
-      'Everything in Growth',
-      'Custom integrations with your HRIS',
-      'Monthly immigration policy briefings',
-      'Executive dashboard',
-      'Priority attorney network access',
-      'SLA with dedicated legal liaison',
-    ],
-    cta: 'Contact sales',
-    highlight: false,
-  },
-]
 
 export default function ForEmployersPage() {
   const [form, setForm] = useState({
@@ -130,7 +81,7 @@ export default function ForEmployersPage() {
           <div className="grid sm:grid-cols-3 gap-6">
             {[
               { stat: '$150K–$300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity, industry standard estimate', color: 'text-red-500' },
-              { stat: '$2,805', label: 'Cost of NIW premium processing', note: 'The USCIS fee for a 45-business-day I-140 decision, your employee\'s strongest protection', color: 'text-teal' },
+              { stat: '$2,805', label: 'Cost of I-140 premium processing', note: 'The USCIS fee for a 45-business-day I-140 decision, your employee\'s strongest protection regardless of petition type', color: 'text-teal' },
               { stat: '100×', label: 'ROI of proactive filing', note: 'For every dollar spent on premium processing, you protect $100+ in retention value', color: 'text-navy' },
             ].map((item, i) => (
               <div key={i} className="card text-center space-y-2">
@@ -146,9 +97,9 @@ export default function ForEmployersPage() {
             <h2 className="text-xl font-black text-navy text-center">What we do for your team</h2>
             <div className="space-y-3">
               {[
-                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and NIW eligibility, and flag who is most exposed under the current policy environment.' },
-                { n: '2', title: 'NIW eligibility scoring', desc: 'Each employee receives a personalized NIW eligibility score based on their field, education, publications, leadership, and salary. We identify exactly who has a strong extraordinary circumstances case.' },
-                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete NIW petition framework, field-level national importance argument, evidence map, Dhanasar analysis, ready for attorney review.' },
+                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and self-petition eligibility, and flag who is most exposed under the current policy environment.' },
+                { n: '2', title: 'EB-1A and NIW eligibility scoring', desc: 'Each employee receives a personalized eligibility score across both EB-1A Extraordinary Ability and EB-2 NIW, based on their field, education, publications, leadership, and salary. We identify exactly who has a strong self-petition case.' },
+                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete petition framework — national importance argument, evidence map, Dhanasar analysis for NIW or EB-1A criteria mapping — ready for attorney review.' },
                 { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
                 { n: '5', title: 'OPT compliance audit', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
               ].map((step) => (
@@ -163,37 +114,15 @@ export default function ForEmployersPage() {
             </div>
           </div>
 
-          {/* Pricing */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-black text-navy text-center">Simple pricing</h2>
-            <div className="grid sm:grid-cols-3 gap-4">
-              {TIERS.map(tier => (
-                <div key={tier.name} className={`card space-y-4 ${tier.highlight ? 'border-2 border-teal ring-2 ring-teal/10' : ''}`}>
-                  {tier.highlight && (
-                    <div className="text-xs font-bold text-teal uppercase tracking-widest">Most popular</div>
-                  )}
-                  <div>
-                    <p className="font-black text-navy text-lg">{tier.name}</p>
-                    <p className="text-3xl font-black text-navy mt-1">{tier.price}</p>
-                    <p className="text-xs text-mid">{tier.period}</p>
-                    <p className="text-xs text-teal font-semibold mt-1">{tier.employees}</p>
-                  </div>
-                  <ul className="space-y-2">
-                    {tier.features.map((f, i) => (
-                      <li key={i} className="text-xs text-mid flex gap-2">
-                        <span className="text-teal flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    href="#contact"
-                    className={`block text-center text-sm font-bold py-2.5 rounded-xl transition-colors ${
-                      tier.highlight ? 'bg-teal text-white hover:bg-teal/90' : 'border border-gray-300 text-navy hover:border-navy'
-                    }`}
-                  >{tier.cta}</a>
-                </div>
-              ))}
-            </div>
+          {/* Pre-contact nudge */}
+          <div className="card max-w-xl mx-auto text-center space-y-4 bg-navy text-white border-0">
+            <p className="text-lg font-black">Every team is different.</p>
+            <p className="text-sm text-white/70 leading-relaxed max-w-sm mx-auto">
+              We scope every engagement around your headcount, visa mix, and exposure profile. Tell us about your team and we'll put together a proposal within 24 hours.
+            </p>
+            <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors text-sm">
+              Request a workforce audit →
+            </a>
           </div>
 
           {/* Contact form */}
