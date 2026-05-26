@@ -141,6 +141,11 @@ interface Inputs {
   contributions: string[]
   sevisTerminated: string   // 'yes' | 'no' | ''
   programYears: string      // '1-2' | '3-4' | '5+' | 'na' | ''
+  // PM-602-0199 explicit discretionary factors
+  i140Approved: string      // 'yes' | 'no' | ''
+  priorViolations: string   // 'yes' | 'no' | ''
+  usFamily: string          // 'yes' | 'no' | ''
+  socialMediaRisk: string   // 'yes' | 'no' | ''
 }
 
 function computeExposure(inputs: Inputs) {
@@ -213,6 +218,32 @@ function computeExposure(inputs: Inputs) {
     ? "Advanced degree satisfies the NIW Dhanasar advanced degree analysis — solid foundation."
     : "Additional evidence of outsized professional impact is essential to compensate at the bachelor's level."
 
+  // 6. Approved I-140 — major mitigating factor (-18 pts)
+  // An approved I-140 is the definitive "extraordinary circumstances" evidence under PM-602-0199
+  const i140Points = inputs.i140Approved === 'yes' ? -18 : 0
+  const i140Note = inputs.i140Approved === 'yes'
+    ? 'An approved I-140 is the single strongest evidence of national interest you can hold. Under PM-602-0199, this directly satisfies the extraordinary circumstances standard — it is documented USCIS recognition that your presence serves national interest.'
+    : 'No approved I-140 on record. Filing NIW with premium processing is the highest-leverage move available to you — an approved I-140 is definitive extraordinary circumstances documentation.'
+
+  // 7. Prior Immigration Violations — PM-602-0199 §(a)(i): explicitly "highly relevant" adverse factor (+15 pts)
+  const violationsPoints = inputs.priorViolations === 'yes' ? 15 : 0
+  const violationsNote = inputs.priorViolations === 'yes'
+    ? 'Prior violations (overstay, unauthorized employment, status breach) are explicitly listed in PM-602-0199 as highly relevant adverse factors in the totality-of-circumstances discretionary analysis. This is your most urgent issue to address with immigration counsel.'
+    : 'No prior violations — a significant positive factor. USCIS officers are directed to weigh consistent status compliance favorably in discretionary review.'
+
+  // 8. US Citizen or LPR Immediate Family — PM-602-0199 §(b): explicit positive equitable factor (-8 pts)
+  const usFamilyPoints = inputs.usFamily === 'yes' ? -8 : 0
+  const usFamilyNote = inputs.usFamily === 'yes'
+    ? 'US citizen or LPR immediate family ties are explicitly listed in PM-602-0199 as a positive equitable factor. Officers are required to weigh this in the totality-of-circumstances analysis — it meaningfully strengthens your discretionary position.'
+    : 'No immediate US citizen or LPR family ties. While not required, family ties are an explicit positive factor under PM-602-0199 — other equities (career impact, community) become more important to document.'
+
+  // 9. Social Media Risk — flagged by USCIS/State Dept; PM-602-0199 moral character factor (+10 pts)
+  // Immigration attorneys now explicitly advise clients to review public social media before filing
+  const socialMediaPoints = inputs.socialMediaRisk === 'yes' ? 10 : 0
+  const socialMediaNote = inputs.socialMediaRisk === 'yes'
+    ? 'USCIS and State Dept now routinely screen public social media. Immigration attorneys advise that posts criticizing US immigration enforcement, expressing political affiliations, or discussing visa strategy can be flagged under PM-602-0199\'s moral character and conduct factors. Review and archive public accounts before filing.'
+    : 'No flagged social media content — neutral factor. Note that USCIS screens public accounts; immigration attorneys recommend auditing your social media presence before any AoS filing.'
+
   // 6. SEVIS Termination History (0–15 pts)
   const sevisPoints = inputs.sevisTerminated === 'yes' ? 15 : 0
   const sevisNote = inputs.sevisTerminated === 'yes'
@@ -232,7 +263,9 @@ function computeExposure(inputs: Inputs) {
     ? 'Your program approaches the 4-year D/S cap. Monitor the DHS final rule timeline closely — if enacted September 2026, PhD students in year 3+ will need I-539 extensions.'
     : 'Your program falls within the proposed 4-year D/S limit. Lower exposure from the D/S rule change.'
 
-  const total = Math.min(100, countryPoints + visaPoints + evidencePoints + yearsPoints + eduPoints + sevisPoints + dsPoints)
+  const raw = countryPoints + visaPoints + evidencePoints + yearsPoints + eduPoints
+    + sevisPoints + dsPoints + i140Points + violationsPoints + usFamilyPoints + socialMediaPoints
+  const total = Math.min(100, Math.max(0, raw))
 
   return {
     score: total,
@@ -244,6 +277,10 @@ function computeExposure(inputs: Inputs) {
       { label: 'Education Level', points: eduPoints, max: 10, note: eduNote },
       ...(inputs.sevisTerminated === 'yes' ? [{ label: 'SEVIS Termination History', points: sevisPoints, max: 15, note: sevisNote }] : []),
       ...(isF1 && inputs.programYears && inputs.programYears !== 'na' ? [{ label: 'Duration of Status Risk', points: dsPoints, max: 10, note: dsNote }] : []),
+      { label: 'Approved I-140 (Mitigating)', points: i140Points, max: 0, note: i140Note },
+      ...(inputs.priorViolations === 'yes' ? [{ label: 'Prior Immigration Violations', points: violationsPoints, max: 15, note: violationsNote }] : []),
+      { label: 'US Family Ties (Equitable)', points: usFamilyPoints, max: 0, note: usFamilyNote },
+      ...(inputs.socialMediaRisk === 'yes' ? [{ label: 'Social Media Exposure', points: socialMediaPoints, max: 10, note: socialMediaNote }] : []),
     ],
   }
 }
@@ -286,6 +323,7 @@ export default function ExposureScorePage() {
     visa: '', visaOther: '', field: '', fieldOther: '',
     education: '', years: '', country: '', countryOther: '', contributions: [],
     sevisTerminated: '', programYears: '',
+    i140Approved: '', priorViolations: '', usFamily: '', socialMediaRisk: '',
   })
   const [result, setResult] = useState<ReturnType<typeof computeExposure> | null>(null)
   const [copied, setCopied] = useState(false)
@@ -310,12 +348,13 @@ export default function ExposureScorePage() {
     inputs.education && inputs.years && inputs.country &&
     (inputs.country !== 'Other' || inputs.countryOther.trim()) &&
     inputs.sevisTerminated &&
-    (!isF1Status || inputs.programYears)
+    (!isF1Status || inputs.programYears) &&
+    inputs.i140Approved && inputs.priorViolations && inputs.usFamily && inputs.socialMediaRisk
 
   const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
 
   const handleCopy = () => {
-    const text = `I just checked my immigration exposure score. Most people I know haven't heard of PM-602-0199 yet. That's a problem.\n\nFree tool, 2 minutes: https://f1careers.app/stay-score`
+    const text = `This is what I use to track my immigration exposure and know when to act. Policy changed May 21 — if you're on F-1, OPT, or H-1B, your number matters now more than ever.\n\n→ f1careers.app/stay-score`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })
@@ -480,6 +519,70 @@ export default function ExposureScorePage() {
               </div>
             )}
 
+            {/* PM-602-0199 Discretionary Factors */}
+            <div className="space-y-5 pt-2 border-t border-gray-100">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1">PM-602-0199 Discretionary Factors</p>
+                <p className="text-xs text-mid leading-relaxed">These are the exact factors USCIS officers are now required to weigh in your adjustment of status review. Answer honestly — this is for your assessment only.</p>
+              </div>
+
+              {/* I-140 */}
+              <div>
+                <label className="label">Do you have an approved I-140 petition on record?</label>
+                <p className="text-xs text-mid mb-2">An approved I-140 is the definitive "extraordinary circumstances" evidence under PM-602-0199 — the single most protective document you can hold.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ val: 'yes', label: 'Yes — I-140 approved' }, { val: 'no', label: 'No — not yet filed or pending' }].map(opt => (
+                    <button key={opt.val} onClick={() => set('i140Approved', opt.val)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.i140Approved === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Prior violations */}
+              <div>
+                <label className="label">Have you ever overstayed a visa, worked without authorization, or violated the terms of your immigration status?</label>
+                <p className="text-xs text-mid mb-2">PM-602-0199 lists these as <em>highly relevant</em> adverse factors. Includes brief overstays, CPT/OPT violations, or working before authorization was granted.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ val: 'no', label: 'No — always maintained status' }, { val: 'yes', label: 'Yes — one or more violations' }].map(opt => (
+                    <button key={opt.val} onClick={() => set('priorViolations', opt.val)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.priorViolations === opt.val ? (opt.val === 'yes' ? 'bg-red-600 text-white border-red-600' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* US family */}
+              <div>
+                <label className="label">Do you have a US citizen or lawful permanent resident spouse, child, or parent?</label>
+                <p className="text-xs text-mid mb-2">PM-602-0199 explicitly requires officers to weigh family ties as a positive equitable factor in the discretionary analysis.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ val: 'yes', label: 'Yes — USC or LPR immediate family' }, { val: 'no', label: 'No immediate USC / LPR family' }].map(opt => (
+                    <button key={opt.val} onClick={() => set('usFamily', opt.val)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.usFamily === opt.val ? (opt.val === 'yes' ? 'bg-teal text-white border-teal' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Social media */}
+              <div>
+                <label className="label">Do any of your public social media accounts contain political statements, criticism of US immigration enforcement, or content that could be flagged in a government review?</label>
+                <p className="text-xs text-mid mb-2">USCIS and State Dept now routinely screen public social media. Immigration attorneys explicitly advise clients to audit accounts before any AoS filing — PM-602-0199's moral character factor covers conduct on record.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ val: 'no', label: 'No — clean public presence' }, { val: 'yes', label: 'Yes — potentially flaggable content' }].map(opt => (
+                    <button key={opt.val} onClick={() => set('socialMediaRisk', opt.val)}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.socialMediaRisk === opt.val ? (opt.val === 'yes' ? 'bg-orange-500 text-white border-orange-500' : 'bg-navy text-white border-navy') : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Evidence */}
             <div>
               <div className="mb-4">
@@ -525,6 +628,7 @@ export default function ExposureScorePage() {
             <div className={`card text-center space-y-3 border-2 ${scoreData.bg}`}>
               <p className="text-xs font-bold uppercase tracking-widest text-mid">Immigration Exposure Score</p>
               <p className="text-[10px] text-mid">Lower = stronger protection · Higher = more at risk</p>
+              <p className="text-[9px] text-gray-400 font-mono">Model v2.2 · Policy data current as of May 21, 2026 · Same inputs always return this score</p>
               <div className="relative inline-flex items-center justify-center">
                 <svg viewBox="0 0 120 120" className="w-36 h-36">
                   <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" strokeWidth="10" />
@@ -552,22 +656,35 @@ export default function ExposureScorePage() {
                 <p className="text-xs font-bold text-navy uppercase tracking-widest">Risk Factor Breakdown</p>
                 <p className="text-[10px] text-mid">Higher bar = more exposure in that area</p>
               </div>
-              {result.breakdown.map((b, i) => (
-                <div key={i} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-navy">{b.label}</p>
-                    <p className="text-xs font-bold text-mid">{b.points} / {b.max}</p>
+              {result.breakdown.map((b, i) => {
+                const isMitigating = b.points <= 0
+                const barPct = b.max > 0 ? Math.min(100, (b.points / b.max) * 100) : 0
+                return (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-navy">{b.label}</p>
+                      <p className={`text-xs font-bold ${isMitigating ? 'text-teal' : 'text-mid'}`}>
+                        {isMitigating && b.points !== 0 ? `${b.points} pts` : b.max > 0 ? `${b.points} / ${b.max}` : '—'}
+                      </p>
+                    </div>
+                    {b.max > 0 && (
+                      <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${
+                          barPct >= 70 ? 'bg-red-500' :
+                          barPct >= 50 ? 'bg-orange-400' :
+                          barPct >= 30 ? 'bg-yellow-400' : 'bg-teal'
+                        }`} style={{ width: `${barPct}%` }} />
+                      </div>
+                    )}
+                    {isMitigating && b.points !== 0 && (
+                      <div className="h-1.5 rounded-full bg-teal/20 overflow-hidden">
+                        <div className="h-full rounded-full bg-teal" style={{ width: '100%' }} />
+                      </div>
+                    )}
+                    <p className="text-xs text-mid leading-relaxed">{b.note}</p>
                   </div>
-                  <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${
-                      b.points / b.max >= 0.7 ? 'bg-red-500' :
-                      b.points / b.max >= 0.5 ? 'bg-orange-400' :
-                      b.points / b.max >= 0.3 ? 'bg-yellow-400' : 'bg-teal'
-                    }`} style={{ width: `${(b.points / b.max) * 100}%` }} />
-                  </div>
-                  <p className="text-xs text-mid leading-relaxed">{b.note}</p>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Share */}
