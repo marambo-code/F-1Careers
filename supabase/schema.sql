@@ -169,6 +169,9 @@ create policy "Users can view own score history" on public.score_history
 -- ─── COUNTRY / PROFILE EXTENSION ────────────────────────────────
 alter table public.profiles add column if not exists country_of_birth text;
 
+-- ─── REPORT EDIT TRACKING ───────────────────────────────────────
+alter table public.reports add column if not exists regen_count int default 0;
+
 -- ─── PROFILE EMPLOYMENT FIELDS ──────────────────────────────────
 alter table public.profiles add column if not exists current_employer text;
 alter table public.profiles add column if not exists job_title text;

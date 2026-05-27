@@ -64,17 +64,88 @@ export default async function StrategyStartPage() {
     error: 'text-red-600 bg-red-50',
   }
 
+  // Surface the most recent pending report with a preview score
+  const latestPending = pastReports?.find(r => r.status === 'pending' && r.preview_data)
+  const pendingPreview = latestPending?.preview_data as StrategyPreview | null
+
+  const strengthColors: Record<string, string> = {
+    Strong: 'text-teal bg-teal-light',
+    Developing: 'text-yellow-700 bg-yellow-50',
+    Early: 'text-mid bg-gray-100',
+  }
+
   return (
     <div className="max-w-2xl space-y-8">
-      {/* Header */}
-      <div>
-        <span className="text-xs font-bold text-teal uppercase tracking-widest">Green Card Strategy</span>
-        <h1 className="text-2xl font-bold text-navy mt-1">Green Card Strategy Report</h1>
-        <p className="text-mid mt-2 leading-relaxed">
-          A personalized analysis of your visa pathway and evidence strength, with a clear roadmap
-          built specifically for international professionals navigating the US immigration system.
-        </p>
-      </div>
+
+      {/* ── Pending report score card ── */}
+      {latestPending && pendingPreview && (
+        <div className="card border-2 border-teal/30 bg-teal/5 space-y-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span className="text-xs font-bold text-teal uppercase tracking-widest">Your Preview Score</span>
+              <p className="text-lg font-bold text-navy mt-1">{pendingPreview.top_pathway} is your strongest pathway</p>
+              <p className="text-sm text-mid mt-0.5">
+                {pendingPreview.overall_strength === 'Strong'
+                  ? 'Your profile is competitive. Unlock the full report to see how to file.'
+                  : pendingPreview.overall_strength === 'Developing'
+                  ? 'You have a real case. Unlock the full report to close the gaps.'
+                  : 'Your case is early-stage. Unlock the roadmap to change your eligibility picture.'}
+              </p>
+            </div>
+            <span className={`px-3 py-1.5 rounded-xl font-bold text-sm flex-shrink-0 ${strengthColors[pendingPreview.overall_strength] ?? 'text-mid bg-gray-100'}`}>
+              {pendingPreview.overall_strength} Profile
+            </span>
+          </div>
+
+          {/* Scores */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-xl border border-border p-3 text-center">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-2 NIW Score</p>
+              <p className={`text-4xl font-black ${
+                (pendingPreview.niw_score ?? 0) >= 65 ? 'text-teal' :
+                (pendingPreview.niw_score ?? 0) >= 45 ? 'text-yellow-600' : 'text-orange-500'
+              }`}>{pendingPreview.niw_score ?? '—'}</p>
+              <p className="text-xs text-mid">/100</p>
+            </div>
+            <div className="bg-white rounded-xl border border-border p-3 text-center">
+              <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-1A Score</p>
+              <p className={`text-4xl font-black ${
+                (pendingPreview.eb1a_score ?? 0) >= 70 ? 'text-teal' :
+                (pendingPreview.eb1a_score ?? 0) >= 50 ? 'text-yellow-600' : 'text-orange-500'
+              }`}>{pendingPreview.eb1a_score ?? '—'}</p>
+              <p className="text-xs text-mid">/100</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 flex-wrap">
+            <Link
+              href={`/strategy/preview?reportId=${latestPending.id}`}
+              className="flex-1 bg-teal text-white font-bold py-2.5 rounded-xl text-center text-sm hover:bg-teal/90 transition-colors"
+            >
+              View full preview & unlock →
+            </Link>
+            <Link
+              href={`/strategy/questionnaire?edit=${latestPending.id}`}
+              className="flex-1 border border-border text-navy font-semibold py-2.5 rounded-xl text-center text-sm hover:border-teal/40 hover:bg-teal-light/30 transition-colors"
+            >
+              Edit my answers
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Header — only shown when no pending score card */}
+      {!latestPending && (
+        <div>
+          <span className="text-xs font-bold text-teal uppercase tracking-widest">Green Card Strategy</span>
+          <h1 className="text-2xl font-bold text-navy mt-1">Green Card Strategy Report</h1>
+          <p className="text-mid mt-2 leading-relaxed">
+            A personalized analysis of your visa pathway and evidence strength, with a clear roadmap
+            built specifically for international professionals navigating the US immigration system.
+          </p>
+        </div>
+      )}
 
       {/* Deliverables */}
       <div className="card">
@@ -115,17 +186,19 @@ export default async function StrategyStartPage() {
         </div>
       )}
 
-      {/* Past reports */}
-      {pastReports && pastReports.length > 0 && (
+      {/* Past reports — other reports beyond the pending one */}
+      {pastReports && pastReports.filter(r => r.id !== latestPending?.id).length > 0 && (
         <div className="card space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold text-navy">Your Reports</h2>
-            <Link href="/strategy/questionnaire" className="text-sm text-teal font-semibold hover:underline">
-              + New report →
-            </Link>
+            <h2 className="font-bold text-navy">Past Reports</h2>
+            {!latestPending && (
+              <Link href="/strategy/questionnaire" className="text-sm text-teal font-semibold hover:underline">
+                + New report →
+              </Link>
+            )}
           </div>
           <div className="space-y-2">
-            {pastReports.map(r => {
+            {pastReports.filter(r => r.id !== latestPending?.id).map(r => {
               const preview = r.preview_data as StrategyPreview | null
               const date = new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
               const href = r.status === 'complete' ? `/strategy/report/${r.id}` :
@@ -173,11 +246,13 @@ export default async function StrategyStartPage() {
           href="/strategy/questionnaire"
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl text-center block hover:bg-teal/90 transition-colors text-sm"
         >
-          Start questionnaire (approx. 15 min of careful completion) →
+          {latestPending ? 'Start a new questionnaire →' : 'Start questionnaire (approx. 15 min of careful completion) →'}
         </Link>
-        <p className="text-xs text-blue-300 text-center mt-3">
-          You&apos;ll preview your results for free before being asked to pay.
-        </p>
+        {!latestPending && (
+          <p className="text-xs text-blue-300 text-center mt-3">
+            You&apos;ll preview your results for free before being asked to pay.
+          </p>
+        )}
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import PayButton from '@/components/strategy/PayButton'
 import type { StrategyPreview } from '@/lib/types'
 
@@ -212,6 +213,14 @@ export default async function StrategyPreviewPage({
           <p className="text-blue-200 text-sm">One-time · No subscription</p>
         </div>
         <PayButton reportId={reportId} productType="strategy" className="mt-4 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors" />
+        <div className="mt-4 text-center">
+          <Link
+            href={`/strategy/questionnaire?edit=${reportId}`}
+            className="text-sm text-blue-300 hover:text-white transition-colors"
+          >
+            Edit my answers →
+          </Link>
+        </div>
       </div>
     </div>
   )

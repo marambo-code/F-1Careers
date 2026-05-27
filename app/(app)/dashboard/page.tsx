@@ -102,8 +102,11 @@ export default async function DashboardPage() {
   const isPro = subscription?.status === 'active' || subscription?.status === 'trialing'
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
-  // Strategy data
-  const latestStrategyReport = reports.find(r => r.type === 'strategy' && (r.status === 'complete' || r.status === 'pending'))
+  // Strategy data — distinguish between paid/complete and pending (preview only, unpaid)
+  const latestCompleteStrategyReport = reports.find(r => r.type === 'strategy' && r.status === 'complete')
+  const latestPendingPreviewReport = reports.find(r => r.type === 'strategy' && r.status === 'pending' && r.preview_data)
+  // For score display, use whatever is available (complete > pending)
+  const latestStrategyReport = latestCompleteStrategyReport ?? latestPendingPreviewReport ?? reports.find(r => r.type === 'strategy')
   const latestPreview = latestStrategyReport?.preview_data as StrategyPreview | null
   const latestFullReport = latestStrategyReport?.report_data as StrategyReport | null
   const latestAnswers = latestStrategyReport?.questionnaire_responses as StrategyAnswers | null
@@ -136,9 +139,9 @@ export default async function DashboardPage() {
   // Country alerts
   const countryOfBirth = (profile as Record<string, unknown> | null)?.country_of_birth as string | undefined
 
-  // Journey stage
+  // Journey stage — only a complete (paid + generated) report advances beyond Stage 1
   const stage = getUserStage({
-    hasStrategyReport: !!latestStrategyReport,
+    hasStrategyReport: !!latestCompleteStrategyReport,
     hasCareerMoves: !!careerMoves,
     evidenceDone,
     evidenceTotal,
@@ -146,14 +149,25 @@ export default async function DashboardPage() {
     hasGeneratedPetition,
   })
 
+  // Stage 1 CTA adapts based on whether there's a pending (unpaid) preview
+  const stage1Config = latestPendingPreviewReport
+    ? {
+        title: `Your score is ready${latestPreview?.niw_score !== undefined ? ` — NIW ${latestPreview.niw_score}/100` : ''}`,
+        description: `${latestPreview?.top_pathway ?? 'EB-2 NIW'} is your strongest pathway. Unlock the full report to get your criterion-by-criterion breakdown, evidence map, and 12-month roadmap.`,
+        href: `/strategy/preview?reportId=${latestPendingPreviewReport.id}`,
+        cta: 'View preview & unlock full report →',
+        color: 'border-teal bg-teal/4',
+      }
+    : {
+        title: 'See your green card score — free',
+        description: "Answer questions about your background and we'll calculate your NIW and EB-1A scores, show you your strongest pathway, and identify exactly what you need to build. Preview is free — pay only if you want the full report.",
+        href: '/strategy/questionnaire',
+        cta: 'Start free preview →',
+        color: 'border-teal bg-teal/4',
+      }
+
   const nextStepConfig: Record<Stage, { title: string; description: string; href: string; cta: string; color: string }> = {
-    1: {
-      title: 'See your green card score — free',
-      description: "Answer questions about your background and we'll calculate your NIW and EB-1A scores, show you your strongest pathway, and identify exactly what you need to build. Preview is free — pay only if you want the full report.",
-      href: '/strategy/questionnaire',
-      cta: 'Start free preview →',
-      color: 'border-teal bg-teal/4',
-    },
+    1: stage1Config,
     2: {
       title: 'Start building your evidence',
       description: 'Your strategy report is ready. Now open the Petition Builder and start checking off the evidence items for your pathway. This is where your case gets built.',

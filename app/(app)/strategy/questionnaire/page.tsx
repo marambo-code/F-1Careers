@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/lib/types'
 
@@ -188,8 +189,10 @@ const defaultAnswers = {
   biggest_concern: '',
 }
 
-export default function QuestionnairePage() {
+function QuestionnaireInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editReportId = searchParams.get('edit') // present when editing an existing pending report
   const supabase = createClient()
   const [step, setStep] = useState(0)
   const [profile, setProfile] = useState<Partial<Profile>>({})
@@ -197,6 +200,8 @@ export default function QuestionnairePage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [answers, setAnswers] = useState(defaultAnswers)
+  const [existingRegenCount, setExistingRegenCount] = useState(0)
+  const [isPro, setIsPro] = useState(false)
   const [resumeText, setResumeText] = useState<string>('')
   const [visaExpiration, setVisaExpiration] = useState<string>('')
   const [resumeUploading, setResumeUploading] = useState(false)
@@ -263,51 +268,92 @@ export default function QuestionnairePage() {
     }
   }
 
-  // ── Load profile ────────────────────────────────────────────────
+  // ── Load profile + check for existing pending report ────────────
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return
-      supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
-        if (data) {
-          setProfile(data)
-          if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
-          if (data.degree) {
-            const d = data.degree.toLowerCase()
-            const mapped =
-              d.includes('phd') || d.includes('doctorate') || d.includes('doctor of philosophy') ? 'phd' :
-              d.includes('m.d.') || d.includes('doctor of medicine') ? 'md' :
-              d.includes('master') || d.includes('m.s.') || d.includes('m.a.') || d.includes('mba') ? 'masters' :
-              d.includes('bachelor') || d.includes('b.s.') || d.includes('b.a.') || d.includes('b.eng') ? 'bachelors' :
-              ''
-            if (mapped) setAnswers(a => ({ ...a, education_level: mapped }))
-          }
 
-          // Auto-load resume from profile if available
-          if (data.resume_path) {
-            setResumeUploading(true)
-            fetch('/api/strategy/profile-resume')
-              .then(r => r.json())
-              .then(body => {
-                if (body.text) {
-                  setResumeText(body.text)
-                  setResumeFileName(body.filename ?? 'resume from profile')
-                  setResumeFromProfile(true)
-                }
-              })
-              .catch(() => { /* silently fail, user can upload manually */ })
-              .finally(() => setResumeUploading(false))
-          }
+      const [profileRes, reportsRes, subRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('reports')
+          .select('id, questionnaire_responses, regen_count')
+          .eq('user_id', user.id)
+          .eq('type', 'strategy')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(1),
+        supabase.from('subscriptions')
+          .select('status')
+          .eq('user_id', user.id)
+          .in('status', ['active', 'trialing'])
+          .maybeSingle(),
+      ])
+
+      setIsPro(!!subRes.data)
+
+      const existingPending = reportsRes.data?.[0]
+
+      // No edit param + existing pending report → redirect to preview
+      if (!editReportId && existingPending) {
+        router.replace(`/strategy/preview?reportId=${existingPending.id}`)
+        return
+      }
+
+      // Edit mode: pre-populate answers from saved questionnaire_responses
+      if (editReportId && existingPending?.id === editReportId) {
+        setExistingRegenCount(existingPending.regen_count ?? 0)
+        const saved = existingPending.questionnaire_responses as typeof defaultAnswers | null
+        if (saved) {
+          setAnswers(prev => ({ ...prev, ...saved }))
+          if (saved.proposed_endeavor) { /* already in answers */ }
         }
-        setLoading(false)
-      })
+      }
+
+      const data = profileRes.data
+      if (data) {
+        setProfile(data)
+        if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
+        if (data.degree) {
+          const d = data.degree.toLowerCase()
+          const mapped =
+            d.includes('phd') || d.includes('doctorate') || d.includes('doctor of philosophy') ? 'phd' :
+            d.includes('m.d.') || d.includes('doctor of medicine') ? 'md' :
+            d.includes('master') || d.includes('m.s.') || d.includes('m.a.') || d.includes('mba') ? 'masters' :
+            d.includes('bachelor') || d.includes('b.s.') || d.includes('b.a.') || d.includes('b.eng') ? 'bachelors' :
+            ''
+          if (mapped) setAnswers(a => ({ ...a, education_level: mapped }))
+        }
+
+        // Auto-load resume from profile if available
+        if (data.resume_path) {
+          setResumeUploading(true)
+          fetch('/api/strategy/profile-resume')
+            .then(r => r.json())
+            .then(body => {
+              if (body.text) {
+                setResumeText(body.text)
+                setResumeFileName(body.filename ?? 'resume from profile')
+                setResumeFromProfile(true)
+              }
+            })
+            .catch(() => {})
+            .finally(() => setResumeUploading(false))
+        }
+      }
+      setLoading(false)
     })
-  }, [])
+  }, [editReportId])
 
   // ── Submit ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    // Final validation before submitting
     if (!step0Valid) { setError('Please go back and fill in all required fields.'); return }
     if (!step2Valid) { setError('Please describe your proposed US endeavor on Step 3.'); return }
+
+    // Regen cap: free users get 1 edit after their initial preview
+    if (editReportId && !isPro && existingRegenCount >= 1) {
+      setError('Free members can update their preview once. Upgrade to Pro to regenerate unlimited times.')
+      return
+    }
 
     setSubmitting(true)
     setError(null)
@@ -335,25 +381,48 @@ export default function QuestionnairePage() {
         } : {}),
       }
 
-      const { data: report, error: insertError } = await supabase
-        .from('reports')
-        .insert({ user_id: user.id, type: 'strategy', status: 'pending', questionnaire_responses: allAnswers })
-        .select().single()
+      let reportId: string
 
-      if (insertError || !report) {
-        setError(`Could not save your responses: ${insertError?.message ?? 'Unknown error'}`)
-        setSubmitting(false)
-        return
+      if (editReportId) {
+        // Edit mode: update existing report and increment regen count
+        const { error: updateError } = await supabase
+          .from('reports')
+          .update({
+            questionnaire_responses: allAnswers,
+            regen_count: existingRegenCount + 1,
+            preview_data: null, // clear old preview while regenerating
+          })
+          .eq('id', editReportId)
+
+        if (updateError) {
+          setError(`Could not update your responses: ${updateError.message}`)
+          setSubmitting(false)
+          return
+        }
+        reportId = editReportId
+      } else {
+        // New report
+        const { data: report, error: insertError } = await supabase
+          .from('reports')
+          .insert({ user_id: user.id, type: 'strategy', status: 'pending', questionnaire_responses: allAnswers })
+          .select().single()
+
+        if (insertError || !report) {
+          setError(`Could not save your responses: ${insertError?.message ?? 'Unknown error'}`)
+          setSubmitting(false)
+          return
+        }
+        reportId = report.id
       }
 
       const res = await fetch('/api/strategy/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reportId: report.id, answers: allAnswers }),
+        body: JSON.stringify({ reportId, answers: allAnswers }),
       })
 
       if (res.ok) {
-        router.push(`/strategy/preview?reportId=${report.id}`)
+        router.push(`/strategy/preview?reportId=${reportId}`)
       } else {
         const body = await res.json().catch(() => ({}))
         setError(`Generation failed: ${body?.error ?? res.statusText}. Please try again.`)
@@ -380,6 +449,26 @@ export default function QuestionnairePage() {
 
   return (
     <div className="max-w-2xl space-y-6">
+
+      {/* Edit mode banner */}
+      {editReportId && (
+        <div className="flex items-center justify-between bg-teal/8 border border-teal/20 rounded-xl px-4 py-3">
+          <div>
+            <p className="text-sm font-bold text-navy">Editing your saved responses</p>
+            <p className="text-xs text-mid mt-0.5">
+              {!isPro && existingRegenCount >= 1
+                ? 'You have used your free re-generation. Upgrade to Pro to regenerate again.'
+                : !isPro
+                ? `Free members can regenerate their preview once. You have ${1 - existingRegenCount} remaining.`
+                : 'Pro member — unlimited regenerations.'}
+            </p>
+          </div>
+          <Link href={`/strategy/preview?reportId=${editReportId}`} className="text-xs text-teal font-semibold hover:underline flex-shrink-0 ml-4">
+            Back to preview →
+          </Link>
+        </div>
+      )}
+
       {/* Progress */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -895,10 +984,18 @@ export default function QuestionnairePage() {
                 </svg>
                 Analyzing your profile...
               </span>
-            ) : 'Generate my preview →'}
+            ) : editReportId ? 'Regenerate my preview →' : 'Generate my preview →'}
           </button>
         )}
       </div>
     </div>
+  )
+}
+
+export default function QuestionnairePage() {
+  return (
+    <Suspense fallback={<div className="text-mid text-sm">Loading...</div>}>
+      <QuestionnaireInner />
+    </Suspense>
   )
 }
