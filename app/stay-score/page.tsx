@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 // ─── AUTHORITATIVE COUNTRY RISK TIERS ──────────────────────────────────────
 // Sources:
@@ -332,6 +333,13 @@ export default function RiskScorePage() {
   })
   const [result, setResult] = useState<ReturnType<typeof computeExposure> | null>(null)
   const [copied, setCopied] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [snapshotSaved, setSnapshotSaved] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
+  }, [])
 
   const set = (k: keyof Inputs, v: string | string[]) => setInputs(i => ({ ...i, [k]: v }))
   const toggleContrib = (id: string) => setInputs(i => ({
@@ -356,7 +364,27 @@ export default function RiskScorePage() {
     (!isF1Status || inputs.programYears) &&
     inputs.i140Approved && inputs.priorViolations && inputs.usFamily && inputs.socialMediaRisk
 
-  const handleCompute = () => { setResult(computeExposure(inputs)); setStep(1) }
+  const handleCompute = () => {
+    const r = computeExposure(inputs)
+    setResult(r)
+    setStep(1)
+    if (isLoggedIn) {
+      const scoreData = getScoreLabel(r.score)
+      fetch('/api/tools/snapshot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tool: 'stay_score',
+          data: {
+            score: r.score,
+            label: scoreData.label,
+            country: inputs.country === 'Other' ? inputs.countryOther : inputs.country,
+            visa: inputs.visa === 'Other' ? inputs.visaOther : inputs.visa,
+          },
+        }),
+      }).then(() => setSnapshotSaved(true)).catch(() => {})
+    }
+  }
 
   const handleCopy = () => {
     const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast, every F-1, OPT, and H-1B professional should know where they stand.\n\n→ f1careers.app/stay-score`
@@ -628,6 +656,20 @@ export default function RiskScorePage() {
 
         {step === 1 && result && scoreData && (
           <div className="space-y-5">
+
+            {/* Saved to profile indicator */}
+            {snapshotSaved && (
+              <div className="flex items-center justify-between bg-teal/8 border border-teal/20 rounded-xl px-4 py-2.5">
+                <p className="text-xs text-teal font-semibold">✓ Score saved to your profile</p>
+                <Link href="/profile" className="text-xs text-teal underline font-semibold">View →</Link>
+              </div>
+            )}
+            {!snapshotSaved && !isLoggedIn && (
+              <div className="flex items-center justify-between bg-gray-50 border border-border rounded-xl px-4 py-2.5">
+                <p className="text-xs text-mid">Save this score to your profile</p>
+                <Link href="/signup" className="text-xs text-teal underline font-semibold">Create free account →</Link>
+              </div>
+            )}
 
             {/* Score card */}
             <div className={`card text-center space-y-3 border-2 ${scoreData.bg}`}>

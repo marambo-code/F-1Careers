@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
   COUNTRY_DATA,
   TIER_ORDER,
@@ -302,6 +303,13 @@ export default function ROICalculatorPage() {
   const [category, setCategory]     = useState('')
   const [scenario, setScenario]     = useState<'conservative' | 'worst'>('conservative')
   const [computed, setComputed]     = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [snapshotSaved, setSnapshotSaved] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
+  }, [])
 
   const salaryNum = parseInt(salary.replace(/\D/g, '')) || 0
 
@@ -465,7 +473,24 @@ export default function ROICalculatorPage() {
           </div>
 
           <button
-            onClick={() => setComputed(true)}
+            onClick={() => {
+              setComputed(true)
+              if (isLoggedIn && canCompute && countryEntry) {
+                fetch('/api/tools/snapshot', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    tool: 'roi',
+                    data: {
+                      country: countryEntry.label,
+                      tier: countryEntry.tier,
+                      salary: salaryNum,
+                      category,
+                    },
+                  }),
+                }).then(() => setSnapshotSaved(true)).catch(() => {})
+              }
+            }}
             disabled={!canCompute}
             className="w-full btn-teal py-4 text-base font-bold disabled:opacity-40"
           >
@@ -479,6 +504,20 @@ export default function ROICalculatorPage() {
         {/* Results */}
         {computed && canCompute && countryEntry && exposure && (
           <div className="space-y-4">
+
+            {/* Saved indicator */}
+            {snapshotSaved && (
+              <div className="flex items-center justify-between bg-teal/8 border border-teal/20 rounded-xl px-4 py-2.5">
+                <p className="text-xs text-teal font-semibold">✓ Calculation saved to your profile</p>
+                <Link href="/profile" className="text-xs text-teal underline font-semibold">View →</Link>
+              </div>
+            )}
+            {!snapshotSaved && !isLoggedIn && (
+              <div className="flex items-center justify-between bg-gray-50 border border-border rounded-xl px-4 py-2.5">
+                <p className="text-xs text-mid">Save this calculation to your profile</p>
+                <Link href="/signup" className="text-xs text-teal underline font-semibold">Create free account →</Link>
+              </div>
+            )}
 
             {/* Timeline / Risk card */}
             <div className={`card border-2 text-center space-y-2 py-6 ${tc.bg} ${tc.border}`}>

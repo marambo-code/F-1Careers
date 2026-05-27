@@ -118,7 +118,7 @@ function ProfileContent() {
   const isWelcome = params.get('welcome') === 'true'
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [profile, setProfile] = useState<Partial<Profile & { country_of_birth: string; current_employer: string; job_title: string }>>({})
+  const [profile, setProfile] = useState<Partial<Profile & { country_of_birth: string; current_employer: string; job_title: string; stay_score_snapshot: Record<string, unknown> | null; roi_snapshot: Record<string, unknown> | null }>>({})
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -583,6 +583,52 @@ function ProfileContent() {
           </div>
         </div>
       ) : null}
+
+      {/* ── Tool snapshots ───────────────────────────────────────────────── */}
+      {(profile.stay_score_snapshot || profile.roi_snapshot) && (
+        <div className="card space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center text-sm">🧮</div>
+            <div>
+              <h2 className="text-sm font-bold text-navy">Saved tool results</h2>
+              <p className="text-[11px] text-mid">From Stay Score and ROI Calculator</p>
+            </div>
+          </div>
+
+          {profile.stay_score_snapshot && (() => {
+            const s = profile.stay_score_snapshot as { score: number; label: string; country: string; visa: string; saved_at: string }
+            return (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div>
+                  <p className="text-xs font-bold text-navy">Immigration Risk Score</p>
+                  <p className="text-[11px] text-mid mt-0.5">{s.country} · {s.visa}</p>
+                  <p className="text-[10px] text-mid mt-0.5">{new Date(s.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-black text-navy">{s.score}</p>
+                  <p className="text-[10px] font-semibold text-mid">{s.label}</p>
+                </div>
+              </div>
+            )
+          })()}
+
+          {profile.roi_snapshot && (() => {
+            const r = profile.roi_snapshot as { country: string; tier: string; salary: number; category: string; saved_at: string }
+            return (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div>
+                  <p className="text-xs font-bold text-navy">Financial Exposure Calculation</p>
+                  <p className="text-[11px] text-mid mt-0.5">{r.country} · ${r.salary.toLocaleString()}/yr</p>
+                  <p className="text-[10px] text-mid mt-0.5">{new Date(r.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold text-mid uppercase tracking-wide">{r.tier} tier</p>
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      )}
 
       {/* ── Account section ──────────────────────────────────────────────── */}
       <div className="card space-y-5">

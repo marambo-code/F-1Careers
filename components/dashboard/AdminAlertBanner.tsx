@@ -16,13 +16,23 @@ export default async function AdminAlertBanner() {
       .select('id, title, message, severity')
       .eq('active', true)
       .order('created_at', { ascending: false })
-      .limit(3)
+      .limit(10) // fetch more, then deduplicate below
 
     if (!alerts || alerts.length === 0) return null
 
+    // Deduplicate by title — prevents duplicate DB rows from showing multiple times
+    const seen = new Set<string>()
+    const unique = (alerts as AdminAlert[]).filter(a => {
+      if (seen.has(a.title)) return false
+      seen.add(a.title)
+      return true
+    }).slice(0, 3) // show at most 3 distinct alerts
+
+    if (unique.length === 0) return null
+
     return (
       <div className="space-y-2">
-        {(alerts as AdminAlert[]).map(alert => (
+        {unique.map(alert => (
           <div
             key={alert.id}
             className={`rounded-xl px-4 py-3 border flex items-start gap-3 ${

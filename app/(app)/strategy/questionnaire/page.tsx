@@ -705,7 +705,7 @@ export default function QuestionnairePage() {
                 />
                 {noteKey && c.noteLabel && val > 0 && (
                   <div>
-                    <label className="text-xs font-semibold text-navy">{c.noteLabel} <span className="font-normal text-mid">(optional but improves AI accuracy)</span></label>
+                    <label className="text-xs font-semibold text-navy">{c.noteLabel} <span className="font-normal text-mid">(optional but improves your results)</span></label>
                     <textarea
                       className="input mt-1 text-sm"
                       rows={2}

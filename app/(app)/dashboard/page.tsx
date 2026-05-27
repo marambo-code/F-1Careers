@@ -148,10 +148,10 @@ export default async function DashboardPage() {
 
   const nextStepConfig: Record<Stage, { title: string; description: string; href: string; cta: string; color: string }> = {
     1: {
-      title: 'Get your green card strategy',
-      description: "Answer 15 questions about your background. We'll calculate your NIW and EB-1A scores and tell you exactly which pathway fits your profile.",
-      href: '/strategy',
-      cta: 'Run strategy report →',
+      title: 'See your green card score — free',
+      description: "Answer questions about your background and we'll calculate your NIW and EB-1A scores, show you your strongest pathway, and identify exactly what you need to build. Preview is free — pay only if you want the full report.",
+      href: '/strategy/questionnaire',
+      cta: 'Start free preview →',
       color: 'border-teal bg-teal/4',
     },
     2: {

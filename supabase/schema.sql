@@ -169,6 +169,11 @@ create policy "Users can view own score history" on public.score_history
 -- ─── COUNTRY / PROFILE EXTENSION ────────────────────────────────
 alter table public.profiles add column if not exists country_of_birth text;
 
+-- ─── TOOL SNAPSHOTS ─────────────────────────────────────────────
+-- Saved results from Stay Score and ROI Calculator, stored per user on their profile
+alter table public.profiles add column if not exists stay_score_snapshot jsonb;
+alter table public.profiles add column if not exists roi_snapshot jsonb;
+
 -- ─── ADMIN ALERTS ────────────────────────────────────────────────
 -- Manually managed via Supabase dashboard — toggle active to show/hide
 create table if not exists public.admin_alerts (
