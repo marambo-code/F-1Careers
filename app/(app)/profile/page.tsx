@@ -123,6 +123,7 @@ function ProfileContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
@@ -159,25 +160,39 @@ function ProfileContent() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
+    setSaveError(null)
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) { setSaving(false); return }
+
+    let updatedProfile = { ...profile }
 
     if (resumeFile) {
       setUploading(true)
       const path = `${user.id}/${Date.now()}-${resumeFile.name}`
       const { error: uploadError } = await supabase.storage.from('resumes').upload(path, resumeFile, { upsert: true })
       if (!uploadError) {
-        profile.resume_path = path
-        profile.resume_filename = resumeFile.name
+        updatedProfile = { ...updatedProfile, resume_path: path, resume_filename: resumeFile.name }
+        setProfile(p => ({ ...p, resume_path: path, resume_filename: resumeFile.name }))
       }
       setUploading(false)
     }
 
-    await supabase.from('profiles').update({ ...profile, updated_at: new Date().toISOString() }).eq('id', user.id)
+    const { error } = await supabase
+      .from('profiles')
+      .update({ ...updatedProfile, updated_at: new Date().toISOString() })
+      .eq('id', user.id)
+
     setSaving(false)
+
+    if (error) {
+      setSaveError('Failed to save. Please try again.')
+      console.error('[profile save]', error)
+      return
+    }
+
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
-    if (isWelcome) setTimeout(() => router.push('/dashboard'), 800)
+    if (isWelcome) router.push('/dashboard')
   }
 
   const handleCancelSubscription = async () => {
@@ -481,7 +496,7 @@ function ProfileContent() {
         </div>
 
         {/* Save button */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <button type="submit" disabled={saving || uploading} className="btn-primary px-8">
             {uploading ? 'Uploading…' : saving ? 'Saving…' : isWelcome ? 'Save and continue →' : 'Save profile'}
           </button>
@@ -490,8 +505,11 @@ function ProfileContent() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {isWelcome ? 'Saved, taking you to dashboard…' : 'Changes saved'}
+              {isWelcome ? 'Saved — going to dashboard…' : 'Changes saved'}
             </div>
+          )}
+          {saveError && (
+            <p className="text-sm text-red-600 font-medium">{saveError}</p>
           )}
         </div>
       </form>

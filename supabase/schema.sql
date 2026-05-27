@@ -169,6 +169,10 @@ create policy "Users can view own score history" on public.score_history
 -- ─── COUNTRY / PROFILE EXTENSION ────────────────────────────────
 alter table public.profiles add column if not exists country_of_birth text;
 
+-- ─── PROFILE EMPLOYMENT FIELDS ──────────────────────────────────
+alter table public.profiles add column if not exists current_employer text;
+alter table public.profiles add column if not exists job_title text;
+
 -- ─── TOOL SNAPSHOTS ─────────────────────────────────────────────
 -- Saved results from Stay Score and ROI Calculator, stored per user on their profile
 alter table public.profiles add column if not exists stay_score_snapshot jsonb;
