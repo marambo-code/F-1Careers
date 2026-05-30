@@ -11,7 +11,7 @@ export const maxDuration = 60 // Narrative review is shorter, 60s is sufficient
  */
 
 import { NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/rate-limit'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -33,8 +33,6 @@ export async function POST(req: Request) {
     if (sub?.status !== 'active' && sub?.status !== 'trialing') {
       return NextResponse.json({ error: 'pro_required', message: 'Pro membership required to use adversarial review.' }, { status: 403 })
     }
-
-    const service = createServiceClient()
 
     // Rate limit — fail open so a missing table or bad service key doesn't block the feature
     try {
