@@ -256,11 +256,19 @@ function NarrativeTrack({
         throw new Error(msg)
       }
       // Normalise — tool_use may omit empty arrays
+      const validSeverities = ['critical', 'moderate', 'minor']
       setFeedback({
         overall: data.overall ?? '',
         score: typeof data.score === 'number' ? data.score : 0,
-        issues: Array.isArray(data.issues) ? data.issues : [],
-        strengths: Array.isArray(data.strengths) ? data.strengths : [],
+        issues: Array.isArray(data.issues) ? data.issues.map((iss: Record<string, unknown>) => ({
+          severity: validSeverities.includes(String(iss.severity).toLowerCase())
+            ? String(iss.severity).toLowerCase() as 'critical' | 'moderate' | 'minor'
+            : 'minor',
+          quote: String(iss.quote ?? ''),
+          problem: String(iss.problem ?? ''),
+          fix: String(iss.fix ?? ''),
+        })) : [],
+        strengths: Array.isArray(data.strengths) ? data.strengths.map(String) : [],
         next_step: data.next_step ?? '',
       })
     } catch (err) {
@@ -354,7 +362,7 @@ function NarrativeTrack({
                 {feedback.issues.length} issue{feedback.issues.length !== 1 ? 's' : ''} found
               </p>
               {(feedback.issues ?? []).map((issue, i) => {
-                const cfg = severityConfig[issue.severity]
+                const cfg = severityConfig[issue.severity] ?? severityConfig.minor
                 return (
                   <div key={i} className={`rounded-xl border p-4 space-y-2 ${cfg.color}`}>
                     <div className="flex items-center gap-2">
