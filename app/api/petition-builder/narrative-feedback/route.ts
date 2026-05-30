@@ -23,18 +23,18 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const service = createServiceClient()
-
-    // Check Pro
-    const { data: sub } = await service
+    // Check Pro — use regular client (RLS allows users to read their own subscription)
+    const { data: sub } = await supabase
       .from('subscriptions')
       .select('status')
       .eq('user_id', user.id)
       .maybeSingle()
 
     if (sub?.status !== 'active' && sub?.status !== 'trialing') {
-      return NextResponse.json({ error: 'pro_required' }, { status: 403 })
+      return NextResponse.json({ error: 'pro_required', message: 'Pro membership required to use adversarial review.' }, { status: 403 })
     }
+
+    const service = createServiceClient()
 
     // Rate limit
     const rateLimit = await checkRateLimit(user.id, 'narrative-feedback')

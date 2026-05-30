@@ -247,7 +247,14 @@ function NarrativeTrack({
         body: JSON.stringify({ narrative, pathway }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message ?? data.error ?? 'Analysis failed')
+      if (!res.ok) {
+        const msg = data.error === 'pro_required'
+          ? 'Pro membership required to use adversarial review.'
+          : data.error === 'rate_limited'
+          ? (data.message ?? 'Rate limit reached. Try again later.')
+          : (data.message ?? data.error ?? 'Analysis failed')
+        throw new Error(msg)
+      }
       setFeedback(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed')
