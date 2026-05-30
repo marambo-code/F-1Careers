@@ -12,7 +12,6 @@ export const maxDuration = 60 // Narrative review is shorter, 60s is sufficient
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { checkRateLimit } from '@/lib/rate-limit'
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -22,27 +21,6 @@ export async function POST(req: Request) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    // Check Pro — use regular client (RLS allows users to read their own subscription)
-    const { data: sub } = await supabase
-      .from('subscriptions')
-      .select('status')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (sub?.status !== 'active' && sub?.status !== 'trialing') {
-      return NextResponse.json({ error: 'pro_required', message: 'Pro membership required to use adversarial review.' }, { status: 403 })
-    }
-
-    // Rate limit — fail open so a missing table or bad service key doesn't block the feature
-    try {
-      const rateLimit = await checkRateLimit(user.id, 'narrative-feedback')
-      if (!rateLimit.allowed) {
-        return NextResponse.json({ error: 'rate_limited', message: `Limit reached. Resets at ${rateLimit.resetAt.toLocaleTimeString()}` }, { status: 429 })
-      }
-    } catch {
-      // Rate limit table unavailable — allow the request through
-    }
 
     const { narrative, pathway } = await req.json()
     if (!narrative?.trim()) return NextResponse.json({ error: 'No narrative provided' }, { status: 400 })
