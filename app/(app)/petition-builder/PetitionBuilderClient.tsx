@@ -255,7 +255,14 @@ function NarrativeTrack({
           : (data.message ?? data.detail ?? data.error ?? 'Analysis failed')
         throw new Error(msg)
       }
-      setFeedback(data)
+      // Normalise — tool_use may omit empty arrays
+      setFeedback({
+        overall: data.overall ?? '',
+        score: typeof data.score === 'number' ? data.score : 0,
+        issues: Array.isArray(data.issues) ? data.issues : [],
+        strengths: Array.isArray(data.strengths) ? data.strengths : [],
+        next_step: data.next_step ?? '',
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed')
     } finally {
@@ -341,12 +348,12 @@ function NarrativeTrack({
           </div>
 
           {/* Issues */}
-          {feedback.issues.length > 0 && (
+          {(feedback.issues ?? []).length > 0 && (
             <div className="space-y-3">
               <p className="text-xs font-bold text-navy uppercase tracking-wide">
                 {feedback.issues.length} issue{feedback.issues.length !== 1 ? 's' : ''} found
               </p>
-              {feedback.issues.map((issue, i) => {
+              {(feedback.issues ?? []).map((issue, i) => {
                 const cfg = severityConfig[issue.severity]
                 return (
                   <div key={i} className={`rounded-xl border p-4 space-y-2 ${cfg.color}`}>
@@ -372,10 +379,10 @@ function NarrativeTrack({
           )}
 
           {/* Strengths */}
-          {feedback.strengths.length > 0 && (
+          {(feedback.strengths ?? []).length > 0 && (
             <div className="card !p-4 space-y-2">
               <p className="text-xs font-bold text-navy uppercase tracking-wide">What's working</p>
-              {feedback.strengths.map((s, i) => (
+              {(feedback.strengths ?? []).map((s, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs text-mid">
                   <svg className="w-3.5 h-3.5 text-teal flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
