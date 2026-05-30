@@ -36,10 +36,14 @@ export async function POST(req: Request) {
 
     const service = createServiceClient()
 
-    // Rate limit
-    const rateLimit = await checkRateLimit(user.id, 'narrative-feedback')
-    if (!rateLimit.allowed) {
-      return NextResponse.json({ error: 'rate_limited', message: `Limit reached. Resets at ${rateLimit.resetAt.toLocaleTimeString()}` }, { status: 429 })
+    // Rate limit — fail open so a missing table or bad service key doesn't block the feature
+    try {
+      const rateLimit = await checkRateLimit(user.id, 'narrative-feedback')
+      if (!rateLimit.allowed) {
+        return NextResponse.json({ error: 'rate_limited', message: `Limit reached. Resets at ${rateLimit.resetAt.toLocaleTimeString()}` }, { status: 429 })
+      }
+    } catch {
+      // Rate limit table unavailable — allow the request through
     }
 
     const { narrative, pathway } = await req.json()
@@ -108,7 +112,8 @@ Return only valid JSON. No markdown, no explanation outside the JSON.`,
 
     return NextResponse.json(parsed)
   } catch (error) {
-    console.error('[narrative-feedback]', error)
-    return NextResponse.json({ error: 'Failed to analyze narrative' }, { status: 500 })
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[narrative-feedback]', message)
+    return NextResponse.json({ error: 'Failed to analyze narrative', detail: message }, { status: 500 })
   }
 }

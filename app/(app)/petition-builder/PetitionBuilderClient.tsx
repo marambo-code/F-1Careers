@@ -252,7 +252,7 @@ function NarrativeTrack({
           ? 'Pro membership required to use adversarial review.'
           : data.error === 'rate_limited'
           ? (data.message ?? 'Rate limit reached. Try again later.')
-          : (data.message ?? data.error ?? 'Analysis failed')
+          : (data.message ?? data.detail ?? data.error ?? 'Analysis failed')
         throw new Error(msg)
       }
       setFeedback(data)
