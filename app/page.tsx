@@ -65,16 +65,12 @@ export default async function Home() {
             <span className="text-teal">built for international professionals.</span>
           </h1>
 
-          <p className="text-base sm:text-lg font-semibold text-white/60 max-w-xl mx-auto leading-relaxed mb-3">
-            Built for the <span className="text-white">1.3 million international students and professionals</span> currently in the United States, navigating F-1, OPT, H-1B, and every visa in between.
-          </p>
-
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
             Immigration rules keep changing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard for staying in the US. We help you build that case.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
-            EB-1A &amp; NIW &nbsp;·&nbsp; Dhanasar Framework &nbsp;·&nbsp; Case Law Trained &nbsp;·&nbsp; Built by F-1 Alumni
+            Criterion-level &nbsp;·&nbsp; Evidence-mapped &nbsp;·&nbsp; Case law grounded &nbsp;·&nbsp; Built by F-1 alumni
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
