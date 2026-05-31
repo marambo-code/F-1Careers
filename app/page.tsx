@@ -61,8 +61,8 @@ export default async function Home() {
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
-            From F-1 to green card.<br />
-            <span className="text-teal">Before the rules change again.</span>
+            Your career and visa<br />
+            <span className="text-teal">strategy engine.</span>
           </h1>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
