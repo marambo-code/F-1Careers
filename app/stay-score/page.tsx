@@ -751,7 +751,7 @@ export default function RiskScorePage() {
               <Link href="/login" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors">
                 Build my evidence package →
               </Link>
-              <p className="text-xs text-white/40">$497 one-time · Instant delivery</p>
+              <p className="text-xs text-white/40">$297 one-time · Instant delivery</p>
             </div>
 
             <button onClick={() => { setStep(0); setResult(null) }} className="w-full text-sm text-mid hover:text-navy underline text-center">

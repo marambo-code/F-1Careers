@@ -230,7 +230,7 @@ export default async function Home() {
             <div className="text-2xl mb-5">📊</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">Green Card Strategy Report</h3>
-              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$497</span>
+              <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$297</span>
             </div>
             <p className="text-sm text-mid leading-relaxed mb-6">
               Complete EB-1A and NIW analysis with personalized Dhanasar framework, evidence map, and 12-month roadmap. Free preview before you pay.

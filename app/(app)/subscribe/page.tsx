@@ -55,7 +55,7 @@ export default async function SubscribePage() {
               <p className="text-xs text-mid mt-0.5">One-time · Preview free · Pay only if you want the full report</p>
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-xl font-black text-navy">$497</p>
+              <p className="text-xl font-black text-navy">$297</p>
             </div>
           </div>
 

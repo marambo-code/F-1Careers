@@ -31,7 +31,7 @@ Always consult a licensed immigration attorney accredited by AILA (American Immi
   },
   {
     title: '4. Payments and refunds',
-    body: `One-time report purchases: Green Card Strategy reports ($497) and RFE analyses ($297) are generated immediately upon payment. Due to the instant delivery of AI-generated content, all sales are final. If a report fails to generate due to a technical error on our end, we will regenerate it or issue a full refund at our discretion.
+    body: `One-time report purchases: Green Card Strategy reports ($297) and RFE analyses ($297) are generated immediately upon payment. Due to the instant delivery of AI-generated content, all sales are final. If a report fails to generate due to a technical error on our end, we will regenerate it or issue a full refund at our discretion.
 
 Pro subscriptions: Monthly plans ($49/month) and annual plans ($399/year) are billed on the selected cycle. You may cancel at any time from your Profile page. Cancellation takes effect at the end of the current billing period. We do not issue prorated refunds for partial months or years.
 

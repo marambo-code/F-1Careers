@@ -335,7 +335,7 @@ export default function ROICalculatorPage() {
   const totalHigh = exposure?.totalHigh ?? 0
 
   const premiumProcessing = 2_805
-  const reportCost        = 497
+  const reportCost        = 297
   const totalInvestment   = premiumProcessing + reportCost
 
   const roiLow  = totalInvestment > 0 ? Math.round(totalLow  / totalInvestment) : 0
@@ -618,7 +618,7 @@ export default function ROICalculatorPage() {
                 <div className="text-center space-y-1">
                   <p className="text-xs text-mid font-medium">Cost to build your AoS case</p>
                   <p className="text-3xl font-black text-teal">{fmt(totalInvestment)}</p>
-                  <p className="text-[10px] text-mid">$2,805 premium processing + $497 evidence package</p>
+                  <p className="text-[10px] text-mid">$2,805 premium processing + $297 evidence package</p>
                 </div>
               </div>
               <div className="bg-teal/8 rounded-xl p-4 text-center space-y-1">
@@ -659,7 +659,7 @@ export default function ROICalculatorPage() {
                 and the exact evidence map USCIS needs to approve your adjustment of status.
               </p>
               <Link href="/login" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors">
-                Get my evidence package, $497 →
+                Get my evidence package, $297 →
               </Link>
             </div>
           </div>

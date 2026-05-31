@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 const FEATURES_FREE = [
   'Green Card Score snapshot (after strategy report)',
-  'Full Green Card Strategy report ($497)',
+  'Full Green Card Strategy report ($297)',
   'Full RFE Analysis report ($297)',
   '1 career move preview',
 ]
