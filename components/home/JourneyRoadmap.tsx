@@ -1,209 +1,164 @@
 import Link from 'next/link'
 
-/* ─── shared path stages ────────────────────────────────── */
-const shared = [
+const employerSteps = [
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.63 48.63 0 0 1 12 20.904a48.63 48.63 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-      </svg>
-    ),
-    label: 'Student Visa (F-1, J-1, or M-1)',
-    sub: 'Your starting point',
-    step: 'Start',
+    label: 'H-1B Lottery',
+    note: '1-in-3 odds. Repeat every year until you win.',
+    pain: true,
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
-      </svg>
-    ),
-    label: 'OPT',
-    sub: '12-month work auth',
-    step: '12 mo',
+    label: 'PERM Labor Certification',
+    note: 'Your employer files. You wait 2–3 years. You have no control.',
+    pain: true,
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      </svg>
-    ),
-    label: 'STEM OPT',
-    sub: '+24-month extension',
-    step: '+24 mo',
+    label: 'EB-2 / EB-3 Priority Date',
+    note: 'Join a backlog that stretches decades for some nationalities.',
+    pain: true,
+  },
+  {
+    label: 'Green card.',
+    note: 'Eventually. On their timeline. If they stay committed to you.',
+    pain: false,
+    final: true,
   },
 ]
 
-/* ─── employer path ─────────────────────────────────────── */
-const employerPath = [
-  { label: 'H-1B Lottery', note: '1 in 3 odds · $100K employer fee · every year' },
-  { label: 'PERM Labor Cert.', note: 'Employer-controlled · 2–3 years' },
-  { label: 'EB-2 / EB-3', note: 'Priority date backlogs · years of waiting' },
-  { label: 'Green Card', note: 'Eventually. On their timeline.', final: true },
-]
-
-/* ─── self-petition path ────────────────────────────────── */
-const selfPath = [
-  { label: 'EB-1A', sub: 'Extraordinary Ability' },
-  { label: 'EB-2 NIW', sub: 'National Interest Waiver' },
+const selfSteps = [
+  {
+    label: 'Build your evidence',
+    note: 'Publications, citations, press, judging, awards — criteria you already meet.',
+  },
+  {
+    label: 'File your I-140',
+    note: 'EB-1A or EB-2 NIW. You file. No employer signature required.',
+  },
+  {
+    label: 'Adjust status',
+    note: 'Stay in the US while your case is adjudicated. No consular processing.',
+  },
+  {
+    label: 'Green card.',
+    note: 'On your timeline. Without asking anyone for permission.',
+    final: true,
+  },
 ]
 
 export default function JourneyRoadmap() {
   return (
-    <section className="relative py-24 px-6 overflow-hidden bg-slate-50 border-y border-border">
-      <div className="relative z-10 max-w-5xl mx-auto">
+    <section className="bg-navy py-24 px-6 border-y border-white/[0.06]">
+      <div className="max-w-5xl mx-auto">
 
-        {/* ── Header ─────────────────────────────────────────── */}
+        {/* Header */}
         <div className="text-center mb-16">
           <p className="text-[11px] font-extrabold uppercase tracking-[2.5px] text-teal mb-4">Your immigration journey</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-navy tracking-[-1.5px] leading-[1.1] mb-4">
-            The path to a green card.<br />
-            <span className="text-mid font-bold">Every step, mapped.</span>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-4">
+            Two roads to a green card.<br />
+            <span className="text-teal">One of them is yours to control.</span>
           </h2>
-          <p className="text-base text-mid max-w-md mx-auto leading-relaxed">
-            Two paths. One leads to their timeline. The other puts you in control.
+          <p className="text-base text-slate-500 max-w-md mx-auto leading-relaxed">
+            Most international professionals end up on the employer path by default — not by choice. Here&apos;s the difference.
           </p>
         </div>
 
-        {/* ── Shared path ─────────────────────────────────────── */}
-        <div className="flex items-center justify-center gap-0 mb-12 overflow-x-auto pb-2">
-          {shared.map((s) => (
-            <div key={s.label} className="flex items-center">
-              <div className="flex flex-col items-center text-center">
-                <span className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full border border-teal/25 bg-teal/8 text-teal">
-                  {s.step}
-                </span>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-navy mb-3 bg-white border border-border shadow-sm">
-                  {s.icon}
-                </div>
-                <p className="text-[13px] font-bold text-navy leading-tight w-[76px]">{s.label}</p>
-                <p className="text-[11px] text-mid mt-1 leading-tight w-[76px]">{s.sub}</p>
-              </div>
-              <div className="flex items-center mx-3 mt-[-36px]">
-                <div className="w-10 h-px bg-gray-300" />
-                <svg width="6" height="10" viewBox="0 0 6 10" className="flex-shrink-0 opacity-50">
-                  <path d="M1 1l4 4-4 4" stroke="#6b7280" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-            </div>
-          ))}
-
-          {/* Fork node */}
-          <div className="flex flex-col items-center text-center">
-            <span className="text-[9px] font-extrabold uppercase tracking-widest mb-2 px-2 py-0.5 rounded-full text-mid border border-gray-300 bg-white">
-              Fork
-            </span>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-white border border-dashed border-gray-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 text-mid">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5 4.5 4.5m0 0L16.5 12M21 3H7.5" />
-              </svg>
-            </div>
-            <p className="text-[13px] font-bold text-navy leading-tight w-[76px]">Path forks</p>
-            <p className="text-[11px] text-mid mt-1 leading-tight w-[76px]">Two very different roads</p>
-          </div>
-        </div>
-
-        {/* ── Fork label ──────────────────────────────────────── */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-gray-300" />
-            <span className="text-xs text-mid font-medium tracking-wide">At this point, most people face a critical choice</span>
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-gray-300" />
-          </div>
-        </div>
-
-        {/* ── Two paths ───────────────────────────────────────── */}
+        {/* Two-path grid */}
         <div className="grid md:grid-cols-2 gap-5">
 
-          {/* ── Employer path ───────────────────────────────── */}
-          <div className="rounded-2xl p-6 h-full border border-border bg-white">
-            <div className="flex items-center justify-between mb-6">
+          {/* ── Employer path ── */}
+          <div className="rounded-2xl p-7 bg-white/[0.03] border border-white/[0.08]">
+            <div className="flex items-start justify-between gap-3 mb-7">
               <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-mid mb-1">Employer route</p>
-                <p className="text-sm font-bold text-navy">The road most people end up on</p>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-slate-500 mb-1.5">The employer route</p>
+                <p className="text-base font-bold text-white leading-snug">Their timeline.<br />Their decisions.</p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-600 bg-orange-50 border border-orange-200">
+              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-400 bg-orange-400/10 border border-orange-400/20">
                 High uncertainty
               </span>
             </div>
 
-            <div className="relative">
-              <div className="absolute left-[15px] top-4 bottom-4 w-px bg-gray-200" />
-              <div className="space-y-5">
-                {employerPath.map((s) => (
-                  <div key={s.label} className="flex gap-4 items-start">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative z-10 text-xs font-bold ${
+            <div className="relative pl-5">
+              {/* Vertical line */}
+              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/[0.08]" />
+
+              <div className="space-y-6">
+                {employerSteps.map((s, i) => (
+                  <div key={i} className="flex gap-4 items-start relative">
+                    <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 relative z-10 mt-1 border ${
                       s.final
-                        ? 'bg-gray-100 border border-gray-200 text-mid'
-                        : 'bg-orange-50 border border-orange-200 text-orange-600'
-                    }`}>
-                      {s.final ? '✓' : '!'}
-                    </div>
-                    <div className="pt-0.5">
-                      <p className={`text-sm font-bold ${s.final ? 'text-mid' : 'text-navy'}`}>{s.label}</p>
-                      <p className="text-xs text-mid mt-0.5 leading-relaxed">{s.note}</p>
+                        ? 'bg-white/10 border-white/20'
+                        : 'bg-orange-400/15 border-orange-400/40'
+                    }`} />
+                    <div>
+                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-slate-400' : 'text-white'}`}>
+                        {s.label}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{s.note}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-[11px] text-mid italic mt-6 pt-5 border-t border-border leading-relaxed">
-              Your career, your timeline, your green card — all contingent on one employer staying committed to you.
+            <p className="text-[11px] text-slate-600 italic mt-7 pt-5 border-t border-white/[0.06] leading-relaxed">
+              Your career, your income, your entire US future — contingent on one employer staying committed.
             </p>
           </div>
 
-          {/* ── Self-petition path ──────────────────────────── */}
-          <div className="rounded-2xl p-6 h-full relative overflow-hidden bg-navy border border-navy">
+          {/* ── Self-petition path ── */}
+          <div className="rounded-2xl p-7 relative overflow-hidden border border-teal/20 bg-teal/[0.04]">
             <div
-              className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.2) 0%, transparent 70%)' }}
+              className="absolute -top-12 -right-12 w-56 h-56 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.12) 0%, transparent 70%)' }}
             />
 
-            <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-start justify-between gap-3 mb-7 relative z-10">
               <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1">Self-petition route</p>
-                <p className="text-sm font-bold text-white">The road built for extraordinary talent</p>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1.5">The self-petition route</p>
+                <p className="text-base font-bold text-white leading-snug">Your timeline.<br />Your control.</p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full text-teal bg-teal/10 border border-teal/25">
+              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-teal bg-teal/10 border border-teal/25">
                 No employer needed
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-              {selfPath.map((p) => (
-                <div key={p.label} className="rounded-xl p-4 bg-teal/8 border border-teal/18">
-                  <p className="text-[13px] font-extrabold text-white mb-1">{p.label}</p>
-                  <p className="text-[11px] text-teal/70 leading-tight">{p.sub}</p>
-                </div>
-              ))}
-            </div>
+            <div className="relative pl-5 z-10">
+              {/* Vertical line */}
+              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-teal/20" />
 
-            <div className="space-y-2.5 mb-6 relative z-10">
-              {[
-                'No lottery. No employer sponsor. No waiting on someone else.',
-                'You file. You control the timeline.',
-                'Your achievements are the petition.',
-              ].map((b) => (
-                <div key={b} className="flex items-start gap-2.5">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-teal/15 border border-teal/30">
-                    <svg viewBox="0 0 8 8" width="8" height="8" className="text-teal">
-                      <path d="M1.5 4l1.5 1.5L6.5 2" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+              <div className="space-y-6">
+                {selfSteps.map((s, i) => (
+                  <div key={i} className="flex gap-4 items-start relative">
+                    <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 relative z-10 mt-1 border ${
+                      s.final
+                        ? 'bg-teal/20 border-teal/40'
+                        : 'bg-teal/15 border-teal/35'
+                    }`}>
+                      {s.final && (
+                        <div className="absolute inset-0.5 rounded-full bg-teal/60" />
+                      )}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-teal' : 'text-white'}`}>
+                        {s.label}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{s.note}</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">{b}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div className="pt-5 border-t border-teal/15 relative z-10">
+            <div className="mt-7 pt-5 border-t border-teal/15 relative z-10">
               <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-2">
                 F-1 Careers was built for this path
               </p>
               <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                We assess your profile against EB-1A and NIW criteria and show you exactly what it takes — criterion by criterion.
+                We assess your profile against every EB-1A and NIW criterion — and show you exactly where you stand, criterion by criterion.
               </p>
-              <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-bold text-navy bg-teal px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity no-underline">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 text-sm font-bold text-navy bg-teal px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity no-underline"
+              >
                 See my pathway
                 <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -211,7 +166,13 @@ export default function JourneyRoadmap() {
               </Link>
             </div>
           </div>
+
         </div>
+
+        {/* Bottom note */}
+        <p className="text-center text-xs text-slate-600 mt-8 leading-relaxed">
+          F-1 → OPT → STEM OPT is the shared starting point. What happens next is the decision that defines the next decade.
+        </p>
 
       </div>
     </section>
