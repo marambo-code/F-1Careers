@@ -246,7 +246,7 @@ export default async function StrategyStartPage() {
           href="/strategy/questionnaire"
           className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl text-center block hover:bg-teal/90 transition-colors text-sm"
         >
-          {latestPending ? 'Start a new questionnaire →' : 'Start questionnaire (approx. 15 min of careful completion) →'}
+          {latestPending ? 'Start a new questionnaire →' : 'Start questionnaire, preview free →'}
         </Link>
         {!latestPending && (
           <p className="text-xs text-blue-300 text-center mt-3">

@@ -57,12 +57,12 @@ export default async function Home() {
         <div className="relative z-10 max-w-3xl mx-auto px-6 pt-20 pb-0 text-center">
           <div className="inline-flex items-center gap-2 bg-teal/10 border border-teal/25 text-teal text-xs font-bold px-4 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 bg-teal rounded-full animate-pulse" />
-            For international professionals in the US &nbsp;·&nbsp; F-1 · OPT · H-1B · L-1
+            F-1 · OPT · H-1B · L-1 &nbsp;·&nbsp; Green card strategy
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
-            Your visa and career strategy,<br />
-            <span className="text-teal">built for international professionals.</span>
+            From F-1 to green card.<br />
+            <span className="text-teal">Before the rules change again.</span>
           </h1>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
@@ -95,7 +95,7 @@ export default async function Home() {
               { val: 'EB-1A & NIW', lbl: 'Both pathways analyzed' },
               { val: 'Kazarian & Dhanasar', lbl: 'Trained on controlling case law' },
               { val: 'Extraordinary circumstances', lbl: 'The exact AoS standard, documented' },
-              { val: 'F-1 to green card', lbl: 'Built by those who did it' },
+              { val: 'F-1 → EB-1A / NIW', lbl: 'Built by those who did it' },
             ].map((item, i) => (
               <div key={i} className="py-5 px-4 text-center border-r border-white/[0.06] last:border-r-0">
                 <span className="block text-[15px] font-extrabold text-white">{item.val}</span>
@@ -182,7 +182,7 @@ export default async function Home() {
               {['Harvard', 'MIT', 'Stanford', 'Yale', 'Princeton', 'Columbia', 'Cornell', 'Tufts', 'Carnegie Mellon', 'UC Berkeley', 'UCLA', 'Georgia Tech', 'UIUC', 'Purdue', 'NYU', 'Johns Hopkins', 'Caltech', 'Duke', 'UT Austin', 'UMich'].map(u => (
                 <span key={u} className="text-[11px] font-bold bg-navy/8 text-navy px-2.5 py-1 rounded-full">{u}</span>
               ))}
-              <span className="text-[11px] text-mid">+ users across <strong className="text-navy">93+ countries</strong></span>
+              <span className="text-[11px] text-mid">+ institutions worldwide</span>
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export default async function Home() {
       <section id="products" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
-            Multiple tools. One path towards planning and filing intelligently.
+            Everything you need to file with confidence.
           </h2>
           <p className="text-lg text-mid mt-3">Every tool built for the evolving landscape.</p>
           <p className="text-sm text-mid mt-2">Get your diagnostic and strategy reports now.</p>
@@ -325,6 +325,7 @@ export default async function Home() {
                 <span className="text-base text-slate-500">/month</span>
                 <span className="text-[11px] text-slate-600 ml-2">or $399/yr</span>
               </div>
+              <p className="text-[11px] text-slate-600 mt-1.5">Less than one hour of attorney time.</p>
               <Link href="/signup" className="inline-block mt-5 bg-teal text-white font-extrabold text-[15px] px-8 py-3.5 rounded-2xl hover:opacity-90 transition-opacity no-underline">
                 Get Pro →
               </Link>
@@ -406,7 +407,7 @@ export default async function Home() {
           </div>
           <div className="grid sm:grid-cols-3 gap-10">
             {[
-              { step: '01', title: 'Answer the questionnaire', body: 'Rate your evidence against each USCIS criterion. Takes 5 minutes. Your profile data pre-fills where possible.' },
+              { step: '01', title: 'Answer the questionnaire', body: 'Rate your evidence against each USCIS criterion. Takes about 15 minutes. Your profile data pre-fills where possible.' },
               { step: '02', title: 'Get your free preview', body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis before paying anything.' },
               { step: '03', title: 'Unlock the full report', body: 'Pay once for your full criterion breakdown, evidence map, gap analysis, and 12-month roadmap. Download as PDF.' },
             ].map(s => (
