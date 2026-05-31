@@ -70,7 +70,7 @@ export default async function Home() {
           </p>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            2026 immigration policy is constantly changing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard for staying. We help you build that case.
+            Immigration rules keep changing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard for staying in the US. We help you build that case.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
