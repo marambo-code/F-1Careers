@@ -12,6 +12,15 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    // Gate behind Pro subscription
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
+    if (!sub) return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 })
+
     const { narrative, pathway } = await req.json()
     if (!narrative?.trim()) return NextResponse.json({ error: 'No narrative provided' }, { status: 400 })
 

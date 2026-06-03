@@ -222,7 +222,7 @@ export default async function Home() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="border-2 border-border rounded-2xl p-9 hover:border-teal/50 hover:shadow-card-hover transition-all">
+          <div className="border-2 border-border rounded-2xl p-9 hover:border-teal/50 hover:shadow-card-hover transition-all flex flex-col">
             <div className="text-2xl mb-5">📊</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">Green Card Strategy Report</h3>
@@ -231,7 +231,7 @@ export default async function Home() {
             <p className="text-sm text-mid leading-relaxed mb-6">
               Complete EB-1A and NIW analysis with personalized Dhanasar framework, evidence map, and 12-month roadmap. Free preview before you pay.
             </p>
-            <ul className="space-y-2.5 mb-7">
+            <ul className="space-y-2.5 mb-7 flex-1">
               {[
                 'All 10 EB-1A criteria scored and ranked',
                 'NIW Dhanasar three-prong analysis',
@@ -251,7 +251,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="border-2 border-border rounded-2xl p-9 hover:border-navy/40 hover:shadow-card-hover transition-all">
+          <div className="border-2 border-border rounded-2xl p-9 hover:border-navy/40 hover:shadow-card-hover transition-all flex flex-col">
             <div className="text-2xl mb-5">📄</div>
             <div className="flex items-start justify-between mb-2.5">
               <h3 className="text-[19px] font-extrabold text-navy">RFE Response Analyzer</h3>
@@ -260,7 +260,7 @@ export default async function Home() {
             <p className="text-sm text-mid leading-relaxed mb-6">
               Upload your USCIS Request for Evidence. Get a risk-ranked, issue-by-issue response strategy.
             </p>
-            <ul className="space-y-2.5 mb-7">
+            <ul className="space-y-2.5 mb-7 flex-1">
               {[
                 'Every RFE issue identified and ranked by risk',
                 'Plain-English translation of USCIS legalese',

@@ -19,8 +19,13 @@ export async function POST(req: Request) {
 
     const { reportId, productType } = await req.json()
 
-    if (!PRICES[productType as keyof typeof PRICES]) {
+    const validProductTypes = ['strategy', 'rfe'] as const
+    type ValidProductType = typeof validProductTypes[number]
+    if (!validProductTypes.includes(productType as ValidProductType)) {
       return NextResponse.json({ error: 'Invalid product type' }, { status: 400 })
+    }
+    if (!PRICES[productType as ValidProductType]) {
+      return NextResponse.json({ error: 'Price not configured for this product' }, { status: 500 })
     }
 
     // Verify report belongs to user
