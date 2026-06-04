@@ -12,10 +12,10 @@ export default async function Home() {
     <div className="min-h-screen bg-white">
 
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
-      <div className="bg-amber-600 text-white text-center px-4 py-2.5">
+      <div className="bg-rose-800 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
           USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief, not a right. DHS is ending Duration of Status for F-1.{' '}
-          <Link href="/stay-score" className="underline font-bold hover:text-amber-100">Check your Risk Score →</Link>
+          <Link href="/stay-score" className="underline font-bold hover:text-rose-100">Check your Risk Score →</Link>
         </p>
       </div>
 
