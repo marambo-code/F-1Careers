@@ -25,7 +25,7 @@ All outputs are educational tools. They reflect AI analysis based on information
 
 Our reports, scores, and recommendations are informational only. They are designed to help you understand your situation and prepare for conversations with licensed legal counsel.
 
-Immigration law is highly fact-specific and subject to rapid change. USCIS policy, including the discretionary adjustment of status standard under PM-602-0199 (May 21, 2026), the ending of Duration of Status for F-1 holders, and consular processing restrictions, can change without notice. No AI system can predict immigration outcomes with certainty.
+Immigration law is highly fact-specific and subject to rapid change. USCIS policy, including the discretionary adjustment of status standard reaffirmed in PM-602-0199 (May 21, 2026), proposed changes to Duration of Status for F-1 holders, and consular processing restrictions, can change without notice. No AI system can predict immigration outcomes with certainty.
 
 Always consult a licensed immigration attorney accredited by AILA (American Immigration Lawyers Association) before filing any petition, changing your status, or making any decisions about your immigration situation.`,
   },
@@ -117,7 +117,7 @@ export default function TermsPage() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
           <p className="font-bold text-yellow-900 text-sm">⚠️ Not legal advice</p>
           <p className="text-yellow-800 text-sm mt-1 leading-relaxed">
-            F-1 Careers provides AI-generated immigration strategy information for educational purposes only. Nothing on this platform constitutes legal advice or creates an attorney-client relationship. Immigration decisions are complex, fact-specific, and subject to rapid policy change, including USCIS PM-602-0199 (May 2026) which makes adjustment of status officially discretionary. Always consult a licensed immigration attorney before filing any petition or making decisions about your immigration status.
+            F-1 Careers provides AI-generated immigration strategy information for educational purposes only. Nothing on this platform constitutes legal advice or creates an attorney-client relationship. Immigration decisions are complex, fact-specific, and subject to rapid policy change, including USCIS PM-602-0199 (May 2026), which reaffirms that adjustment of status is a discretionary benefit. Always consult a licensed immigration attorney before filing any petition or making decisions about your immigration status.
           </p>
         </div>
 

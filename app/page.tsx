@@ -14,7 +14,7 @@ export default async function Home() {
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
       <div className="bg-rose-800 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
-          USCIS PM-602-0199 (issued May 21, 2026) officially makes adjustment of status discretionary relief, not a right. DHS is ending Duration of Status for F-1.{' '}
+          USCIS PM-602-0199 (May 21, 2026) reaffirms adjustment of status as discretionary relief — not a guaranteed right — and DHS has moved to end Duration of Status for F-1.{' '}
           <Link href="/stay-score" className="underline font-bold hover:text-rose-100">Check your Risk Score →</Link>
         </p>
       </div>
@@ -121,23 +121,23 @@ export default async function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                heading: 'Adjustment of Status is now discretionary',
-                body: 'USCIS PM-602-0199 (May 21, 2026) officially classifies adjustment of status as extraordinary discretionary relief, not an entitlement.',
+                heading: 'Adjustment of status is discretionary',
+                body: 'USCIS PM-602-0199 (May 21, 2026) reaffirms adjustment of status as a discretionary benefit, not an entitlement — officers weigh the positive and negative factors in each case.',
                 accent: 'border-l-red-400',
               },
               {
-                heading: 'Extraordinary circumstances required',
-                body: 'Adjudicators now conduct a totality-of-circumstances analysis. An approved NIW I-140 is the clearest evidence you can present.',
+                heading: 'Stronger evidence matters more',
+                body: 'Officers weigh the totality of circumstances and are expected to issue more RFEs and Notices of Intent to Deny. A well-documented petition — like an approved NIW I-140 — is your strongest position.',
                 accent: 'border-l-orange-400',
               },
               {
-                heading: 'Duration of Status ending',
-                body: 'DHS has submitted a final rule replacing open-ended D/S with a 4-year hard cap for F-1 students. Grace period cut to 30 days. Expected September 2026.',
+                heading: 'Duration of Status may end',
+                body: 'DHS has submitted a final rule (under OMB review) that would replace open-ended D/S with a 4-year admission cap for F-1 students and shorten the grace period to 30 days. Could take effect as early as September 2026.',
                 accent: 'border-l-yellow-400',
               },
               {
-                heading: 'Consular processing blocked for 75+ countries',
-                body: 'Nationals of 75+ countries face travel bans and immigrant visa processing pauses, making Adjustment of Status inside the US their only viable path.',
+                heading: 'Travel bans and consular delays',
+                body: 'Travel bans and immigrant-visa processing pauses affect nationals of many countries, making adjustment of status inside the US a critical path.',
                 accent: 'border-l-teal',
               },
             ].map((item, i) => (

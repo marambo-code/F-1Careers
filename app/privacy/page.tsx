@@ -20,7 +20,7 @@ const SECTIONS = [
       },
       {
         label: 'Profile and questionnaire',
-        text: `When you complete a profile: your name, university, degree, field of study, graduation date, visa status, LinkedIn URL, and resume (optional). When you complete a questionnaire, your professional background, research contributions, awards, publications, and immigration goals are used to generate your AI strategy reports. These responses are stored in your account.`,
+        text: `When you complete a profile: your name, university, degree, field of study, graduation date, visa status, current employer, job title, LinkedIn URL, and resume (optional). When you complete a questionnaire, your professional background, research contributions, awards, publications, and immigration goals are used to generate your AI strategy reports. These responses are stored in your account.`,
       },
       {
         label: 'Payments',
