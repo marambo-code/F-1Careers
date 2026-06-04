@@ -147,6 +147,21 @@ export default async function StrategyStartPage() {
         </div>
       )}
 
+      {/* Primary start CTA — surfaced above the report details so new users
+          immediately see they can begin (and that the preview is free). */}
+      {!latestPending && (
+        <div className="card border-2 border-teal/30 bg-teal/5">
+          <p className="font-bold text-navy">See where you stand — free preview</p>
+          <p className="text-sm text-mid mt-0.5">Answer a few questions and get your EB-1A &amp; NIW scores instantly. No payment required to preview.</p>
+          <Link
+            href="/strategy/questionnaire"
+            className="mt-4 w-full bg-teal text-white font-bold py-3 rounded-xl text-center block hover:bg-teal/90 transition-colors text-sm"
+          >
+            Start questionnaire, preview free →
+          </Link>
+        </div>
+      )}
+
       {/* Deliverables */}
       <div className="card">
         <h2 className="font-bold text-navy mb-4 flex items-center gap-2">

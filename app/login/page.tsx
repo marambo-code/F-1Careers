@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import LoginForm from './LoginForm'
 
 // Server component, Suspense here satisfies Next.js 15 prerender requirement
@@ -12,10 +13,10 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
+          <Link href="/" className="inline-flex items-center gap-2 mb-3 no-underline">
             <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
             <span className="text-teal text-xs font-bold bg-teal/15 px-2 py-0.5 rounded-md border border-teal/20">AI</span>
-          </div>
+          </Link>
           <p className="text-blue-200 text-sm">Your visa and career strategy, built for international professionals</p>
         </div>
 
@@ -29,8 +30,8 @@ export default function LoginPage() {
 
         <p className="text-center text-blue-300 text-xs mt-6">
           Not your account?{' '}
-          <a href="https://f1careers.com" className="underline hover:text-white transition-colors">
-            Back to f1careers.com
+          <a href="/" className="underline hover:text-white transition-colors">
+            Back to F-1 Careers
           </a>
         </p>
       </div>

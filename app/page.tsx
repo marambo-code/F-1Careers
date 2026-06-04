@@ -94,7 +94,7 @@ export default async function Home() {
             {[
               { val: 'EB-1A & NIW', lbl: 'Both pathways analyzed' },
               { val: 'Kazarian & Dhanasar', lbl: 'Trained on controlling case law' },
-              { val: 'Extraordinary circumstances', lbl: 'The exact AoS standard, documented' },
+              { val: 'Extraordinary circumstances', lbl: 'The exact Adjustment of Status standard, documented' },
               { val: 'F-1 → EB-1A / NIW', lbl: 'Built by those who did it' },
             ].map((item, i) => (
               <div key={i} className="py-5 px-4 text-center border-r border-white/[0.06] last:border-r-0">
@@ -121,7 +121,7 @@ export default async function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                heading: 'AoS is now discretionary',
+                heading: 'Adjustment of Status is now discretionary',
                 body: 'USCIS PM-602-0199 (May 21, 2026) officially classifies adjustment of status as extraordinary discretionary relief, not an entitlement.',
                 accent: 'border-l-red-400',
               },
@@ -137,7 +137,7 @@ export default async function Home() {
               },
               {
                 heading: 'Consular processing blocked for 75+ countries',
-                body: 'Nationals of 75+ countries face travel bans and immigrant visa processing pauses, making AoS inside the US their only viable path.',
+                body: 'Nationals of 75+ countries face travel bans and immigrant visa processing pauses, making Adjustment of Status inside the US their only viable path.',
                 accent: 'border-l-teal',
               },
             ].map((item, i) => (
@@ -179,10 +179,10 @@ export default async function Home() {
               The tool we wish we had. Trained on the case law that actually decides your petition.
             </p>
             <div className="flex flex-wrap gap-2 items-center">
-              {['Harvard', 'MIT', 'Stanford', 'Yale', 'Princeton', 'Columbia', 'Cornell', 'Tufts', 'Carnegie Mellon', 'UC Berkeley', 'UCLA', 'Georgia Tech', 'UIUC', 'Purdue', 'NYU', 'Johns Hopkins', 'Caltech', 'Duke', 'UT Austin', 'UMich'].map(u => (
+              {['Harvard', 'MIT', 'Stanford', 'UC Berkeley', 'Carnegie Mellon', 'Caltech', 'Columbia', 'Johns Hopkins', 'Google', 'Meta', 'Microsoft', 'NVIDIA', 'OpenAI', 'Moderna', 'Pfizer', 'Goldman Sachs'].map(u => (
                 <span key={u} className="text-[11px] font-bold bg-navy/8 text-navy px-2.5 py-1 rounded-full">{u}</span>
               ))}
-              <span className="text-[11px] text-mid">+ institutions worldwide</span>
+              <span className="text-[11px] text-mid">+ leaders across academia &amp; industry</span>
             </div>
           </div>
 
@@ -385,7 +385,7 @@ export default async function Home() {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "PM-602-0199 puts your AoS path at risk. You need an approved I-140 with extraordinary circumstances evidence, fast." },
+            { who: 'H-1B holders', desc: "PM-602-0199 puts your Adjustment of Status path at risk. You need an approved I-140 with extraordinary circumstances evidence, fast." },
             { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
             { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
             { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },
