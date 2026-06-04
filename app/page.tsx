@@ -85,7 +85,7 @@ export default async function Home() {
               Check my Risk Score first ↓
             </Link>
           </div>
-          <p className="text-slate-600 text-xs pb-14">No commitment &nbsp;·&nbsp; Pay only for the full report</p>
+          <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
         </div>
 
         {/* Trust bar */}
