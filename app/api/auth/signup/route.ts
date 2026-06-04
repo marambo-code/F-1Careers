@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       password,
       options: {
         data: { full_name: full_name ?? '' },
-        emailRedirectTo: `${appUrl}/auth/callback`,
+        emailRedirectTo: `${appUrl}/auth/callback?next=/profile`,
       },
     })
 

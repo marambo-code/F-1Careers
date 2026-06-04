@@ -164,8 +164,8 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* ── Bottom tab bar (mobile only) ───────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb">
+      {/* ── Tab bar (mobile only, pinned below top nav) ────────── */}
+      <nav className="md:hidden sticky top-14 z-40 bg-white border-b border-gray-200">
         <div className="flex items-stretch h-16">
           {tabItems.map(tab => {
             const active = isActive(tab.href)

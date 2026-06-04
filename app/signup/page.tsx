@@ -18,7 +18,7 @@ export default function SignupPage() {
     const supabase = createClient()
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/profile` },
     })
   }
 
@@ -54,10 +54,10 @@ export default function SignupPage() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
+          <Link href="/" className="inline-flex items-center gap-2 mb-3 no-underline">
             <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
             <span className="text-teal text-xs font-bold bg-teal/15 px-2 py-0.5 rounded-md border border-teal/20">AI</span>
-          </div>
+          </Link>
           <p className="text-blue-200 text-sm">Personalized Career and Visa Strategy for International Professionals</p>
         </div>
 
@@ -78,7 +78,7 @@ export default function SignupPage() {
           ) : (
             <>
               <h1 className="text-xl font-bold text-navy mb-1">Create your account</h1>
-              <p className="text-sm text-mid mb-6">Get your personalized AI green card strategy report.</p>
+              <p className="text-sm text-mid mb-6">Get your personalized green card strategy report.</p>
 
               {/* Google OAuth */}
               <button

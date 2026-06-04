@@ -79,13 +79,13 @@ export default async function Home() {
               className="bg-teal text-white font-extrabold text-lg px-10 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
               style={{ boxShadow: '0 8px 32px rgba(0,194,168,.30)' }}
             >
-              Get my free green card preview →
+              Get my green card preview →
             </Link>
             <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
               Check my Risk Score first ↓
             </Link>
           </div>
-          <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
+          <p className="text-slate-600 text-xs pb-14">No commitment &nbsp;·&nbsp; Pay only for the full report</p>
         </div>
 
         {/* Trust bar */}

@@ -355,7 +355,7 @@ function ProfileContent() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Full Name</label>
-              <input className="input" value={profile.full_name ?? ''} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} placeholder="Evelyn Manyatta" />
+              <input className="input" value={profile.full_name ?? ''} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} placeholder="Your full name" />
             </div>
             <div>
               <label className="label">Country of Birth</label>
@@ -368,7 +368,7 @@ function ProfileContent() {
           </div>
 
           <div>
-            <label className="label">LinkedIn URL <span className="text-mid font-normal">(optional)</span></label>
+            <label className="label">LinkedIn URL <span className="text-mid font-normal">(recommended)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-mid text-sm">🔗</span>
               <input className="input pl-8" value={profile.linkedin_url ?? ''} onChange={e => setProfile(p => ({ ...p, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/yourname" />
