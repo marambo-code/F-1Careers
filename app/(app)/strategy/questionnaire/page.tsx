@@ -323,6 +323,14 @@ function QuestionnaireInner() {
       if (data) {
         setProfile(data)
         setOriginalProfile(data)
+        // Prefill role/employer/visa-expiry from profile (fill blanks only,
+        // so edit-mode saved answers and in-progress input are preserved).
+        setAnswers(a => ({
+          ...a,
+          current_employer: a.current_employer || (data.current_employer ?? ''),
+          current_role: a.current_role || (data.job_title ?? ''),
+        }))
+        if (data.visa_expiration) setVisaExpiration(prev => prev || (data.visa_expiration ?? ''))
         if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
         if (data.degree) {
           const d = data.degree.toLowerCase()
@@ -396,14 +404,23 @@ function QuestionnaireInner() {
       // Blanks fill automatically; an already-set value is only overwritten
       // when the user opted in. Empties are never written. Non-fatal.
       try {
-        const sharedKeys: (keyof Profile)[] = ['full_name', 'visa_status', 'university', 'degree', 'field_of_study', 'career_goal']
+        const wb: { col: string; next: string; orig: string }[] = [
+          { col: 'full_name',        next: (profile.full_name ?? '') as string,      orig: (originalProfile.full_name ?? '') as string },
+          { col: 'visa_status',      next: (profile.visa_status ?? '') as string,    orig: (originalProfile.visa_status ?? '') as string },
+          { col: 'university',       next: (profile.university ?? '') as string,     orig: (originalProfile.university ?? '') as string },
+          { col: 'degree',           next: (profile.degree ?? '') as string,         orig: (originalProfile.degree ?? '') as string },
+          { col: 'field_of_study',   next: (profile.field_of_study ?? '') as string, orig: (originalProfile.field_of_study ?? '') as string },
+          { col: 'career_goal',      next: (profile.career_goal ?? '') as string,    orig: (originalProfile.career_goal ?? '') as string },
+          { col: 'current_employer', next: answers.current_employer ?? '',           orig: (originalProfile.current_employer ?? '') as string },
+          { col: 'job_title',        next: answers.current_role ?? '',               orig: (originalProfile.job_title ?? '') as string },
+          { col: 'visa_expiration',  next: visaExpiration ?? '',                     orig: (originalProfile.visa_expiration ?? '') as string },
+          { col: 'linkedin_url',     next: linkedInUrl ?? '',                        orig: (originalProfile.linkedin_url ?? '') as string },
+        ]
         const updates: Record<string, string> = {}
-        for (const k of sharedKeys) {
-          const next = (profile[k] ?? '') as string
-          const orig = (originalProfile[k] ?? '') as string
-          if (!next) continue
-          if (!orig) updates[k] = next
-          else if (next !== orig && saveChangesToProfile) updates[k] = next
+        for (const f of wb) {
+          if (!f.next) continue              // never write empties
+          if (!f.orig) updates[f.col] = f.next                                    // fill a blank automatically
+          else if (f.next !== f.orig && saveChangesToProfile) updates[f.col] = f.next  // overwrite only if opted in
         }
         if (Object.keys(updates).length) {
           await supabase.from('profiles').update(updates).eq('id', user.id)

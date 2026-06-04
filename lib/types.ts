@@ -11,6 +11,12 @@ export interface Profile {
   linkedin_url: string | null
   resume_path: string | null
   resume_filename: string | null
+  current_employer: string | null
+  job_title: string | null
+  visa_expiration: string | null
+  country_of_birth: string | null
+  stay_score_snapshot: Record<string, unknown> | null
+  roi_snapshot: Record<string, unknown> | null
   created_at: string
   updated_at: string
 }
