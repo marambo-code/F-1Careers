@@ -260,7 +260,7 @@ function ProfileContent() {
           <div>
             <p className="font-bold text-navy">Welcome to F-1 Careers!</p>
             <p className="text-sm text-mid mt-1 leading-relaxed">
-              Fill out your profile, we use this to personalize your green card strategy.
+              Fill out your profile — we use it to personalize your career strategy, your reports, and your overall experience.
             </p>
             <p className="text-xs text-mid mt-2">
               Already set up?{' '}
@@ -534,7 +534,7 @@ function ProfileContent() {
                 )}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-navy">$29<span className="text-sm font-normal text-mid">/mo</span></p>
+                <p className="text-lg font-bold text-navy">$49<span className="text-sm font-normal text-mid">/mo</span></p>
               </div>
             </div>
 
@@ -593,9 +593,9 @@ function ProfileContent() {
                 <p className="text-sm font-bold text-navy">Upgrade to Pro</p>
                 <p className="text-xs text-mid mt-1">Unlock unlimited strategy reports, career move planning, and RFE analysis.</p>
               </div>
-              <p className="text-lg font-bold text-navy flex-shrink-0">$29<span className="text-sm font-normal text-mid">/mo</span></p>
+              <p className="text-lg font-bold text-navy flex-shrink-0">$49<span className="text-sm font-normal text-mid">/mo</span></p>
             </div>
-            <Link href="/pricing" className="mt-4 inline-flex items-center gap-2 btn-primary text-sm">
+            <Link href="/subscribe" className="mt-4 inline-flex items-center gap-2 btn-primary text-sm">
               Upgrade now →
             </Link>
           </div>
