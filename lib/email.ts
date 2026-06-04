@@ -1,42 +1,38 @@
-// Email notifications via SendGrid
-// Sign up at sendgrid.com, authenticate the f-1careers.com domain (CNAME records),
-// then add SENDGRID_API_KEY to .env.local + Vercel env vars.
+// Email notifications via Postmark
+// Sign up at postmarkapp.com, verify the f-1careers.com domain (DKIM TXT +
+// Return-Path CNAME), then add POSTMARK_SERVER_TOKEN to .env.local + Vercel env vars.
 // Set FROM_EMAIL to a verified address, e.g. "F-1 Careers <noreply@f-1careers.com>".
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
+const POSTMARK_SERVER_TOKEN = process.env.POSTMARK_SERVER_TOKEN
 const FROM_EMAIL = process.env.FROM_EMAIL ?? 'F-1 Careers <noreply@f-1careers.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.f-1careers.com'
 
-// Parse "Name <email@domain>" or a bare "email@domain" into SendGrid's from object.
-function parseFrom(value: string): { email: string; name?: string } {
-  const match = value.match(/^\s*(.*?)\s*<\s*([^>]+)\s*>\s*$/)
-  if (match) return { name: match[1] || undefined, email: match[2] }
-  return { email: value.trim() }
-}
-
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!SENDGRID_API_KEY) {
-    console.log('[email] SENDGRID_API_KEY not set, skipping email to', to)
+  if (!POSTMARK_SERVER_TOKEN) {
+    console.log('[email] POSTMARK_SERVER_TOKEN not set, skipping email to', to)
     return
   }
 
-  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+  const res = await fetch('https://api.postmarkapp.com/email', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${SENDGRID_API_KEY}`,
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
+      'X-Postmark-Server-Token': POSTMARK_SERVER_TOKEN,
     },
+    // Postmark accepts a full "Name <email@domain>" string in From.
     body: JSON.stringify({
-      personalizations: [{ to: [{ email: to }] }],
-      from: parseFrom(FROM_EMAIL),
-      subject,
-      content: [{ type: 'text/html', value: html }],
+      From: FROM_EMAIL,
+      To: to,
+      Subject: subject,
+      HtmlBody: html,
+      MessageStream: 'outbound',
     }),
   })
 
   if (!res.ok) {
     const err = await res.text()
-    console.error('[email] SendGrid error:', res.status, err)
+    console.error('[email] Postmark error:', res.status, err)
   } else {
     console.log('[email] Sent to', to, '—', subject)
   }
