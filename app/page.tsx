@@ -385,7 +385,7 @@ export default async function Home() {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "PM-602-0199 puts your Adjustment of Status path at risk. You need an approved I-140 with extraordinary circumstances evidence, fast." },
+            { who: 'H-1B holders', desc: "PM-602-0199 makes Adjustment of Status discretionary. A strong, well-documented petition — ideally an approved I-140 — is your best protection." },
             { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
             { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
             { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },
