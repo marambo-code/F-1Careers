@@ -424,12 +424,12 @@ export default async function DashboardPage() {
             ) : (
               <>
                 <div>
-                  <p className="text-sm font-bold text-navy">Start with your strategy report</p>
+                  <p className="text-sm font-bold text-navy">New here? Start with the strategy report</p>
                   <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
-                    Your Green Card Score and career moves are anchored to your strategy report. Run it first — preview is free, pay only if you want the full report.
+                    Your Green Card Score and career moves are anchored to your strategy report. See what it includes — the preview is free, pay only if you want the full report.
                   </p>
                   <Link href="/strategy" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
-                    Run my strategy report →
+                    See how the report works →
                   </Link>
                 </div>
                 <div className="text-right flex-shrink-0 hidden sm:block">
