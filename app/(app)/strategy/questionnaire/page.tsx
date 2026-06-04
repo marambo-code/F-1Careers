@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import type { Profile } from '@/lib/types'
+import type { Profile, VisaStatus, CareerGoal } from '@/lib/types'
 
 // ─── Data ─────────────────────────────────────────────────────────
 
@@ -16,6 +16,14 @@ const STRENGTH_COLORS = [
   'bg-teal-light text-teal border-teal/30',
   'bg-teal text-white border-teal',
 ]
+
+const VISA_OPTIONS = ['F-1 CPT', 'F-1 OPT', 'F-1 OPT STEM', 'H-1B', 'H-1B1', 'O-1', 'EB-2 NIW Pending', 'Green Card', 'Other'] as const
+const GOAL_OPTIONS = ['First job / internship', 'H-1B sponsorship', 'Green card (EB pathway)', 'Switching employers', 'Other'] as const
+
+function DiffNote({ changed }: { changed: boolean }) {
+  if (!changed) return null
+  return <p className="text-[11px] text-amber-600 mt-0.5">✎ Changed from your profile — this value is used for this report.</p>
+}
 
 const CRITERIA = [
   {
@@ -196,6 +204,8 @@ function QuestionnaireInner() {
   const supabase = createClient()
   const [step, setStep] = useState(0)
   const [profile, setProfile] = useState<Partial<Profile>>({})
+  const [originalProfile, setOriginalProfile] = useState<Partial<Profile>>({})
+  const [saveChangesToProfile, setSaveChangesToProfile] = useState(false)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -312,6 +322,7 @@ function QuestionnaireInner() {
       const data = profileRes.data
       if (data) {
         setProfile(data)
+        setOriginalProfile(data)
         if (data.linkedin_url) setLinkedInUrl(data.linkedin_url)
         if (data.degree) {
           const d = data.degree.toLowerCase()
@@ -380,6 +391,24 @@ function QuestionnaireInner() {
           second_field_of_study: secondEdu.field,
         } : {}),
       }
+
+      // ── Write shared identity fields back to the profile ──────────
+      // Blanks fill automatically; an already-set value is only overwritten
+      // when the user opted in. Empties are never written. Non-fatal.
+      try {
+        const sharedKeys: (keyof Profile)[] = ['full_name', 'visa_status', 'university', 'degree', 'field_of_study', 'career_goal']
+        const updates: Record<string, string> = {}
+        for (const k of sharedKeys) {
+          const next = (profile[k] ?? '') as string
+          const orig = (originalProfile[k] ?? '') as string
+          if (!next) continue
+          if (!orig) updates[k] = next
+          else if (next !== orig && saveChangesToProfile) updates[k] = next
+        }
+        if (Object.keys(updates).length) {
+          await supabase.from('profiles').update(updates).eq('id', user.id)
+        }
+      } catch { /* report still proceeds */ }
 
       let reportId: string
 
@@ -495,21 +524,56 @@ function QuestionnaireInner() {
       {step === 0 && (
         <div className="card space-y-5">
 
-          {/* Profile data banner */}
-          {(profile.full_name || profile.visa_status) && (
-            <div className="bg-teal-light rounded-xl p-4 space-y-2 border border-teal/20">
-              <p className="text-sm font-bold text-teal">✓ Profile data loaded, automatically included in your report</p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                {profile.full_name    && <p><span className="text-teal/60">Name:</span> <span className="text-navy font-medium">{profile.full_name}</span></p>}
-                {profile.visa_status  && <p><span className="text-teal/60">Visa status:</span> <span className="text-navy font-medium">{profile.visa_status}</span></p>}
-                {profile.university   && <p><span className="text-teal/60">University:</span> <span className="text-navy font-medium">{profile.university}</span></p>}
-                {profile.degree       && <p><span className="text-teal/60">Degree:</span> <span className="text-navy font-medium">{profile.degree}</span></p>}
-                {profile.field_of_study && <p><span className="text-teal/60">Field of study:</span> <span className="text-navy font-medium">{profile.field_of_study}</span></p>}
-                {profile.career_goal  && <p><span className="text-teal/60">Career goal:</span> <span className="text-navy font-medium">{profile.career_goal}</span></p>}
-              </div>
-              <p className="text-xs text-teal/60">Fill in the fields below, the more detail you add, the more specific your report will be.</p>
+          {/* Profile data — prefilled and editable. Edits always flow into this
+              report; tick the box to also save them back to your profile. */}
+          <div className="bg-teal-light rounded-xl p-4 space-y-3 border border-teal/20">
+            <div>
+              <p className="text-sm font-bold text-teal">Your profile — prefilled below</p>
+              <p className="text-xs text-teal/70 mt-0.5">Edit anything that should be different for this report. What you enter here is always used in your report.</p>
             </div>
-          )}
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="label">Full name</label>
+                <input className="input" value={profile.full_name ?? ''} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} placeholder="Your full name" />
+                <DiffNote changed={(profile.full_name ?? '') !== (originalProfile.full_name ?? '') && !!originalProfile.full_name} />
+              </div>
+              <div>
+                <label className="label">Visa status</label>
+                <select className="input" value={profile.visa_status ?? ''} onChange={e => setProfile(p => ({ ...p, visa_status: (e.target.value || null) as VisaStatus | null }))}>
+                  <option value="">Select…</option>
+                  {VISA_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <DiffNote changed={(profile.visa_status ?? '') !== (originalProfile.visa_status ?? '') && !!originalProfile.visa_status} />
+              </div>
+              <div>
+                <label className="label">University</label>
+                <input className="input" value={profile.university ?? ''} onChange={e => setProfile(p => ({ ...p, university: e.target.value }))} placeholder="e.g. The Wharton School" />
+                <DiffNote changed={(profile.university ?? '') !== (originalProfile.university ?? '') && !!originalProfile.university} />
+              </div>
+              <div>
+                <label className="label">Highest degree</label>
+                <input className="input" value={profile.degree ?? ''} onChange={e => setProfile(p => ({ ...p, degree: e.target.value }))} placeholder="MBA, PhD, MS…" />
+                <DiffNote changed={(profile.degree ?? '') !== (originalProfile.degree ?? '') && !!originalProfile.degree} />
+              </div>
+              <div>
+                <label className="label">Field of study</label>
+                <input className="input" value={profile.field_of_study ?? ''} onChange={e => setProfile(p => ({ ...p, field_of_study: e.target.value }))} placeholder="e.g. AI for Business" />
+                <DiffNote changed={(profile.field_of_study ?? '') !== (originalProfile.field_of_study ?? '') && !!originalProfile.field_of_study} />
+              </div>
+              <div>
+                <label className="label">Career goal</label>
+                <select className="input" value={profile.career_goal ?? ''} onChange={e => setProfile(p => ({ ...p, career_goal: (e.target.value || null) as CareerGoal | null }))}>
+                  <option value="">Select…</option>
+                  {GOAL_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <DiffNote changed={(profile.career_goal ?? '') !== (originalProfile.career_goal ?? '') && !!originalProfile.career_goal} />
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-navy/80 cursor-pointer pt-0.5">
+              <input type="checkbox" checked={saveChangesToProfile} onChange={e => setSaveChangesToProfile(e.target.checked)} className="rounded border-border" />
+              Also save these edits to my profile <span className="text-mid">(blank fields are saved automatically)</span>
+            </label>
+          </div>
 
           {/* Field + Subfield */}
           <div ref={firstErrorRef} className="grid sm:grid-cols-2 gap-4">

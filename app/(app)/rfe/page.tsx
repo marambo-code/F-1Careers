@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -44,6 +44,35 @@ export default function RFEUploadPage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
+
+  // Prefill petition type & field from the user's profile (both stay editable).
+  // Only pre-selects on a clear signal; the user can change either at will.
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      const { data } = await supabase.from('profiles').select('visa_status, field_of_study').eq('id', user.id).single()
+      if (!data) return
+
+      const v = (data.visa_status ?? '').toLowerCase()
+      const petition =
+        v.includes('niw') ? 'eb2niw' :
+        v.includes('o-1') ? 'o1' :
+        v.includes('h-1b') ? 'h1b' : ''
+      if (petition) setPetitionType(prev => prev || petition)
+
+      const f = (data.field_of_study ?? '').toLowerCase()
+      const field =
+        /comput|software|\bai\b|data|engineer|physic|chem|bio|math|science|stem/.test(f) ? 'stem' :
+        /medic|health|clinical|nurs|pharma/.test(f) ? 'medicine' :
+        /business|financ|econ|\bmba\b|market|account/.test(f) ? 'business' :
+        /art|design|music|film|architect|fashion/.test(f) ? 'arts' :
+        /sport|athlet/.test(f) ? 'sports' :
+        /law|legal|policy|govern/.test(f) ? 'law' :
+        /educat|teach|pedagog/.test(f) ? 'education' : ''
+      if (field) setRfeField(prev => prev || field)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleFile = (f: File | undefined) => {
     if (!f) return
