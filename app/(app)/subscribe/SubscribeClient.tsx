@@ -53,7 +53,7 @@ export default function SubscribeClient() {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-3xl space-y-8">
       {/* Header */}
       <div>
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Pro Membership</span>

@@ -29,7 +29,7 @@ export default async function SubscribePage() {
 
   if (!strategyReport) {
     return (
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-3xl space-y-6">
         <div>
           <span className="text-xs font-bold text-teal uppercase tracking-widest">Pro Membership</span>
           <h1 className="text-2xl font-bold text-navy mt-1">Run your strategy report first</h1>

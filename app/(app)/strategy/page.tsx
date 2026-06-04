@@ -75,7 +75,7 @@ export default async function StrategyStartPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-3xl space-y-8">
 
       {/* ── Pending report score card ── */}
       {latestPending && pendingPreview && (

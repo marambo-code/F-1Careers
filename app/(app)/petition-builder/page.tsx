@@ -21,7 +21,7 @@ export default async function PetitionBuilderPage() {
 
   if (!isPro) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-3xl">
         <div className="card !p-0 overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-navy to-navy/60" />
           <div className="p-8 space-y-5 text-center">

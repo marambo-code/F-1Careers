@@ -85,7 +85,7 @@ export default async function RFEPreviewPage({
   const rs = riskStyles[risk]
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-3xl space-y-8">
       <div>
         <span className="text-xs font-bold text-navy uppercase tracking-widest">Preview</span>
         <h1 className="text-2xl font-bold text-navy mt-1">RFE Analysis Preview</h1>

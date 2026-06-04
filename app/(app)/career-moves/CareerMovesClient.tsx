@@ -608,7 +608,7 @@ export default function CareerMovesClient({
   // ── No strategy report ──────────────────────────────────────────
   if (!hasStrategyReport) {
     return (
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-3xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-navy">Career Moves</h1>
           <p className="text-mid mt-1 text-sm">Personalized actions to strengthen your petition</p>
@@ -625,7 +625,7 @@ export default function CareerMovesClient({
   // ── Not Pro, show paywall ───────────────────────────────────────
   if (!isProState) {
     return (
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-3xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-navy">Career Moves</h1>
           <p className="text-mid mt-1 text-sm">Personalized actions to strengthen your petition</p>
