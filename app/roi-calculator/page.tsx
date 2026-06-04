@@ -444,7 +444,7 @@ export default function ROICalculatorPage() {
                 <p className="text-xs text-mid leading-relaxed">
                   Your country isn't in our database, we'll use standard consular processing estimates.
                   If your country has travel or visa restrictions not reflected here, your actual exposure
-                  may be higher. Email <a href="mailto:support@f1careers.app" className="text-teal hover:underline">support@f1careers.app</a> to request it be added.
+                  may be higher. Email <a href="mailto:support@f-1careers.com" className="text-teal hover:underline">support@f-1careers.com</a> to request it be added.
                 </p>
               </div>
             )}

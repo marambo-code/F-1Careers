@@ -63,7 +63,7 @@ Anonymous usage data from public tools (Risk Score, ROI Calculator) is retained 
     title: '6. Your rights',
     body: `You have the right to: access the data we hold about you, correct inaccurate data, request deletion of your data ("right to erasure"), and export your data in a portable format.
 
-To exercise any of these rights, email us at support@f1careers.app or use the delete account feature in your profile.
+To exercise any of these rights, email us at support@f-1careers.com or use the delete account feature in your profile.
 
 If you are located in the European Economic Area, you have additional rights under GDPR including the right to lodge a complaint with a supervisory authority.`,
   },
@@ -79,7 +79,7 @@ We follow industry best practices for API key management and perform regular sec
   },
   {
     title: '9. Children',
-    body: `F-1 Careers is intended for users 18 years and older. We do not knowingly collect data from children under 13. If you believe we have inadvertently collected information from a minor, contact us at support@f1careers.app and we will delete it promptly.`,
+    body: `F-1 Careers is intended for users 18 years and older. We do not knowingly collect data from children under 13. If you believe we have inadvertently collected information from a minor, contact us at support@f-1careers.com and we will delete it promptly.`,
   },
   {
     title: '10. Changes to this policy',
@@ -87,7 +87,7 @@ We follow industry best practices for API key management and perform regular sec
   },
   {
     title: '11. Contact',
-    body: `Questions about this policy? Email us at support@f1careers.app.`,
+    body: `Questions about this policy? Email us at support@f-1careers.com.`,
   },
 ]
 

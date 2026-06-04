@@ -91,7 +91,7 @@ You waive any right to a jury trial or to participate in a class action lawsuit 
   },
   {
     title: '13. Contact',
-    body: `Questions about these terms? Email support@f1careers.app.`,
+    body: `Questions about these terms? Email support@f-1careers.com.`,
   },
 ]
 

@@ -551,7 +551,7 @@ function ProfileContent() {
 
             {!cancelConfirm ? (
               <div className="flex items-center justify-between">
-                <p className="text-xs text-mid">Questions? <a href="mailto:support@f1careers.com" className="text-teal hover:underline">Contact support</a></p>
+                <p className="text-xs text-mid">Questions? <a href="mailto:support@f-1careers.com" className="text-teal hover:underline">Contact support</a></p>
                 {subscription.cancel_at_period_end ? (
                   <button onClick={handleCancelSubscription} disabled={cancelling}
                     className="text-xs text-teal font-semibold hover:underline disabled:opacity-50 transition-colors">

@@ -1,10 +1,10 @@
 // Email notifications via Postmark
 // Sign up at postmarkapp.com, verify the f-1careers.com domain (DKIM TXT +
 // Return-Path CNAME), then add POSTMARK_SERVER_TOKEN to .env.local + Vercel env vars.
-// Set FROM_EMAIL to a verified address, e.g. "F-1 Careers <noreply@f-1careers.com>".
+// Set FROM_EMAIL to a verified address, e.g. "F-1 Careers <support@f-1careers.com>".
 
 const POSTMARK_SERVER_TOKEN = process.env.POSTMARK_SERVER_TOKEN
-const FROM_EMAIL = process.env.FROM_EMAIL ?? 'F-1 Careers <noreply@f-1careers.com>'
+const FROM_EMAIL = process.env.FROM_EMAIL ?? 'F-1 Careers <support@f-1careers.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.f-1careers.com'
 
 async function sendEmail(to: string, subject: string, html: string) {

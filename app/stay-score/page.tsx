@@ -387,7 +387,7 @@ export default function RiskScorePage() {
   }
 
   const handleCopy = () => {
-    const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast, every F-1, OPT, and H-1B professional should know where they stand.\n\n→ f1careers.app/stay-score`
+    const text = `This is how I stay on top of my immigration status in 2026. Policy is moving fast, every F-1, OPT, and H-1B professional should know where they stand.\n\n→ www.f-1careers.com/stay-score`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500)
     })

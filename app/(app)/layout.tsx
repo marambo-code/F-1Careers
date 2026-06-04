@@ -14,7 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="text-xs text-mid hover:text-navy transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="text-xs text-mid hover:text-navy transition-colors">Terms of Service</Link>
-            <a href="mailto:support@f1careers.app" className="text-xs text-mid hover:text-navy transition-colors">Support</a>
+            <a href="mailto:support@f-1careers.com" className="text-xs text-mid hover:text-navy transition-colors">Support</a>
           </div>
         </div>
       </footer>
