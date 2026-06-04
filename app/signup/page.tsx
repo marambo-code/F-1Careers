@@ -1,17 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
+  const [confirmEmail, setConfirmEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
 
   const handleGoogleSignup = async () => {
     setGoogleLoading(true)
@@ -25,6 +27,12 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+      setError('The email addresses don’t match. Please re-enter them.')
+      return
+    }
+
     setLoading(true)
 
     const res = await fetch('/api/auth/signup', {
@@ -41,8 +49,9 @@ export default function SignupPage() {
       return
     }
 
-    setSuccess(true)
-    setLoading(false)
+    // Email confirmation is disabled, so the account is active immediately.
+    router.push('/profile')
+    router.refresh()
   }
 
   return (
@@ -62,21 +71,7 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {success ? (
-            <div className="text-center py-4 space-y-4">
-              <div className="w-14 h-14 bg-teal/10 rounded-full flex items-center justify-center mx-auto">
-                <svg className="w-7 h-7 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-navy">Check your email</h2>
-              <p className="text-sm text-mid">We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.</p>
-              <Link href="/login" className="inline-block mt-2 text-sm text-teal font-semibold hover:underline">
-                Back to sign in →
-              </Link>
-            </div>
-          ) : (
-            <>
+          <>
               <h1 className="text-xl font-bold text-navy mb-1">Create your account</h1>
               <p className="text-sm text-mid mb-6">Get your personalized green card strategy report.</p>
 
@@ -130,6 +125,20 @@ export default function SignupPage() {
                 </div>
 
                 <div>
+                  <label className="label">Confirm email address</label>
+                  <input
+                    type="email"
+                    className="input"
+                    value={confirmEmail}
+                    onChange={e => setConfirmEmail(e.target.value)}
+                    onPaste={e => e.preventDefault()}
+                    placeholder="Re-enter your email"
+                    autoComplete="off"
+                    required
+                  />
+                </div>
+
+                <div>
                   <label className="label">Password</label>
                   <input
                     type="password"
@@ -178,7 +187,6 @@ export default function SignupPage() {
                 </p>
               </div>
             </>
-          )}
         </div>
       </div>
     </div>
