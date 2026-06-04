@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: Request) {
   try {
@@ -9,14 +9,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const service = createServiceClient()
+    const supabase = await createClient()
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin).replace(/\/$/, '')
 
-    // Create user — email confirmation required before access
-    const { data, error } = await service.auth.admin.createUser({
+    // signUp (anon client) creates an unconfirmed user AND sends the confirmation
+    // email. admin.createUser does NOT send any email, so it must not be used here.
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: false,
-      user_metadata: { full_name: full_name ?? '' },
+      options: {
+        data: { full_name: full_name ?? '' },
+        emailRedirectTo: `${appUrl}/auth/callback`,
+      },
     })
 
     if (error) {
