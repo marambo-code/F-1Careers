@@ -192,7 +192,7 @@ function ProfileContent() {
 
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
-    if (isWelcome) router.push('/dashboard')
+    if (isWelcome) router.push('/strategy/questionnaire')
   }
 
   const handleCancelSubscription = async () => {
@@ -505,7 +505,7 @@ function ProfileContent() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {isWelcome ? 'Saved — going to dashboard…' : 'Changes saved'}
+              {isWelcome ? 'Saved — let’s build your strategy…' : 'Changes saved'}
             </div>
           )}
           {saveError && (

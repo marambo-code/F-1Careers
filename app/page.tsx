@@ -33,7 +33,7 @@ export default async function Home() {
           <div className="flex items-center gap-2.5">
             <Link href="/login" className="text-sm text-mid font-medium hover:text-navy transition-colors px-3 py-2">Sign in</Link>
             <Link
-              href="/signup"
+              href="/start"
               className="text-sm font-bold text-white bg-navy px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
             >
               Get started free →
@@ -75,7 +75,7 @@ export default async function Home() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
             <Link
-              href="/signup"
+              href="/start"
               className="bg-teal text-white font-extrabold text-lg px-10 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
               style={{ boxShadow: '0 8px 32px rgba(0,194,168,.30)' }}
             >

@@ -20,7 +20,7 @@ export default function SignupPage() {
     const supabase = createClient()
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/profile` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/start` },
     })
   }
 
@@ -50,7 +50,8 @@ export default function SignupPage() {
     }
 
     // Email confirmation is disabled, so the account is active immediately.
-    router.push('/profile')
+    // /start routes the new user to profile setup, then the questionnaire.
+    router.push('/start')
     router.refresh()
   }
 
