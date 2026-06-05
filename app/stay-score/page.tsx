@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 import { createClient } from '@/lib/supabase/client'
 
 // ─── AUTHORITATIVE COUNTRY RISK TIERS ──────────────────────────────────────
@@ -769,6 +770,7 @@ export default function RiskScorePage() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

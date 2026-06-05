@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 import { createClient } from '@/lib/supabase/client'
 import {
   COUNTRY_DATA,
@@ -680,6 +681,7 @@ export default function ROICalculatorPage() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

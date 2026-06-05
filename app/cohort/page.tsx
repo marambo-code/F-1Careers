@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 
 const COHORT_FIELDS = [
   {
@@ -262,6 +263,7 @@ export default function CohortPage() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

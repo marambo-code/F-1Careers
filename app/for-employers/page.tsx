@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SiteFooter from '@/components/SiteFooter'
 
 
 export default function ForEmployersPage() {
@@ -191,9 +192,7 @@ export default function ForEmployersPage() {
         </div>
       </div>
 
-      <footer className="border-t border-gray-200 bg-white py-6 text-center text-xs text-mid">
-        <p>© 2026 F-1 Careers · Not legal advice · <Link href="/" className="text-teal hover:underline">Home</Link></p>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }
