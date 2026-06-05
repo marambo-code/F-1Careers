@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Protected routes — redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/profile', '/strategy', '/rfe']
+  const protectedPaths = ['/dashboard', '/profile', '/strategy', '/rfe', '/petition-builder', '/career-moves', '/subscribe', '/filing-guide', '/print']
   const isProtected = protectedPaths.some(p => pathname.startsWith(p))
 
   if (isProtected && !user) {

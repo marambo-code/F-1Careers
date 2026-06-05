@@ -28,6 +28,15 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    // Career Moves is a Pro feature — gate the API, not just the UI.
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .in('status', ['active', 'trialing'])
+      .maybeSingle()
+    if (!sub) return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 })
+
     const body = await req.json().catch(() => ({}))
     const forceRefresh = body?.force === true
     const targetPathway = (['NIW', 'EB-1A', 'Both'].includes(body?.targetPathway)

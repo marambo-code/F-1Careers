@@ -38,20 +38,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
     }
 
+    // Only grant access once Stripe confirms the money was actually collected.
+    // (Async/delayed payment methods can complete a session as 'unpaid'.)
+    if (session.payment_status !== 'paid') {
+      console.log(`[stripe/webhook] Session ${session.id} completed but payment_status=${session.payment_status}; not granting.`)
+      return NextResponse.json({ received: true })
+    }
+
     const supabase = createServiceClient()
 
-    // Record payment
-    await supabase.from('payments').insert({
-      user_id,
-      report_id,
-      stripe_session_id: session.id,
-      stripe_payment_intent_id: session.payment_intent as string,
-      amount: session.amount_total ?? 0,
-      status: 'complete',
-      product_type,
-    })
+    // Idempotency: Stripe can retry/duplicate events. Skip if already recorded.
+    const { data: existingPayment } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('stripe_session_id', session.id)
+      .maybeSingle()
 
-    // Mark report as paid, generation happens client-side via /api/*/generate
+    if (!existingPayment) {
+      await supabase.from('payments').insert({
+        user_id,
+        report_id,
+        stripe_session_id: session.id,
+        stripe_payment_intent_id: session.payment_intent as string,
+        amount: session.amount_total ?? 0,
+        status: 'complete',
+        product_type,
+      })
+    }
+
+    // Mark report as paid — scoped to 'pending' so a replayed event can't revert
+    // a report that has since generated ('complete') back to 'paid'.
+    // Generation happens client-side via /api/*/generate.
     await supabase
       .from('reports')
       .update({
@@ -60,6 +77,7 @@ export async function POST(req: Request) {
         amount_paid: session.amount_total ?? 0,
       })
       .eq('id', report_id)
+      .eq('status', 'pending')
 
     console.log(`✓ Payment recorded for report ${report_id}. Status → paid.`)
   }

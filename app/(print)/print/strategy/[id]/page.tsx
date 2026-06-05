@@ -1,5 +1,5 @@
-import { createServiceClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { notFound, redirect } from 'next/navigation'
 import type {
   StrategyReport, StrategyAnswers, ResumeEvidenceItem, ExpertLetter,
   EvidencePlaybookItem, SprintWeek, GapItem, DhanasarProngAnalysis,
@@ -8,12 +8,16 @@ import type {
 
 export default async function StrategyPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const auth = await createClient()
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) redirect('/login')
   const service = createServiceClient()
 
   const { data: report } = await service
     .from('reports')
     .select('*')
     .eq('id', id)
+    .eq('user_id', user.id)
     .eq('type', 'strategy')
     .single()
 
