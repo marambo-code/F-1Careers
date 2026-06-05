@@ -17,6 +17,7 @@ export interface Profile {
   country_of_birth: string | null
   stay_score_snapshot: Record<string, unknown> | null
   roi_snapshot: Record<string, unknown> | null
+  strategy_draft: Record<string, unknown> | null
   created_at: string
   updated_at: string
 }

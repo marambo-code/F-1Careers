@@ -222,11 +222,27 @@ function QuestionnaireInner() {
   const [showSecondEdu, setShowSecondEdu] = useState(false)
   const [secondEdu, setSecondEdu] = useState({ university: '', degree: '', field: '' })
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [draftNotice, setDraftNotice] = useState(false)
   const firstErrorRef = useRef<HTMLDivElement>(null)
 
   const set = (key: string, val: string | number) => {
     setAnswers(a => ({ ...a, [key]: val }))
     setTouched(t => ({ ...t, [key]: true }))
+  }
+
+  // Discard the saved draft and reset to a blank questionnaire.
+  const handleStartOver = () => {
+    setAnswers(defaultAnswers)
+    setStep(0)
+    setVisaExpiration('')
+    setLinkedInUrl('')
+    setJobHistory([])
+    setSecondEdu({ university: '', degree: '', field: '' })
+    setShowSecondEdu(false)
+    setDraftNotice(false)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) supabase.from('profiles').update({ strategy_draft: null }).eq('id', user.id).then(() => {})
+    })
   }
 
   // ── Validation ─────────────────────────────────────────────────
@@ -358,10 +374,43 @@ function QuestionnaireInner() {
             .catch(() => {})
             .finally(() => setResumeUploading(false))
         }
+
+        // Restore an in-progress draft (new report only — if a pending report
+        // existed we already redirected to the preview above). Runs after the
+        // profile prefill so the user's own saved answers take precedence.
+        if (!editReportId && data.strategy_draft) {
+          const d = data.strategy_draft as { answers?: Partial<typeof defaultAnswers>; step?: number; visaExpiration?: string; linkedInUrl?: string; jobHistory?: { role: string; employer: string; duration: string }[]; showSecondEdu?: boolean; secondEdu?: { university: string; degree: string; field: string } }
+          if (d.answers) setAnswers(a => ({ ...a, ...d.answers }))
+          if (typeof d.step === 'number') setStep(d.step)
+          if (d.visaExpiration) setVisaExpiration(d.visaExpiration)
+          if (d.linkedInUrl) setLinkedInUrl(d.linkedInUrl)
+          if (Array.isArray(d.jobHistory)) setJobHistory(d.jobHistory)
+          if (d.secondEdu) { setSecondEdu(d.secondEdu); setShowSecondEdu(!!d.showSecondEdu) }
+          setDraftNotice(true)
+        }
       }
       setLoading(false)
     })
   }, [editReportId])
+
+  // Autosave the in-progress questionnaire so a user can leave and resume later.
+  // New reports only; debounced 1.5s; skips the initial empty/prefill state.
+  useEffect(() => {
+    if (editReportId || loading) return
+    const meaningful = step > 0 || !!answers.field_of_work || !!answers.subfield.trim() ||
+      !!answers.work_description.trim() || !!answers.proposed_endeavor.trim()
+    if (!meaningful) return
+    const t = setTimeout(() => {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) return
+        supabase.from('profiles').update({
+          strategy_draft: { answers, step, visaExpiration, linkedInUrl, jobHistory, showSecondEdu, secondEdu, savedAt: new Date().toISOString() },
+        }).eq('id', user.id).then(() => {})
+      })
+    }, 1500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, step, visaExpiration, linkedInUrl, jobHistory, showSecondEdu, secondEdu])
 
   // ── Submit ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
@@ -468,6 +517,8 @@ function QuestionnaireInner() {
       })
 
       if (res.ok) {
+        // Clear the saved draft — it's now a submitted report.
+        supabase.from('profiles').update({ strategy_draft: null }).eq('id', user.id).then(() => {})
         router.push(`/strategy/preview?reportId=${reportId}`)
       } else {
         const body = await res.json().catch(() => ({}))
@@ -512,6 +563,13 @@ function QuestionnaireInner() {
           <Link href={`/strategy/preview?reportId=${editReportId}`} className="text-xs text-teal font-semibold hover:underline flex-shrink-0 ml-4">
             Back to preview →
           </Link>
+        </div>
+      )}
+
+      {draftNotice && (
+        <div className="rounded-xl bg-teal/8 border border-teal/20 p-3 flex items-start justify-between gap-3">
+          <p className="text-sm text-navy"><span className="font-semibold">Welcome back —</span> we saved your progress and restored your answers.</p>
+          <button type="button" onClick={handleStartOver} className="text-xs text-mid hover:text-red-600 underline flex-shrink-0 mt-0.5">Start over</button>
         </div>
       )}
 
