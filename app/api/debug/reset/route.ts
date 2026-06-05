@@ -4,6 +4,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 // Resets stuck/corrupt reports so the report page auto-regenerates on next visit
 // POST with { reportId }, or GET with ?reportId=xxx for convenience
 export async function POST(req: Request) {
+  if (process.env.NODE_ENV === 'production') return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  if (process.env.NODE_ENV === 'production') return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const { searchParams } = new URL(req.url)
   const reportId = searchParams.get('reportId')
   if (!reportId) return NextResponse.json({ error: 'Missing reportId' }, { status: 400 })

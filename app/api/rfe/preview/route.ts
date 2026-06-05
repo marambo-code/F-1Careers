@@ -8,23 +8,25 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { reportId, storagePath, petitionType, rfeField, additionalContext } = await req.json()
+    const { reportId, petitionType, rfeField, additionalContext } = await req.json()
 
-    // Verify ownership
+    // Verify ownership and use the document path stored on the OWNED report —
+    // never a client-supplied path (which could point at another user's file).
     const { data: report } = await supabase
       .from('reports')
-      .select('id, user_id')
+      .select('id, user_id, rfe_document_path')
       .eq('id', reportId)
       .eq('user_id', user.id)
       .single()
 
     if (!report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (!report.rfe_document_path) return NextResponse.json({ error: 'No RFE document on file' }, { status: 400 })
 
     // Download PDF from Supabase Storage
     const service = createServiceClient()
     const { data: fileData, error: downloadError } = await service.storage
       .from('rfe-documents')
-      .download(storagePath)
+      .download(report.rfe_document_path)
 
     if (downloadError || !fileData) {
       return NextResponse.json({ error: 'Failed to download document' }, { status: 500 })
