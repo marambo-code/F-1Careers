@@ -1,5 +1,6 @@
 import Nav from '@/components/ui/Nav'
 import Link from 'next/link'
+import SocialLinks from '@/components/SocialLinks'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-mid">© {new Date().getFullYear()} F-1 Careers. Not legal advice.</p>
           <div className="flex items-center gap-4">
+            <SocialLinks iconClassName="w-4 h-4" className="gap-3 mr-1" />
             <Link href="/privacy" className="text-xs text-mid hover:text-navy transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="text-xs text-mid hover:text-navy transition-colors">Terms of Service</Link>
             <a href="mailto:support@f-1careers.com" className="text-xs text-mid hover:text-navy transition-colors">Support</a>

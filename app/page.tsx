@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import JourneyRoadmap from '@/components/home/JourneyRoadmap'
+import SocialLinks from '@/components/SocialLinks'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -454,8 +455,9 @@ export default async function Home() {
       {/* ── Footer ───────────────────────────────────────────────────── */}
       <footer className="border-t border-border py-7 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center sm:items-start gap-3">
             <span className="font-extrabold text-navy text-[15px]">F-1 Careers</span>
+            <SocialLinks />
           </div>
           <p className="text-[11px] text-slate-400 max-w-sm text-center leading-relaxed">
             This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
