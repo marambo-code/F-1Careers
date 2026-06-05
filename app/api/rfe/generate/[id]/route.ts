@@ -33,6 +33,12 @@ export async function POST(
     return NextResponse.json({ status: 'complete' })
   }
 
+  // Payment gate: the full analysis is generated only after purchase. An unpaid
+  // report stays 'pending'; the Stripe webhook moves it to 'paid' before this runs.
+  if (report.status === 'pending') {
+    return NextResponse.json({ error: 'Payment required for the full analysis.' }, { status: 402 })
+  }
+
   const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
 
   if (report.status === 'generating') {

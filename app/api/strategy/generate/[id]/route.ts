@@ -37,6 +37,13 @@ export async function POST(
     return NextResponse.json({ status: 'complete' })
   }
 
+  // Payment gate: the full report is generated only after purchase. The free
+  // preview lives in preview_data; an unpaid report stays 'pending'. A paid
+  // report is moved to 'paid' by the Stripe webhook before this is ever called.
+  if (report.status === 'pending') {
+    return NextResponse.json({ error: 'Payment required for the full report.' }, { status: 402 })
+  }
+
   const ageMs = Date.now() - new Date(report.updated_at as string).getTime()
 
   // Generating, only block retry if started < 5 minutes ago (parallel calls finish in ~45s)
