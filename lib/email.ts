@@ -1,39 +1,40 @@
-// Email notifications via Google Workspace SMTP (nodemailer).
-// Auth uses an App Password for the Workspace mailbox (requires 2-Step
-// Verification on that account). Set these in .env.local + Vercel env vars:
-//   SMTP_USER  e.g. support@f-1careers.com
-//   SMTP_PASS  the 16-char Google App Password (no spaces)
-//   FROM_EMAIL e.g. "F-1 Careers <support@f-1careers.com>" (must match/alias SMTP_USER)
-import nodemailer from 'nodemailer'
+// Email notifications via Postmark (account approved).
+// The f-1careers.com domain is verified in Postmark (DKIM + Return-Path), so we can
+// send from any address on it. Set in Vercel env vars:
+//   POSTMARK_SERVER_TOKEN  the Server API token
+//   FROM_EMAIL             e.g. "F-1 Careers <support@f-1careers.com>"
 
-const SMTP_USER = process.env.SMTP_USER
-const SMTP_PASS = process.env.SMTP_PASS
+const POSTMARK_SERVER_TOKEN = process.env.POSTMARK_SERVER_TOKEN
 const FROM_EMAIL = process.env.FROM_EMAIL ?? 'F-1 Careers <support@f-1careers.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.f-1careers.com'
 
-// Reuse a single transporter across invocations. Gmail/Workspace SMTP over
-// implicit TLS (port 465). App Passwords strip any spaces.
-const transporter =
-  SMTP_USER && SMTP_PASS
-    ? nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: { user: SMTP_USER, pass: SMTP_PASS.replace(/\s+/g, '') },
-      })
-    : null
-
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!transporter) {
-    console.log('[email] SMTP_USER/SMTP_PASS not set, skipping email to', to)
+  if (!POSTMARK_SERVER_TOKEN) {
+    console.log('[email] POSTMARK_SERVER_TOKEN not set, skipping email to', to)
     return
   }
 
-  try {
-    await transporter.sendMail({ from: FROM_EMAIL, to, subject, html })
-    console.log('[email] Sent to', to, '—', subject)
-  } catch (err) {
-    console.error('[email] SMTP error:', err)
+  const res = await fetch('https://api.postmarkapp.com/email', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Postmark-Server-Token': POSTMARK_SERVER_TOKEN,
+    },
+    body: JSON.stringify({
+      From: FROM_EMAIL,
+      To: to,
+      Subject: subject,
+      HtmlBody: html,
+      MessageStream: 'outbound',
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    console.error('[email] Postmark error:', res.status, err)
+  } else {
+    console.log('[email] Sent to', to, '-', subject)
   }
 }
 
