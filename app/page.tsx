@@ -122,23 +122,23 @@ export default async function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                heading: 'Adjustment of status is discretionary',
-                body: 'USCIS PM-602-0199 (May 21, 2026) reaffirms adjustment of status as a discretionary benefit, not an entitlement — officers weigh the positive and negative factors in each case.',
-                accent: 'border-l-red-400',
-              },
-              {
-                heading: 'Stronger evidence matters more',
-                body: 'Officers weigh the totality of circumstances and are expected to issue more RFEs and Notices of Intent to Deny. A well-documented petition — like an approved NIW I-140 — is your strongest position.',
-                accent: 'border-l-orange-400',
-              },
-              {
-                heading: 'Duration of Status may end',
-                body: 'DHS has submitted a final rule (under OMB review) that would replace open-ended D/S with a 4-year admission cap for F-1 students and shorten the grace period to 30 days. Could take effect as early as September 2026.',
+                heading: 'Your time on F-1 may be capped',
+                body: 'DHS has submitted a final rule (under OMB review) that would replace open-ended Duration of Status with a fixed 4-year admission period for F-1 students and shorten the grace period to 30 days. It could take effect as early as September 2026.',
                 accent: 'border-l-yellow-400',
               },
               {
-                heading: 'Travel bans and consular delays',
-                body: 'Travel bans and immigrant-visa processing pauses affect nationals of many countries, making adjustment of status inside the US a critical path.',
+                heading: 'Leaving the US is riskier than it was',
+                body: 'Travel bans and immigrant-visa processing pauses now affect nationals of many countries — which makes adjusting status from inside the US a safer path than consular processing abroad.',
+                accent: 'border-l-orange-400',
+              },
+              {
+                heading: 'A green card is never automatic',
+                body: 'USCIS reaffirms (PM-602-0199, May 21, 2026) that adjustment of status is a discretionary decision, not an entitlement — an officer weighs the positive and negative factors of each case individually. Approval is earned, not guaranteed.',
+                accent: 'border-l-red-400',
+              },
+              {
+                heading: 'Strong evidence is what wins',
+                body: 'With officers weighing the totality of circumstances and issuing more RFEs and Notices of Intent to Deny, a well-documented petition — like an approved NIW I-140 — is your strongest position.',
                 accent: 'border-l-teal',
               },
             ].map((item, i) => (
@@ -460,7 +460,7 @@ export default async function Home() {
             <SocialLinks />
           </div>
           <p className="text-[11px] text-slate-400 max-w-sm text-center leading-relaxed">
-            This tool provides green card strategy analysis only and does not constitute legal advice. Consult a licensed immigration attorney before filing.
+            F-1 Careers provides career and visa strategy, petition-preparation tools, and educational guidance — not legal advice. Consult a licensed immigration attorney before filing.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>
