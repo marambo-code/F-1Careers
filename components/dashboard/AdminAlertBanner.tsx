@@ -1,4 +1,4 @@
-// Server component — reads active admin alerts from Supabase
+// Server component, reads active admin alerts from Supabase
 import { createClient } from '@/lib/supabase/server'
 
 interface AdminAlert {
@@ -20,7 +20,7 @@ export default async function AdminAlertBanner() {
 
     if (!alerts || alerts.length === 0) return null
 
-    // Deduplicate by title — prevents duplicate DB rows from showing multiple times
+    // Deduplicate by title, prevents duplicate DB rows from showing multiple times
     const seen = new Set<string>()
     const unique = (alerts as AdminAlert[]).filter(a => {
       if (seen.has(a.title)) return false

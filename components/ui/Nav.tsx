@@ -153,7 +153,7 @@ export default function Nav() {
             )}
           </div>
 
-          {/* User name + sign out — desktop */}
+          {/* User name + sign out, desktop */}
           <div className="hidden md:flex items-center gap-3">
             {firstName && (
               <span className="text-blue-200 text-sm">Hello, <span className="text-white font-semibold">{firstName}</span></span>

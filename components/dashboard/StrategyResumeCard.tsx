@@ -65,7 +65,7 @@ export default function StrategyResumeCard({
           <h2 className="text-lg font-bold text-navy">Pick up where you left off</h2>
           <p className="text-sm text-mid mt-1.5 leading-relaxed max-w-xl">
             You started your green card score questionnaire. Continue from step {currentStep} of {totalSteps}
-            {saved ? ` — last saved ${saved}.` : '.'} Your answers are saved.
+            {saved ? `, last saved ${saved}.` : '.'} Your answers are saved.
           </p>
 
           {/* Progress bar */}

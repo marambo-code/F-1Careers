@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyReport } from '@/lib/ai/strategy-engine'
+import { stripDashesDeep } from '@/lib/sanitize'
 
 export async function POST(req: Request) {
   try {
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
 
     // Generate the full report
     try {
-      const reportData = await generateStrategyReport(report.questionnaire_responses)
+      const reportData = stripDashesDeep(await generateStrategyReport(report.questionnaire_responses))
 
       await service
         .from('reports')

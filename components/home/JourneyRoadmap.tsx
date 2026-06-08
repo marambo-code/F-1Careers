@@ -27,7 +27,7 @@ const employerSteps = [
 const selfSteps = [
   {
     label: 'Build your evidence',
-    note: 'Publications, citations, press, judging, awards — criteria you already meet.',
+    note: 'Publications, citations, press, judging, awards, criteria you already meet.',
   },
   {
     label: 'File your I-140',
@@ -57,7 +57,7 @@ export default function JourneyRoadmap() {
             <span className="text-teal">One of them is yours to control.</span>
           </h2>
           <p className="text-base text-slate-500 max-w-md mx-auto leading-relaxed">
-            Most international professionals end up on the employer path by default — not by choice. Here&apos;s the difference.
+            Most international professionals end up on the employer path by default, not by choice. Here&apos;s the difference.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function JourneyRoadmap() {
             </div>
 
             <p className="text-[11px] text-slate-600 italic mt-7 pt-5 border-t border-white/[0.06] leading-relaxed">
-              Your career, your income, your entire US future — contingent on one employer staying committed.
+              Your career, your income, your entire US future, contingent on one employer staying committed.
             </p>
           </div>
 
@@ -153,7 +153,7 @@ export default function JourneyRoadmap() {
                 F-1 Careers was built for this path
               </p>
               <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                We assess your profile against every EB-1A and NIW criterion — and show you exactly where you stand, criterion by criterion.
+                We assess your profile against every EB-1A and NIW criterion, and show you exactly where you stand, criterion by criterion.
               </p>
               <Link
                 href="/signup"

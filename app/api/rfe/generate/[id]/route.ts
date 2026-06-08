@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEReport } from '@/lib/ai/rfe-analyzer'
+import { stripDashesDeep } from '@/lib/sanitize'
 import { sendRFEReportReady } from '@/lib/email'
 import type { RFEAnswers } from '@/lib/types'
 
@@ -92,11 +93,11 @@ export async function POST(
     }
 
     const qr = report.questionnaire_responses as RFEAnswers | null
-    const reportData = await generateRFEReport(rfeText!, {
+    const reportData = stripDashesDeep(await generateRFEReport(rfeText!, {
       petitionType: qr?.petition_type,
       rfeField: qr?.rfe_field,
       additionalContext: qr?.additional_context,
-    })
+    }))
 
     const { error: saveErr } = await service
       .from('reports')

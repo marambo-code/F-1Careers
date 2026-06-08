@@ -255,7 +255,7 @@ function NarrativeTrack({
           : (data.message ?? data.detail ?? data.error ?? 'Analysis failed')
         throw new Error(msg)
       }
-      // Normalise — tool_use may omit empty arrays
+      // Normalise, tool_use may omit empty arrays
       const validSeverities = ['critical', 'moderate', 'minor']
       setFeedback({
         overall: data.overall ?? '',
@@ -621,7 +621,7 @@ function LettersTrack({
         {totalCount > 0 && (
           <div className="flex gap-3 pt-1">
             <div className={`text-xs font-medium px-2.5 py-1 rounded-full border ${independentCount >= 2 ? 'bg-teal/8 text-teal border-teal/20' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
-              {independentCount} independent {independentCount === 1 ? 'expert' : 'experts'} {independentCount >= 2 ? '✓' : `— need ${2 - independentCount} more`}
+              {independentCount} independent {independentCount === 1 ? 'expert' : 'experts'} {independentCount >= 2 ? '✓' : `(need ${2 - independentCount} more)`}
             </div>
             <div className="text-xs text-mid px-2.5 py-1">{totalCount} total {totalCount === 1 ? 'letter' : 'letters'}</div>
           </div>
@@ -1293,7 +1293,7 @@ export default function PetitionBuilderClient() {
           </button>
         ))}
         <span className="text-xs text-mid ml-1">
-          {pathway === 'NIW' ? '— National Interest Waiver (Dhanasar)' : '— Extraordinary Ability (8 CFR §204.5(h))'}
+          {pathway === 'NIW' ? 'National Interest Waiver (Dhanasar)' : 'Extraordinary Ability (8 CFR §204.5(h))'}
         </span>
       </div>
 

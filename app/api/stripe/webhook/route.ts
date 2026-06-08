@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // Mark report as paid — scoped to 'pending' so a replayed event can't revert
+    // Mark report as paid, scoped to 'pending' so a replayed event can't revert
     // a report that has since generated ('complete') back to 'paid'.
     // Generation happens client-side via /api/*/generate.
     await supabase

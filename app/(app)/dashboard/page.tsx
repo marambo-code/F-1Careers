@@ -103,7 +103,7 @@ export default async function DashboardPage() {
   const isPro = subscription?.status === 'active' || subscription?.status === 'trialing'
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
-  // Strategy data — distinguish between paid/complete and pending (preview only, unpaid)
+  // Strategy data, distinguish between paid/complete and pending (preview only, unpaid)
   const latestCompleteStrategyReport = reports.find(r => r.type === 'strategy' && r.status === 'complete')
   const latestPendingPreviewReport = reports.find(r => r.type === 'strategy' && r.status === 'pending' && r.preview_data)
   // For score display, use whatever is available (complete > pending)
@@ -140,7 +140,7 @@ export default async function DashboardPage() {
   // Country alerts
   const countryOfBirth = (profile as Record<string, unknown> | null)?.country_of_birth as string | undefined
 
-  // Journey stage — only a complete (paid + generated) report advances beyond Stage 1
+  // Journey stage, only a complete (paid + generated) report advances beyond Stage 1
   const stage = getUserStage({
     hasStrategyReport: !!latestCompleteStrategyReport,
     hasCareerMoves: !!careerMoves,
@@ -153,15 +153,15 @@ export default async function DashboardPage() {
   // Stage 1 CTA adapts based on whether there's a pending (unpaid) preview
   const stage1Config = latestPendingPreviewReport
     ? {
-        title: `Your score is ready${latestPreview?.niw_score !== undefined ? ` — NIW ${latestPreview.niw_score}/100` : ''}`,
+        title: `Your score is ready${latestPreview?.niw_score !== undefined ? `: NIW ${latestPreview.niw_score}/100` : ''}`,
         description: `${latestPreview?.top_pathway ?? 'EB-2 NIW'} is your strongest pathway. Unlock the full report to get your criterion-by-criterion breakdown, evidence map, and 12-month roadmap.`,
         href: `/strategy/preview?reportId=${latestPendingPreviewReport.id}`,
         cta: 'View preview & unlock full report →',
         color: 'border-teal bg-teal/4',
       }
     : {
-        title: 'See your green card score — free',
-        description: "Answer questions about your background and we'll calculate your NIW and EB-1A scores, show you your strongest pathway, and identify exactly what you need to build. Preview is free — pay only if you want the full report.",
+        title: 'See your green card score, free',
+        description: "Answer questions about your background and we'll calculate your NIW and EB-1A scores, show you your strongest pathway, and identify exactly what you need to build. Preview is free, pay only if you want the full report.",
         href: '/strategy/questionnaire',
         cta: 'Start free preview →',
         color: 'border-teal bg-teal/4',
@@ -438,7 +438,7 @@ export default async function DashboardPage() {
                 <div>
                   <p className="text-sm font-bold text-navy">New here? Start with the strategy report</p>
                   <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
-                    Your Green Card Score and career moves are anchored to your strategy report. See what it includes — the preview is free, pay only if you want the full report.
+                    Your Green Card Score and career moves are anchored to your strategy report. See what it includes, the preview is free, pay only if you want the full report.
                   </p>
                   <Link href="/strategy" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
                     See how the report works →

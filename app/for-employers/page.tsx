@@ -100,7 +100,7 @@ export default function ForEmployersPage() {
               {[
                 { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and self-petition eligibility, and flag who is most exposed under the current policy environment.' },
                 { n: '2', title: 'EB-1A and NIW eligibility scoring', desc: 'Each employee receives a personalized eligibility score across both EB-1A Extraordinary Ability and EB-2 NIW, based on their field, education, publications, leadership, and salary. We identify exactly who has a strong self-petition case.' },
-                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete petition framework — national importance argument, evidence map, Dhanasar analysis for NIW or EB-1A criteria mapping — ready for attorney review.' },
+                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete petition framework, national importance argument, evidence map, Dhanasar analysis for NIW or EB-1A criteria mapping, ready for attorney review.' },
                 { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
                 { n: '5', title: 'OPT compliance audit', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
               ].map((step) => (

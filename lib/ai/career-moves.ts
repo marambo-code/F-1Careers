@@ -13,6 +13,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { stripDashesDeep } from '@/lib/sanitize'
 import type { StrategyAnswers } from '@/lib/types'
 import type { GreenCardScore } from '@/lib/scoring'
 
@@ -390,7 +391,7 @@ Generate exactly 4 career moves as a coherent 90-day campaign for the ${pathway}
     .sort((a, b) => (a.priority ?? 9) - (b.priority ?? 9))
 
   return {
-    moves: sorted,
+    moves: stripDashesDeep(sorted),
     generated_at: new Date().toISOString(),
     target_pathway: pathway,
   }

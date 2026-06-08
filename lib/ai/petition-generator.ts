@@ -10,6 +10,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { cleanDashes } from '@/lib/sanitize'
 import type { EvidenceItem, Pathway } from '@/lib/data/petition-evidence'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -229,11 +230,11 @@ export async function generatePetitionPackage(
   ])
 
   const personal_statement = statementResponse.content[0].type === 'text'
-    ? statementResponse.content[0].text
+    ? cleanDashes(statementResponse.content[0].text)
     : ''
 
   const cover_letter = coverResponse.content[0].type === 'text'
-    ? coverResponse.content[0].text
+    ? cleanDashes(coverResponse.content[0].text)
     : ''
 
   const word_count = (personal_statement + ' ' + cover_letter).split(/\s+/).length

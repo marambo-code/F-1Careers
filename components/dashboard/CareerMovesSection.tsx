@@ -79,7 +79,7 @@ function MoveCard({ move, locked }: { move: CareerMove; locked?: boolean }) {
 
 // ── Main component ────────────────────────────────────────────────
 // This is a READ-ONLY preview of existing career moves.
-// Generation always happens on the /career-moves page — never here.
+// Generation always happens on the /career-moves page, never here.
 
 interface CareerMovesSectionProps {
   initialMoves: CareerMove[] | null
@@ -90,7 +90,7 @@ interface CareerMovesSectionProps {
 export default function CareerMovesSection({ initialMoves, isPro, hasStrategyReport }: CareerMovesSectionProps) {
   const [isProState, setIsProState] = useState(isPro)
 
-  // Re-check Pro status — only upgrade, never downgrade
+  // Re-check Pro status, only upgrade, never downgrade
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -115,7 +115,7 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
           <div>
             <p className="font-semibold text-navy text-sm">Run a strategy report to unlock your moves</p>
             <p className="text-sm text-mid mt-1 leading-relaxed">
-              Your career moves are generated from your actual profile, criteria gaps, and field — not generic advice.
+              Your career moves are generated from your actual profile, criteria gaps, and field, not generic advice.
             </p>
             <Link href="/strategy" className="text-xs text-teal font-semibold hover:underline mt-2 inline-block">
               Run strategy report →
@@ -143,14 +143,14 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
             See exactly what to do this week, this month, and next quarter.
           </p>
           <Link href="/subscribe" className="inline-block mt-4 bg-teal text-white font-bold py-2.5 px-6 rounded-xl hover:bg-teal/90 transition-colors text-sm">
-            Go Pro — $49/month
+            Go Pro, $49/month
           </Link>
         </div>
       </div>
     )
   }
 
-  // ── Pro: no moves cached on dashboard — just link to the page ────
+  // ── Pro: no moves cached on dashboard, just link to the page ────
   if (!initialMoves || initialMoves.length === 0) {
     return (
       <Link
@@ -192,7 +192,7 @@ export default function CareerMovesSection({ initialMoves, isPro, hasStrategyRep
           className="card border border-dashed flex items-center justify-between py-3 hover:border-teal/40 hover:bg-teal/[0.02] transition-all group"
         >
           <p className="text-sm text-mid group-hover:text-navy transition-colors">
-            +{remaining} more move{remaining > 1 ? 's' : ''} — click to manage
+            +{remaining} more move{remaining > 1 ? 's' : ''}, click to manage
           </p>
           <svg className="w-4 h-4 text-mid group-hover:text-teal transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>

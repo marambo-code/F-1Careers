@@ -260,7 +260,7 @@ function ProfileContent() {
           <div>
             <p className="font-bold text-navy">Welcome to F-1 Careers!</p>
             <p className="text-sm text-mid mt-1 leading-relaxed">
-              Fill out your profile — we use it to personalize your career strategy, your reports, and your overall experience.
+              Fill out your profile, we use it to personalize your career strategy, your reports, and your overall experience.
             </p>
             <p className="text-xs text-mid mt-2">
               Already set up?{' '}
@@ -505,7 +505,7 @@ function ProfileContent() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {isWelcome ? 'Saved — let’s build your strategy…' : 'Changes saved'}
+              {isWelcome ? 'Saved, let’s build your strategy…' : 'Changes saved'}
             </div>
           )}
           {saveError && (

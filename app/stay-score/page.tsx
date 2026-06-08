@@ -229,22 +229,22 @@ function computeExposure(inputs: Inputs) {
   // An approved I-140 is a strong positive factor in PM-602-0199's discretionary analysis
   const i140Points = inputs.i140Approved === 'yes' ? -18 : 0
   const i140Note = inputs.i140Approved === 'yes'
-    ? 'An approved I-140 is the single strongest evidence of national interest you can hold. In the discretionary, totality-of-circumstances review described in PM-602-0199, it is a strong positive factor — documented USCIS recognition that your work serves the national interest.'
-    : 'No approved I-140 on record. Filing NIW with premium processing is the highest-leverage move available to you — an approved I-140 is among the strongest favorable evidence you can present in discretionary review.'
+    ? 'An approved I-140 is the single strongest evidence of national interest you can hold. In the discretionary, totality-of-circumstances review described in PM-602-0199, it is a strong positive factor, documented USCIS recognition that your work serves the national interest.'
+    : 'No approved I-140 on record. Filing NIW with premium processing is the highest-leverage move available to you, an approved I-140 is among the strongest favorable evidence you can present in discretionary review.'
 
-  // 7. Prior Immigration Violations — a recognized adverse factor in the discretionary analysis (+15 pts)
+  // 7. Prior Immigration Violations, a recognized adverse factor in the discretionary analysis (+15 pts)
   const violationsPoints = inputs.priorViolations === 'yes' ? 15 : 0
   const violationsNote = inputs.priorViolations === 'yes'
     ? 'Prior violations (overstay, unauthorized employment, status breach) are a significant adverse factor in the totality-of-circumstances discretionary analysis described in PM-602-0199. This is your most urgent issue to address with immigration counsel.'
     : 'No prior violations, a significant positive factor. USCIS officers are directed to weigh consistent status compliance favorably in discretionary review.'
 
-  // 8. US Citizen or LPR Immediate Family — a recognized positive equitable factor (-8 pts)
+  // 8. US Citizen or LPR Immediate Family, a recognized positive equitable factor (-8 pts)
   const usFamilyPoints = inputs.usFamily === 'yes' ? -8 : 0
   const usFamilyNote = inputs.usFamily === 'yes'
     ? 'US citizen or LPR immediate family ties are a recognized positive equitable factor that officers weigh in the totality-of-circumstances analysis. They meaningfully strengthen your discretionary position.'
     : 'No immediate US citizen or LPR family ties. While not required, family ties are a recognized positive factor in the discretionary analysis, so other equities (career impact, community) become more important to document.'
 
-  // 9. Social Media Risk — relevant to discretionary conduct review (+10 pts)
+  // 9. Social Media Risk, relevant to discretionary conduct review (+10 pts)
   // Immigration attorneys now explicitly advise clients to review public social media before filing
   const socialMediaPoints = inputs.socialMediaRisk === 'yes' ? 10 : 0
   const socialMediaNote = inputs.socialMediaRisk === 'yes'

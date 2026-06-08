@@ -128,7 +128,8 @@ RULES:
 4. BE CONCISE, keep every string field under 120 characters. Do not pad or repeat
 5. Use the TODAY date for all deadline calculations
 6. SECOND PERSON THROUGHOUT: Write all assessment and narrative fields in second person, "You are", "Your profile", "You have", "You're at the 45th percentile". Never use the candidate's name or write "the petitioner" or "they" in user-facing fields. The person reading this report is the subject.
-   Exception: draft_petition_paragraph and draft_proposed_endeavor fields must remain in third person ("the Petitioner") as they are legal documents for USCIS submission.`
+   Exception: draft_petition_paragraph and draft_proposed_endeavor fields must remain in third person ("the Petitioner") as they are legal documents for USCIS submission.
+7. PUNCTUATION: Never use em-dashes (—) or en-dashes (–) anywhere in your output. Use commas, periods, colons, or parentheses instead. Em-dashes read as AI-generated and undermine credibility.`
 
 // ─── Candidate context block (shared across all calls) ────────────────────────
 

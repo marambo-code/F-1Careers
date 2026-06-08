@@ -159,7 +159,7 @@ export default function SubscribeClient() {
           },
           {
             q: 'What are career moves?',
-            a: 'Personalized, bespoke actions targeted to your specific profile and goals — tied to weak EB-1A criteria or NIW prongs you need to strengthen. For example: "Submit a peer review for a Nature Methods manuscript."',
+            a: 'Personalized, bespoke actions targeted to your specific profile and goals, tied to weak EB-1A criteria or NIW prongs you need to strengthen. For example: "Submit a peer review for a Nature Methods manuscript."',
           },
           {
             q: 'Can I cancel?',

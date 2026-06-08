@@ -30,7 +30,7 @@ export default function PayButton({ reportId, productType, className }: PayButto
 
   return (
     <button onClick={handlePay} disabled={loading} className={className}>
-      {loading ? 'Redirecting to payment...' : `Unlock full report — ${PRICES[productType]}`}
+      {loading ? 'Redirecting to payment...' : `Unlock full report, ${PRICES[productType]}`}
     </button>
   )
 }

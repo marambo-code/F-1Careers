@@ -15,7 +15,7 @@ export default async function Home() {
       {/* ── Policy Alert Banner ──────────────────────────────────────── */}
       <div className="bg-rose-800 text-white text-center px-4 py-2.5">
         <p className="text-xs sm:text-sm font-semibold leading-snug">
-          USCIS PM-602-0199 (May 21, 2026) reaffirms adjustment of status as discretionary relief — not a guaranteed right — and DHS has moved to end Duration of Status for F-1.{' '}
+          USCIS PM-602-0199 (May 21, 2026) reaffirms adjustment of status as discretionary relief, not a guaranteed right, and DHS has moved to end Duration of Status for F-1.{' '}
           <Link href="/stay-score" className="underline font-bold hover:text-rose-100">Check your Risk Score →</Link>
         </p>
       </div>
@@ -128,17 +128,17 @@ export default async function Home() {
               },
               {
                 heading: 'Leaving the US is riskier than it was',
-                body: 'Travel bans and immigrant-visa processing pauses now affect nationals of many countries — which makes adjusting status from inside the US a safer path than consular processing abroad.',
+                body: 'Travel bans and immigrant-visa processing pauses now affect nationals of many countries, which makes adjusting status from inside the US a safer path than consular processing abroad.',
                 accent: 'border-l-orange-400',
               },
               {
                 heading: 'A green card is never automatic',
-                body: 'USCIS reaffirms (PM-602-0199, May 21, 2026) that adjustment of status is a discretionary decision, not an entitlement — an officer weighs the positive and negative factors of each case individually. Approval is earned, not guaranteed.',
+                body: 'USCIS reaffirms (PM-602-0199, May 21, 2026) that adjustment of status is a discretionary decision, not an entitlement. An officer weighs the positive and negative factors of each case individually. Approval is earned, not guaranteed.',
                 accent: 'border-l-red-400',
               },
               {
                 heading: 'Strong evidence is what wins',
-                body: 'With officers weighing the totality of circumstances and issuing more RFEs and Notices of Intent to Deny, a well-documented petition — like an approved NIW I-140 — is your strongest position.',
+                body: 'With officers weighing the totality of circumstances and issuing more RFEs and Notices of Intent to Deny, a well-documented petition, like an approved NIW I-140, is your strongest position.',
                 accent: 'border-l-teal',
               },
             ].map((item, i) => (
@@ -386,7 +386,7 @@ export default async function Home() {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { who: 'F-1 OPT / STEM OPT', desc: 'Running out of time. Need a clear next step before your work authorization expires.' },
-            { who: 'H-1B holders', desc: "PM-602-0199 makes Adjustment of Status discretionary. A strong, well-documented petition — ideally an approved I-140 — is your best protection." },
+            { who: 'H-1B holders', desc: "PM-602-0199 makes Adjustment of Status discretionary. A strong, well-documented petition, ideally an approved I-140, is your best protection." },
             { who: 'EB-1A / NIW filers', desc: 'Unsure if your evidence is strong enough or which pathway gives you the best shot.' },
             { who: 'RFE recipients', desc: 'Just received a Request for Evidence and need a response strategy fast.' },
             { who: 'Researchers and PhDs', desc: "Have publications and citations but don't know how USCIS actually values them." },
@@ -460,7 +460,7 @@ export default async function Home() {
             <SocialLinks />
           </div>
           <p className="text-[11px] text-slate-400 max-w-sm text-center leading-relaxed">
-            F-1 Careers provides career and visa strategy, petition-preparation tools, and educational guidance — not legal advice. Consult a licensed immigration attorney before filing.
+            F-1 Careers provides career and visa strategy, petition-preparation tools, and educational guidance, not legal advice. Consult a licensed immigration attorney before filing.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>

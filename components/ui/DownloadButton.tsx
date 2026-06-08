@@ -8,7 +8,7 @@ interface DownloadButtonProps {
 
 export default function DownloadButton({ reportId, reportType, className = '' }: DownloadButtonProps) {
   const handleDownload = () => {
-    // Opens clean print page in new tab — browser print dialog lets them save as PDF
+    // Opens clean print page in new tab, browser print dialog lets them save as PDF
     const url = `/print/${reportType}/${reportId}`
     window.open(url, '_blank')
   }

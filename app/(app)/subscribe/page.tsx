@@ -41,7 +41,7 @@ export default async function SubscribePage() {
             <div>
               <p className="font-bold text-navy">Your Pro membership is powered by your strategy report</p>
               <p className="text-sm text-mid mt-1.5 leading-relaxed">
-                Pro keeps your Green Card Score current and unlocks career moves tailored to your profile. But your score and moves are anchored to your strategy report — that&apos;s where we assess your profile, score your EB-1A and NIW eligibility, and map exactly what you need to strengthen.
+                Pro keeps your Green Card Score current and unlocks career moves tailored to your profile. But your score and moves are anchored to your strategy report, that&apos;s where we assess your profile, score your EB-1A and NIW eligibility, and map exactly what you need to strengthen.
               </p>
               <p className="text-sm text-mid mt-2 leading-relaxed">
                 Run your report first. Once you have your score, Pro gives you the tools to move it.

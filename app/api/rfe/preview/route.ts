@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEPreview } from '@/lib/ai/rfe-analyzer'
+import { stripDashesDeep } from '@/lib/sanitize'
 
 export async function POST(req: Request) {
   try {
@@ -10,8 +11,7 @@ export async function POST(req: Request) {
 
     const { reportId, petitionType, rfeField, additionalContext } = await req.json()
 
-    // Verify ownership and use the document path stored on the OWNED report —
-    // never a client-supplied path (which could point at another user's file).
+    // Verify ownership and use the document path stored on the OWNED report, // never a client-supplied path (which could point at another user's file).
     const { data: report } = await supabase
       .from('reports')
       .select('id, user_id, rfe_document_path')
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     // Generate preview via AI, pass petition type and field for accurate analysis
-    const preview = await generateRFEPreview(rfeText, { petitionType, rfeField, additionalContext })
+    const preview = stripDashesDeep(await generateRFEPreview(rfeText, { petitionType, rfeField, additionalContext }))
 
     // Save to report
     await service

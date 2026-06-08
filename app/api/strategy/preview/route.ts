@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyPreview, computeNIWScore, computeEB1AScore } from '@/lib/ai/strategy-engine'
+import { stripDashesDeep } from '@/lib/sanitize'
 
 // NIW benchmark text based on score
 function niwBenchmark(score: number, field: string): string {
@@ -10,10 +11,10 @@ function niwBenchmark(score: number, field: string): string {
     'your field'
 
   if (score >= 80) return `Top 10% of NIW filers in ${fieldLabel}. Exceptionally strong case.`
-  if (score >= 65) return `Above average for ${fieldLabel}. Typical successful NIW filers score 65–75.`
-  if (score >= 50) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're close, targeted gap-filling will get you there.`
-  if (score >= 35) return `Typical successful NIW filers in ${fieldLabel} score 65–75. You're at the 35th percentile, gaps need addressing before filing.`
-  return `Typical successful NIW filers in ${fieldLabel} score 65–75. Significant development needed before a viable petition.`
+  if (score >= 65) return `Above average for ${fieldLabel}. Typical successful NIW filers score 65-75.`
+  if (score >= 50) return `Typical successful NIW filers in ${fieldLabel} score 65-75. You're close, targeted gap-filling will get you there.`
+  if (score >= 35) return `Typical successful NIW filers in ${fieldLabel} score 65-75. You're at the 35th percentile, gaps need addressing before filing.`
+  return `Typical successful NIW filers in ${fieldLabel} score 65-75. Significant development needed before a viable petition.`
 }
 
 export async function POST(req: Request) {
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     if (!report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     // Generate AI preview (pathways, strength, teaser)
-    const aiPreview = await generateStrategyPreview(answers)
+    const aiPreview = stripDashesDeep(await generateStrategyPreview(answers))
 
     // Inject algorithmically computed scores, same functions used by the full report
     const niw = computeNIWScore(answers)

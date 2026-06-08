@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEReport } from '@/lib/ai/rfe-analyzer'
+import { stripDashesDeep } from '@/lib/sanitize'
 
 export async function POST(req: Request) {
   try {
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
     await service.from('reports').update({ status: 'generating' }).eq('id', reportId)
 
     try {
-      const reportData = await generateRFEReport(rfeText, rfeOpts)
+      const reportData = stripDashesDeep(await generateRFEReport(rfeText, rfeOpts))
       await service.from('reports').update({ status: 'complete', report_data: reportData }).eq('id', reportId)
       return NextResponse.json({ status: 'complete' })
     } catch (aiError) {

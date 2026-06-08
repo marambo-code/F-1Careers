@@ -4,6 +4,7 @@ import { generateStrategyReport, computeNIWScore, computeEB1AScore } from '@/lib
 import { computeGreenCardScore } from '@/lib/scoring'
 import { generateCareerMoves } from '@/lib/ai/career-moves'
 import { sendStrategyReportReady } from '@/lib/email'
+import { stripDashesDeep } from '@/lib/sanitize'
 import type { StrategyAnswers } from '@/lib/types'
 
 // Allow this function to run up to 5 minutes (Vercel Pro required for > 60s)
@@ -70,7 +71,7 @@ export async function POST(
   console.log(`[strategy/generate] Starting generation for report ${id}`)
 
   try {
-    const reportData = await generateStrategyReport(report.questionnaire_responses)
+    const reportData = stripDashesDeep(await generateStrategyReport(report.questionnaire_responses))
 
     const { error: saveErr } = await service
       .from('reports')

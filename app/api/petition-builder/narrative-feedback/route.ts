@@ -3,6 +3,7 @@ export const maxDuration = 60
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { stripDashesDeep } from '@/lib/sanitize'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       ? 'EB-1A Extraordinary Ability (8 CFR §204.5(h)): must demonstrate extraordinary ability and sustained national or international acclaim.'
       : 'EB-2 NIW (Matter of Dhanasar): (1) proposed endeavor has substantial merit and national importance; (2) petitioner is well-positioned to advance it; (3) beneficial to waive the job offer requirement.'
 
-    // Use tool_use to guarantee structured JSON output — eliminates all parsing issues
+    // Use tool_use to guarantee structured JSON output, eliminates all parsing issues
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1500,
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
 
 Pathway: ${pathwayContext}
 
-Review this narrative adversarially — find every weakness before they file. Flag:
+Review this narrative adversarially, find every weakness before they file. Flag:
 1. Personal career benefit framing instead of national benefit to the US
 2. Vague language an adjudicator could reject (e.g. "significant contributions" without specifics)
 3. Undefined or inconsistent proposed endeavor
@@ -97,13 +98,13 @@ ${narrative}`,
       ],
     })
 
-    // Extract the tool use result — guaranteed structured, no parsing needed
+    // Extract the tool use result, guaranteed structured, no parsing needed
     const toolUse = response.content.find((b) => b.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
       throw new Error('Model did not call the review tool')
     }
 
-    return NextResponse.json(toolUse.input)
+    return NextResponse.json(stripDashesDeep(toolUse.input))
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     console.error('[narrative-feedback]', message)

@@ -22,7 +22,7 @@ const GOAL_OPTIONS = ['First job / internship', 'H-1B sponsorship', 'Green card 
 
 function DiffNote({ changed }: { changed: boolean }) {
   if (!changed) return null
-  return <p className="text-[11px] text-amber-600 mt-0.5">✎ Changed from your profile — this value is used for this report.</p>
+  return <p className="text-[11px] text-amber-600 mt-0.5">✎ Changed from your profile, this value is used for this report.</p>
 }
 
 const CRITERIA = [
@@ -375,7 +375,7 @@ function QuestionnaireInner() {
             .finally(() => setResumeUploading(false))
         }
 
-        // Restore an in-progress draft (new report only — if a pending report
+        // Restore an in-progress draft (new report only, if a pending report
         // existed we already redirected to the preview above). Runs after the
         // profile prefill so the user's own saved answers take precedence.
         if (!editReportId && data.strategy_draft) {
@@ -517,7 +517,7 @@ function QuestionnaireInner() {
       })
 
       if (res.ok) {
-        // Clear the saved draft — it's now a submitted report.
+        // Clear the saved draft, it's now a submitted report.
         supabase.from('profiles').update({ strategy_draft: null }).eq('id', user.id).then(() => {})
         router.push(`/strategy/preview?reportId=${reportId}`)
       } else {
@@ -557,7 +557,7 @@ function QuestionnaireInner() {
                 ? 'You have used your free re-generation. Upgrade to Pro to regenerate again.'
                 : !isPro
                 ? `Free members can regenerate their preview once. You have ${1 - existingRegenCount} remaining.`
-                : 'Pro member — unlimited regenerations.'}
+                : 'Pro member, unlimited regenerations.'}
             </p>
           </div>
           <Link href={`/strategy/preview?reportId=${editReportId}`} className="text-xs text-teal font-semibold hover:underline flex-shrink-0 ml-4">
@@ -568,7 +568,7 @@ function QuestionnaireInner() {
 
       {draftNotice && (
         <div className="rounded-xl bg-teal/8 border border-teal/20 p-3 flex items-start justify-between gap-3">
-          <p className="text-sm text-navy"><span className="font-semibold">Welcome back —</span> we saved your progress and restored your answers.</p>
+          <p className="text-sm text-navy"><span className="font-semibold">Welcome back, </span> we saved your progress and restored your answers.</p>
           <button type="button" onClick={handleStartOver} className="text-xs text-mid hover:text-red-600 underline flex-shrink-0 mt-0.5">Start over</button>
         </div>
       )}
@@ -599,11 +599,11 @@ function QuestionnaireInner() {
       {step === 0 && (
         <div className="card space-y-5">
 
-          {/* Profile data — prefilled and editable. Edits always flow into this
+          {/* Profile data, prefilled and editable. Edits always flow into this
               report; tick the box to also save them back to your profile. */}
           <div className="bg-teal-light rounded-xl p-4 space-y-3 border border-teal/20">
             <div>
-              <p className="text-sm font-bold text-teal">Your profile — prefilled below</p>
+              <p className="text-sm font-bold text-teal">Your profile, prefilled below</p>
               <p className="text-xs text-teal/70 mt-0.5">Edit anything that should be different for this report. What you enter here is always used in your report.</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
