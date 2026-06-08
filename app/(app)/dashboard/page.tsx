@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import DeleteReportButton from '@/components/ui/DeleteReportButton'
 import CountryAlert from '@/components/dashboard/CountryAlert'
 import AdminAlertBanner from '@/components/dashboard/AdminAlertBanner'
+import StrategyResumeCard from '@/components/dashboard/StrategyResumeCard'
 import { computeGreenCardScoreFromSubscores } from '@/lib/scoring'
 import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
 import type { CareerMove } from '@/lib/ai/career-moves'
@@ -200,6 +201,13 @@ export default async function DashboardPage() {
 
   const nextStep = nextStepConfig[stage]
 
+  // Resume card: show when the user has an in-progress questionnaire draft and
+  // hasn't yet generated a preview/report (stage 1, no pending preview).
+  const strategyDraft = profile?.strategy_draft as { step?: number; savedAt?: string; answers?: unknown } | null | undefined
+  const showResume = stage === 1 && !latestPendingPreviewReport && !!strategyDraft && !!strategyDraft.answers
+  const draftStep = typeof strategyDraft?.step === 'number' ? strategyDraft.step : 0
+  const draftSavedAt = typeof strategyDraft?.savedAt === 'string' ? strategyDraft.savedAt : undefined
+
   return (
     <div className="space-y-6 max-w-4xl">
 
@@ -269,21 +277,25 @@ export default async function DashboardPage() {
       </div>
 
       {/* ══ NEXT STEP ═══════════════════════════════════════════════════════════ */}
-      <div className={`rounded-2xl border-2 p-5 ${nextStep.color}`}>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <p className="text-[10px] font-bold text-mid uppercase tracking-widest mb-1">
-              Stage {stage} of 5, {STAGES[stage - 1].label}
-            </p>
-            <h2 className="text-lg font-bold text-navy">{nextStep.title}</h2>
-            <p className="text-sm text-mid mt-1.5 leading-relaxed max-w-xl">{nextStep.description}</p>
-            <Link href={nextStep.href} className="inline-flex items-center gap-2 mt-4 btn-primary text-sm">
-              {nextStep.cta}
-            </Link>
+      {showResume ? (
+        <StrategyResumeCard step={draftStep} totalSteps={4} savedAt={draftSavedAt} />
+      ) : (
+        <div className={`rounded-2xl border-2 p-5 ${nextStep.color}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-[10px] font-bold text-mid uppercase tracking-widest mb-1">
+                Stage {stage} of 5, {STAGES[stage - 1].label}
+              </p>
+              <h2 className="text-lg font-bold text-navy">{nextStep.title}</h2>
+              <p className="text-sm text-mid mt-1.5 leading-relaxed max-w-xl">{nextStep.description}</p>
+              <Link href={nextStep.href} className="inline-flex items-center gap-2 mt-4 btn-primary text-sm">
+                {nextStep.cta}
+              </Link>
+            </div>
+            <div className="text-4xl hidden sm:block flex-shrink-0">{STAGES[stage - 1].icon}</div>
           </div>
-          <div className="text-4xl hidden sm:block flex-shrink-0">{STAGES[stage - 1].icon}</div>
         </div>
-      </div>
+      )}
 
       {/* ══ METRICS ROW ═════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
