@@ -113,9 +113,11 @@ export async function POST(
     console.log(`[rfe/generate] Complete for report ${id}`)
 
     if (user.email) {
-      sendRFEReportReady(user.email, id, reportData.case_type ?? 'RFE Analysis').catch(e =>
+      try {
+        await sendRFEReportReady(user.email, id, reportData.case_type ?? 'RFE Analysis')
+      } catch (e) {
         console.error('[email] notify failed:', e)
-      )
+      }
     }
 
     return NextResponse.json({ status: 'complete' })

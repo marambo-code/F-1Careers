@@ -34,9 +34,15 @@ export async function POST(req: Request) {
     if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 })
 
     if (user.email) {
-      sendAttorneyReviewRequest({
-        userEmail: user.email, reportType, reportId, consentShare: !!consent, note,
-      }).catch(e => console.error('[attorney-review] notify failed:', e))
+      // Await so the serverless function does not freeze before Postmark responds
+      // (un-awaited promises can be killed once the response is sent).
+      try {
+        await sendAttorneyReviewRequest({
+          userEmail: user.email, reportType, reportId, consentShare: !!consent, note,
+        })
+      } catch (e) {
+        console.error('[attorney-review] notify failed:', e)
+      }
     }
 
     return NextResponse.json({ ok: true })

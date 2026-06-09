@@ -125,9 +125,11 @@ export async function POST(
     }
 
     if (user.email) {
-      sendStrategyReportReady(user.email, id).catch(e =>
+      try {
+        await sendStrategyReportReady(user.email, id)
+      } catch (e) {
         console.error('[email] notify failed:', e)
-      )
+      }
     }
 
     return NextResponse.json({ status: 'complete' })
