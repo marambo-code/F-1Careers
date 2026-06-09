@@ -8,10 +8,10 @@ const POSTMARK_SERVER_TOKEN = process.env.POSTMARK_SERVER_TOKEN
 const FROM_EMAIL = process.env.FROM_EMAIL ?? 'F-1 Careers <support@f-1careers.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.f-1careers.com'
 
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendEmail(to: string, subject: string, html: string): Promise<string> {
   if (!POSTMARK_SERVER_TOKEN) {
     console.log('[email] POSTMARK_SERVER_TOKEN not set, skipping email to', to)
-    return
+    return 'skipped:no-token'
   }
 
   const res = await fetch('https://api.postmarkapp.com/email', {
@@ -33,9 +33,10 @@ async function sendEmail(to: string, subject: string, html: string) {
   if (!res.ok) {
     const err = await res.text()
     console.error('[email] Postmark error:', res.status, err)
-  } else {
-    console.log('[email] Sent to', to, '-', subject)
+    return `error ${res.status}: ${err}`
   }
+  console.log('[email] Sent to', to, '-', subject)
+  return 'sent'
 }
 
 // ─── Email templates ──────────────────────────────────────────────
@@ -138,10 +139,10 @@ export async function sendAttorneyReviewRequest(opts: {
   reportId: string
   consentShare: boolean
   note?: string
-}) {
+}): Promise<string> {
   const to = process.env.ATTORNEY_NOTIFY_EMAIL ?? 'support@f-1careers.com'
   const reportUrl = `${APP_URL}/${opts.reportType}/report/${opts.reportId}`
-  await sendEmail(
+  return await sendEmail(
     to,
     `Attorney review requested, ${opts.userEmail}`,
     `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#1B2B6B;">
