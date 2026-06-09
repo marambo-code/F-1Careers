@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import type { RFEReport, RFEIssue } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from '../../GeneratingView'
+import RequestAttorneyReview from '@/components/RequestAttorneyReview'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -104,6 +105,9 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
       )}
+
+      {/* ── Attorney review CTA ── */}
+      <RequestAttorneyReview reportId={id} reportType="rfe" />
 
       {/* ── Priority Action List ─────────────────────────────── */}
       <section className="card">

@@ -7,6 +7,7 @@ import type {
 } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from './GeneratingView'
+import RequestAttorneyReview from '@/components/RequestAttorneyReview'
 
 // Always fetch fresh data, never serve a cached version of this page
 export const dynamic = 'force-dynamic'
@@ -179,6 +180,9 @@ export default async function StrategyReportPage({
           </div>
         </div>
       </section>
+
+      {/* ── Attorney review CTA ── */}
+      <RequestAttorneyReview reportId={id} reportType="strategy" />
 
       {/* ── 1. Petition Readiness Dashboard ── */}
       <section id="readiness">

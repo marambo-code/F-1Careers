@@ -130,3 +130,28 @@ export async function sendRFEReportReady(to: string, reportId: string, caseType:
 </html>`,
   )
 }
+
+// Internal notification (to the founder) when a user requests an attorney review.
+export async function sendAttorneyReviewRequest(opts: {
+  userEmail: string
+  reportType: string
+  reportId: string
+  consentShare: boolean
+  note?: string
+}) {
+  const to = process.env.ATTORNEY_NOTIFY_EMAIL ?? 'support@f-1careers.com'
+  const reportUrl = `${APP_URL}/${opts.reportType}/report/${opts.reportId}`
+  await sendEmail(
+    to,
+    `Attorney review requested, ${opts.userEmail}`,
+    `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#1B2B6B;">
+      <h2 style="margin:0 0 12px;">New attorney review request</h2>
+      <p style="margin:4px 0;"><strong>User:</strong> ${opts.userEmail}</p>
+      <p style="margin:4px 0;"><strong>Report:</strong> ${opts.reportType} (${opts.reportId})</p>
+      <p style="margin:4px 0;"><strong>Consent to share report:</strong> ${opts.consentShare ? 'Yes' : 'No'}</p>
+      ${opts.note ? `<p style="margin:4px 0;"><strong>Note:</strong> ${opts.note}</p>` : ''}
+      <p style="margin:16px 0 4px;"><a href="${reportUrl}" style="color:#00C2A8;font-weight:700;">Open the report &rarr;</a></p>
+      <p style="color:#888;font-size:12px;margin-top:16px;">Follow up by connecting them with a vetted independent attorney. Do not share the report without the consent flag above.</p>
+    </body></html>`,
+  )
+}
