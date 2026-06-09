@@ -15,10 +15,10 @@ create table if not exists public.attorney_review_requests (
 
 alter table public.attorney_review_requests enable row level security;
 
-drop policy if exists "Users insert own attorney requests" on public.attorney_review_requests;
-create policy "Users insert own attorney requests" on public.attorney_review_requests
+drop policy if exists "users_insert_own_attorney_req" on public.attorney_review_requests;
+create policy "users_insert_own_attorney_req" on public.attorney_review_requests
   for insert with check (auth.uid() = user_id);
 
-drop policy if exists "Users view own attorney requests" on public.attorney_review_requests;
-create policy "Users view own attorney requests" on public.attorney_review_requests
+drop policy if exists "users_view_own_attorney_req" on public.attorney_review_requests;
+create policy "users_view_own_attorney_req" on public.attorney_review_requests
   for select using (auth.uid() = user_id);
