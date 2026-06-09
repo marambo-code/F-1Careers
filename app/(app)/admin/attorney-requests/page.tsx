@@ -1,17 +1,15 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import { isAdminEmail } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
-
-const ADMINS = (process.env.ADMIN_EMAILS ?? 'raypat919@gmail.com,raypat919v@gmail.com,calvinmarambo@gmail.com')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
 
 export default async function AttorneyRequestsAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  if (!user.email || !ADMINS.includes(user.email.toLowerCase())) notFound()
+  if (!isAdminEmail(user.email)) notFound()
 
   const service = createServiceClient()
   const { data: requests } = await service

@@ -4,6 +4,7 @@ import type { RFEReport, RFEIssue } from '@/lib/types'
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from '../../GeneratingView'
 import RequestAttorneyReview from '@/components/RequestAttorneyReview'
+import { isAdminEmail } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -16,12 +17,11 @@ export default async function RFEReportPage({ params }: { params: Promise<{ id: 
 
   const service = createServiceClient()
 
-  const { data: report } = await service
-    .from('reports')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  // Owner sees their own report; an operator/admin can view any report.
+  const admin = isAdminEmail(user.email)
+  let reportQuery = service.from('reports').select('*').eq('id', id)
+  if (!admin) reportQuery = reportQuery.eq('user_id', user.id)
+  const { data: report } = await reportQuery.single()
 
   if (!report) notFound()
   if (report.status === 'pending') redirect(`/rfe/preview?reportId=${id}`)

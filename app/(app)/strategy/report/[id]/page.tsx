@@ -8,6 +8,7 @@ import type {
 import DownloadButton from '@/components/ui/DownloadButton'
 import GeneratingView from './GeneratingView'
 import RequestAttorneyReview from '@/components/RequestAttorneyReview'
+import { isAdminEmail } from '@/lib/admin'
 
 // Always fetch fresh data, never serve a cached version of this page
 export const dynamic = 'force-dynamic'
@@ -25,12 +26,12 @@ export default async function StrategyReportPage({
 
   const service = createServiceClient()
 
-  const { data: report } = await service
-    .from('reports')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  // Owner sees their own report; an operator/admin can view any report (to act on
+  // attorney-review requests).
+  const admin = isAdminEmail(user.email)
+  let reportQuery = service.from('reports').select('*').eq('id', id)
+  if (!admin) reportQuery = reportQuery.eq('user_id', user.id)
+  const { data: report } = await reportQuery.single()
 
   if (!report) notFound()
   if (report.status === 'pending') redirect(`/strategy/preview?reportId=${id}`)
