@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 
-// TEMPORARY diagnostic. Hit this while logged in to see exactly what Postmark
-// returns for a real send. Remove after debugging. Does not leak the token.
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 })
+// TEMPORARY diagnostic. Hit /api/email-test?key=f1mailcheck to see exactly what
+// Postmark returns for a real send. Remove after debugging. Does not leak the token.
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  if (searchParams.get('key') !== 'f1mailcheck') {
+    return NextResponse.json({ error: 'Add ?key=f1mailcheck to the URL' }, { status: 401 })
+  }
 
   const token = process.env.POSTMARK_SERVER_TOKEN
   const from = process.env.FROM_EMAIL ?? 'F-1 Careers <support@f-1careers.com>'
