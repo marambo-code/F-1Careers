@@ -9,8 +9,30 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'F-1 Careers, Green Card Strategy for International Professionals',
-  description: 'Personalized green card strategy for international students and professionals navigating the US job market and immigration system.',
+  metadataBase: new URL('https://www.f-1careers.com'),
+  title: {
+    default: 'F-1 Careers, Green Card Strategy for International Professionals',
+    template: '%s | F-1 Careers',
+  },
+  description: 'Find your real EB-1A and EB-2 NIW green card odds in minutes. Self-petition strategy for international students and professionals on F-1, OPT, and H-1B. Free score.',
+  keywords: [
+    'EB-1A', 'EB-2 NIW', 'national interest waiver', 'green card', 'F-1 visa',
+    'OPT', 'H-1B', 'self-petition', 'Dhanasar', 'extraordinary ability',
+    'green card for international students',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: 'F-1 Careers',
+    url: 'https://www.f-1careers.com',
+    title: 'F-1 Careers, Green Card Strategy for International Professionals',
+    description: 'Find your real EB-1A and EB-2 NIW green card odds in minutes. Free score, built for F-1, OPT, and H-1B.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'F-1 Careers, Green Card Strategy',
+    description: 'Find your real EB-1A and EB-2 NIW green card odds in minutes. Free score.',
+  },
 }
 
 export default function RootLayout({
