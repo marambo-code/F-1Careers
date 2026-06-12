@@ -422,7 +422,7 @@ export default function RiskScorePage() {
           </div>
           <p className="text-mid text-sm max-w-md mx-auto leading-relaxed">
             Adjustment of status is now officially discretionary. Duration of Status is ending. SEVIS terminations are being enforced.
-            This tool scores your exposure across all active risk factors, in under 2 minutes.
+            This tool scores your exposure across all active risk factors.
           </p>
         </div>
 
@@ -651,7 +651,7 @@ export default function RiskScorePage() {
               className="w-full btn-teal py-4 text-base font-bold disabled:opacity-40">
               Calculate my Risk Score →
             </button>
-            <p className="text-xs text-center text-mid">Free · No login · Under 2 minutes</p>
+            <p className="text-xs text-center text-mid">Free · No login</p>
           </div>
         )}
 

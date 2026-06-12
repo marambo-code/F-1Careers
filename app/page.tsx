@@ -408,7 +408,7 @@ export default async function Home() {
           </div>
           <div className="grid sm:grid-cols-3 gap-10">
             {[
-              { step: '01', title: 'Answer the questionnaire', body: 'Rate your evidence against each USCIS criterion. Takes about 15 minutes. Your profile data pre-fills where possible.' },
+              { step: '01', title: 'Answer the questionnaire', body: 'Rate your evidence against each USCIS criterion. Your profile data pre-fills where possible.' },
               { step: '02', title: 'Get your free preview', body: 'See your top visa pathway, overall profile strength, and a teaser of the full analysis before paying anything.' },
               { step: '03', title: 'Unlock the full report', body: 'Pay once for your full criterion breakdown, evidence map, gap analysis, and 12-month roadmap. Download as PDF.' },
             ].map(s => (

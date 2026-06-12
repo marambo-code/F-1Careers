@@ -195,7 +195,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         <div>
           <h1 className="text-xl font-bold text-navy">Building your strategy report…</h1>
           <p className="text-sm text-mid mt-1">
-            Deep analysis of your profile · typically <strong>2–4 minutes</strong>
+            A deep, criterion-by-criterion analysis of your profile is underway. This is thorough work, please hold on.
           </p>
         </div>
       </div>
