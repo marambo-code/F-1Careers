@@ -27,11 +27,13 @@ export const metadata: Metadata = {
     url: 'https://www.f-1careers.com',
     title: 'F-1 Careers, Green Card Strategy for International Professionals',
     description: 'Find your real EB-1A and EB-2 NIW green card odds in minutes. Free score, built for F-1, OPT, and H-1B.',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'F-1 Careers, Green Card Strategy' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'F-1 Careers, Green Card Strategy',
     description: 'Find your real EB-1A and EB-2 NIW green card odds in minutes. Free score.',
+    images: ['/og.png'],
   },
 }
 
