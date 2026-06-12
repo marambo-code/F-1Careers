@@ -67,7 +67,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            Diagnostic clarity for international professionals navigating F-1, OPT, H-1B, EB-1A, NIW, RFEs, and self-petition strategy.
+            Diagnostic clarity for international professionals on F-1, OPT, and H-1B. Know your real EB-1A and NIW odds, and build the case that keeps you in the US.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
