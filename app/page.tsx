@@ -62,12 +62,12 @@ export default async function Home() {
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.06] tracking-[-2px] mb-5">
-            Your career and visa<br />
-            <span className="text-teal">strategy engine.</span>
+            Your Career and Visa<br />
+            <span className="text-teal">Co-Pilot</span>
           </h1>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            Immigration rules keep changing. Proving <strong className="text-white">extraordinary circumstances</strong> is now the standard for staying in the US. We help you build that case.
+            Diagnostic clarity for international professionals navigating F-1, OPT, H-1B, EB-1A, NIW, RFEs, and self-petition strategy.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
@@ -80,7 +80,7 @@ export default async function Home() {
               className="bg-teal text-white font-extrabold text-lg px-10 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
               style={{ boxShadow: '0 8px 32px rgba(0,194,168,.30)' }}
             >
-              Get my green card preview →
+              Get started free →
             </Link>
             <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
               Check my Risk Score first ↓
