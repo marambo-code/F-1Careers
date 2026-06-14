@@ -426,7 +426,7 @@ function ProfileContent() {
               <label className="label">Current Visa Status</label>
               <select className="input" value={profile.visa_status ?? ''} onChange={e => setProfile(p => ({ ...p, visa_status: e.target.value as Profile['visa_status'] }))}>
                 <option value="">Select status</option>
-                {VISA_OPTIONS.map(v => <option key={v} value={v}>{v}</option>)}
+                {VISA_OPTIONS.map(v => <option key={v} value={v}>{v === 'H-1B1' ? 'H-1B1 (Chile/Singapore)' : v}</option>)}
               </select>
             </div>
             <div>

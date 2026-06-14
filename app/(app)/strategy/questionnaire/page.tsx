@@ -616,7 +616,7 @@ function QuestionnaireInner() {
                 <label className="label">Visa status</label>
                 <select className="input" value={profile.visa_status ?? ''} onChange={e => setProfile(p => ({ ...p, visa_status: (e.target.value || null) as VisaStatus | null }))}>
                   <option value="">Select…</option>
-                  {VISA_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                  {VISA_OPTIONS.map(o => <option key={o} value={o}>{o === 'H-1B1' ? 'H-1B1 (Chile/Singapore)' : o}</option>)}
                 </select>
                 <DiffNote changed={(profile.visa_status ?? '') !== (originalProfile.visa_status ?? '') && !!originalProfile.visa_status} />
               </div>

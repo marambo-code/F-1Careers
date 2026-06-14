@@ -148,6 +148,7 @@ interface Inputs {
   priorViolations: string   // 'yes' | 'no' | ''
   usFamily: string          // 'yes' | 'no' | ''
   socialMediaRisk: string   // 'yes' | 'no' | ''
+  usSalary: string          // optional compensation band, does not affect score
 }
 
 function computeExposure(inputs: Inputs) {
@@ -323,6 +324,32 @@ function getScoreLabel(score: number) {
   }
 }
 
+// ─── Financial Exposure (optional, folded in from the old ROI tool) ─────────
+// This does NOT affect the risk score. It only translates a compensation band
+// into the income at stake if the user's work authorization lapses.
+const SALARY_BRACKETS = [
+  { val: 'under_80', label: 'Under $80K', mid: 70000 },
+  { val: '80_120',   label: '$80K-$120K', mid: 100000 },
+  { val: '120_180',  label: '$120K-$180K', mid: 150000 },
+  { val: '180_250',  label: '$180K-$250K', mid: 215000 },
+  { val: '250_plus', label: '$250K+', mid: 320000 },
+]
+
+function fmtUSD(n: number) {
+  return n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : `$${Math.round(n / 1000)}K`
+}
+
+function financialExposureNote(salaryVal: string, score: number): string | null {
+  const b = SALARY_BRACKETS.find(s => s.val === salaryVal)
+  if (!b) return null
+  // The realistic disruption window widens with risk level.
+  const lowYears = score >= 50 ? 3 : 2
+  const highYears = score >= 50 ? 5 : 3
+  const low = b.mid * lowYears
+  const high = b.mid * highYears
+  return `At roughly ${fmtUSD(b.mid)} a year in US compensation, a ${lowYears} to ${highYears} year disruption to your work authorization, the realistic window for consular processing or refiling from abroad, puts about ${fmtUSD(low)} to ${fmtUSD(high)} of US earnings at stake. That is before counting equity, career trajectory, and the cost of rebuilding elsewhere. Securing your status is the highest-return move available to you.`
+}
+
 // ─── Component ────────────────────────────────────────────────────────────
 export default function RiskScorePage() {
   const [step, setStep] = useState(0)
@@ -331,6 +358,7 @@ export default function RiskScorePage() {
     education: '', years: '', country: '', countryOther: '', contributions: [],
     sevisTerminated: '', programYears: '',
     i140Approved: '', priorViolations: '', usFamily: '', socialMediaRisk: '',
+    usSalary: '',
   })
   const [result, setResult] = useState<ReturnType<typeof computeExposure> | null>(null)
   const [copied, setCopied] = useState(false)
@@ -395,6 +423,7 @@ export default function RiskScorePage() {
   }
 
   const scoreData = result ? getScoreLabel(result.score) : null
+  const finNote = result ? financialExposureNote(inputs.usSalary, result.score) : null
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -443,6 +472,9 @@ export default function RiskScorePage() {
               {inputs.visa === 'Other' && (
                 <input className="input mt-2" placeholder="Describe your current immigration status"
                   value={inputs.visaOther} onChange={e => set('visaOther', e.target.value)} />
+              )}
+              {inputs.visa === 'H-1B1' && (
+                <p className="text-[11px] text-mid mt-2 leading-relaxed">H-1B1 is the specialty-occupation visa for nationals of Chile and Singapore under their free-trade agreements with the US. If that is not your status, choose H-1B or your actual category.</p>
               )}
             </div>
 
@@ -647,6 +679,20 @@ export default function RiskScorePage() {
               </div>
             </div>
 
+            {/* Optional, financial exposure */}
+            <div>
+              <label className="label">Current or expected US compensation <span className="font-normal text-mid">(optional)</span></label>
+              <p className="text-xs text-mid mb-2">Used only to estimate the income at stake if your status lapses. It does not change your risk score. Tap again to clear.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {SALARY_BRACKETS.map(b => (
+                  <button key={b.val} onClick={() => set('usSalary', inputs.usSalary === b.val ? '' : b.val)}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${inputs.usSalary === b.val ? 'bg-navy text-white border-navy' : 'border-gray-200 text-mid hover:border-navy/40 hover:text-navy'}`}>
+                    {b.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button onClick={handleCompute} disabled={!canSubmit}
               className="w-full btn-teal py-4 text-base font-bold disabled:opacity-40">
               Calculate my Risk Score →
@@ -735,6 +781,18 @@ export default function RiskScorePage() {
               })}
             </div>
 
+            {/* Financial exposure (optional) */}
+            {finNote && (
+              <div className="card space-y-2 border-l-4 border-l-navy">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-navy uppercase tracking-widest">Financial exposure</p>
+                  <p className="text-[10px] text-mid">Does not affect your score</p>
+                </div>
+                <p className="text-sm text-mid leading-relaxed">{finNote}</p>
+                <p className="text-[11px] text-mid leading-relaxed pt-1">An illustrative estimate from your compensation band, not a forecast. The full strategy report turns this into a concrete plan to protect that income.</p>
+              </div>
+            )}
+
             {/* Share */}
             <div className="card space-y-3">
               <p className="text-sm font-bold text-navy">Share with colleagues</p>
@@ -764,8 +822,6 @@ export default function RiskScorePage() {
         <div className="text-center space-y-1.5 pb-4">
           <p className="text-xs text-mid">Based on PP 10998 (Jan 1, 2026) · State Dept 75-country immigrant visa pause (Jan 21, 2026) · USCIS PM-602-0199 (May 21, 2026) · DHS D/S final rule (pending) · Not legal advice</p>
           <p className="text-xs text-mid">
-            <Link href="/roi-calculator" className="text-teal hover:underline">Calculate your financial exposure →</Link>
-            {' · '}
             <Link href="/for-employers" className="text-teal hover:underline">For employers →</Link>
           </p>
         </div>
