@@ -1047,8 +1047,8 @@ function QuestionnaireInner() {
           {/* Summary preview */}
           <div className="bg-gray-50 border border-border rounded-xl p-4 space-y-1.5 text-sm">
             <p className="font-semibold text-navy mb-2">Review before generating</p>
-            <p className="text-mid"><span className="text-navy font-medium">Field:</span> {answers.field_of_work || '—'} {answers.subfield ? `(${answers.subfield})` : ''}</p>
-            <p className="text-mid"><span className="text-navy font-medium">Education:</span> {answers.education_level || '—'}{answers.years_in_field ? `, ${answers.years_in_field}yr experience` : ''}</p>
+            <p className="text-mid"><span className="text-navy font-medium">Field:</span> {answers.field_of_work || '-'} {answers.subfield ? `(${answers.subfield})` : ''}</p>
+            <p className="text-mid"><span className="text-navy font-medium">Education:</span> {answers.education_level || '-'}{answers.years_in_field ? `, ${answers.years_in_field}yr experience` : ''}</p>
             <p className="text-mid">
               <span className="text-navy font-medium">EB-1A criteria met:</span>{' '}
               <span className={metCount >= 3 ? 'text-teal font-semibold' : 'text-orange-600 font-semibold'}>{metCount}/10 at Moderate+</span>

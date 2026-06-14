@@ -274,17 +274,11 @@ export default async function Home() {
         </div>
 
         {/* Secondary tools row */}
-        <div className="grid sm:grid-cols-3 gap-4 mt-5">
+        <div className="grid sm:grid-cols-2 gap-4 mt-5">
           <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
             <div className="text-xl mb-2">📍</div>
             <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Risk Score</h3>
-            <p className="text-xs text-mid leading-relaxed">Score your immigration exposure 0–100. Know exactly where you stand and what to do.</p>
-            <p className="text-xs font-bold text-teal mt-3">Free →</p>
-          </Link>
-          <Link href="/roi-calculator" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
-            <div className="text-xl mb-2">💰</div>
-            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">ROI Calculator</h3>
-            <p className="text-xs text-mid leading-relaxed">See the real cost of consular processing vs. fighting to stay. Most people are shocked.</p>
+            <p className="text-xs text-mid leading-relaxed">Score your visa and career exposure 0-100. Know exactly where you stand and what to do.</p>
             <p className="text-xs font-bold text-teal mt-3">Free →</p>
           </Link>
           <Link href="/cohort" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
@@ -391,6 +385,48 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── Field benchmarks (aspirational) ──────────────────────────── */}
+      <section className="bg-white border-y border-border py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-extrabold uppercase tracking-[2px] text-teal mb-3">What strong looks like</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight leading-[1.15]">
+              See how the strongest profiles<br className="hidden sm:block" /> in your field are positioned.
+            </h2>
+            <p className="text-base text-mid mt-3 max-w-2xl mx-auto leading-relaxed">
+              These are the evidence patterns that anchor a competitive EB-1A or EB-2 NIW self-petition. Your report shows which ones you already meet, and the fastest way to close the rest.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { field: 'AI & Computer Science', path: 'EB-1A / NIW', signals: ['Papers at NeurIPS, ICML, or CVPR', 'Citations from labs outside your own', 'Reviewer for a major venue', 'Open-source adopted in industry'] },
+              { field: 'Biotech & Life Sciences', path: 'NIW / EB-1A', signals: ['First-author peer-reviewed work', 'A cross-lab citation footprint', 'Named inventor on a patent', 'Invited conference talks'] },
+              { field: 'Medicine & Public Health', path: 'NIW', signals: ['Clinical or translational research', 'Contributions to practice guidelines', 'Journal peer review', 'Leadership in a professional society'] },
+              { field: 'Engineering', path: 'EB-1A / NIW', signals: ['Granted patents or licensed IP', 'Standards or technical committee work', 'Projects deployed at scale', 'Recognition from outside your employer'] },
+              { field: 'Business, Finance & Economics', path: 'NIW', signals: ['Original published research or analysis', 'Quoted as a subject-matter expert', 'Advisory or board roles', 'Measurable, field-wide impact'] },
+              { field: 'Arts, Design & Media', path: 'EB-1A', signals: ['Juried exhibitions or awards', 'Press and critical coverage', 'Judging or curating other work', 'A body of work others build on'] },
+            ].map(c => (
+              <div key={c.field} className="rounded-2xl border border-border p-6 hover:border-teal/35 transition-colors">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <p className="font-bold text-navy text-sm">{c.field}</p>
+                  <span className="text-[10px] font-bold text-teal bg-teal-light px-2 py-0.5 rounded-full flex-shrink-0">{c.path}</span>
+                </div>
+                <ul className="space-y-1.5">
+                  {c.signals.map(s => (
+                    <li key={s} className="flex items-start gap-2 text-xs text-mid leading-relaxed">
+                      <span className="text-teal mt-0.5 flex-shrink-0">✓</span> {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-mid mt-8 max-w-xl mx-auto leading-relaxed">
+            Illustrative benchmarks, not testimonials. Every petition is judged on its own evidence under the controlling case law.
+          </p>
+        </div>
+      </section>
+
       {/* ── How it works ─────────────────────────────────────────────── */}
       <section className="bg-slate-50 border-y border-border py-24 px-6">
         <div className="max-w-6xl mx-auto">
@@ -419,10 +455,10 @@ export default async function Home() {
           <div>
             <p className="text-[11px] font-extrabold uppercase tracking-[1.5px] text-teal mb-1">For HR teams & General Counsel</p>
             <h3 className="text-xl font-extrabold text-navy">Don&apos;t lose your international talent to a policy memo.</h3>
-            <p className="text-sm text-mid mt-1.5 leading-relaxed">We audit your workforce, identify who&apos;s at risk, and build NIW petition frameworks for every eligible employee.</p>
+            <p className="text-sm text-mid mt-1.5 leading-relaxed">We review your workforce, identify who&apos;s at risk, and build NIW petition frameworks for every eligible employee.</p>
           </div>
           <Link href="/for-employers" className="flex-shrink-0 inline-block bg-navy text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
-            Request workforce audit →
+            Request workforce support →
           </Link>
         </div>
       </section>

@@ -712,7 +712,7 @@ export default function RiskScorePage() {
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold text-navy">{b.label}</p>
                       <p className={`text-xs font-bold ${isMitigating ? 'text-teal' : 'text-mid'}`}>
-                        {isMitigating && b.points !== 0 ? `${b.points} pts` : b.max > 0 ? `${b.points} / ${b.max}` : '—'}
+                        {isMitigating && b.points !== 0 ? `${b.points} pts` : b.max > 0 ? `${b.points} / ${b.max}` : '-'}
                       </p>
                     </div>
                     {b.max > 0 && (

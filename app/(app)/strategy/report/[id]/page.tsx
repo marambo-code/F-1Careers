@@ -115,6 +115,9 @@ export default async function StrategyReportPage({
           <p className="text-sm text-mid mt-1">
             Generated {new Date(report.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
+          <p className="text-sm text-mid mt-2 leading-relaxed max-w-xl">
+            A self-petitioned, employment-based green card strategy, the kind you file yourself, scored across the two paths you can pursue without an employer or family sponsor: EB-1A (Extraordinary Ability) and EB-2 NIW (National Interest Waiver).
+          </p>
         </div>
         <DownloadButton reportId={id} reportType="strategy" className="print:hidden" />
       </div>
@@ -145,11 +148,11 @@ export default async function StrategyReportPage({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="card text-center py-4">
               <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-2 NIW</p>
-              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '-'}<span className="text-sm font-normal text-mid">/100</span></p>
             </div>
             <div className="card text-center py-4">
               <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-1A</p>
-              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '—'}<span className="text-sm font-normal text-mid">/100</span></p>
+              <p className={`text-3xl sm:text-4xl font-black ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '-'}<span className="text-sm font-normal text-mid">/100</span></p>
             </div>
             <div className="card bg-navy text-white text-center py-4 flex flex-col justify-center col-span-2 sm:col-span-1">
               <p className="text-xs font-bold text-teal uppercase tracking-widest mb-1">Recommended</p>
@@ -191,13 +194,13 @@ export default async function StrategyReportPage({
         <div className="grid sm:grid-cols-2 gap-4 mb-6">
           <div className="card text-center">
             <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-2 NIW Score</p>
-            <p className={`text-5xl font-black mb-1 ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '—'}</p>
+            <p className={`text-5xl font-black mb-1 ${scoreBg(pr?.niw_score ?? 0)}`}>{pr?.niw_score ?? '-'}</p>
             <p className="text-xs text-mid">/100</p>
             <p className="text-xs text-mid mt-2 leading-relaxed">{pr?.niw_benchmark}</p>
           </div>
           <div className="card text-center">
             <p className="text-xs font-bold text-mid uppercase tracking-widest mb-1">EB-1A Score</p>
-            <p className={`text-5xl font-black mb-1 ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '—'}</p>
+            <p className={`text-5xl font-black mb-1 ${scoreBg(pr?.eb1a_score ?? 0)}`}>{pr?.eb1a_score ?? '-'}</p>
             <p className="text-xs text-mid">/100</p>
             <p className="text-xs text-mid mt-2 leading-relaxed">{pr?.eb1a_assessment}</p>
           </div>

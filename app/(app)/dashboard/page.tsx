@@ -5,6 +5,7 @@ import DeleteReportButton from '@/components/ui/DeleteReportButton'
 import CountryAlert from '@/components/dashboard/CountryAlert'
 import AdminAlertBanner from '@/components/dashboard/AdminAlertBanner'
 import StrategyResumeCard from '@/components/dashboard/StrategyResumeCard'
+import { greetingFor } from '@/lib/greetings'
 import { computeGreenCardScoreFromSubscores } from '@/lib/scoring'
 import type { StrategyPreview, StrategyReport, StrategyAnswers } from '@/lib/types'
 import type { CareerMove } from '@/lib/ai/career-moves'
@@ -214,7 +215,7 @@ export default async function DashboardPage() {
       {/* ══ GREETING ════════════════════════════════════════════════════════════ */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-navy">Hello, {firstName} 👋</h1>
+          <h1 className="text-2xl font-black text-navy">{greetingFor(countryOfBirth)}, {firstName} 👋</h1>
           <p className="text-sm text-mid mt-0.5">Your path to an approved petition</p>
         </div>
         {isPro && (
@@ -312,7 +313,7 @@ export default async function DashboardPage() {
             </>
           ) : (
             <>
-              <p className="text-3xl font-black text-mid">—</p>
+              <p className="text-3xl font-black text-mid">-</p>
               <Link href="/strategy" className="text-[10px] text-teal font-semibold hover:underline">Run report</Link>
             </>
           )}
@@ -327,7 +328,7 @@ export default async function DashboardPage() {
               <p className="text-[10px] text-mid">/100</p>
             </>
           ) : (
-            <p className="text-3xl font-black text-mid">—</p>
+            <p className="text-3xl font-black text-mid">-</p>
           )}
         </div>
 
@@ -340,7 +341,7 @@ export default async function DashboardPage() {
               <p className="text-[10px] text-mid">/100</p>
             </>
           ) : (
-            <p className="text-3xl font-black text-mid">—</p>
+            <p className="text-3xl font-black text-mid">-</p>
           )}
         </div>
 
@@ -358,7 +359,7 @@ export default async function DashboardPage() {
             </>
           ) : (
             <>
-              <p className="text-3xl font-black text-mid">—</p>
+              <p className="text-3xl font-black text-mid">-</p>
               <Link href="/strategy/questionnaire" className="text-[10px] text-teal font-semibold hover:underline">Add date</Link>
             </>
           )}

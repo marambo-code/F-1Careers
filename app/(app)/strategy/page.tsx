@@ -104,7 +104,7 @@ export default async function StrategyStartPage() {
               <p className={`text-4xl font-black ${
                 (pendingPreview.niw_score ?? 0) >= 65 ? 'text-teal' :
                 (pendingPreview.niw_score ?? 0) >= 45 ? 'text-yellow-600' : 'text-orange-500'
-              }`}>{pendingPreview.niw_score ?? '—'}</p>
+              }`}>{pendingPreview.niw_score ?? '-'}</p>
               <p className="text-xs text-mid">/100</p>
             </div>
             <div className="bg-white rounded-xl border border-border p-3 text-center">
@@ -112,7 +112,7 @@ export default async function StrategyStartPage() {
               <p className={`text-4xl font-black ${
                 (pendingPreview.eb1a_score ?? 0) >= 70 ? 'text-teal' :
                 (pendingPreview.eb1a_score ?? 0) >= 50 ? 'text-yellow-600' : 'text-orange-500'
-              }`}>{pendingPreview.eb1a_score ?? '—'}</p>
+              }`}>{pendingPreview.eb1a_score ?? '-'}</p>
               <p className="text-xs text-mid">/100</p>
             </div>
           </div>

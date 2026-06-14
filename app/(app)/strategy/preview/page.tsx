@@ -99,6 +99,9 @@ export default async function StrategyPreviewPage({
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Preview</span>
         <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Strategy Preview</h1>
         <p className="text-mid mt-2">Here&apos;s where you stand. Unlock the complete strategy to see the full breakdown.</p>
+        <p className="text-sm text-mid mt-3 leading-relaxed border-l-2 border-teal/40 pl-3">
+          This is a self-petitioned, employment-based green card strategy, the kind you file yourself. We score both paths you can pursue without an employer or family sponsor: EB-1A (Extraordinary Ability) and EB-2 NIW (National Interest Waiver).
+        </p>
       </div>
 
       {preview ? (
@@ -133,7 +136,7 @@ export default async function StrategyPreviewPage({
               <p className={`text-6xl font-black ${
                 (preview.niw_score ?? 0) >= 65 ? 'text-teal' :
                 (preview.niw_score ?? 0) >= 45 ? 'text-yellow-600' : 'text-orange-500'
-              }`}>{preview.niw_score ?? '—'}</p>
+              }`}>{preview.niw_score ?? '-'}</p>
               <p className="text-xs text-mid">/100</p>
               {preview.niw_benchmark && (
                 <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">{preview.niw_benchmark}</p>
@@ -146,7 +149,7 @@ export default async function StrategyPreviewPage({
               <p className={`text-6xl font-black ${
                 (preview.eb1a_score ?? 0) >= 70 ? 'text-teal' :
                 (preview.eb1a_score ?? 0) >= 50 ? 'text-yellow-600' : 'text-orange-500'
-              }`}>{preview.eb1a_score ?? '—'}</p>
+              }`}>{preview.eb1a_score ?? '-'}</p>
               <p className="text-xs text-mid">/100</p>
               <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">
                 {(preview.eb1a_score ?? 0) >= 70 ? 'Competitive EB-1A case, full breakdown in report.' :

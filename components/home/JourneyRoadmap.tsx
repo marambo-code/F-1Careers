@@ -8,7 +8,7 @@ const employerSteps = [
   },
   {
     label: 'PERM Labor Certification',
-    note: 'Your employer files. You wait 2–3 years. You have no control.',
+    note: 'Your employer files. You wait 2-3 years. You have no control.',
     pain: true,
   },
   {
@@ -46,17 +46,17 @@ const selfSteps = [
 
 export default function JourneyRoadmap() {
   return (
-    <section className="bg-navy py-24 px-6 border-y border-white/[0.06]">
+    <section className="bg-navy-light py-24 px-6 border-y border-border">
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="text-center mb-16">
           <p className="text-[11px] font-extrabold uppercase tracking-[2.5px] text-teal mb-4">Your immigration journey</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-[-1.5px] leading-[1.1] mb-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-navy tracking-[-1.5px] leading-[1.1] mb-4">
             Two roads to a green card.<br />
             <span className="text-teal">One of them is yours to control.</span>
           </h2>
-          <p className="text-base text-slate-500 max-w-md mx-auto leading-relaxed">
+          <p className="text-base text-mid max-w-md mx-auto leading-relaxed">
             Most international professionals end up on the employer path by default, not by choice. Here&apos;s the difference.
           </p>
         </div>
@@ -65,94 +65,94 @@ export default function JourneyRoadmap() {
         <div className="grid md:grid-cols-2 gap-5">
 
           {/* ── Employer path ── */}
-          <div className="rounded-2xl p-7 bg-white/[0.03] border border-white/[0.08]">
+          <div className="rounded-2xl p-7 bg-white border border-border shadow-card">
             <div className="flex items-start justify-between gap-3 mb-7">
               <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-slate-500 mb-1.5">The employer route</p>
-                <p className="text-base font-bold text-white leading-snug">Their timeline.<br />Their decisions.</p>
+                <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-mid mb-1.5">The employer route</p>
+                <p className="text-base font-bold text-navy leading-snug">Their timeline.<br />Their decisions.</p>
               </div>
-              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-400 bg-orange-400/10 border border-orange-400/20">
+              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-600 bg-orange-50 border border-orange-200">
                 High uncertainty
               </span>
             </div>
 
             <div className="relative pl-5">
               {/* Vertical line */}
-              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/[0.08]" />
+              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
 
               <div className="space-y-6">
                 {employerSteps.map((s, i) => (
                   <div key={i} className="flex gap-4 items-start relative">
                     <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 relative z-10 mt-1 border ${
                       s.final
-                        ? 'bg-white/10 border-white/20'
-                        : 'bg-orange-400/15 border-orange-400/40'
+                        ? 'bg-slate-100 border-slate-300'
+                        : 'bg-orange-100 border-orange-300'
                     }`} />
                     <div>
-                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-slate-400' : 'text-white'}`}>
+                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-mid' : 'text-navy'}`}>
                         {s.label}
                       </p>
-                      <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{s.note}</p>
+                      <p className="text-xs text-mid mt-0.5 leading-relaxed">{s.note}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-600 italic mt-7 pt-5 border-t border-white/[0.06] leading-relaxed">
+            <p className="text-[11px] text-mid italic mt-7 pt-5 border-t border-border leading-relaxed">
               Your career, your income, your entire US future, contingent on one employer staying committed.
             </p>
           </div>
 
           {/* ── Self-petition path ── */}
-          <div className="rounded-2xl p-7 relative overflow-hidden border border-teal/20 bg-teal/[0.04]">
+          <div className="rounded-2xl p-7 relative overflow-hidden border border-teal/30 bg-teal-light shadow-card">
             <div
               className="absolute -top-12 -right-12 w-56 h-56 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.12) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(0,194,168,0.18) 0%, transparent 70%)' }}
             />
 
             <div className="flex items-start justify-between gap-3 mb-7 relative z-10">
               <div>
                 <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-1.5">The self-petition route</p>
-                <p className="text-base font-bold text-white leading-snug">Your timeline.<br />Your control.</p>
+                <p className="text-base font-bold text-navy leading-snug">Your timeline.<br />Your control.</p>
               </div>
-              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-teal bg-teal/10 border border-teal/25">
+              <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full text-teal bg-white border border-teal/30">
                 No employer needed
               </span>
             </div>
 
             <div className="relative pl-5 z-10">
               {/* Vertical line */}
-              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-teal/20" />
+              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-teal/30" />
 
               <div className="space-y-6">
                 {selfSteps.map((s, i) => (
                   <div key={i} className="flex gap-4 items-start relative">
                     <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 relative z-10 mt-1 border ${
                       s.final
-                        ? 'bg-teal/20 border-teal/40'
-                        : 'bg-teal/15 border-teal/35'
+                        ? 'bg-teal/30 border-teal'
+                        : 'bg-teal/20 border-teal/50'
                     }`}>
                       {s.final && (
-                        <div className="absolute inset-0.5 rounded-full bg-teal/60" />
+                        <div className="absolute inset-0.5 rounded-full bg-teal" />
                       )}
                     </div>
                     <div>
-                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-teal' : 'text-white'}`}>
+                      <p className={`text-sm font-bold leading-snug ${s.final ? 'text-teal' : 'text-navy'}`}>
                         {s.label}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{s.note}</p>
+                      <p className="text-xs text-mid mt-0.5 leading-relaxed">{s.note}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-7 pt-5 border-t border-teal/15 relative z-10">
+            <div className="mt-7 pt-5 border-t border-teal/20 relative z-10">
               <p className="text-[10px] font-extrabold uppercase tracking-[2px] text-teal mb-2">
                 F-1 Careers was built for this path
               </p>
-              <p className="text-xs text-slate-400 leading-relaxed mb-4">
+              <p className="text-xs text-mid leading-relaxed mb-4">
                 We assess your profile against every EB-1A and NIW criterion, and show you exactly where you stand, criterion by criterion.
               </p>
               <Link
@@ -170,7 +170,7 @@ export default function JourneyRoadmap() {
         </div>
 
         {/* Bottom note */}
-        <p className="text-center text-xs text-slate-600 mt-8 leading-relaxed">
+        <p className="text-center text-xs text-mid mt-8 leading-relaxed">
           F-1 → OPT → STEM OPT is the shared starting point. What happens next is the decision that defines the next decade.
         </p>
 

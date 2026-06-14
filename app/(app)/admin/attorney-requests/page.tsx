@@ -57,12 +57,12 @@ export default async function AttorneyRequestsAdmin() {
                   </td>
                   <td className="px-4 py-3 text-navy font-medium">{emailById.get(r.user_id) || r.user_id}</td>
                   <td className="px-4 py-3 uppercase text-xs font-bold text-teal">{r.report_type}</td>
-                  <td className="px-4 py-3">{r.consent_share ? '✓ shares report' : '— no'}</td>
-                  <td className="px-4 py-3 text-mid max-w-xs">{r.note || '—'}</td>
+                  <td className="px-4 py-3">{r.consent_share ? '✓ shares report' : '- no'}</td>
+                  <td className="px-4 py-3 text-mid max-w-xs">{r.note || '-'}</td>
                   <td className="px-4 py-3">
                     {r.report_id ? (
                       <Link href={`/${r.report_type}/report/${r.report_id}`} className="text-teal hover:underline">open</Link>
-                    ) : '—'}
+                    ) : '-'}
                   </td>
                   <td className="px-4 py-3 text-xs">{r.status}</td>
                 </tr>
