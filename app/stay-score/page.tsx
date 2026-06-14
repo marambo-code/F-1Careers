@@ -413,7 +413,7 @@ export default function RiskScorePage() {
             USCIS PM-602-0199 in effect, May 21, 2026
           </div>
           <h1 className="text-3xl font-black text-navy leading-tight">
-            Immigration Risk Score
+            Visa &amp; Career Risk Score
           </h1>
           <div className="inline-flex items-center gap-3 bg-slate-100 rounded-xl px-4 py-2 text-xs text-mid">
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-teal inline-block" /> Lower score = stronger protection</span>
@@ -562,8 +562,8 @@ export default function RiskScorePage() {
 
               {/* I-140 */}
               <div>
-                <label className="label">Do you have an approved I-140 petition?</label>
-                <p className="text-xs text-mid mb-2">An approved I-140 is the single most protective document you can hold under PM-602-0199, it is USCIS's own documented recognition that your presence serves the national interest.</p>
+                <label className="label">Do you have an approved green card petition (I-140)?</label>
+                <p className="text-xs text-mid mb-2">The I-140 is the employment-based green card petition you file for your own case. An approved one is the single most protective document you can hold under PM-602-0199, USCIS&apos;s own recognition that your presence serves the national interest. Most people do not have one yet, and that is expected.</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[{ val: 'yes', label: 'Yes, I-140 approved' }, { val: 'no', label: 'No, not yet' }].map(opt => (
                     <button key={opt.val} onClick={() => set('i140Approved', opt.val)}
@@ -674,7 +674,7 @@ export default function RiskScorePage() {
 
             {/* Score card */}
             <div className={`card text-center space-y-3 border-2 ${scoreData.bg}`}>
-              <p className="text-xs font-bold uppercase tracking-widest text-mid">Immigration Risk Score</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-mid">Visa &amp; Career Risk Score</p>
               <p className="text-[10px] text-mid">Lower = stronger protection · Higher = more at risk</p>
               <p className="text-[9px] text-gray-400 font-mono">Model v2.2 · Policy data current as of May 21, 2026 · Same inputs always return this score</p>
               <div className="relative inline-flex items-center justify-center">

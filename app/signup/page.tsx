@@ -66,7 +66,6 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-3 no-underline">
             <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
-            <span className="text-teal text-xs font-bold bg-teal/15 px-2 py-0.5 rounded-md border border-teal/20">AI</span>
           </Link>
           <p className="text-blue-200 text-sm">Personalized Career and Visa Strategy for International Professionals</p>
         </div>

@@ -28,7 +28,6 @@ export default async function Home() {
           </Link>
           <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
             <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Risk Score</Link>
-            <Link href="/roi-calculator" className="font-medium hover:text-navy transition-colors px-3 py-2">ROI Calc</Link>
             <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
           </div>
           <div className="flex items-center gap-2.5">
@@ -67,7 +66,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4">
-            Diagnostic clarity for international professionals on F-1, OPT, and H-1B. Know your real EB-1A and NIW odds, and build the case that keeps you in the US.
+            Diagnostic clarity for international professionals on F-1 and student visas, OPT, and H-1B. Know your real green card odds across EB-1A and EB-2 NIW, and build your case to work and live in the US, compliantly and stress-free.
           </p>
 
           <p className="text-[12px] font-bold tracking-[1.5px] uppercase text-white/35 mb-8">
@@ -80,7 +79,7 @@ export default async function Home() {
               className="bg-teal text-white font-extrabold text-lg px-10 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
               style={{ boxShadow: '0 8px 32px rgba(0,194,168,.30)' }}
             >
-              Get my green card preview →
+              Get my Green Card readiness report →
             </Link>
             <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
               Check my Risk Score first ↓
@@ -116,7 +115,7 @@ export default async function Home() {
               The rules for residing in the US<br className="hidden sm:block" /> as a green card applicant are constantly changing
             </h2>
             <p className="text-base text-mid mt-3 max-w-xl mx-auto leading-relaxed">
-              F-1 Careers was built specifically for this environment.
+              The strongest response is a self-petitioned green card, EB-1A or EB-2 NIW, that puts your future in your hands instead of an employer&apos;s.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -150,10 +149,7 @@ export default async function Home() {
           </div>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/stay-score" className="inline-block bg-navy text-white font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm no-underline">
-              Check my Risk Score →
-            </Link>
-            <Link href="/roi-calculator" className="inline-block border border-border text-navy font-semibold px-8 py-3.5 rounded-xl hover:border-navy transition-colors text-sm no-underline">
-              Calculate my financial exposure →
+              Check my Visa &amp; Career Risk Score →
             </Link>
           </div>
         </div>
@@ -191,23 +187,18 @@ export default async function Home() {
             className="flex-shrink-0 w-full md:w-80 bg-navy rounded-2xl p-7"
             style={{ boxShadow: '0 24px 64px rgba(27,43,107,.20)' }}
           >
-            <p className="text-[10px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Case Law Trained</p>
-            {[
-              { tag: 'Kazarian', title: 'Matter of Kazarian', desc: 'EB-1A two-part adjudication standard. All 10 criteria framework.' },
-              { tag: 'Dhanasar', title: 'Matter of Dhanasar', desc: 'NIW three-prong test. National interest framework.' },
-              { tag: 'Chawathe', title: 'Matter of Chawathe', desc: 'Preponderance of evidence. Burden of proof standard.' },
-            ].map((c, i) => (
-              <div key={i} className="flex gap-3 py-3 border-b border-white/[0.06] last:border-b-0">
-                <span className="text-[10px] font-bold text-teal w-14 flex-shrink-0 pt-0.5">{c.tag}</span>
-                <div>
-                  <p className="text-[13px] font-bold text-white">{c.title}</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5 leading-[1.5]">{c.desc}</p>
-                </div>
-              </div>
-            ))}
-            <p className="text-[11px] text-slate-600 mt-4 pt-3 border-t border-white/[0.06] leading-[1.55]">
-              Not generic AI. Trained on the exact standards USCIS adjudicators use to evaluate your petition.
+            <p className="text-[10px] font-extrabold uppercase tracking-[1.5px] text-teal mb-4">Case-law trained</p>
+            <p className="text-[16px] font-bold text-white leading-snug mb-3">
+              Built on the exact standards USCIS officers use to decide self-petitions.
             </p>
+            <p className="text-[12px] text-slate-400 leading-[1.6] mb-5">
+              Not generic AI. Your analysis follows the controlling precedent for EB-1A and EB-2 NIW, the same case law an adjudicator applies to your petition.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/[0.06]">
+              {['Kazarian', 'Dhanasar', 'Chawathe'].map(t => (
+                <span key={t} className="text-[10px] font-bold text-teal/90 bg-teal/10 border border-teal/20 rounded-full px-2.5 py-1">{t}</span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -230,7 +221,7 @@ export default async function Home() {
               <span className="text-[26px] font-extrabold text-teal ml-4 flex-shrink-0">$297</span>
             </div>
             <p className="text-sm text-mid leading-relaxed mb-6">
-              Complete EB-1A and NIW analysis with personalized Dhanasar framework, evidence map, and 12-month roadmap. Free preview before you pay.
+              Your case for a self-petitioned, employment-based green card, the kind you file yourself. We score both paths, EB-1A (Extraordinary Ability) and EB-2 NIW (National Interest Waiver), then map your evidence, gaps, and 12-month roadmap. Free preview before you pay.
             </p>
             <ul className="space-y-2.5 mb-7 flex-1">
               {[
@@ -464,7 +455,6 @@ export default async function Home() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>
-            <Link href="/roi-calculator" className="text-sm text-mid hover:text-navy transition-colors">ROI Calc</Link>
             <Link href="/cohort" className="text-sm text-mid hover:text-navy transition-colors">Cohort Filing</Link>
             <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>
             <Link href="/privacy" className="text-sm text-mid hover:text-navy transition-colors">Privacy</Link>

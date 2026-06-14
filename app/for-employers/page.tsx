@@ -65,7 +65,7 @@ export default function ForEmployersPage() {
             The rules for F-1, OPT, and H-1B employees are changing simultaneously. Adjustment of status is now discretionary relief, not an entitlement. OPT fraud enforcement is escalating across the country. Duration of Status for F-1 holders is ending. Three compounding risks to your international team. We map every one of them and build the documentation that protects your people.
           </p>
           <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-4 rounded-xl hover:bg-teal/90 transition-colors text-lg">
-            Request a workforce audit →
+            Request workforce support →
           </a>
         </div>
       </div>
@@ -98,11 +98,11 @@ export default function ForEmployersPage() {
             <h2 className="text-xl font-black text-navy text-center">What we do for your team</h2>
             <div className="space-y-3">
               {[
-                { n: '1', title: 'Workforce immigration audit', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and self-petition eligibility, and flag who is most exposed under the current policy environment.' },
+                { n: '1', title: 'Workforce immigration review', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and self-petition eligibility, and flag who is most exposed under the current policy environment.' },
                 { n: '2', title: 'EB-1A and NIW eligibility scoring', desc: 'Each employee receives a personalized eligibility score across both EB-1A Extraordinary Ability and EB-2 NIW, based on their field, education, publications, leadership, and salary. We identify exactly who has a strong self-petition case.' },
                 { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete petition framework, national importance argument, evidence map, Dhanasar analysis for NIW or EB-1A criteria mapping, ready for attorney review.' },
                 { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
-                { n: '5', title: 'OPT compliance audit', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
+                { n: '5', title: 'OPT compliance review', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
               ].map((step) => (
                 <div key={step.n} className="card flex gap-4 items-start">
                   <div className="w-9 h-9 rounded-full bg-navy text-white text-sm font-black flex items-center justify-center flex-shrink-0">{step.n}</div>
@@ -122,7 +122,7 @@ export default function ForEmployersPage() {
               We scope every engagement around your headcount, visa mix, and exposure profile. Tell us about your team and we'll put together a proposal within 24 hours.
             </p>
             <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors text-sm">
-              Request a workforce audit →
+              Request workforce support →
             </a>
           </div>
 
@@ -132,12 +132,12 @@ export default function ForEmployersPage() {
               <div className="text-center space-y-3 py-6">
                 <div className="w-14 h-14 bg-teal-light rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
                 <h3 className="text-lg font-bold text-navy">We'll be in touch within 24 hours</h3>
-                <p className="text-sm text-mid">A member of our team will reach out to schedule your workforce audit consultation.</p>
+                <p className="text-sm text-mid">A member of our team will reach out to schedule your workforce support consultation.</p>
               </div>
             ) : (
               <>
                 <div>
-                  <h3 className="text-lg font-bold text-navy">Request a workforce audit</h3>
+                  <h3 className="text-lg font-bold text-navy">Request workforce support</h3>
                   <p className="text-sm text-mid mt-1">Tell us about your team and we'll be in touch within 24 hours.</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -183,7 +183,7 @@ export default function ForEmployersPage() {
                   </div>
                   {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
                   <button type="submit" disabled={submitting} className="w-full btn-teal py-3 font-bold disabled:opacity-60">
-                    {submitting ? 'Submitting...' : 'Request workforce audit →'}
+                    {submitting ? 'Submitting...' : 'Request workforce support →'}
                   </button>
                 </form>
               </>
