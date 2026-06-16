@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Green Card Eligibility Explorer — EB-1A & EB-2 NIW</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#ffffff; --panel2:#F5F7FB;
+    --ink:#1B2B6B; --muted:#555566; --line:#DEDEDE;
+    --gold:#B45309; --gold2:#D97706; --cyan:#00C2A8; --cyan2:#5FD9C8;
+    --green:#16A34A; --red:#DC2626;
+    --shadow:0 8px 24px rgba(27,43,107,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1000px 600px at 80% -10%,#EDF0F8 0%,#ffffff 60%),var(--bg);
+    color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 40px}
+  .brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .brandlink{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+  .brandlink:hover{color:var(--cyan)}
+  .brandback{font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap}
+  .brandback:hover{color:var(--ink)}
+  .kicker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .kicker .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(120deg,var(--gold),var(--cyan));box-shadow:0 0 12px rgba(0,194,168,.4)}
+  .freetag{padding:3px 10px;border-radius:999px;background:rgba(0,194,168,.10);color:#0E9E8A;border:1px solid rgba(0,194,168,.30);font-weight:800;letter-spacing:.06em}
+  h1{font-size:clamp(26px,4.6vw,46px);line-height:1.06;margin:.05em 0 .2em;
+    background:linear-gradient(120deg,var(--ink),#2a3f8f 45%,var(--cyan) 120%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;letter-spacing:-.02em}
+  .sub{color:var(--muted);max-width:730px;font-size:16.5px}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 20px}
+  .tab{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;transition:.18s;display:flex;gap:7px;align-items:center}
+  .tab:hover{color:var(--ink);border-color:var(--cyan)}
+  .tab.active{color:#fff;background:var(--ink);border-color:transparent;box-shadow:0 8px 24px rgba(27,43,107,.18)}
+  .tab .n{font-size:11px;opacity:.7}
+  .view{display:none;animation:fade .4s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  h2{font-size:23px;margin:0 0 6px;font-weight:750}
+  .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.cmp{grid-template-columns:1fr}.calc-grid{grid-template-columns:1fr!important}}
+  .pathcard{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--panel2)}
+  .pathcard.a{border-top:3px solid var(--gold)}.pathcard.b{border-top:3px solid var(--cyan)}
+  .pathcard h3{margin:0 0 2px;font-size:19px}
+  .pathcard .tagp{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}
+  .pathcard.a .tagp{color:var(--gold)}.pathcard.b .tagp{color:#0E9E8A}
+  .pathcard ul{list-style:none;padding:0;margin:12px 0 0}
+  .pathcard li{display:flex;gap:9px;font-size:13.5px;color:var(--muted);padding:7px 0;border-top:1px solid rgba(27,43,107,.08)}
+  .pathcard li b{color:var(--ink);font-weight:600}
+  .pathcard li .k{min-width:96px;color:#8A93AD;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:1px}
+  .shared{margin-top:16px;background:rgba(0,194,168,.05);border:1px solid var(--line);border-radius:14px;padding:15px 17px;font-size:13.5px;color:var(--muted)}
+  .shared b{color:var(--ink)}
+  .ptoggle{display:inline-flex;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:18px}
+  .ptoggle button{cursor:pointer;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:8px 15px;border-radius:9px;transition:.16s}
+  .ptoggle button.on[data-p="eb1a"]{background:linear-gradient(120deg,var(--gold2),var(--gold));color:#fff}
+  .ptoggle button.on[data-p="eb2"]{background:linear-gradient(120deg,var(--cyan),#0E9E8A);color:#fff}
+  .stage{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+  .stage.eb1a{background:radial-gradient(700px 480px at 50% 42%,#1f2c63 0%,#15204a 55%,#0d1430 100%)}
+  .stage.eb2{background:radial-gradient(700px 460px at 50% 45%,#13335a 0%,#152a4a 55%,#0d1430 100%)}
+  .stage svg{display:block;width:100%;height:auto}
+  .starbg{position:absolute;inset:0;pointer-events:none}
+  .twinkle{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s infinite ease-in-out}
+  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.8}}
+  .crit-label{font-size:11px;fill:#AEB9DC;pointer-events:none}
+  .crit-node{cursor:pointer}.crit-node:hover .crit-dot{r:13}
+  .crit-node.sel .crit-label{fill:#ffd97a;font-weight:700}
+  .gate-grp{cursor:pointer}.gate-sub{font-size:10.5px;fill:#AEB9DC;pointer-events:none}
+  .counter-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:18px}
+  .counter{font-size:15px;color:var(--muted)}.counter b{color:var(--ink);font-size:22px}
+  .pill{padding:8px 16px;border-radius:999px;font-weight:700;font-size:14px}
+  .pill.no{background:rgba(220,38,38,.08);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+  .pill.yes{background:rgba(22,163,74,.10);color:var(--green);border:1px solid rgba(22,163,74,.30);box-shadow:0 0 20px rgba(22,163,74,.15)}
+  .crit-detail{margin-top:16px;min-height:60px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px 17px;font-size:14px;color:var(--muted)}
+  .crit-detail b{color:var(--gold)}
+  .eb2 .crit-detail b,.detail-cyan b{color:#0E9E8A}
+  .reset{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:13px}
+  .reset:hover{color:var(--ink);border-color:var(--cyan)}
+  .elig{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .door{flex:1;min-width:220px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px 16px;transition:.18s}
+  .door:hover{border-color:var(--cyan)}
+  .door.on{border-color:var(--cyan);background:rgba(0,194,168,.08);box-shadow:0 0 20px rgba(0,194,168,.12)}
+  .door h4{margin:0 0 4px;font-size:15px}.door p{margin:0;font-size:13px;color:var(--muted)}
+  .door .tagp{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#0E9E8A;font-weight:700}
+  .flow{display:flex;flex-direction:column;align-items:center}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:13px 18px;max-width:560px;text-align:center;font-size:14px}
+  .node.q{font-weight:700}
+  .node.start{background:var(--ink);color:#fff;font-weight:800;border:none}
+  .node.gold{border-color:rgba(180,83,9,.35);background:rgba(217,119,6,.06)}
+  .node.cyan{border-color:rgba(0,194,168,.35);background:rgba(0,194,168,.06)}
+  .node.end{border-color:rgba(22,163,74,.45);background:rgba(22,163,74,.07)}
+  .node small{display:block;color:var(--muted);font-weight:400;font-size:12.5px;margin-top:3px}
+  .node.end small{color:#15803D}
+  .connector{width:2px;height:24px;background:linear-gradient(var(--line),#B6C0D6)}
+  .branch{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;width:100%}
+  .limb{display:flex;flex-direction:column;align-items:center;flex:1;min-width:240px;max-width:360px}
+  .blabel{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin:6px 0;font-weight:700}
+  .blabel.gold{color:var(--gold)}.blabel.cyan{color:#0E9E8A}
+  .tl{margin-top:8px;padding-left:6px}
+  .tl-item{display:grid;grid-template-columns:46px 1fr;gap:16px;position:relative;padding-bottom:24px}
+  .tl-item:not(:last-child)::before{content:"";position:absolute;left:22px;top:30px;bottom:-4px;width:2px;background:linear-gradient(#B6C0D6,#DEDEDE)}
+  .tl-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;z-index:2}
+  .eb1a .tl-num{background:linear-gradient(120deg,var(--gold2),var(--gold));box-shadow:0 0 18px rgba(180,83,9,.25)}
+  .eb2 .tl-num{background:linear-gradient(120deg,var(--cyan),#0E9E8A);box-shadow:0 0 18px rgba(0,194,168,.25)}
+  .tl-body{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:13px 18px}
+  .tl-body h4{margin:0 0 4px;font-size:16px}.tl-body p{margin:0;color:var(--muted);font-size:14px}
+  .chip{display:inline-block;margin:8px 8px 0 0;padding:5px 11px;border-radius:8px;font-size:12.5px;font-weight:700;border:1px solid var(--line)}
+  .chip.fee{color:var(--gold);background:rgba(217,119,6,.07);border-color:rgba(217,119,6,.22)}
+  .chip.time{color:#0E9E8A;background:rgba(0,194,168,.07);border-color:rgba(0,194,168,.22)}
+  .chip.warn{color:var(--red);background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.22)}
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;font-weight:700}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{cursor:pointer;border:1px solid var(--line);background:var(--panel2);padding:10px 13px;border-radius:11px;font-size:14px;transition:.16s;flex:1;text-align:center;min-width:78px}
+  .opt:hover{border-color:var(--cyan)}
+  .opt.on{border-color:var(--cyan);background:rgba(0,194,168,.10);color:var(--ink);font-weight:700}
+  .stepper{display:flex;align-items:center;gap:14px}
+  .stepper button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;cursor:pointer}
+  .stepper button:hover{border-color:var(--cyan)}
+  .stepper .val{font-size:20px;font-weight:800;min-width:30px;text-align:center}
+  .result{background:var(--panel2);border:1px solid var(--cyan);border-radius:16px;padding:20px}
+  .total{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .total-num{font-size:40px;font-weight:850;margin:4px 0 2px;background:linear-gradient(120deg,var(--ink),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .vbnote{margin-top:10px;font-size:13px;padding:10px 12px;border-radius:10px}
+  .vbnote.wait{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#B91C1C}
+  .vbnote.go{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.25);color:#15803D}
+  .breakdown{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .brow{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;color:var(--muted)}
+  .brow span:last-child{color:var(--ink);font-weight:600}
+  .brow.sum{border-top:1px solid var(--line);margin-top:8px;padding-top:12px;font-size:15px}
+  .brow.sum span{color:var(--ink);font-weight:800}
+  .pitch{margin-top:12px;font-size:13px;padding:11px 13px;border-radius:10px;background:rgba(27,43,107,.05);border:1px solid rgba(27,43,107,.12);color:var(--muted)}
+  .pitch b{color:var(--ink)}
+  .disclaimer{margin-top:14px;font-size:12px;color:var(--muted);opacity:.85}
+  .ctaband{margin-top:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;
+    background:var(--ink);border:1px solid #2a3f8f;border-radius:18px;padding:22px 24px}
+  .ctatitle{font-size:18px;font-weight:800;color:#fff}
+  .ctasub{font-size:13.5px;color:#C7D0E8;margin-top:3px;max-width:560px}
+  .ctaform{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .ctaemail{padding:13px 14px;border-radius:12px;border:1px solid #46599c;background:#142156;color:#fff;font-size:14px;min-width:200px;flex:1}
+  .ctaemail::placeholder{color:#9aa8d4}
+  .ctabtn{display:inline-block;padding:14px 24px;border-radius:12px;font-weight:800;font-size:15px;color:#fff;text-decoration:none;
+    background:linear-gradient(120deg,var(--cyan),#0E9E8A);box-shadow:0 10px 30px rgba(0,194,168,.28);white-space:nowrap;border:none;cursor:pointer}
+  .ctabtn:hover{filter:brightness(1.05)}
+  .ctaskip{display:block;margin-top:6px;font-size:11.5px;color:#8290bf}
+  .footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px}
+  .legalnote{font-size:11.5px;color:var(--muted);opacity:.75;max-width:780px;margin:14px auto 0;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brandbar">
+    <a class="brandlink" href="/" target="_top">F-1 Careers</a>
+    <a class="brandback" href="/" target="_top">← Back to home</a>
+  </div>
+  <div class="kicker"><span class="dot"></span> <span class="freetag">Free Tool</span> Green Card Eligibility Explorer &nbsp;•&nbsp; 2026</div>
+  <h1>Free Green Card Eligibility Explorer</h1>
+  <p class="sub">Both EB-1A (extraordinary ability) and EB-2 NIW (national interest waiver) let you self-petition a U.S. green card — no employer, no job offer. Explore both, test your fit, and see your real 2026 costs.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-view="choose"><span class="n">01</span> Compare &amp; Choose</div>
+    <div class="tab" data-view="eb1a"><span class="n">02</span> EB-1A Constellation</div>
+    <div class="tab" data-view="eb2"><span class="n">03</span> EB-2 NIW Prongs</div>
+    <div class="tab" data-view="tree"><span class="n">04</span> Decision Tree</div>
+    <div class="tab" data-view="timeline"><span class="n">05</span> Timeline</div>
+    <div class="tab" data-view="calc"><span class="n">06</span> Cost Calculator</div>
+  </div>
+
+  <section class="view active" id="choose">
+    <div class="card">
+      <h2>Which path fits you?</h2>
+      <p class="lead">Both are self-petitioned immigrant visas filed on Form I-140. They differ in who they are for, how you qualify, and how fast the green card line moves.</p>
+      <div class="cmp">
+        <div class="pathcard a">
+          <div class="tagp">First preference</div>
+          <h3>EB-1A — Extraordinary Ability</h3>
+          <ul>
+            <li><span class="k">Who</span><span>Top of your field, with <b>sustained acclaim</b></span></li>
+            <li><span class="k">Test</span><span>Any <b>3 of 10 criteria</b> (or one major award)</span></li>
+            <li><span class="k">Degree</span><span>Not required</span></li>
+            <li><span class="k">Premium</span><span><b>15 calendar days</b></span></li>
+            <li><span class="k">Bulletin (Jun 2026)</span><span>Current except <b>China Apr 2023</b>, <b>India Dec 2022</b></span></li>
+            <li><span class="k">Best when</span><span>You have awards, press, judging, major contributions</span></li>
+          </ul>
+        </div>
+        <div class="pathcard b">
+          <div class="tagp">Second preference</div>
+          <h3>EB-2 NIW — National Interest Waiver</h3>
+          <ul>
+            <li><span class="k">Who</span><span>Advanced-degree pros with a <b>nationally important endeavor</b></span></li>
+            <li><span class="k">Test</span><span>Advanced degree or exceptional ability <b>+ all 3 Dhanasar prongs</b></span></li>
+            <li><span class="k">Degree</span><span>Advanced degree, or 3-of-6 exceptional ability</span></li>
+            <li><span class="k">Premium</span><span><b>45 calendar days</b></span></li>
+            <li><span class="k">Bulletin (Jun 2026)</span><span>Current except <b>China Sep 2021</b>, <b>India Sep 2013</b></span></li>
+            <li><span class="k">Best when</span><span>Strong credentials + clear U.S. impact, not "the very top"</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="shared">
+        <b>What's identical:</b> both self-petition on Form I-140 ($715 + $300 asylum fee = <b>$1,015</b>); premium processing is <b>$2,965</b> either way; the green-card-stage fees are the same; and you may file the green card concurrently when your priority date is current. <b>Rule of thumb:</b> if your record screams "best in the field," aim EB-1A. If you have strong credentials and work of clear national importance, EB-2 NIW is the broader door. You can also file both — each is judged separately.
+      </div>
+    </div>
+  </section>
+
+  <section class="view eb1a" id="eb1a">
+    <div class="card">
+      <h2>EB-1A: Your Eligibility Constellation</h2>
+      <p class="lead">10 criteria; you need any <b>3</b> (aim for 4+). Tap the stars that match your record and watch your constellation form.</p>
+      <div class="stage eb1a"><div class="starbg" id="starbg"></div><svg viewBox="0 0 800 560" id="constSvg" aria-label="EB-1A criteria constellation"></svg></div>
+      <div class="counter-wrap">
+        <div class="counter">Criteria selected: <b id="cSel">0</b> / 3 needed</div>
+        <div class="pill no" id="cPill">Keep building</div>
+        <button class="reset" id="cReset">Reset</button>
+      </div>
+      <div class="crit-detail" id="cDetail">Tap a star to read what that criterion means — and the evidence that proves it.</div>
+    </div>
+  </section>
+
+  <section class="view eb2" id="eb2">
+    <div class="card">
+      <h2>EB-2 NIW: The Three Prongs Gateway</h2>
+      <p class="lead">Unlike EB-1A's "any 3 of 10," the NIW (Matter of Dhanasar) is an <b>AND</b> test — pass all three gates. First pick how you qualify for EB-2, then open each gate.</p>
+      <div class="elig">
+        <div class="door" data-door="degree"><div class="tagp">Path A</div><h4>Advanced degree</h4><p>Master's or higher, OR Bachelor's/HND + 5+ years progressive experience.</p></div>
+        <div class="door" data-door="ability"><div class="tagp">Path B</div><h4>Exceptional ability</h4><p>Meet at least 3 of 6 USCIS criteria. No graduate degree required.</p></div>
+      </div>
+      <div class="stage eb2"><svg viewBox="0 0 800 360" id="gateSvg" aria-label="EB-2 NIW three prongs as gates"></svg></div>
+      <div class="counter-wrap">
+        <div class="counter">Gates open: <b id="gSel">0</b> / 3 required</div>
+        <div class="pill no" id="gPill">Path not yet open</div>
+        <button class="reset" id="gReset">Reset</button>
+      </div>
+      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands — and how the 2026 standard raised the bar.</div>
+    </div>
+  </section>
+
+  <section class="view" id="tree">
+    <div class="card">
+      <h2>The Decision Tree</h2>
+      <p class="lead">Pick a pathway, prove its test, then follow the shared road to a green card.</p>
+      <div class="flow">
+        <div class="node start">Which self-petition fits your record?</div>
+        <div class="connector"></div>
+        <div class="branch">
+          <div class="limb"><div class="blabel gold">EB-1A</div><div class="node gold q">Meet 3+ of 10 criteria?<small>Awards, media, judging, major contributions, high salary, leading roles…</small></div></div>
+          <div class="limb"><div class="blabel cyan">EB-2 NIW</div><div class="node cyan q">Advanced degree/exceptional ability + 3 Dhanasar prongs?<small>Substantial merit + national importance • well positioned • beneficial to waive</small></div></div>
+        </div>
+        <div class="connector"></div>
+        <div class="node q">File Form I-140 (self-petition) — $1,015<small>EB-2 NIW: include an uncertified ETA-9089 (no PERM). E-file or mail.</small></div>
+        <div class="connector"></div>
+        <div class="node q">Premium processing? (+$2,965, optional)</div>
+        <div class="branch">
+          <div class="limb"><div class="blabel gold">EB-1A speed</div><div class="node gold">Decision in 15 calendar days</div></div>
+          <div class="limb"><div class="blabel cyan">EB-2 NIW speed</div><div class="node cyan">Decision in 45 calendar days</div></div>
+        </div>
+        <div class="connector"></div>
+        <div class="node q" style="border-color:rgba(255,122,122,.45)">Is your priority date current? (depends on path + birth country)<small style="color:var(--red)">Rest of world: current for both. China/India: EB-1 and EB-2 each have their own (different) cutoffs — see the calculator.</small></div>
+        <div class="branch">
+          <div class="limb"><div class="blabel">Current</div><div class="node">File the green card<small>I-485 inside the U.S. (concurrent OK) or consular abroad.</small></div><div class="connector"></div><div class="node end">Green card ✦</div></div>
+          <div class="limb"><div class="blabel">Not current</div><div class="node">Hold after I-140 approval<small>Wait for your priority date, then file Stage 2.</small></div><div class="connector"></div><div class="node end">Green card when current ✦</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="timeline">
+    <div class="card">
+      <h2>The Process Timeline</h2>
+      <p class="lead">Petition to permanent residence. Toggle the path — the premium window and bulletin notes change.</p>
+      <div class="ptoggle" id="tlToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
+      <div class="tl eb1a" id="tlList"></div>
+    </div>
+  </section>
+
+  <section class="view" id="calc">
+    <div class="card">
+      <h2>2026 Cost Calculator</h2>
+      <p class="lead">Works for both paths. Pick your situation; the total and the green-card timing update live for the June 2026 bulletin.</p>
+      <div class="ptoggle" id="calcToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
+      <div class="calc-grid">
+        <div>
+          <div class="field"><label>Birth country / chargeability</label><div class="opts" data-group="country"><div class="opt on" data-val="row">Rest of world</div><div class="opt" data-val="china">China</div><div class="opt" data-val="india">India</div></div></div>
+          <div class="field"><label>Where will you file the green card?</label><div class="opts" data-group="loc"><div class="opt on" data-val="inside">Inside the U.S.</div><div class="opt" data-val="outside">Outside the U.S.</div></div></div>
+          <div class="field"><label>Premium processing on the I-140?</label><div class="opts" data-group="pp"><div class="opt" data-val="yes">Yes (+$2,965)</div><div class="opt on" data-val="no">No</div></div></div>
+          <div class="field" id="paroleField"><label>Advance parole to travel while pending? (inside U.S.)</label><div class="opts" data-group="parole"><div class="opt" data-val="yes">Yes (+$630)</div><div class="opt on" data-val="no">No</div></div></div>
+          <div class="field"><label>Include a spouse?</label><div class="opts" data-group="spouse"><div class="opt" data-val="yes">Yes</div><div class="opt on" data-val="no">No</div></div></div>
+          <div class="field"><label>Children age 14 or older</label><div class="stepper"><button data-step="kids14" data-d="-1">−</button><span class="val" id="kids14v">0</span><button data-step="kids14" data-d="1">+</button></div></div>
+          <div class="field"><label>Children under 14</label><div class="stepper"><button data-step="kidsU14" data-d="-1">−</button><span class="val" id="kidsU14v">0</span><button data-step="kidsU14" data-d="1">+</button></div></div>
+          <div class="field"><label>Add work permits for dependents?</label><div class="opts" data-group="depead"><div class="opt" data-val="yes">Yes (+$260 each)</div><div class="opt on" data-val="no">No</div></div></div>
+        </div>
+        <div>
+          <div class="result">
+            <div class="total">Estimated total</div>
+            <div class="total-num" id="totalNum">$3,015</div>
+            <div class="vbnote go" id="vbnote"></div>
+            <div class="breakdown" id="breakdown"></div>
+            <div class="pitch" id="pitch"></div>
+            <p class="disclaimer">Government filing fees only, plus a medical estimate. Excludes attorney/consultant fees, translations, travel, and shipping. Confirm current fees on uscis.gov/g-1055 before filing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ctaband">
+    <div style="flex:1;min-width:260px">
+      <div class="ctatitle" id="ctaTitle">Get the path right before you spend thousands in filing fees.</div>
+      <div class="ctasub" id="ctaSub">For $297, map EB-1A vs EB-2 NIW to your exact profile, your strongest criteria, and the evidence to gather, so the non-refundable government fees go toward the right petition.</div>
+    </div>
+    <div>
+      <form class="ctaform" id="ctaForm">
+        <input class="ctaemail" id="ctaEmail" type="email" inputmode="email" autocomplete="email" placeholder="Email me my snapshot (optional)" aria-label="Email me my snapshot (optional)">
+        <a class="ctabtn" id="ctaLink" target="_top" href="/signup?utm_source=explorer&utm_medium=tool&utm_campaign=greencard">Get my strategy report →</a>
+      </form>
+      <span class="ctaskip" id="ctaSkip">Optional. The button takes you straight to your report either way.</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>An educational clarity tool, not legal advice. Rules and fees change — verify on USCIS and the Department of State before filing.</p>
+    <p class="legalnote">Updated June 14, 2026. EB-1: rest of world current, China Apr 1 2023, India Dec 15 2022. EB-2: rest of world current, China Sep 1 2021, India Sep 1 2013 (FY limit reached). Reflects USCIS fees, the Jan 15 2025 NIW policy update, and the June 2026 Visa Bulletin; subject to change.</p>
+  </div>
+</div>
+
+<script>
+var SVGNS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+window.critCount=0;window.gateCount=0;
+var REPORT_PRICE=297;
+function updateCTA(){var t=document.getElementById('ctaTitle'),s=document.getElementById('ctaSub');
+ if(window.critCount>=3){t.textContent="You're shaping a viable EB-1A case ("+window.critCount+" criteria).";s.textContent="For $"+REPORT_PRICE+", see exactly how to evidence each criterion and whether EB-1A or EB-2 NIW is your fastest route, before you commit thousands in filing fees you cannot get back.";}
+ else if(window.gateCount>=3){t.textContent="You can clear all three NIW prongs.";s.textContent="For $"+REPORT_PRICE+", turn that into a well-documented petition and the evidence to gather, before you spend thousands in non-refundable filing fees.";}
+ else{t.textContent="Get the path right before you spend thousands in filing fees.";s.textContent="For $"+REPORT_PRICE+", map EB-1A vs EB-2 NIW to your exact profile, your strongest criteria, and the evidence to gather, so the non-refundable government fees go toward the right petition.";}}
+
+var CRIT=[
+ {t:"Awards & Prizes",d:"Nationally/internationally recognized prizes for excellence. <b>Prove with:</b> certificates, selection criteria, media on the award's prestige."},
+ {t:"Exclusive Membership",d:"Associations requiring <b>outstanding achievement</b>. <b>Prove with:</b> bylaws showing the bar, your admission letter."},
+ {t:"Media About You",d:"Published material <i>about you</i> in major media/trade press. <b>Prove with:</b> articles, outlet reach, dates."},
+ {t:"Judging Others",d:"You judged peers' work. <b>Prove with:</b> review/judging invitations, journal review records."},
+ {t:"Original Contributions",d:"Contributions of <b>major significance</b>. <b>Prove with:</b> citations, adoption/impact letters, patents in use."},
+ {t:"Scholarly Authorship",d:"Articles in journals/major media. <b>Prove with:</b> publications, impact factor, citation counts."},
+ {t:"Exhibitions",d:"Work shown at artistic exhibitions. <b>Prove with:</b> catalogs, invitations, venue prestige."},
+ {t:"Leading / Critical Role",d:"Leading/critical role in a distinguished org. <b>Prove with:</b> org charts, impact letters, the org's reputation."},
+ {t:"High Salary",d:"High pay vs others in your field. <b>Prove with:</b> contracts, pay stubs, wage comparisons."},
+ {t:"Commercial Success",d:"Commercial success in performing arts. <b>Prove with:</b> box office/sales/streaming, chart positions."}
+];
+(function(){
+ var svg=document.getElementById('constSvg'),cx=400,cy=285,R=205,sel={};
+ var lineLayer=el('g',{});svg.appendChild(lineLayer);var nodeLayer=el('g',{});svg.appendChild(nodeLayer);
+ var defs=el('defs',{});defs.innerHTML='<radialGradient id="cG"><stop offset="0%" stop-color="#ffd97a" stop-opacity=".9"/><stop offset="55%" stop-color="#f5c451" stop-opacity=".15"/><stop offset="100%" stop-color="#f5c451" stop-opacity="0"/></radialGradient>';svg.appendChild(defs);
+ var glow=el('circle',{cx:cx,cy:cy,r:54,fill:"url(#cG)"});svg.appendChild(glow);
+ nodeLayer.appendChild(el('circle',{cx:cx,cy:cy,r:34,fill:"#1b2750",stroke:"#f5c451","stroke-width":1.5}));
+ var t1=el('text',{x:cx,y:cy-2,"text-anchor":"middle",fill:"#fff","font-size":"15","font-weight":"800"});t1.textContent="EB-1A";nodeLayer.appendChild(t1);
+ var t2=el('text',{x:cx,y:cy+15,"text-anchor":"middle",fill:"#ffd97a","font-size":"10","letter-spacing":"2"});t2.textContent="3 OF 10";nodeLayer.appendChild(t2);
+ var pos=[],conl=el('g',{});lineLayer.appendChild(conl);
+ CRIT.forEach(function(c,i){
+  var ang=(-90+i*36)*Math.PI/180,x=cx+R*Math.cos(ang),y=cy+R*Math.sin(ang);pos.push({x:x,y:y});
+  lineLayer.appendChild(el('line',{x1:cx,y1:cy,x2:x,y2:y,stroke:"#2a3766","stroke-width":1,"stroke-dasharray":"2 5"}));
+  var g=el('g',{"class":"crit-node",tabindex:0});
+  g.appendChild(el('circle',{cx:x,cy:y,r:18,fill:"transparent"}));
+  var halo=el('circle',{cx:x,cy:y,r:9,fill:"#f5c451",opacity:"0"});
+  var dot=el('circle',{cx:x,cy:y,r:8,fill:"#cdd9ff","class":"crit-dot",stroke:"#5b6aa0","stroke-width":1.5});
+  g.appendChild(halo);g.appendChild(dot);
+  var lx=cx+(R+34)*Math.cos(ang),ly=cy+(R+34)*Math.sin(ang),anc=Math.abs(Math.cos(ang))<0.3?"middle":(Math.cos(ang)>0?"start":"end");
+  var lab=el('text',{x:lx,y:ly-3,"text-anchor":anc,"class":"crit-label"}),w=c.t.split(' ');
+  var s1=document.createElementNS(SVGNS,'tspan');s1.setAttribute('x',lx);s1.setAttribute('dy','0');s1.textContent=w[0];
+  var s2=document.createElementNS(SVGNS,'tspan');s2.setAttribute('x',lx);s2.setAttribute('dy','13');s2.textContent=w.slice(1).join(' ');
+  lab.appendChild(s1);if(w.length>1)lab.appendChild(s2);g.appendChild(lab);nodeLayer.appendChild(g);
+  function tog(){sel[i]=!sel[i];g.classList.toggle('sel',sel[i]);
+   dot.setAttribute('fill',sel[i]?"#f5c451":"#cdd9ff");dot.setAttribute('stroke',sel[i]?"#ffd97a":"#5b6aa0");dot.setAttribute('r',sel[i]?10:8);
+   halo.setAttribute('opacity',sel[i]?".35":"0");
+   document.getElementById('cDetail').innerHTML='<b>'+c.t+'.</b> '+c.d;draw();}
+  g.addEventListener('click',tog);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();tog();}});
+ });
+ function draw(){while(conl.firstChild)conl.removeChild(conl.firstChild);
+  var s=Object.keys(sel).filter(function(k){return sel[k];}).map(Number);
+  for(var j=0;j<s.length;j++){var a=pos[s[j]],b=pos[s[(j+1)%s.length]];
+   if(s.length>1)conl.appendChild(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:"#f5c451","stroke-width":1.6,opacity:".55"}));
+   conl.appendChild(el('line',{x1:a.x,y1:a.y,x2:cx,y2:cy,stroke:"#f5c451","stroke-width":1.2,opacity:".3"}));}
+  var n=s.length;document.getElementById('cSel').textContent=n;var p=document.getElementById('cPill');
+  if(n>=3){p.className="pill yes";p.textContent=n>=4?"Strong shape ✦ ("+n+")":"Viable EB-1A ✦";glow.setAttribute('r',64);}
+  else{p.className="pill no";p.textContent=(3-n)+" more to go";glow.setAttribute('r',54);}
+  window.critCount=n;updateCTA();reportHeight();}
+ document.getElementById('cReset').addEventListener('click',function(){sel={};
+  document.querySelectorAll('#constSvg .crit-node').forEach(function(g){g.classList.remove('sel');
+   var d=g.querySelector('.crit-dot');d.setAttribute('fill','#cdd9ff');d.setAttribute('stroke','#5b6aa0');d.setAttribute('r',8);
+   g.querySelectorAll('circle')[1].setAttribute('opacity','0');});
+  document.getElementById('cDetail').innerHTML='Tap a star to read what that criterion means — and the evidence that proves it.';draw();});
+ var sb=document.getElementById('starbg');for(var k=0;k<60;k++){var d=document.createElement('div');d.className='twinkle';
+  d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*3)+'s';d.style.opacity=Math.random()*.6+.1;sb.appendChild(d);}
+ draw();
+})();
+
+var PRONGS=[
+ {t:"Substantial merit & national importance",d:"Real value AND impact beyond your own job, in any field. <b>2026 bar:</b> show broad, national-level impact and ties to U.S. priorities in the initial filing."},
+ {t:"Well positioned to advance it",d:"Education, skills, record of success, progress so far. <b>2026 bar:</b> a degree alone is no longer enough — tie your background to THIS endeavor. STEM/critical tech get special consideration; entrepreneurs need a central role plus funding, contracts, or letters of interest."},
+ {t:"On balance, beneficial to waive the job offer",d:"Why the U.S. gains by skipping labor certification, even if U.S. workers exist. <b>Avoid:</b> 'labor shortage' arguments — they invite an RFE/denial. Independent recommendation letters matter most here."}
+];
+(function(){
+ var svg=document.getElementById('gateSvg'),startX=70,endX=730,midY=170,gx=[235,400,565],passed={};
+ var defs=el('defs',{});defs.innerHTML='<radialGradient id="gG"><stop offset="0%" stop-color="#7bf0c2" stop-opacity=".95"/><stop offset="60%" stop-color="#54e0a3" stop-opacity=".15"/><stop offset="100%" stop-color="#54e0a3" stop-opacity="0"/></radialGradient>';svg.appendChild(defs);
+ var pl=el('g',{});svg.appendChild(pl);
+ pl.appendChild(el('line',{x1:startX,y1:midY,x2:endX,y2:midY,stroke:"#2a3766","stroke-width":3}));
+ var lit=el('line',{x1:startX,y1:midY,x2:startX,y2:midY,stroke:"#54e0a3","stroke-width":3,opacity:".9"});pl.appendChild(lit);
+ var nl=el('g',{});var glow=el('circle',{cx:endX,cy:midY,r:24,fill:"url(#gG)"});svg.appendChild(glow);svg.appendChild(nl);
+ nl.appendChild(el('circle',{cx:startX,cy:midY,r:30,fill:"#1b2750",stroke:"#56d4e6","stroke-width":1.5}));
+ var yt=el('text',{x:startX,y:midY+5,"text-anchor":"middle",fill:"#fff","font-size":"14","font-weight":"800"});yt.textContent="YOU";nl.appendChild(yt);
+ nl.appendChild(el('rect',{x:endX-34,y:midY-22,width:68,height:44,rx:8,fill:"#1b2750",stroke:"#54e0a3","stroke-width":1.5}));
+ var g1=el('text',{x:endX,y:midY-2,"text-anchor":"middle",fill:"#bfeede","font-size":"11","font-weight":"800"});g1.textContent="GREEN";nl.appendChild(g1);
+ var g2=el('text',{x:endX,y:midY+12,"text-anchor":"middle",fill:"#bfeede","font-size":"11","font-weight":"800"});g2.textContent="CARD";nl.appendChild(g2);
+ var els=[];
+ PRONGS.forEach(function(p,i){var x=gx[i];var g=el('g',{"class":"gate-grp",tabindex:0});
+  var pil=el('rect',{x:x-26,y:midY-58,width:52,height:116,rx:12,fill:"#15204a",stroke:"#3b4d8c","stroke-width":1.5});
+  var arc=el('path',{d:"M "+(x-26)+" "+(midY-58)+" q 26 -26 52 0",fill:"none",stroke:"#3b4d8c","stroke-width":3});
+  g.appendChild(pil);g.appendChild(arc);
+  var lock=el('text',{x:x,y:midY+6,"text-anchor":"middle","font-size":"22",fill:"#7b88b8"});lock.textContent="●";g.appendChild(lock);
+  var num=el('text',{x:x,y:midY-30,"text-anchor":"middle","font-size":"13",fill:"#9aa8d4","font-weight":"800"});num.textContent=(i+1);g.appendChild(num);
+  var lab=el('text',{x:x,y:midY+82,"text-anchor":"middle","class":"gate-sub"});lab.textContent="Prong "+(i+1);g.appendChild(lab);
+  nl.appendChild(g);els.push({pil:pil,arc:arc,lock:lock});
+  function tog(){passed[i]=!passed[i];var on=passed[i];
+   pil.setAttribute('fill',on?"rgba(84,224,163,.16)":"#15204a");pil.setAttribute('stroke',on?"#54e0a3":"#3b4d8c");
+   arc.setAttribute('stroke',on?"#7bf0c2":"#3b4d8c");lock.textContent=on?"✓":"●";lock.setAttribute('fill',on?"#7bf0c2":"#7b88b8");lock.setAttribute('font-size',on?"24":"22");
+   document.getElementById('gDetail').innerHTML='<b>Prong '+(i+1)+': '+p.t+'.</b> '+p.d;draw();}
+  g.addEventListener('click',tog);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();tog();}});
+ });
+ function draw(){var n=Object.keys(passed).filter(function(k){return passed[k];}).length;
+  document.getElementById('gSel').textContent=n;lit.setAttribute('x2',startX+(endX-startX)*(n/3));
+  var p=document.getElementById('gPill');
+  if(n>=3){p.className="pill yes";p.textContent="Waiver path open ✦";glow.setAttribute('r',38);}
+  else{p.className="pill no";p.textContent=(3-n)+" gate"+((3-n)>1?"s":"")+" to open";glow.setAttribute('r',24);}
+  window.gateCount=n;updateCTA();reportHeight();}
+ document.getElementById('gReset').addEventListener('click',function(){passed={};
+  els.forEach(function(o){o.pil.setAttribute('fill','#15204a');o.pil.setAttribute('stroke','#3b4d8c');o.arc.setAttribute('stroke','#3b4d8c');o.lock.textContent='●';o.lock.setAttribute('fill','#7b88b8');o.lock.setAttribute('font-size','22');});
+  document.getElementById('gDetail').innerHTML='Pick a qualifying path above, then tap each gate to see what it demands — and how the 2026 standard raised the bar.';draw();});
+ document.querySelectorAll('#eb2 .door').forEach(function(d){d.addEventListener('click',function(){
+  document.querySelectorAll('#eb2 .door').forEach(function(x){x.classList.remove('on');});d.classList.add('on');
+  document.getElementById('gDetail').innerHTML=d.dataset.door==='degree'
+   ?'<b>Path A — Advanced degree.</b> A Master’s or higher, or a Bachelor’s/HND plus 5+ years progressive post-degree experience. Provide a credential evaluation for foreign degrees.'
+   :'<b>Path B — Exceptional ability.</b> Meet at least 3 of 6 USCIS criteria (degree, 10+ years experience, license, high salary, association membership, recognition). No graduate degree required.';reportHeight();});});
+ draw();
+})();
+
+var TLDATA={
+ eb1a:[
+  {h:"Build & document your case",p:"Assemble exhibits for your 3–4 strongest criteria, recommendation letters, CV, and credential evaluation.",c:[['time','Weeks–months']]},
+  {h:"File Form I-140 (self-petition)",p:"Mail or e-file. The receipt notice (I-797) date becomes your priority date — guard it.",c:[['fee','$1,015'],['warn','Never send originals']]},
+  {h:"Choose your speed",p:"Optional premium processing buys a fast decision; it changes nothing about your odds or place in line.",c:[['fee','+$2,965 optional'],['time','15 calendar days vs ~5–8 months']]},
+  {h:"I-140 approval",p:"Approval notice issued. The green card stage opens when your priority date is current.",c:[['time','EB-1: current except China/India']]},
+  {h:"Green card",p:"Inside the U.S.: file I-485 (concurrent when current). Outside: NVC → DS-260 → consular interview.",c:[['fee','~$1,700 solo inside'],['fee','~$345+ outside']]},
+  {h:"Permanent residence",p:"5-year work card first, then the 10-year green card. After 5 years, apply for citizenship.",c:[['time','Then 5 yrs to citizenship']]}
+ ],
+ eb2:[
+  {h:"Sharpen your endeavor & evidence",p:"Define a specific, nationally important endeavor and tie your record to it. Gather degrees, publications, awards, letters.",c:[['time','Weeks–months']]},
+  {h:"File Form I-140 (self-petition)",p:"Include an uncertified ETA-9089 (no PERM). E-file or mail. The I-797 date is your priority date.",c:[['fee','$1,015'],['warn','No PERM; uncertified ETA-9089']]},
+  {h:"Choose your speed",p:"Optional premium processing buys a fast decision; same odds, same line.",c:[['fee','+$2,965 optional'],['time','45 calendar days vs ~5–8 months']]},
+  {h:"I-140 approval",p:"Approval notice issued. The green card stage opens when your priority date is current.",c:[['time','EB-2: current except China/India']]},
+  {h:"Green card",p:"Inside the U.S.: file I-485 (concurrent when current). Outside: NVC → DS-260 → consular interview.",c:[['fee','~$1,700 solo inside'],['fee','~$345+ outside']]},
+  {h:"Permanent residence",p:"5-year work card first, then the 10-year green card. After 5 years, apply for citizenship.",c:[['time','China/India: multi-year wait']]}
+ ]
+};
+function renderTL(path){var box=document.getElementById('tlList');box.className='tl '+(path==='eb1a'?'eb1a':'eb2');box.innerHTML='';
+ TLDATA[path].forEach(function(it,i){var row=document.createElement('div');row.className='tl-item';
+  var chips=it.c.map(function(c){return '<span class="chip '+c[0]+'">'+c[1]+'</span>';}).join('');
+  row.innerHTML='<div class="tl-num">'+(i+1)+'</div><div class="tl-body"><h4>'+it.h+'</h4><p>'+it.p+'</p>'+chips+'</div>';box.appendChild(row);});reportHeight();}
+document.querySelectorAll('#tlToggle button').forEach(function(b){b.addEventListener('click',function(){
+ document.querySelectorAll('#tlToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderTL(b.dataset.p);});});
+renderTL('eb1a');
+
+var FEES={i140:715,asylum:300,pp:2965,i485:1440,i765:260,i131:630,med:300,childU14:950,iv:345,medOut:400};
+var BULLETIN={eb1a:{row:'current',china:'China EB-1 cutoff <b>Apr 1, 2023</b>',india:'India EB-1 cutoff <b>Dec 15, 2022</b>'},
+              eb2:{row:'current',china:'China EB-2 cutoff <b>Sep 1, 2021</b>',india:'India EB-2 <b>Sep 1, 2013</b> (FY limit reached)'}};
+var st={path:'eb1a',country:'row',loc:'inside',pp:'no',parole:'no',spouse:'no',kids14:0,kidsU14:0,depead:'no'};
+document.querySelectorAll('#calc .opts').forEach(function(grp){grp.querySelectorAll('.opt').forEach(function(o){o.addEventListener('click',function(){
+ grp.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on');});o.classList.add('on');st[grp.dataset.group]=o.dataset.val;
+ if(grp.dataset.group==='loc')document.getElementById('paroleField').style.display=(o.dataset.val==='inside')?'block':'none';calc();});});});
+document.querySelectorAll('#calc .stepper button').forEach(function(b){b.addEventListener('click',function(){
+ var k=b.dataset.step;st[k]=Math.max(0,st[k]+parseInt(b.dataset.d));document.getElementById(k+'v').textContent=st[k];calc();});});
+document.querySelectorAll('#calcToggle button').forEach(function(b){b.addEventListener('click',function(){
+ document.querySelectorAll('#calcToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');st.path=b.dataset.p;calc();});});
+function money(n){return '$'+n.toLocaleString('en-US');}
+function calc(){var rows=[],total=0;function add(l,a){if(a>0){rows.push([l,a]);total+=a;}}
+ add('I-140 petition + asylum fee',FEES.i140+FEES.asylum);
+ if(st.pp==='yes')add('Premium processing (I-907)',FEES.pp);
+ var deps=(st.spouse==='yes'?1:0)+st.kids14+st.kidsU14;
+ if(st.loc==='inside'){add('I-485 (you, incl. biometrics)',FEES.i485);add('I-765 work permit (you, concurrent)',FEES.i765);
+  if(st.parole==='yes')add('I-131 advance parole (you)',FEES.i131);add('Medical exam (you)',FEES.med);
+  if(st.spouse==='yes')add('I-485 (spouse)',FEES.i485);
+  if(st.kids14>0)add('I-485 (children 14+) ×'+st.kids14,FEES.i485*st.kids14);
+  if(st.kidsU14>0)add('I-485 (children <14) ×'+st.kidsU14,FEES.childU14*st.kidsU14);
+  if(st.depead==='yes'){var e=(st.spouse==='yes'?1:0)+st.kids14;if(e>0)add('Dependent work permits ×'+e,FEES.i765*e);}
+  if(deps>0)add('Medical exams (dependents) ×'+deps,FEES.med*deps);
+ } else {add('Immigrant visa fee — NVC (you)',FEES.iv);add('Civil docs/medical (you, est.)',FEES.medOut);
+  if(deps>0){add('Immigrant visa fee (dependents) ×'+deps,FEES.iv*deps);add('Civil docs/medical (dependents) ×'+deps,FEES.medOut*deps);}
+  if(st.depead==='yes'){var e2=(st.spouse==='yes'?1:0)+st.kids14;if(e2>0)add('Dependent work permits ×'+e2,FEES.i765*e2);}}
+ document.getElementById('totalNum').textContent=money(total);
+ var bd=document.getElementById('breakdown');bd.innerHTML='';
+ rows.forEach(function(r){var d=document.createElement('div');d.className='brow';d.innerHTML='<span>'+r[0]+'</span><span>'+money(r[1])+'</span>';bd.appendChild(d);});
+ var sum=document.createElement('div');sum.className='brow sum';sum.innerHTML='<span>Estimated total</span><span>'+money(total)+'</span>';bd.appendChild(sum);
+ var pct=Math.max(1,Math.round(REPORT_PRICE/total*100));
+ document.getElementById('pitch').innerHTML='<b>A strategy report is $'+REPORT_PRICE+'</b>, about '+pct+'% of these government fees, which are non-refundable. It maps which path is yours and how to evidence it, so that spend goes toward the right petition.';
+ var vb=document.getElementById('vbnote'),status=BULLETIN[st.path][st.country],label=st.path==='eb1a'?'EB-1':'EB-2';
+ if(st.country==='row'){vb.className='vbnote go';vb.innerHTML=label+' is <b>current</b> for you (June 2026). File the I-140 and green card together if inside the U.S.';}
+ else{vb.className='vbnote wait';vb.innerHTML=status+' (June 2026). Win the I-140 now; the green card step waits until your priority date is current.';}
+ reportHeight();}
+calc();
+
+function reportHeight(){try{parent.postMessage({type:'explorerHeight',height:Math.ceil(document.documentElement.scrollHeight)},'*');}catch(e){}}
+document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){
+ document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+ document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
+ t.classList.add('active');document.getElementById(t.dataset.view).classList.add('active');
+ reportHeight();});});
+window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
+setInterval(reportHeight,1000);
+
+// Optional, soft email capture. We never put the email in the URL; we hand it to
+// the parent page via postMessage so it can prefill signup (same origin).
+(function(){
+ var form=document.getElementById('ctaForm'),email=document.getElementById('ctaEmail'),link=document.getElementById('ctaLink');
+ if(!form||!email||!link)return;
+ function looksValid(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+ link.addEventListener('click',function(){
+  var v=(email.value||'').trim();
+  if(v&&looksValid(v)){try{parent.postMessage({type:'explorerLead',email:v},'*');}catch(e){}}
+ });
+ form.addEventListener('submit',function(e){e.preventDefault();link.click();});
+})();
+
+updateCTA();reportHeight();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -14,6 +14,14 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  // Prefill the email if the visitor left one in the Green Card Explorer.
+  useEffect(() => {
+    try {
+      const e = sessionStorage.getItem('gc_prefill_email')
+      if (e) { setEmail(e); setConfirmEmail(e); sessionStorage.removeItem('gc_prefill_email') }
+    } catch { /* ignore */ }
+  }, [])
 
   const handleGoogleSignup = async () => {
     setGoogleLoading(true)

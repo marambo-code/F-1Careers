@@ -27,6 +27,7 @@ export default async function Home() {
             <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
           </Link>
           <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
+            <Link href="/explorer" className="font-medium hover:text-navy transition-colors px-3 py-2">Green Card Explorer</Link>
             <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Risk Score</Link>
             <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
           </div>
@@ -274,7 +275,13 @@ export default async function Home() {
         </div>
 
         {/* Secondary tools row */}
-        <div className="grid sm:grid-cols-2 gap-4 mt-5">
+        <div className="grid sm:grid-cols-3 gap-4 mt-5">
+          <Link href="/explorer" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
+            <div className="text-xl mb-2">🧭</div>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Green Card Explorer</h3>
+            <p className="text-xs text-mid leading-relaxed">Explore EB-1A vs EB-2 NIW, test your fit against the criteria, and see your real 2026 filing costs.</p>
+            <p className="text-xs font-bold text-teal mt-3">Free →</p>
+          </Link>
           <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
             <div className="text-xl mb-2">📍</div>
             <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Risk Score</h3>
