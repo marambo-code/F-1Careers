@@ -255,7 +255,7 @@ export default function CohortPage() {
         <div className="text-center text-xs text-mid pb-4 space-y-2">
           <p>F-1 Careers Cohort Filing is in beta. Final pricing and attorney partnerships confirmed before cohort opens.</p>
           <p>
-            <Link href="/explorer" className="text-teal hover:underline">Green Card Explorer</Link>
+            <Link href="/explorer" className="text-teal hover:underline">Eligibility Check</Link>
             {' · '}
             <Link href="/stay-score" className="text-teal hover:underline">Risk Score</Link>
             {' · '}

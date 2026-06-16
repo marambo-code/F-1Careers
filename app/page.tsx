@@ -27,7 +27,7 @@ export default async function Home() {
             <span className="text-[19px] font-extrabold text-navy tracking-tight">F-1 Careers</span>
           </Link>
           <div className="hidden sm:flex items-center gap-1 text-sm text-mid">
-            <Link href="/explorer" className="font-medium hover:text-navy transition-colors px-3 py-2">Green Card Explorer</Link>
+            <Link href="/explorer" className="font-medium hover:text-navy transition-colors px-3 py-2">Eligibility Check</Link>
             <Link href="/stay-score" className="font-medium hover:text-navy transition-colors px-3 py-2">Risk Score</Link>
             <Link href="/for-employers" className="font-medium hover:text-navy transition-colors px-3 py-2">For Employers</Link>
           </div>
@@ -37,7 +37,7 @@ export default async function Home() {
               href="/start"
               className="text-sm font-bold text-white bg-navy px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
             >
-              Get started free →
+              Get my readiness report →
             </Link>
           </div>
         </div>
@@ -82,8 +82,8 @@ export default async function Home() {
             >
               Get my Green Card readiness report →
             </Link>
-            <Link href="/stay-score" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
-              Check my Risk Score first ↓
+            <Link href="/explorer" className="text-slate-400 text-sm font-medium hover:text-white transition-colors py-4 px-2">
+              New here? Start with the free Eligibility Check →
             </Link>
           </div>
           <p className="text-slate-600 text-xs pb-14">Free preview &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Pay only for the full report</p>
@@ -278,8 +278,8 @@ export default async function Home() {
         <div className="grid sm:grid-cols-3 gap-4 mt-5">
           <Link href="/explorer" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
             <div className="text-xl mb-2">🧭</div>
-            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Green Card Explorer</h3>
-            <p className="text-xs text-mid leading-relaxed">Explore EB-1A vs EB-2 NIW, test your fit against the criteria, and see your real 2026 filing costs.</p>
+            <h3 className="text-sm font-bold text-navy mb-1 group-hover:text-teal transition-colors">Self-Petition Eligibility Check</h3>
+            <p className="text-xs text-mid leading-relaxed">Learn the green card you can file yourself, EB-1A or EB-2 NIW, test your fit against the criteria, and see your real 2026 filing costs.</p>
             <p className="text-xs font-bold text-teal mt-3">Free →</p>
           </Link>
           <Link href="/stay-score" className="border border-border rounded-2xl p-6 hover:border-teal/40 transition-colors no-underline group">
@@ -482,7 +482,7 @@ export default async function Home() {
           className="inline-block bg-teal text-white font-extrabold text-lg px-12 py-4 rounded-2xl hover:opacity-90 transition-all hover:scale-[1.02] no-underline"
           style={{ boxShadow: '0 8px 32px rgba(0,194,168,.28)' }}
         >
-          Get started free →
+          Get my readiness report →
         </Link>
       </section>
 
