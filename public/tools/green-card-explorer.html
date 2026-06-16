@@ -234,13 +234,13 @@
         <div class="door" data-door="degree"><div class="tagp">Path A</div><h4>Advanced degree</h4><p>Master's or higher, OR Bachelor's/HND + 5+ years progressive experience.</p></div>
         <div class="door" data-door="ability"><div class="tagp">Path B</div><h4>Exceptional ability</h4><p>Meet at least 3 of 6 USCIS criteria. No graduate degree required.</p></div>
       </div>
+      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.</div>
       <div class="stage eb2"><svg viewBox="0 0 800 360" id="gateSvg" aria-label="EB-2 NIW three prongs as gates"></svg></div>
       <div class="counter-wrap">
         <div class="counter">Gates open: <b id="gSel">0</b> / 3 required</div>
         <div class="pill no" id="gPill">Path not yet open</div>
         <button class="reset" id="gReset">Reset</button>
       </div>
-      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.</div>
     </div>
   </section>
 
@@ -516,7 +516,11 @@ function calc(){var rows=[],total=0;function add(l,a){if(a>0){rows.push([l,a]);t
  reportHeight();}
 calc();
 
-function reportHeight(){try{parent.postMessage({type:'explorerHeight',height:Math.ceil(document.documentElement.scrollHeight)},'*');}catch(e){}}
+function reportHeight(){try{
+  var w=document.querySelector('.wrap');
+  var h=w?Math.ceil(w.offsetTop+w.offsetHeight):Math.ceil(document.body.scrollHeight);
+  parent.postMessage({type:'explorerHeight',height:h},'*');
+}catch(e){}}
 document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){
  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
  document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
