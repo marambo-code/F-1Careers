@@ -609,7 +609,7 @@ function ProfileContent() {
             <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center text-sm">🧮</div>
             <div>
               <h2 className="text-sm font-bold text-navy">Saved tool results</h2>
-              <p className="text-[11px] text-mid">From Stay Score and ROI Calculator</p>
+              <p className="text-[11px] text-mid">From your Risk Score</p>
             </div>
           </div>
 

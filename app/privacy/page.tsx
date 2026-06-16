@@ -12,7 +12,7 @@ const SECTIONS = [
     subsections: [
       {
         label: 'Public tools (no account required)',
-        text: `When you use our free Risk Score or ROI Calculator tools, we do not collect personally identifiable information. We collect anonymous, aggregated usage data (e.g., country distributions, visa type distributions) to improve the tools. No questionnaire answers are stored or linked to any individual.`,
+        text: `When you use our free Risk Score or Green Card Explorer tools, we do not collect personally identifiable information. We collect anonymous, aggregated usage data (e.g., country distributions, visa type distributions) to improve the tools. No questionnaire answers are stored or linked to any individual.`,
       },
       {
         label: 'Account creation',
@@ -57,7 +57,7 @@ We do not sell your data to any third party. We do not use your data for adverti
 
 You can delete your account at any time from your Profile page.
 
-Anonymous usage data from public tools (Risk Score, ROI Calculator) is retained indefinitely in aggregate form only.`,
+Anonymous usage data from public tools (Risk Score, Green Card Explorer) is retained indefinitely in aggregate form only.`,
   },
   {
     title: '6. Your rights',

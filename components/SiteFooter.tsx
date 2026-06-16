@@ -14,8 +14,8 @@ export default function SiteFooter() {
           This tool provides green card strategy information only and is not legal advice. Consult a licensed immigration attorney before filing.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
+          <Link href="/explorer" className="text-sm text-mid hover:text-navy transition-colors">Green Card Explorer</Link>
           <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>
-          <Link href="/roi-calculator" className="text-sm text-mid hover:text-navy transition-colors">ROI Calc</Link>
           <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>
           <Link href="/privacy" className="text-sm text-mid hover:text-navy transition-colors">Privacy</Link>
           <Link href="/terms" className="text-sm text-mid hover:text-navy transition-colors">Terms</Link>

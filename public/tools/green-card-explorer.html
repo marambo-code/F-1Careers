@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free Green Card Eligibility Explorer — EB-1A & EB-2 NIW</title>
+<title>Free Green Card Eligibility Explorer: EB-1A & EB-2 NIW</title>
 <style>
   :root{
     --bg:#ffffff; --panel:#ffffff; --panel2:#F5F7FB;
@@ -23,6 +23,10 @@
   .brandlink:hover{color:var(--cyan)}
   .brandback{font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap}
   .brandback:hover{color:var(--ink)}
+  /* When embedded in an iframe, the host page supplies the heading and branding,
+     so the tool hides its own header to avoid duplication. */
+  body.embedded .toolhead{display:none}
+  body.embedded .wrap{padding-top:10px}
   .kicker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
   .kicker .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(120deg,var(--gold),var(--cyan));box-shadow:0 0 12px rgba(0,194,168,.4)}
   .freetag{padding:3px 10px;border-radius:999px;background:rgba(0,194,168,.10);color:#0E9E8A;border:1px solid rgba(0,194,168,.30);font-weight:800;letter-spacing:.06em}
@@ -153,13 +157,15 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="brandbar">
-    <a class="brandlink" href="/" target="_top">F-1 Careers</a>
-    <a class="brandback" href="/" target="_top">← Back to home</a>
+  <div class="toolhead">
+    <div class="brandbar">
+      <a class="brandlink" href="/" target="_top">F-1 Careers</a>
+      <a class="brandback" href="/" target="_top">← Back to home</a>
+    </div>
+    <div class="kicker"><span class="dot"></span> <span class="freetag">Free Tool</span> Green Card Eligibility Explorer &nbsp;•&nbsp; 2026</div>
+    <h1>Free Green Card Eligibility Explorer</h1>
+    <p class="sub">Both EB-1A (extraordinary ability) and EB-2 NIW (national interest waiver) let you self-petition a U.S. green card, no employer, no job offer. Explore both, test your fit, and see your real 2026 costs.</p>
   </div>
-  <div class="kicker"><span class="dot"></span> <span class="freetag">Free Tool</span> Green Card Eligibility Explorer &nbsp;•&nbsp; 2026</div>
-  <h1>Free Green Card Eligibility Explorer</h1>
-  <p class="sub">Both EB-1A (extraordinary ability) and EB-2 NIW (national interest waiver) let you self-petition a U.S. green card — no employer, no job offer. Explore both, test your fit, and see your real 2026 costs.</p>
 
   <div class="tabs">
     <div class="tab active" data-view="choose"><span class="n">01</span> Compare &amp; Choose</div>
@@ -177,7 +183,7 @@
       <div class="cmp">
         <div class="pathcard a">
           <div class="tagp">First preference</div>
-          <h3>EB-1A — Extraordinary Ability</h3>
+          <h3>EB-1A: Extraordinary Ability</h3>
           <ul>
             <li><span class="k">Who</span><span>Top of your field, with <b>sustained acclaim</b></span></li>
             <li><span class="k">Test</span><span>Any <b>3 of 10 criteria</b> (or one major award)</span></li>
@@ -189,7 +195,7 @@
         </div>
         <div class="pathcard b">
           <div class="tagp">Second preference</div>
-          <h3>EB-2 NIW — National Interest Waiver</h3>
+          <h3>EB-2 NIW: National Interest Waiver</h3>
           <ul>
             <li><span class="k">Who</span><span>Advanced-degree pros with a <b>nationally important endeavor</b></span></li>
             <li><span class="k">Test</span><span>Advanced degree or exceptional ability <b>+ all 3 Dhanasar prongs</b></span></li>
@@ -201,7 +207,7 @@
         </div>
       </div>
       <div class="shared">
-        <b>What's identical:</b> both self-petition on Form I-140 ($715 + $300 asylum fee = <b>$1,015</b>); premium processing is <b>$2,965</b> either way; the green-card-stage fees are the same; and you may file the green card concurrently when your priority date is current. <b>Rule of thumb:</b> if your record screams "best in the field," aim EB-1A. If you have strong credentials and work of clear national importance, EB-2 NIW is the broader door. You can also file both — each is judged separately.
+        <b>What's identical:</b> both self-petition on Form I-140 ($715 + $300 asylum fee = <b>$1,015</b>); premium processing is <b>$2,965</b> either way; the green-card-stage fees are the same; and you may file the green card concurrently when your priority date is current. <b>Rule of thumb:</b> if your record screams "best in the field," aim EB-1A. If you have strong credentials and work of clear national importance, EB-2 NIW is the broader door. You can also file both, each is judged separately.
       </div>
     </div>
   </section>
@@ -216,14 +222,14 @@
         <div class="pill no" id="cPill">Keep building</div>
         <button class="reset" id="cReset">Reset</button>
       </div>
-      <div class="crit-detail" id="cDetail">Tap a star to read what that criterion means — and the evidence that proves it.</div>
+      <div class="crit-detail" id="cDetail">Tap a star to read what that criterion means, and the evidence that proves it.</div>
     </div>
   </section>
 
   <section class="view eb2" id="eb2">
     <div class="card">
       <h2>EB-2 NIW: The Three Prongs Gateway</h2>
-      <p class="lead">Unlike EB-1A's "any 3 of 10," the NIW (Matter of Dhanasar) is an <b>AND</b> test — pass all three gates. First pick how you qualify for EB-2, then open each gate.</p>
+      <p class="lead">Unlike EB-1A's "any 3 of 10," the NIW (Matter of Dhanasar) is an <b>AND</b> test, pass all three gates. First pick how you qualify for EB-2, then open each gate.</p>
       <div class="elig">
         <div class="door" data-door="degree"><div class="tagp">Path A</div><h4>Advanced degree</h4><p>Master's or higher, OR Bachelor's/HND + 5+ years progressive experience.</p></div>
         <div class="door" data-door="ability"><div class="tagp">Path B</div><h4>Exceptional ability</h4><p>Meet at least 3 of 6 USCIS criteria. No graduate degree required.</p></div>
@@ -234,7 +240,7 @@
         <div class="pill no" id="gPill">Path not yet open</div>
         <button class="reset" id="gReset">Reset</button>
       </div>
-      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands — and how the 2026 standard raised the bar.</div>
+      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.</div>
     </div>
   </section>
 
@@ -250,7 +256,7 @@
           <div class="limb"><div class="blabel cyan">EB-2 NIW</div><div class="node cyan q">Advanced degree/exceptional ability + 3 Dhanasar prongs?<small>Substantial merit + national importance • well positioned • beneficial to waive</small></div></div>
         </div>
         <div class="connector"></div>
-        <div class="node q">File Form I-140 (self-petition) — $1,015<small>EB-2 NIW: include an uncertified ETA-9089 (no PERM). E-file or mail.</small></div>
+        <div class="node q">File Form I-140 (self-petition): $1,015<small>EB-2 NIW: include an uncertified ETA-9089 (no PERM). E-file or mail.</small></div>
         <div class="connector"></div>
         <div class="node q">Premium processing? (+$2,965, optional)</div>
         <div class="branch">
@@ -258,7 +264,7 @@
           <div class="limb"><div class="blabel cyan">EB-2 NIW speed</div><div class="node cyan">Decision in 45 calendar days</div></div>
         </div>
         <div class="connector"></div>
-        <div class="node q" style="border-color:rgba(255,122,122,.45)">Is your priority date current? (depends on path + birth country)<small style="color:var(--red)">Rest of world: current for both. China/India: EB-1 and EB-2 each have their own (different) cutoffs — see the calculator.</small></div>
+        <div class="node q" style="border-color:rgba(255,122,122,.45)">Is your priority date current? (depends on path + birth country)<small style="color:var(--red)">Rest of world: current for both. China/India: EB-1 and EB-2 each have their own (different) cutoffs, see the calculator.</small></div>
         <div class="branch">
           <div class="limb"><div class="blabel">Current</div><div class="node">File the green card<small>I-485 inside the U.S. (concurrent OK) or consular abroad.</small></div><div class="connector"></div><div class="node end">Green card ✦</div></div>
           <div class="limb"><div class="blabel">Not current</div><div class="node">Hold after I-140 approval<small>Wait for your priority date, then file Stage 2.</small></div><div class="connector"></div><div class="node end">Green card when current ✦</div></div>
@@ -270,7 +276,7 @@
   <section class="view" id="timeline">
     <div class="card">
       <h2>The Process Timeline</h2>
-      <p class="lead">Petition to permanent residence. Toggle the path — the premium window and bulletin notes change.</p>
+      <p class="lead">Petition to permanent residence. Toggle the path, the premium window and bulletin notes change.</p>
       <div class="ptoggle" id="tlToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
       <div class="tl eb1a" id="tlList"></div>
     </div>
@@ -299,7 +305,7 @@
             <div class="vbnote go" id="vbnote"></div>
             <div class="breakdown" id="breakdown"></div>
             <div class="pitch" id="pitch"></div>
-            <p class="disclaimer">Government filing fees only, plus a medical estimate. Excludes attorney/consultant fees, translations, travel, and shipping. Confirm current fees on uscis.gov/g-1055 before filing.</p>
+            <p class="disclaimer">Government filing fees only, plus a medical estimate. Most petitioners also retain an attorney, which commonly runs $5,000 to $15,000, and may have translation, travel, and shipping costs. Confirm current fees on uscis.gov/g-1055 before filing.</p>
           </div>
         </div>
       </div>
@@ -321,7 +327,7 @@
   </div>
 
   <div class="footer">
-    <p>An educational clarity tool, not legal advice. Rules and fees change — verify on USCIS and the Department of State before filing.</p>
+    <p>An educational clarity tool, not legal advice. Rules and fees change, verify on USCIS and the Department of State before filing.</p>
     <p class="legalnote">Updated June 14, 2026. EB-1: rest of world current, China Apr 1 2023, India Dec 15 2022. EB-2: rest of world current, China Sep 1 2021, India Sep 1 2013 (FY limit reached). Reflects USCIS fees, the Jan 15 2025 NIW policy update, and the June 2026 Visa Bulletin; subject to change.</p>
   </div>
 </div>
@@ -329,6 +335,8 @@
 <script>
 var SVGNS="http://www.w3.org/2000/svg";
 function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+// Embedded inside the site iframe? Hide the tool's own header (the page supplies it).
+try{if(window.self!==window.top)document.body.classList.add('embedded');}catch(e){document.body.classList.add('embedded');}
 window.critCount=0;window.gateCount=0;
 var REPORT_PRICE=297;
 function updateCTA(){var t=document.getElementById('ctaTitle'),s=document.getElementById('ctaSub');
@@ -389,7 +397,7 @@ var CRIT=[
   document.querySelectorAll('#constSvg .crit-node').forEach(function(g){g.classList.remove('sel');
    var d=g.querySelector('.crit-dot');d.setAttribute('fill','#cdd9ff');d.setAttribute('stroke','#5b6aa0');d.setAttribute('r',8);
    g.querySelectorAll('circle')[1].setAttribute('opacity','0');});
-  document.getElementById('cDetail').innerHTML='Tap a star to read what that criterion means — and the evidence that proves it.';draw();});
+  document.getElementById('cDetail').innerHTML='Tap a star to read what that criterion means, and the evidence that proves it.';draw();});
  var sb=document.getElementById('starbg');for(var k=0;k<60;k++){var d=document.createElement('div');d.className='twinkle';
   d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*3)+'s';d.style.opacity=Math.random()*.6+.1;sb.appendChild(d);}
  draw();
@@ -397,8 +405,8 @@ var CRIT=[
 
 var PRONGS=[
  {t:"Substantial merit & national importance",d:"Real value AND impact beyond your own job, in any field. <b>2026 bar:</b> show broad, national-level impact and ties to U.S. priorities in the initial filing."},
- {t:"Well positioned to advance it",d:"Education, skills, record of success, progress so far. <b>2026 bar:</b> a degree alone is no longer enough — tie your background to THIS endeavor. STEM/critical tech get special consideration; entrepreneurs need a central role plus funding, contracts, or letters of interest."},
- {t:"On balance, beneficial to waive the job offer",d:"Why the U.S. gains by skipping labor certification, even if U.S. workers exist. <b>Avoid:</b> 'labor shortage' arguments — they invite an RFE/denial. Independent recommendation letters matter most here."}
+ {t:"Well positioned to advance it",d:"Education, skills, record of success, progress so far. <b>2026 bar:</b> a degree alone is no longer enough, tie your background to THIS endeavor. STEM/critical tech get special consideration; entrepreneurs need a central role plus funding, contracts, or letters of interest."},
+ {t:"On balance, beneficial to waive the job offer",d:"Why the U.S. gains by skipping labor certification, even if U.S. workers exist. <b>Avoid:</b> 'labor shortage' arguments, they invite an RFE/denial. Independent recommendation letters matter most here."}
 ];
 (function(){
  var svg=document.getElementById('gateSvg'),startX=70,endX=730,midY=170,gx=[235,400,565],passed={};
@@ -435,19 +443,19 @@ var PRONGS=[
   window.gateCount=n;updateCTA();reportHeight();}
  document.getElementById('gReset').addEventListener('click',function(){passed={};
   els.forEach(function(o){o.pil.setAttribute('fill','#15204a');o.pil.setAttribute('stroke','#3b4d8c');o.arc.setAttribute('stroke','#3b4d8c');o.lock.textContent='●';o.lock.setAttribute('fill','#7b88b8');o.lock.setAttribute('font-size','22');});
-  document.getElementById('gDetail').innerHTML='Pick a qualifying path above, then tap each gate to see what it demands — and how the 2026 standard raised the bar.';draw();});
+  document.getElementById('gDetail').innerHTML='Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.';draw();});
  document.querySelectorAll('#eb2 .door').forEach(function(d){d.addEventListener('click',function(){
   document.querySelectorAll('#eb2 .door').forEach(function(x){x.classList.remove('on');});d.classList.add('on');
   document.getElementById('gDetail').innerHTML=d.dataset.door==='degree'
-   ?'<b>Path A — Advanced degree.</b> A Master’s or higher, or a Bachelor’s/HND plus 5+ years progressive post-degree experience. Provide a credential evaluation for foreign degrees.'
-   :'<b>Path B — Exceptional ability.</b> Meet at least 3 of 6 USCIS criteria (degree, 10+ years experience, license, high salary, association membership, recognition). No graduate degree required.';reportHeight();});});
+   ?'<b>Path A: Advanced degree.</b> A Master’s or higher, or a Bachelor’s/HND plus 5+ years progressive post-degree experience. Provide a credential evaluation for foreign degrees.'
+   :'<b>Path B: Exceptional ability.</b> Meet at least 3 of 6 USCIS criteria (degree, 10+ years experience, license, high salary, association membership, recognition). No graduate degree required.';reportHeight();});});
  draw();
 })();
 
 var TLDATA={
  eb1a:[
   {h:"Build & document your case",p:"Assemble exhibits for your 3–4 strongest criteria, recommendation letters, CV, and credential evaluation.",c:[['time','Weeks–months']]},
-  {h:"File Form I-140 (self-petition)",p:"Mail or e-file. The receipt notice (I-797) date becomes your priority date — guard it.",c:[['fee','$1,015'],['warn','Never send originals']]},
+  {h:"File Form I-140 (self-petition)",p:"Mail or e-file. The receipt notice (I-797) date becomes your priority date, guard it.",c:[['fee','$1,015'],['warn','Never send originals']]},
   {h:"Choose your speed",p:"Optional premium processing buys a fast decision; it changes nothing about your odds or place in line.",c:[['fee','+$2,965 optional'],['time','15 calendar days vs ~5–8 months']]},
   {h:"I-140 approval",p:"Approval notice issued. The green card stage opens when your priority date is current.",c:[['time','EB-1: current except China/India']]},
   {h:"Green card",p:"Inside the U.S.: file I-485 (concurrent when current). Outside: NVC → DS-260 → consular interview.",c:[['fee','~$1,700 solo inside'],['fee','~$345+ outside']]},
@@ -493,7 +501,7 @@ function calc(){var rows=[],total=0;function add(l,a){if(a>0){rows.push([l,a]);t
   if(st.kidsU14>0)add('I-485 (children <14) ×'+st.kidsU14,FEES.childU14*st.kidsU14);
   if(st.depead==='yes'){var e=(st.spouse==='yes'?1:0)+st.kids14;if(e>0)add('Dependent work permits ×'+e,FEES.i765*e);}
   if(deps>0)add('Medical exams (dependents) ×'+deps,FEES.med*deps);
- } else {add('Immigrant visa fee — NVC (you)',FEES.iv);add('Civil docs/medical (you, est.)',FEES.medOut);
+ } else {add('Immigrant visa fee, NVC (you)',FEES.iv);add('Civil docs/medical (you, est.)',FEES.medOut);
   if(deps>0){add('Immigrant visa fee (dependents) ×'+deps,FEES.iv*deps);add('Civil docs/medical (dependents) ×'+deps,FEES.medOut*deps);}
   if(st.depead==='yes'){var e2=(st.spouse==='yes'?1:0)+st.kids14;if(e2>0)add('Dependent work permits ×'+e2,FEES.i765*e2);}}
  document.getElementById('totalNum').textContent=money(total);
@@ -501,7 +509,7 @@ function calc(){var rows=[],total=0;function add(l,a){if(a>0){rows.push([l,a]);t
  rows.forEach(function(r){var d=document.createElement('div');d.className='brow';d.innerHTML='<span>'+r[0]+'</span><span>'+money(r[1])+'</span>';bd.appendChild(d);});
  var sum=document.createElement('div');sum.className='brow sum';sum.innerHTML='<span>Estimated total</span><span>'+money(total)+'</span>';bd.appendChild(sum);
  var pct=Math.max(1,Math.round(REPORT_PRICE/total*100));
- document.getElementById('pitch').innerHTML='<b>A strategy report is $'+REPORT_PRICE+'</b>, about '+pct+'% of these government fees, which are non-refundable. It maps which path is yours and how to evidence it, so that spend goes toward the right petition.';
+ document.getElementById('pitch').innerHTML='<b>A strategy report is $'+REPORT_PRICE+'</b>, about '+pct+'% of these non-refundable government fees, and a small fraction of the attorney cost most petitioners add on top. It maps which path is yours and how to evidence it, so all of that spend goes toward the strongest petition for your profile.';
  var vb=document.getElementById('vbnote'),status=BULLETIN[st.path][st.country],label=st.path==='eb1a'?'EB-1':'EB-2';
  if(st.country==='row'){vb.className='vbnote go';vb.innerHTML=label+' is <b>current</b> for you (June 2026). File the I-140 and green card together if inside the U.S.';}
  else{vb.className='vbnote wait';vb.innerHTML=status+' (June 2026). Win the I-140 now; the green card step waits until your priority date is current.';}

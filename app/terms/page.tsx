@@ -5,13 +5,13 @@ export const metadata = { title: 'Terms of Service, F-1 Careers' }
 const SECTIONS = [
   {
     title: '1. Acceptance',
-    body: `By creating an account, purchasing a report, or using any part of F-1 Careers, including the free public Risk Score and ROI Calculator tools, you agree to these Terms. If you do not agree, do not use the service.`,
+    body: `By creating an account, purchasing a report, or using any part of F-1 Careers, including the free public Risk Score and Green Card Explorer tools, you agree to these Terms. If you do not agree, do not use the service.`,
   },
   {
     title: '2. Description of service',
     body: `F-1 Careers provides:
 
-Free public tools, the Immigration Risk Score (assesses your risk profile under current immigration policy including USCIS PM-602-0199) and the NIW ROI Calculator (estimates financial exposure of delaying green card filing).
+Free public tools, the Visa and Career Risk Score (assesses your risk profile under current immigration policy including USCIS PM-602-0199) and the Green Card Eligibility Explorer (an educational EB-1A and EB-2 NIW reference).
 
 AI-generated reports (account required), personalized Green Card Strategy reports and RFE (Request for Evidence) analyses based on questionnaire responses.
 
@@ -47,7 +47,7 @@ Immigration law and USCIS policy change frequently. Our tools and reports reflec
   },
   {
     title: '6. Acceptable use',
-    body: `You agree not to: use the service to generate fraudulent immigration documentation, share account credentials, attempt to reverse-engineer or scrape AI outputs at scale, use automated tools to bulk-query the Risk Score or ROI Calculator, or use the service in any way that violates applicable federal, state, or local law.
+    body: `You agree not to: use the service to generate fraudulent immigration documentation, share account credentials, attempt to reverse-engineer or scrape AI outputs at scale, use automated tools to bulk-query the Risk Score or Green Card Explorer, or use the service in any way that violates applicable federal, state, or local law.
 
 One account per person. We reserve the right to suspend accounts that abuse the service without refund.`,
   },
