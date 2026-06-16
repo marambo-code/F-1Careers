@@ -173,7 +173,7 @@
     <div class="tab" data-view="eb2"><span class="n">03</span> EB-2 NIW Prongs</div>
     <div class="tab" data-view="tree"><span class="n">04</span> Decision Tree</div>
     <div class="tab" data-view="timeline"><span class="n">05</span> Timeline</div>
-    <div class="tab" data-view="calc"><span class="n">06</span> Cost Calculator</div>
+    <div class="tab" data-view="calc"><span class="n">06</span> Government Filing Costs</div>
   </div>
 
   <section class="view active" id="choose">
@@ -284,8 +284,8 @@
 
   <section class="view" id="calc">
     <div class="card">
-      <h2>2026 Cost Calculator</h2>
-      <p class="lead">Works for both paths. Pick your situation; the total and the green-card timing update live for the June 2026 bulletin.</p>
+      <h2>Government Filing Cost Calculator</h2>
+      <p class="lead">What the U.S. government charges to file: these are USCIS and Department of State filing fees, not F-1 Careers fees. Works for both paths. Pick your situation and the total and green-card timing update live.</p>
       <div class="ptoggle" id="calcToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
       <div class="calc-grid">
         <div>
@@ -300,12 +300,12 @@
         </div>
         <div>
           <div class="result">
-            <div class="total">Estimated total</div>
+            <div class="total">Estimated government filing fees</div>
             <div class="total-num" id="totalNum">$3,015</div>
             <div class="vbnote go" id="vbnote"></div>
             <div class="breakdown" id="breakdown"></div>
             <div class="pitch" id="pitch"></div>
-            <p class="disclaimer">Government filing fees only, plus a medical estimate. Most petitioners also retain an attorney, which commonly runs $5,000 to $15,000, and may have translation, travel, and shipping costs. Confirm current fees on uscis.gov/g-1055 before filing.</p>
+            <p class="disclaimer">U.S. government filing fees only (USCIS and Department of State), plus a medical estimate. Not F-1 Careers fees. Most petitioners also retain an attorney, which commonly runs $5,000 to $15,000, and may have translation, travel, and shipping costs. Fees and visa-bulletin dates are current as of 2026; confirm on uscis.gov/g-1055 before filing.</p>
           </div>
         </div>
       </div>
@@ -507,7 +507,7 @@ function calc(){var rows=[],total=0;function add(l,a){if(a>0){rows.push([l,a]);t
  document.getElementById('totalNum').textContent=money(total);
  var bd=document.getElementById('breakdown');bd.innerHTML='';
  rows.forEach(function(r){var d=document.createElement('div');d.className='brow';d.innerHTML='<span>'+r[0]+'</span><span>'+money(r[1])+'</span>';bd.appendChild(d);});
- var sum=document.createElement('div');sum.className='brow sum';sum.innerHTML='<span>Estimated total</span><span>'+money(total)+'</span>';bd.appendChild(sum);
+ var sum=document.createElement('div');sum.className='brow sum';sum.innerHTML='<span>Estimated government filing fees</span><span>'+money(total)+'</span>';bd.appendChild(sum);
  var pct=Math.max(1,Math.round(REPORT_PRICE/total*100));
  document.getElementById('pitch').innerHTML='<b>Get a solid diagnostic before you spend.</b> For $'+REPORT_PRICE+', know which path is yours and exactly how to evidence it before you put thousands into an attorney retainer or file these petitions blind. That is about '+pct+'% of the government fees above, and a fraction of the attorney cost that follows.';
  var vb=document.getElementById('vbnote'),status=BULLETIN[st.path][st.country],label=st.path==='eb1a'?'EB-1':'EB-2';
