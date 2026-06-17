@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>F-1 Careers (test)</title>
+<style>
+  :root{
+    --navy:#1B2B6B; --navy2:#16224d; --teal:#00C2A8; --teal-d:#0E9E8A;
+    --teal-l:#E6FAF7; --navy-l:#EDF0F8; --mid:#555566; --border:#DEDEDE;
+    --ink:#1B2B6B; --slate:#F5F7FB;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+  .ico{display:inline-flex;align-items:center;justify-content:center}
+  .ico svg{width:100%;height:100%;display:block}
+
+  /* HERO */
+  .hero{position:relative;background:var(--navy);color:#fff;overflow:hidden}
+  .map{position:absolute;top:0;right:0;width:60%;height:100%;opacity:.10;pointer-events:none;
+    background-image:radial-gradient(#fff 1.2px,transparent 1.2px);background-size:15px 15px;
+    -webkit-mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%);mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%)}
+  nav{position:relative;z-index:2;border-bottom:1px solid rgba(255,255,255,.08)}
+  nav .wrap{height:66px;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-size:19px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+  .navlinks{display:flex;align-items:center;gap:26px;font-size:14px}
+  .navlinks a{color:rgba(255,255,255,.82);white-space:nowrap}
+  .navlinks a:hover{color:#fff}
+  .btn-teal{background:var(--teal);color:#fff;font-weight:700;border-radius:12px;padding:11px 18px;font-size:14px;display:inline-block;border:none;cursor:pointer;white-space:nowrap}
+  .btn-teal .short{display:none}
+  .btn-teal:hover{filter:brightness(1.05)}
+  .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1fr 460px;gap:48px;align-items:center;padding:60px 0 92px}
+  h1{font-size:58px;line-height:1.04;font-weight:800;letter-spacing:-1.8px;margin-bottom:20px}
+  h1 .t{color:var(--teal)}
+  .lede{font-size:19px;font-weight:600;color:rgba(255,255,255,.95);margin-bottom:12px}
+  .sub{font-size:16px;color:rgba(255,255,255,.82);margin-bottom:4px}
+  .sub.dim{color:rgba(255,255,255,.68);margin-bottom:30px}
+  .cta-row{display:flex;align-items:center;gap:22px;margin-bottom:34px;flex-wrap:wrap}
+  .btn-hero{background:var(--teal);color:#fff;font-weight:700;font-size:15px;padding:15px 26px;border-radius:16px;display:inline-block}
+  .link-u{color:#fff;font-weight:600;font-size:15px;border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:2px}
+  .trust{display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.72)}
+  .trust span{display:flex;align-items:center;gap:8px}
+  .trust .ico{width:17px;height:17px;color:var(--teal)}
+
+  .paths-wrap{position:relative;padding-bottom:34px}
+  .paths{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:18px;padding:24px}
+  .paths-h{font-size:14px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:20px}
+  .prow{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+  .prow:last-child{margin-bottom:0}
+  .prow .k{font-size:15px;font-weight:700;width:78px;flex:none}
+  .prow .m{font-size:12px;font-weight:600;color:var(--teal);width:88px;flex:none}
+  .bar{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+  .bar i{display:block;height:100%;width:88%;background:var(--teal);border-radius:99px}
+  .ckc{width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;flex:none;display:flex;align-items:center;justify-content:center}
+  .ckc .ico{width:14px;height:14px}
+  .float{position:absolute;left:24px;right:24px;bottom:-26px;background:#fff;border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,.22);padding:15px 16px;display:flex;align-items:center;gap:12px}
+  .float .bx{width:38px;height:38px;border-radius:10px;background:var(--teal-l);color:var(--teal-d);flex:none;display:flex;align-items:center;justify-content:center}
+  .float .bx .ico{width:20px;height:20px}
+  .float p{font-size:13px;color:var(--mid);line-height:1.4}
+
+  /* SECTIONS */
+  section.pad{padding:62px 0}
+  .h2{font-size:28px;font-weight:800;color:var(--navy);text-align:center;letter-spacing:-.5px}
+  .h2 .t{color:var(--teal)}
+  .center-sub{text-align:center;color:var(--mid);font-size:15px;margin-top:8px}
+
+  /* TEASER */
+  .teaser-sec{background:#fff;padding:46px 0}
+  .teaser{max-width:900px;margin:0 auto;border:2px solid rgba(0,194,168,.6);border-radius:24px;background:#fff;box-shadow:0 10px 30px rgba(27,43,107,.07);padding:30px 32px}
+  .teaser-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+  .teaser h2{font-size:24px;font-weight:800;color:var(--navy);letter-spacing:-.4px}
+  .teaser .tp{font-size:14px;color:var(--mid);margin-top:5px}
+  .toggle{display:inline-flex;background:var(--navy-l);border-radius:12px;padding:5px}
+  .toggle button{border:none;background:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--mid);padding:9px 17px;border-radius:9px}
+  .toggle button.on{background:var(--teal);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+  .chip{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--border);background:#fff;color:var(--mid);border-radius:12px;padding:11px 15px;font-size:14px;font-weight:600;cursor:pointer;user-select:none}
+  .chip .ico{width:17px;height:17px}
+  .chip .ck{width:16px;height:16px;display:none}
+  .chip.on{border-color:rgba(0,194,168,.45);background:rgba(0,194,168,.07);color:var(--teal-d)}
+  .chip.on .ck{display:inline-flex}
+  .chip .pfx{font-weight:800}
+  .teaser-bot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:22px}
+  .verdict{display:flex;align-items:center;gap:14px}
+  .vpill{display:inline-flex;align-items:center;gap:8px;background:rgba(0,194,168,.1);border:1px solid rgba(0,194,168,.3);color:var(--teal-d);font-weight:700;font-size:14px;border-radius:99px;padding:8px 15px}
+  .vpill .ico{width:17px;height:17px}
+  .vtext{font-size:14px;color:var(--mid);line-height:1.4}
+
+  /* WHY */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
+  .card{border:1px solid var(--border);border-radius:18px;padding:24px;background:#fff}
+  .card .bx{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .card .bx .ico{width:24px;height:24px}
+  .card h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+  .card p{font-size:14px;color:var(--mid);line-height:1.55}
+  .bx-navy{background:var(--navy-l);color:var(--navy)}
+  .bx-orange{background:#FFF1E8;color:#EA6A2A}
+  .bx-teal{background:var(--teal-l);color:var(--teal-d)}
+
+  /* PRODUCTS */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
+  .pcard{border:1px solid var(--border);border-radius:18px;padding:26px}
+  .pcard .head{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px}
+  .pcard .pic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+  .pcard .pic .ico{width:24px;height:24px}
+  .pic-teal{background:var(--teal)} .pic-navy{background:var(--navy)}
+  .pcard .titrow{flex:1;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .pcard h3{font-size:19px;font-weight:800;color:var(--navy)}
+  .price{font-size:25px;font-weight:800}
+  .price.teal{color:var(--teal)} .price.navy{color:var(--navy)}
+  .pcard .desc{font-size:14px;color:var(--mid);line-height:1.55;margin-bottom:20px}
+  .feats{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--mid)}
+  .feats span{display:flex;align-items:center;gap:7px}
+  .feats .ico{width:16px;height:16px}
+  .feat-teal .ico{color:var(--teal)} .feat-navy .ico{color:var(--navy)}
+  .freerow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+  .ftool{border:1px solid var(--border);border-radius:16px;padding:18px 20px}
+  .ftool .tr{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+  .ftool .ico{width:20px;height:20px;color:var(--teal)}
+  .ftool .nm{font-size:14px;font-weight:700;color:var(--navy)}
+  .ftool .tag{margin-left:auto;font-size:12px;font-weight:700;color:var(--teal)}
+  .ftool p{font-size:12px;color:var(--mid)}
+
+  /* PRO */
+  .pro{background:var(--navy);color:#fff}
+  .pro .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:32px 28px;flex-wrap:wrap}
+  .pro .l{display:flex;align-items:center;gap:18px}
+  .pro .bx{width:46px;height:46px;border-radius:13px;background:rgba(0,194,168,.16);color:var(--teal);display:flex;align-items:center;justify-content:center;flex:none}
+  .pro .bx .ico{width:25px;height:25px}
+  .pro h3{font-size:19px;font-weight:800}
+  .pro p{font-size:14px;color:rgba(255,255,255,.72)}
+  .pro .price{display:flex;align-items:baseline;gap:3px}
+  .pro .price b{font-size:38px;font-weight:800} .pro .price s{font-size:14px;color:rgba(255,255,255,.6);text-decoration:none}
+
+  /* FIELD */
+  .field{background:var(--slate);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:54px 0;text-align:center}
+  .fchips{display:flex;justify-content:center;gap:12px;margin-top:28px;flex-wrap:wrap}
+  .fchip{border:1px solid var(--border);background:#fff;color:var(--navy);font-size:14px;font-weight:700;border-radius:12px;padding:11px 20px;cursor:pointer}
+  .fchip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  /* FINAL */
+  .final{position:relative;background:var(--navy);color:#fff;text-align:center;overflow:hidden}
+  .final .glow{position:absolute;left:0;right:0;bottom:0;height:120px;opacity:.22;background:radial-gradient(120% 90% at 50% 130%,var(--teal) 0%,transparent 60%)}
+  .final .inner{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:64px 28px}
+  .final h2{font-size:36px;font-weight:800;letter-spacing:-.6px;margin-bottom:12px}
+  .final h2 .t{color:var(--teal)}
+  .final p{color:rgba(255,255,255,.75);margin-bottom:30px;font-size:16px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:28px}
+  footer .row{max-width:1140px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 24px;font-size:14px;color:var(--mid)}
+  footer .row b{color:var(--navy);font-weight:800}
+  footer .row a:hover{color:var(--navy)}
+
+  @media(max-width:900px){
+    .wrap{padding:0 18px}
+    nav .wrap{height:60px}
+    .navlinks{gap:14px}
+    .navlinks a.hideable{display:none}
+    .btn-teal{padding:9px 13px;font-size:13px}
+    .btn-teal .long{display:none}
+    .btn-teal .short{display:inline}
+    .hero-grid{grid-template-columns:1fr;gap:36px;padding:40px 0 78px}
+    h1{font-size:40px}
+    .grid3,.grid2,.freerow{grid-template-columns:1fr}
+    .pro .wrap{flex-direction:column;align-items:flex-start;gap:16px}
+    .teaser-bot{flex-direction:column;align-items:flex-start}
+    .teaser-bot .btn-hero{width:100%;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="map"></div>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="/test">F-1 Careers</a>
+      <div class="navlinks">
+        <a class="hideable" href="/explorer">Eligibility Check</a>
+        <a class="hideable" href="/stay-score">Risk Score</a>
+        <a href="/login">Sign in</a>
+        <a class="btn-teal" href="/start"><span class="long">Get my readiness report →</span><span class="short">Get my report →</span></a>
+      </div>
+    </div>
+  </nav>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <h1>Your career and visa<br><span class="t">strategy</span> engine.</h1>
+        <p class="lede">Find the green card path you can file yourself.</p>
+        <p class="sub">EB-1A and EB-2 NIW. No employer needed.</p>
+        <p class="sub dim">For international professionals on F-1, OPT, and H-1B.</p>
+        <div class="cta-row">
+          <a class="btn-hero" href="/explorer">Start free eligibility check →</a>
+          <a class="link-u" href="/start">Get my readiness report →</a>
+        </div>
+        <div class="trust">
+          <span><span class="ico" id="i-shieldcheck"></span> Case-law grounded</span>
+          <span><span class="ico" id="i-users"></span> Built by F-1 alumni</span>
+          <span><span class="ico" id="i-eye"></span> Free preview before you pay</span>
+        </div>
+      </div>
+      <div class="paths-wrap">
+        <div class="paths">
+          <p class="paths-h">Your potential paths</p>
+          <div class="prow"><span class="k">EB-1A</span><span class="m">Strong match</span><span class="bar"><i></i></span><span class="ckc"><span class="ico i-ck"></span></span></div>
+          <div class="prow"><span class="k">EB-2 NIW</span><span class="m">Strong match</span><span class="bar"><i></i></span><span class="ckc"><span class="ico i-ck"></span></span></div>
+        </div>
+        <div class="float">
+          <span class="bx"><span class="ico" id="i-bars"></span></span>
+          <p>Join thousands of F-1 professionals building their case with confidence.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TEASER -->
+<section class="teaser-sec">
+  <div class="wrap">
+    <div class="teaser">
+      <div class="teaser-top">
+        <div>
+          <p class="eyebrow">Free eligibility check</p>
+          <h2>Could you self-petition a green card?</h2>
+          <p class="tp">Tap what you already have.</p>
+        </div>
+        <div class="toggle" id="pathToggle">
+          <button class="on" data-p="eb1a">EB-1A</button>
+          <button data-p="eb2">EB-2 NIW</button>
+        </div>
+      </div>
+      <div class="chips" id="chips">
+        <span class="chip on" data-on="1"><span class="ico i-book"></span> Publications <span class="ck i-ck"></span></span>
+        <span class="chip on" data-on="1"><span class="pfx">66</span> Citations <span class="ck i-ck"></span></span>
+        <span class="chip on" data-on="1"><span class="ico i-gavel"></span> Judging <span class="ck i-ck"></span></span>
+        <span class="chip"><span class="ico i-trophy"></span> Awards <span class="ck i-ck"></span></span>
+        <span class="chip"><span class="ico i-news"></span> Press <span class="ck i-ck"></span></span>
+        <span class="chip"><span class="ico i-bulb"></span> Patents <span class="ck i-ck"></span></span>
+      </div>
+      <div class="teaser-bot">
+        <div class="verdict">
+          <span class="vpill"><span class="ico i-circle"></span> <span id="vlabel">Looks viable</span></span>
+          <div class="vtext" id="vtext"><div>You have several strong indicators.</div><div>You may have a real case.</div></div>
+        </div>
+        <a class="btn-hero" href="/explorer" style="padding:13px 24px">Open the full check →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="pad">
+  <div class="wrap">
+    <p class="h2">Why this matters now</p>
+    <div class="grid3">
+      <div class="card"><span class="bx bx-navy"><span class="ico i-cal"></span></span><h3>F-1 time may be capped</h3><p>Proposed rules could limit how long F-1 students can stay.</p></div>
+      <div class="card"><span class="bx bx-orange"><span class="ico i-alert"></span></span><h3>Leaving the US is riskier</h3><p>Travel limits make getting a green card harder than before.</p></div>
+      <div class="card"><span class="bx bx-teal"><span class="ico i-shield"></span></span><h3>Strong evidence is what wins</h3><p>Officers evaluate each case individually. Quality matters most.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="pad" style="padding-top:0">
+  <div class="wrap">
+    <p class="h2">What you can get</p>
+    <div class="grid2">
+      <div class="pcard">
+        <div class="head">
+          <span class="pic pic-teal"><span class="ico i-doc"></span></span>
+          <div class="titrow"><h3>Green Card Strategy Report</h3><span class="price teal">$297</span></div>
+        </div>
+        <p class="desc">Self-petitioned case, scored across EB-1A &amp; EB-2 NIW, with evidence gaps and a step-by-step roadmap.</p>
+        <div class="feats feat-teal">
+          <span><span class="ico i-ck"></span> Score both paths</span>
+          <span><span class="ico i-ck"></span> Close the gaps</span>
+          <span><span class="ico i-ck"></span> Roadmap</span>
+        </div>
+      </div>
+      <div class="pcard">
+        <div class="head">
+          <span class="pic pic-navy"><span class="ico i-docs"></span></span>
+          <div class="titrow"><h3>RFE Response Analyzer</h3><span class="price navy">$297</span></div>
+        </div>
+        <p class="desc">Upload your RFE and get an issue-by-issue response strategy to strengthen your reply with confidence.</p>
+        <div class="feats feat-navy">
+          <span><span class="ico i-ck"></span> Issue-by-issue plan</span>
+          <span><span class="ico i-ck"></span> Evidence guidance</span>
+          <span><span class="ico i-ck"></span> Stronger reply</span>
+        </div>
+      </div>
+    </div>
+    <div class="freerow">
+      <a class="ftool" href="/explorer"><div class="tr"><span class="ico i-circle"></span><span class="nm">Eligibility Check</span><span class="tag">Free →</span></div><p>Start the interactive check</p></a>
+      <a class="ftool" href="/stay-score"><div class="tr"><span class="ico i-bag"></span><span class="nm">Risk Score</span><span class="tag">Free →</span></div><p>See how your case performs</p></a>
+      <a class="ftool" href="/cohort"><div class="tr"><span class="ico i-group"></span><span class="nm">Cohort Filing</span><span class="tag">Waitlist →</span></div><p>Join the next filing cohort</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- PRO -->
+<section class="pro">
+  <div class="wrap">
+    <div class="l">
+      <span class="bx"><span class="ico i-crown"></span></span>
+      <div><h3>Keep your case moving with Pro</h3><p>Personalized monthly moves to strengthen your profile.</p></div>
+    </div>
+    <div class="price"><b>$49</b><s>/mo</s></div>
+  </div>
+</section>
+
+<!-- FIELD -->
+<section class="field">
+  <div class="wrap">
+    <p class="h2">What <span class="t">strong</span> looks like in your field</p>
+    <p class="center-sub">See what strong profiles in your field often look like.</p>
+    <div class="fchips" id="fchips">
+      <button class="fchip on">AI &amp; software</button>
+      <button class="fchip">Biotech</button>
+      <button class="fchip">Medicine</button>
+      <button class="fchip">Engineering</button>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final">
+  <div class="glow"></div>
+  <div class="inner">
+    <h2>You&rsquo;re already <span class="t">extraordinary.</span></h2>
+    <p>Free to find out where you stand. Pay only for the full report.</p>
+    <a class="btn-hero" href="/start">Get my readiness report →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="row">
+    <b>F-1 Careers</b>
+    <a href="/explorer">Eligibility Check</a>
+    <a href="/stay-score">Risk Score</a>
+    <a href="/for-employers">For Employers</a>
+    <a href="/blog">Blog</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </div>
+</footer>
+
+<script>
+var ICONS={
+  'i-shieldcheck':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+  'i-users':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  'i-eye':'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  'i-bars':'<path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/>',
+  'i-ck':'<path d="M20 6 9 17l-5-5"/>',
+  'i-book':'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>',
+  'i-gavel':'<path d="m14 13-7.5 7.5a2.12 2.12 0 0 1-3-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/>',
+  'i-trophy':'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  'i-news':'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+  'i-bulb':'<path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 7.5a6 6 0 0 0-12 0c0 1.5.5 2.7 1.5 4 .8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  'i-cal':'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  'i-alert':'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  'i-shield':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+  'i-doc':'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>',
+  'i-docs':'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6"/><circle cx="16.5" cy="16.5" r="3"/><path d="m21 21-1.9-1.9"/>',
+  'i-circle':'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  'i-bag':'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  'i-group':'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  'i-crown':'<path d="M2 18h20"/><path d="m4 18-2-9 5.5 4L12 6l4.5 7L22 9l-2 9"/>'
+};
+function svg(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name]+'</svg>';}
+['i-shieldcheck','i-users','i-eye','i-bars'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=svg(id);});
+document.querySelectorAll('.ico').forEach(function(e){
+  var cls=[].slice.call(e.classList).find(function(c){return ICONS[c];});
+  if(cls)e.innerHTML=svg(cls);
+});
+// check circles use stroke-width 2.2
+document.querySelectorAll('.ckc .ico, .ck').forEach(function(e){e.querySelector('svg')&&e.querySelector('svg').setAttribute('stroke-width','2.4');});
+
+// interactivity: chips
+var chips=document.querySelectorAll('#chips .chip');
+function recompute(){
+  var n=0;chips.forEach(function(c){if(c.classList.contains('on'))n++;});
+  var vl=document.getElementById('vlabel'),vt=document.getElementById('vtext');
+  if(n>=3){vl.textContent='Looks viable';vt.innerHTML='<div>You have several strong indicators.</div><div>You may have a real case.</div>';}
+  else if(n>=1){vl.textContent='Getting there';vt.innerHTML='<div>A few strong signals so far.</div><div>Add more to strengthen your case.</div>';}
+  else{vl.textContent='Tap what you have';vt.innerHTML='<div>Select the achievements that apply.</div><div>We will show if you could qualify.</div>';}
+}
+chips.forEach(function(c){c.addEventListener('click',function(){c.classList.toggle('on');recompute();});});
+// path toggle
+document.querySelectorAll('#pathToggle button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#pathToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+// field toggle
+document.querySelectorAll('#fchips .fchip').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#fchips .fchip').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+</script>
+</body>
+</html>
