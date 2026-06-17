@@ -83,10 +83,13 @@
   .eb2 .crit-detail b,.detail-cyan b{color:#0E9E8A}
   .reset{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:13px}
   .reset:hover{color:var(--ink);border-color:var(--cyan)}
+  .inline-cta{margin-top:16px;padding:15px 18px;border-radius:14px;background:rgba(0,194,168,.06);border:1px solid rgba(0,194,168,.28);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .inline-cta p{margin:0;font-size:13.5px;color:var(--ink);font-weight:600;flex:1;min-width:200px;line-height:1.4}
+  .ctabtn-sm{display:inline-block;padding:11px 18px;border-radius:11px;font-weight:800;font-size:14px;color:#fff;text-decoration:none;background:linear-gradient(120deg,var(--cyan),#0E9E8A);white-space:nowrap}
+  .ctabtn-sm:hover{filter:brightness(1.05)}
   .elig{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-  .door{flex:1;min-width:220px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px 16px;transition:.18s}
-  .door:hover{border-color:var(--cyan)}
-  .door.on{border-color:var(--cyan);background:rgba(0,194,168,.08);box-shadow:0 0 20px rgba(0,194,168,.12)}
+  .door{flex:1;min-width:220px;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px 16px}
+  .door.a{border-top:3px solid var(--gold)}.door.b{border-top:3px solid var(--cyan)}
   .door h4{margin:0 0 4px;font-size:15px}.door p{margin:0;font-size:13px;color:var(--muted)}
   .door .tagp{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#0E9E8A;font-weight:700}
   .flow{display:flex;flex-direction:column;align-items:center}
@@ -223,23 +226,31 @@
         <div class="pill no" id="cPill">Keep building</div>
         <button class="reset" id="cReset">Reset</button>
       </div>
+      <div class="inline-cta" id="cCta" style="display:none">
+        <p>You meet enough to be viable. See how an officer would actually weigh each criterion.</p>
+        <a class="ctabtn-sm" target="_top" href="/signup?utm_source=explorer&utm_medium=tool&utm_campaign=greencard_eb1a">Get my readiness report →</a>
+      </div>
     </div>
   </section>
 
   <section class="view eb2" id="eb2">
     <div class="card">
       <h2>EB-2 NIW: The Three Prongs Gateway</h2>
-      <p class="lead">Unlike EB-1A's "any 3 of 10," the NIW (Matter of Dhanasar) is an <b>AND</b> test, pass all three gates. First pick how you qualify for EB-2, then open each gate.</p>
+      <p class="lead">Unlike EB-1A's "any 3 of 10," the NIW (Matter of Dhanasar) is an <b>AND</b> test, pass all three gates. You qualify for EB-2 one of two ways (below); the three NIW prongs then apply on top, whichever way you qualify.</p>
       <div class="elig">
-        <div class="door" data-door="degree"><div class="tagp">Path A</div><h4>Advanced degree</h4><p>Master's or higher, OR Bachelor's/HND + 5+ years progressive experience.</p></div>
-        <div class="door" data-door="ability"><div class="tagp">Path B</div><h4>Exceptional ability</h4><p>Meet at least 3 of 6 USCIS criteria. No graduate degree required.</p></div>
+        <div class="door a"><div class="tagp">Path A</div><h4>Advanced degree</h4><p>Master's or higher, OR Bachelor's/HND + 5+ years progressive experience.</p></div>
+        <div class="door b"><div class="tagp">Path B</div><h4>Exceptional ability</h4><p>Meet at least 3 of 6 USCIS criteria. No graduate degree required.</p></div>
       </div>
-      <div class="crit-detail detail-cyan" id="gDetail">Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.</div>
+      <div class="crit-detail detail-cyan" id="gDetail">Either path qualifies you for EB-2. The NIW then adds three prongs you must all pass. Tap each gate to see what it demands, and how the 2026 standard raised the bar.</div>
       <div class="stage eb2"><svg viewBox="0 0 800 360" id="gateSvg" aria-label="EB-2 NIW three prongs as gates"></svg></div>
       <div class="counter-wrap">
         <div class="counter">Gates open: <b id="gSel">0</b> / 3 required</div>
         <div class="pill no" id="gPill">Path not yet open</div>
         <button class="reset" id="gReset">Reset</button>
+      </div>
+      <div class="inline-cta" id="gCta" style="display:none">
+        <p>All three prongs cleared. Turn that into a documented petition built on your profile.</p>
+        <a class="ctabtn-sm" target="_top" href="/signup?utm_source=explorer&utm_medium=tool&utm_campaign=greencard_niw">Get my readiness report →</a>
       </div>
     </div>
   </section>
@@ -392,6 +403,7 @@ var CRIT=[
   var n=s.length;document.getElementById('cSel').textContent=n;var p=document.getElementById('cPill');
   if(n>=3){p.className="pill yes";p.textContent=n>=4?"Strong shape ✦ ("+n+")":"Viable EB-1A ✦";glow.setAttribute('r',64);}
   else{p.className="pill no";p.textContent=(3-n)+" more to go";glow.setAttribute('r',54);}
+  var cc=document.getElementById('cCta');if(cc)cc.style.display=n>=3?'flex':'none';
   window.critCount=n;updateCTA();reportHeight();}
  document.getElementById('cReset').addEventListener('click',function(){sel={};
   document.querySelectorAll('#constSvg .crit-node').forEach(function(g){g.classList.remove('sel');
@@ -440,15 +452,11 @@ var PRONGS=[
   var p=document.getElementById('gPill');
   if(n>=3){p.className="pill yes";p.textContent="Waiver path open ✦";glow.setAttribute('r',38);}
   else{p.className="pill no";p.textContent=(3-n)+" gate"+((3-n)>1?"s":"")+" to open";glow.setAttribute('r',24);}
+  var gc=document.getElementById('gCta');if(gc)gc.style.display=n>=3?'flex':'none';
   window.gateCount=n;updateCTA();reportHeight();}
  document.getElementById('gReset').addEventListener('click',function(){passed={};
   els.forEach(function(o){o.pil.setAttribute('fill','#15204a');o.pil.setAttribute('stroke','#3b4d8c');o.arc.setAttribute('stroke','#3b4d8c');o.lock.textContent='●';o.lock.setAttribute('fill','#7b88b8');o.lock.setAttribute('font-size','22');});
-  document.getElementById('gDetail').innerHTML='Pick a qualifying path above, then tap each gate to see what it demands, and how the 2026 standard raised the bar.';draw();});
- document.querySelectorAll('#eb2 .door').forEach(function(d){d.addEventListener('click',function(){
-  document.querySelectorAll('#eb2 .door').forEach(function(x){x.classList.remove('on');});d.classList.add('on');
-  document.getElementById('gDetail').innerHTML=d.dataset.door==='degree'
-   ?'<b>Path A: Advanced degree.</b> A Master’s or higher, or a Bachelor’s/HND plus 5+ years progressive post-degree experience. Provide a credential evaluation for foreign degrees.'
-   :'<b>Path B: Exceptional ability.</b> Meet at least 3 of 6 USCIS criteria (degree, 10+ years experience, license, high salary, association membership, recognition). No graduate degree required.';reportHeight();});});
+  document.getElementById('gDetail').innerHTML='Either path qualifies you for EB-2. The NIW then adds three prongs you must all pass. Tap each gate to see what it demands, and how the 2026 standard raised the bar.';draw();});
  draw();
 })();
 
