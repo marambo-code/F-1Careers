@@ -381,7 +381,10 @@ var ICONS={
   'i-circle':'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
   'i-bag':'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
   'i-group':'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-  'i-crown':'<path d="M2 18h20"/><path d="m4 18-2-9 5.5 4L12 6l4.5 7L22 9l-2 9"/>'
+  'i-crown':'<path d="M2 18h20"/><path d="m4 18-2-9 5.5 4L12 6l4.5 7L22 9l-2 9"/>',
+  'i-salary':'<line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  'i-star':'<polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3"/>',
+  'i-badge':'<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>'
 };
 function svg(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name]+'</svg>';}
 ['i-shieldcheck','i-users','i-eye','i-bars'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=svg(id);});
@@ -395,16 +398,16 @@ document.querySelectorAll('.ckc .ico, .ck').forEach(function(e){e.querySelector(
 // ── Teaser: path-aware criteria, info bubbles, encouraging verdict ──
 var PATHS={
   eb1a:{
-    note:'EB-1A needs any 3 of 10 criteria. Tap anything you have, there is no wrong answer.',
+    note:'EB-1A needs any 3 of 10 criteria. Tap everything that sounds like you.',
     info:'Tap any criterion to see what it means, and how to build it if you do not have it yet. You only need 3 of 10.',
     need:3,
     chips:[
-      {ic:'i-book',label:'Publications',on:1,info:'<b>Published work.</b> Journal papers, conference papers, books, or articles. Not yet? <span class="build">The report shows the fastest venues for your field.</span>'},
-      {pfx:'66',label:'Citations',on:1,info:'<b>Citations.</b> Your work referenced by others. Not yet? <span class="build">Publishing and presenting builds this over time.</span>'},
-      {ic:'i-gavel',label:'Judging',on:1,info:'<b>Judging others.</b> Reviewing for a journal or conference, or judging a competition. <span class="build">One review invitation can count.</span>'},
-      {ic:'i-trophy',label:'Awards',info:'<b>Awards and prizes.</b> Recognition for excellence in your field. <span class="build">Competitive grants and fellowships count too.</span>'},
-      {ic:'i-news',label:'Press',info:'<b>Press coverage.</b> Media or trade press about your work. <span class="build">A single credible mention can satisfy this.</span>'},
-      {ic:'i-bulb',label:'Patents',info:'<b>Patents and IP.</b> Filed or granted patents, or original work others have adopted. <span class="build">Adoption matters as much as filing.</span>'}
+      {ic:'i-salary',label:'High salary',on:1,info:'<b>High salary.</b> Pay above the norm for your role and region. <span class="build">Equity, bonuses, and offer letters all count.</span>'},
+      {ic:'i-star',label:'Leading role',on:1,info:'<b>Leading or critical role.</b> Real responsibility at a respected organization. <span class="build">Document the scope and impact you own.</span>'},
+      {ic:'i-trophy',label:'Awards',on:1,info:'<b>Awards and recognition.</b> Prizes, honors, or competitive grants for your work. <span class="build">Company and industry awards both count.</span>'},
+      {ic:'i-bulb',label:'Original contributions',info:'<b>Original contributions.</b> Work others have adopted, built on, or been influenced by. <span class="build">Impact matters more than a title.</span>'},
+      {ic:'i-badge',label:'Membership',info:'<b>Selective membership.</b> A group that admits members for achievement, not just dues. <span class="build">Senior or fellow grades count.</span>'},
+      {ic:'i-news',label:'Press',info:'<b>Press coverage.</b> Media or trade coverage of your work. <span class="build">One credible mention can satisfy this.</span>'}
     ]
   },
   eb2:{
