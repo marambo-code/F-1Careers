@@ -217,12 +217,12 @@
       <h2>EB-1A: Your Eligibility Constellation</h2>
       <p class="lead">10 criteria; you need any <b>3</b> (aim for 4+). Tap the stars that match your record and watch your constellation form.</p>
       <div class="stage eb1a"><div class="starbg" id="starbg"></div><svg viewBox="0 0 800 560" id="constSvg" aria-label="EB-1A criteria constellation"></svg></div>
+      <div class="crit-detail" id="cDetail">Tap a star to read what that criterion means, and the evidence that proves it.</div>
       <div class="counter-wrap">
         <div class="counter">Criteria selected: <b id="cSel">0</b> / 3 needed</div>
         <div class="pill no" id="cPill">Keep building</div>
         <button class="reset" id="cReset">Reset</button>
       </div>
-      <div class="crit-detail" id="cDetail">Tap a star to read what that criterion means, and the evidence that proves it.</div>
     </div>
   </section>
 
@@ -340,7 +340,7 @@ try{if(window.self!==window.top)document.body.classList.add('embedded');}catch(e
 window.critCount=0;window.gateCount=0;
 var REPORT_PRICE=297;
 function updateCTA(){var t=document.getElementById('ctaTitle'),s=document.getElementById('ctaSub');
- if(window.critCount>=3){t.textContent="You're shaping a viable EB-1A case ("+window.critCount+" criteria).";s.textContent="For $"+REPORT_PRICE+", get a solid diagnostic of how to evidence each criterion and whether EB-1A or EB-2 NIW is your fastest route, before you put thousands into an attorney retainer or file blind.";}
+ if(window.critCount>=3){t.textContent="You're shaping a viable case.";s.textContent="For $"+REPORT_PRICE+", get a solid diagnostic of how to evidence each criterion and whether EB-1A or EB-2 NIW is your fastest route, before you put thousands into an attorney retainer or file blind.";}
  else if(window.gateCount>=3){t.textContent="You can clear all three NIW prongs.";s.textContent="For $"+REPORT_PRICE+", get a solid diagnostic that turns three cleared prongs into a documented petition, before you commit to an attorney retainer or file blind.";}
  else{t.textContent="Get a solid diagnostic before you spend thousands.";s.textContent="For $"+REPORT_PRICE+", see which path is yours, EB-1A or EB-2 NIW, and exactly how to evidence it, before you put thousands into an attorney retainer or file these petitions blind.";}}
 
