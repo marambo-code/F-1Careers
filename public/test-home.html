@@ -89,6 +89,19 @@
   .vpill{display:inline-flex;align-items:center;gap:8px;background:rgba(0,194,168,.1);border:1px solid rgba(0,194,168,.3);color:var(--teal-d);font-weight:700;font-size:14px;border-radius:99px;padding:8px 15px}
   .vpill .ico{width:17px;height:17px}
   .vtext{font-size:14px;color:var(--mid);line-height:1.4}
+  .chip:hover{border-color:rgba(0,194,168,.5);color:var(--teal-d)}
+  .chip.on:hover{border-color:var(--teal)}
+  .toggle button:hover{color:var(--navy)}
+  .toggle button.on:hover{color:#fff}
+  .chipinfo{margin-bottom:22px;background:var(--navy-l);border-radius:12px;padding:13px 16px;font-size:13.5px;color:var(--mid);line-height:1.55;min-height:48px;transition:background .15s}
+  .chipinfo b{color:var(--navy);font-weight:700}
+  .chipinfo .build{color:var(--teal-d);font-weight:600}
+  .fchip:hover{border-color:var(--navy)}
+  .fpanel{max-width:660px;margin:24px auto 0;background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 22px;text-align:left}
+  .fpanel ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:11px 26px}
+  .fpanel li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--mid);line-height:1.45}
+  .fpanel li .ico{width:16px;height:16px;color:var(--teal);flex:none;margin-top:3px}
+  @media(max-width:560px){.fpanel ul{grid-template-columns:1fr}}
 
   /* WHY */
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
@@ -229,25 +242,19 @@
         <div>
           <p class="eyebrow">Free eligibility check</p>
           <h2>Could you self-petition a green card?</h2>
-          <p class="tp">Tap what you already have.</p>
+          <p class="tp" id="teaserNote"></p>
         </div>
         <div class="toggle" id="pathToggle">
           <button class="on" data-p="eb1a">EB-1A</button>
           <button data-p="eb2">EB-2 NIW</button>
         </div>
       </div>
-      <div class="chips" id="chips">
-        <span class="chip on" data-on="1"><span class="ico i-book"></span> Publications <span class="ck i-ck"></span></span>
-        <span class="chip on" data-on="1"><span class="pfx">66</span> Citations <span class="ck i-ck"></span></span>
-        <span class="chip on" data-on="1"><span class="ico i-gavel"></span> Judging <span class="ck i-ck"></span></span>
-        <span class="chip"><span class="ico i-trophy"></span> Awards <span class="ck i-ck"></span></span>
-        <span class="chip"><span class="ico i-news"></span> Press <span class="ck i-ck"></span></span>
-        <span class="chip"><span class="ico i-bulb"></span> Patents <span class="ck i-ck"></span></span>
-      </div>
+      <div class="chips" id="chips"></div>
+      <div class="chipinfo" id="chipInfo"></div>
       <div class="teaser-bot">
         <div class="verdict">
           <span class="vpill"><span class="ico i-circle"></span> <span id="vlabel">Looks viable</span></span>
-          <div class="vtext" id="vtext"><div>You have several strong indicators.</div><div>You may have a real case.</div></div>
+          <div class="vtext" id="vtext"></div>
         </div>
         <a class="btn-hero" href="/explorer" style="padding:13px 24px">Open the full check →</a>
       </div>
@@ -320,13 +327,14 @@
 <section class="field">
   <div class="wrap">
     <p class="h2">What <span class="t">strong</span> looks like in your field</p>
-    <p class="center-sub">See what strong profiles in your field often look like.</p>
+    <p class="center-sub">Tap your field to see the evidence strong profiles usually have.</p>
     <div class="fchips" id="fchips">
-      <button class="fchip on">AI &amp; software</button>
-      <button class="fchip">Biotech</button>
-      <button class="fchip">Medicine</button>
-      <button class="fchip">Engineering</button>
+      <button class="fchip on" data-f="ai">AI &amp; software</button>
+      <button class="fchip" data-f="bio">Biotech</button>
+      <button class="fchip" data-f="med">Medicine</button>
+      <button class="fchip" data-f="eng">Engineering</button>
     </div>
+    <div class="fpanel" id="fpanel"></div>
   </div>
 </section>
 
@@ -384,20 +392,80 @@ document.querySelectorAll('.ico').forEach(function(e){
 // check circles use stroke-width 2.2
 document.querySelectorAll('.ckc .ico, .ck').forEach(function(e){e.querySelector('svg')&&e.querySelector('svg').setAttribute('stroke-width','2.4');});
 
-// interactivity: chips
-var chips=document.querySelectorAll('#chips .chip');
+// ── Teaser: path-aware criteria, info bubbles, encouraging verdict ──
+var PATHS={
+  eb1a:{
+    note:'EB-1A needs any 3 of 10 criteria. Tap anything you have, there is no wrong answer.',
+    info:'Tap any criterion to see what it means, and how to build it if you do not have it yet. You only need 3 of 10.',
+    need:3,
+    chips:[
+      {ic:'i-book',label:'Publications',on:1,info:'<b>Published work.</b> Journal papers, conference papers, books, or articles. Not yet? <span class="build">The report shows the fastest venues for your field.</span>'},
+      {pfx:'66',label:'Citations',on:1,info:'<b>Citations.</b> Your work referenced by others. Not yet? <span class="build">Publishing and presenting builds this over time.</span>'},
+      {ic:'i-gavel',label:'Judging',on:1,info:'<b>Judging others.</b> Reviewing for a journal or conference, or judging a competition. <span class="build">One review invitation can count.</span>'},
+      {ic:'i-trophy',label:'Awards',info:'<b>Awards and prizes.</b> Recognition for excellence in your field. <span class="build">Competitive grants and fellowships count too.</span>'},
+      {ic:'i-news',label:'Press',info:'<b>Press coverage.</b> Media or trade press about your work. <span class="build">A single credible mention can satisfy this.</span>'},
+      {ic:'i-bulb',label:'Patents',info:'<b>Patents and IP.</b> Filed or granted patents, or original work others have adopted. <span class="build">Adoption matters as much as filing.</span>'}
+    ]
+  },
+  eb2:{
+    note:'EB-2 NIW pairs an advanced degree (or exceptional ability) with work of national importance. Tap what fits you.',
+    info:'Tap any item to see what it means. NIW pairs your qualification with work that serves the national interest.',
+    need:3,
+    chips:[
+      {ic:'i-doc',label:'Advanced degree',on:1,info:'<b>Advanced degree.</b> A graduate degree, or a bachelor degree plus 5+ years of progressive experience.'},
+      {ic:'i-trophy',label:'Exceptional ability',info:'<b>Exceptional ability.</b> An alternative to the degree: meet 3 of 6 USCIS factors. No graduate degree required.'},
+      {ic:'i-shield',label:'National importance',on:1,info:'<b>National importance.</b> Your work has impact beyond your own job and connects to US priorities.'},
+      {ic:'i-circle',label:'Well positioned',on:1,info:'<b>Well positioned.</b> Your record, skills, and progress show you can advance the work.'},
+      {ic:'i-users',label:'Strong letters',info:'<b>Independent letters.</b> Experts who can vouch for your impact carry real weight here.'}
+    ]
+  }
+};
+var curPath='eb1a';
+function setInfo(html){document.getElementById('chipInfo').innerHTML=html;}
 function recompute(){
-  var n=0;chips.forEach(function(c){if(c.classList.contains('on'))n++;});
+  var d=PATHS[curPath],n=document.querySelectorAll('#chips .chip.on').length;
   var vl=document.getElementById('vlabel'),vt=document.getElementById('vtext');
-  if(n>=3){vl.textContent='Looks viable';vt.innerHTML='<div>You have several strong indicators.</div><div>You may have a real case.</div>';}
-  else if(n>=1){vl.textContent='Getting there';vt.innerHTML='<div>A few strong signals so far.</div><div>Add more to strengthen your case.</div>';}
-  else{vl.textContent='Tap what you have';vt.innerHTML='<div>Select the achievements that apply.</div><div>We will show if you could qualify.</div>';}
+  if(n>=d.need){vl.textContent='Looks viable';vt.innerHTML='<div>You meet enough to be viable.</div><div>The full report shows how strong each one is.</div>';}
+  else if(n>=1){vl.textContent='Strong start';vt.innerHTML='<div>You are '+(d.need-n)+' away from the bar.</div><div>The report shows the fastest ones to add.</div>';}
+  else{vl.textContent='Let us find your path';vt.innerHTML='<div>Most people start right here.</div><div>Tap anything you have, or open the full check.</div>';}
 }
-chips.forEach(function(c){c.addEventListener('click',function(){c.classList.toggle('on');recompute();});});
-// path toggle
-document.querySelectorAll('#pathToggle button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#pathToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
-// field toggle
-document.querySelectorAll('#fchips .fchip').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#fchips .fchip').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+function buildChips(path){
+  curPath=path;var d=PATHS[path];
+  document.getElementById('teaserNote').textContent=d.note;
+  var box=document.getElementById('chips');box.innerHTML='';
+  d.chips.forEach(function(c){
+    var el=document.createElement('span');el.className='chip'+(c.on?' on':'');
+    var lead=c.pfx?('<span class="pfx">'+c.pfx+'</span>'):('<span class="ico">'+svg(c.ic)+'</span>');
+    el.innerHTML=lead+' '+c.label+' <span class="ck">'+svg('i-ck')+'</span>';
+    var ck=el.querySelector('.ck svg');if(ck)ck.setAttribute('stroke-width','2.4');
+    el.addEventListener('click',function(){el.classList.toggle('on');setInfo(c.info);recompute();});
+    box.appendChild(el);
+  });
+  setInfo(d.info);recompute();
+}
+document.querySelectorAll('#pathToggle button').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('#pathToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+  buildChips(b.dataset.p);
+});});
+buildChips('eb1a');
+
+// ── Field: tap a field to reveal the evidence strong profiles carry ──
+var FIELDS={
+  ai:['Papers at NeurIPS, ICML, or CVPR','Citations from labs outside your own','Open-source adopted in industry','A review role at a major venue'],
+  bio:['First-author peer-reviewed work','A cross-lab citation footprint','Named inventor on a patent','Invited conference talks'],
+  med:['Clinical or translational research','Contributions to practice guidelines','Journal peer review','Leadership in a professional society'],
+  eng:['Granted patents or licensed IP','Standards or committee work','Projects deployed at scale','Recognition from outside your employer']
+};
+function showField(f){
+  var items=FIELDS[f]||[];
+  document.getElementById('fpanel').innerHTML='<ul>'+items.map(function(t){return '<li><span class="ico">'+svg('i-ck')+'</span>'+t+'</li>';}).join('')+'</ul>';
+  document.querySelectorAll('#fpanel .ico svg').forEach(function(s){s.setAttribute('stroke-width','2.2');});
+}
+document.querySelectorAll('#fchips .fchip').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('#fchips .fchip').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+  showField(b.dataset.f);
+});});
+showField('ai');
 </script>
 </body>
 </html>
