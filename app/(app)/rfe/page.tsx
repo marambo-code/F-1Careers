@@ -343,7 +343,7 @@ export default function RFEUploadPage() {
           {/* Summary of selections */}
           <div className="card bg-gray-50/80 border border-border space-y-3">
             <p className="text-xs font-black text-navy uppercase tracking-widest">Your selections</p>
-            <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
               <div>
                 <p className="text-[11px] text-mid font-semibold uppercase tracking-wide">Petition</p>
                 <p className="font-bold text-navy mt-0.5">{selectedPetition?.label}</p>
