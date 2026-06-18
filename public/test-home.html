@@ -23,9 +23,9 @@
   .map{position:absolute;top:0;right:0;width:60%;height:100%;opacity:.10;pointer-events:none;
     background-image:radial-gradient(#fff 1.2px,transparent 1.2px);background-size:15px 15px;
     -webkit-mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%);mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%)}
-  nav{position:relative;z-index:2;border-bottom:1px solid rgba(255,255,255,.08)}
+  nav{position:sticky;top:0;z-index:50;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.10)}
   nav .wrap{height:66px;display:flex;align-items:center;justify-content:space-between}
-  .brand{font-size:19px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+  .brand{font-size:19px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;color:#fff}
   .navlinks{display:flex;align-items:center;gap:26px;font-size:14px}
   .navlinks a{color:rgba(255,255,255,.82);white-space:nowrap}
   .navlinks a:hover{color:#fff}
@@ -188,19 +188,20 @@
 </head>
 <body>
 
+<nav>
+  <div class="wrap">
+    <a class="brand" href="/test">F-1 Careers</a>
+    <div class="navlinks">
+      <a class="hideable" href="/explorer">Eligibility Check</a>
+      <a href="/login">Sign in</a>
+      <a class="btn-teal" href="/start"><span class="long">Get my readiness report →</span><span class="short">Get my report →</span></a>
+    </div>
+  </div>
+</nav>
+
 <!-- HERO -->
 <header class="hero">
   <div class="map"></div>
-  <nav>
-    <div class="wrap">
-      <a class="brand" href="/test">F-1 Careers</a>
-      <div class="navlinks">
-        <a class="hideable" href="/explorer">Eligibility Check</a>
-        <a href="/login">Sign in</a>
-        <a class="btn-teal" href="/start"><span class="long">Get my readiness report →</span><span class="short">Get my report →</span></a>
-      </div>
-    </div>
-  </nav>
   <div class="wrap">
     <div class="hero-grid">
       <div>
@@ -421,10 +422,10 @@ var PATHS={
     info:'Tap any item to see what it means. NIW pairs your qualification with work that serves the national interest.',
     need:3,
     chips:[
-      {ic:'i-doc',label:'Advanced degree',on:1,info:'<b>Advanced degree.</b> A graduate degree, or a bachelor degree plus 5+ years of progressive experience.'},
+      {ic:'i-doc',label:'Advanced degree',info:'<b>Advanced degree.</b> A graduate degree, or a bachelor degree plus 5+ years of progressive experience.'},
       {ic:'i-trophy',label:'Exceptional ability',info:'<b>Exceptional ability.</b> An alternative to the degree: meet 3 of 6 USCIS factors. No graduate degree required.'},
-      {ic:'i-shield',label:'National importance',on:1,info:'<b>National importance.</b> Your work has impact beyond your own job and connects to US priorities.'},
-      {ic:'i-circle',label:'Well positioned',on:1,info:'<b>Well positioned.</b> Your record, skills, and progress show you can advance the work.'},
+      {ic:'i-shield',label:'National importance',info:'<b>National importance.</b> Your work has impact beyond your own job and connects to US priorities.'},
+      {ic:'i-circle',label:'Well positioned',info:'<b>Well positioned.</b> Your record, skills, and progress show you can advance the work.'},
       {ic:'i-users',label:'Strong letters',info:'<b>Independent letters.</b> Experts who can vouch for your impact carry real weight here.'}
     ]
   }
