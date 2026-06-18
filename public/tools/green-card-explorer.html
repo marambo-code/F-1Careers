@@ -159,6 +159,26 @@
   .ctaskip{display:block;margin-top:6px;font-size:11.5px;color:#8290bf}
   .footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px}
   .legalnote{font-size:11.5px;color:var(--muted);opacity:.75;max-width:780px;margin:14px auto 0;text-align:center}
+  .opts-wrap{gap:8px}
+  .rcalcbtn{margin-top:12px;background:var(--ink);color:#fff;font-weight:800;font-size:14px;padding:13px 24px;border-radius:13px;border:none;cursor:pointer}
+  .rcalcbtn:hover{opacity:.92}
+  .rhint{font-size:12.5px;color:#B45309;margin-top:9px;display:none}
+  .rscore{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+  .rgauge{position:relative;width:150px;height:150px;flex:none}
+  .rgauge .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .rgauge .n{font-size:40px;font-weight:850;color:var(--navy);line-height:1}
+  .rgauge .o{font-size:11px;color:var(--mid)}
+  .rinfo{flex:1;min-width:240px}
+  .rinfo .rl{font-size:20px;font-weight:800}
+  .rinfo .rs{font-size:13px;color:var(--mid);font-weight:600;margin:2px 0 8px}
+  .rinfo .ra{font-size:13.5px;color:var(--mid);line-height:1.55}
+  .rbreak{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .rrow{margin-bottom:12px}
+  .rrow .rt{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
+  .rrow .rt .rlab{color:var(--navy);font-weight:600}.rrow .rt .rv{color:var(--mid)}
+  .rrow .rtrack{height:7px;border-radius:99px;background:#eef0f5;overflow:hidden}
+  .rrow .rfill{display:block;height:100%;border-radius:99px}
+  .rpivot{margin-top:18px;background:var(--teal-l);border:1px solid rgba(0,194,168,.25);border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--teal-d);line-height:1.5;font-weight:600}
 </style>
 </head>
 <body>
@@ -180,6 +200,7 @@
     <div class="tab" data-view="tree"><span class="n">04</span> Decision Tree</div>
     <div class="tab" data-view="timeline"><span class="n">05</span> Timeline</div>
     <div class="tab" data-view="calc"><span class="n">06</span> Government Filing Costs</div>
+    <div class="tab" data-view="risk"><span class="n">07</span> Visa Risk</div>
   </div>
 
   <section class="view active" id="choose">
@@ -322,6 +343,41 @@
             <p class="disclaimer">U.S. government filing fees only (USCIS and Department of State), plus a medical estimate. Not F-1 Careers fees. Most petitioners also retain an attorney, which commonly runs $5,000 to $15,000, and may have translation, travel, and shipping costs. Fees and visa-bulletin dates are current as of 2026; confirm on uscis.gov/g-1055 before filing.</p>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="risk">
+    <div class="card">
+      <h2>Visa &amp; Career Risk Score</h2>
+      <p class="lead">A few questions on where you stand today. We score your exposure under 2026 policy, then point you to the path that lowers it.</p>
+      <div id="rForm">
+        <div class="field"><label>Country of birth</label><select class="input" id="rCountry"><option value="">Select your country</option></select></div>
+        <div class="field"><label>Current visa or status</label><div class="opts opts-wrap" data-rg="visa">
+          <div class="opt" data-v="F-1 Student">F-1 student</div><div class="opt" data-v="J-1">J-1</div><div class="opt" data-v="F-1 CPT">F-1 CPT</div><div class="opt" data-v="F-1 OPT">F-1 OPT</div><div class="opt" data-v="F-1 OPT STEM">F-1 STEM OPT</div><div class="opt" data-v="H-1B">H-1B</div><div class="opt" data-v="H-1B1">H-1B1</div><div class="opt" data-v="L-1">L-1</div><div class="opt" data-v="O-1">O-1</div><div class="opt" data-v="EB-2 NIW Pending">NIW pending</div><div class="opt" data-v="Other">Other</div></div></div>
+        <div class="field"><label>Highest degree</label><div class="opts" data-rg="edu"><div class="opt" data-v="bachelors">Bachelor's</div><div class="opt" data-v="masters">Master's</div><div class="opt" data-v="phd">PhD or MD</div><div class="opt" data-v="other">Other</div></div></div>
+        <div class="field"><label>Years of US experience</label><div class="opts" data-rg="years"><div class="opt" data-v="1">0 to 2</div><div class="opt" data-v="3">3 to 5</div><div class="opt" data-v="6">6 to 10</div><div class="opt" data-v="11">11 to 15</div><div class="opt" data-v="16">16+</div></div></div>
+        <div class="field"><label>Professional evidence (select all that apply)</label><div class="opts opts-wrap" data-rg="ev" data-multi="1" id="rEv"></div></div>
+        <div class="field"><label>Has your SEVIS ever been terminated?</label><div class="opts" data-rg="sevis"><div class="opt" data-v="no">No</div><div class="opt" data-v="yes">Yes</div></div></div>
+        <div class="field" id="rDsField" style="display:none"><label>Years in your F-1 program</label><div class="opts" data-rg="ds"><div class="opt" data-v="1-2">1 to 2</div><div class="opt" data-v="3-4">3 to 4</div><div class="opt" data-v="5+">5+</div></div></div>
+        <div class="field"><label>Do you have an approved green card petition (I-140)?</label><div class="opts" data-rg="i140"><div class="opt" data-v="no">Not yet</div><div class="opt" data-v="yes">Yes, approved</div></div></div>
+        <div class="field"><label>Have you kept continuous lawful status throughout?</label><div class="opts" data-rg="viol"><div class="opt" data-v="no">Yes, continuous</div><div class="opt" data-v="yes">Gaps or issues exist</div></div></div>
+        <div class="field"><label>US citizen or LPR immediate family ties?</label><div class="opts" data-rg="fam"><div class="opt" data-v="yes">Yes</div><div class="opt" data-v="no">Not yet</div></div></div>
+        <div class="field"><label>Reviewed your public social media with filing in mind?</label><div class="opts" data-rg="sm"><div class="opt" data-v="no">Yes, reviewed</div><div class="opt" data-v="yes">Not yet</div></div></div>
+        <button class="rcalcbtn" id="rCalc">Calculate my Risk Score →</button>
+        <p class="rhint" id="rHint">Select at least your country and current status.</p>
+      </div>
+      <div id="rResult" style="display:none">
+        <div class="rscore">
+          <div class="rgauge">
+            <svg viewBox="0 0 120 120" width="150" height="150"><circle cx="60" cy="60" r="52" fill="none" stroke="#eef0f5" stroke-width="11"/><circle id="rRing" cx="60" cy="60" r="52" fill="none" stroke="#EA580C" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 327" transform="rotate(-90 60 60)"/></svg>
+            <div class="num"><span class="n" id="rScoreN">0</span><span class="o">out of 100</span></div>
+          </div>
+          <div class="rinfo"><div class="rl" id="rLabel"></div><div class="rs" id="rSub"></div><div class="ra" id="rAdvice"></div></div>
+        </div>
+        <div class="rbreak" id="rBreak"></div>
+        <div class="rpivot">Lower is safer. The strongest response is a green card you file yourself. Explore your EB-1A and EB-2 NIW fit in the tabs above, then get the full report below.</div>
+        <button class="reset" id="rRedo" style="margin-top:14px">← Change answers</button>
       </div>
     </div>
   </section>
@@ -551,6 +607,85 @@ setInterval(reportHeight,1000);
   if(v&&looksValid(v)){try{parent.postMessage({type:'explorerLead',email:v},'*');}catch(e){}}
  });
  form.addEventListener('submit',function(e){e.preventDefault();link.click();});
+})();
+
+// ── Visa Risk tab: full questionnaire + the real scoring engine ──
+(function(){
+ var TIER={};
+ function setT(t,s){s.split('|').forEach(function(c){TIER[c]=t;});}
+ setT(0,'Afghanistan|Burma|Myanmar|Burkina Faso|Chad|Republic of Congo|Equatorial Guinea|Eritrea|Haiti|Iran|Laos|Libya|Mali|Niger|Sierra Leone|Somalia|South Sudan|Sudan|Syria|Yemen');
+ setT(1,'Antigua and Barbuda|Ivory Coast|Cuba|Dominica|Gambia|Nigeria|Senegal|Tanzania|Togo|Venezuela');
+ setT(2,'Angola|Benin|Burundi|Gabon|Malawi|Mauritania|Tonga|Turkmenistan|Zambia|Zimbabwe');
+ setT(3,'Albania|Algeria|Armenia|Azerbaijan|Bahamas|Bangladesh|Barbados|Belarus|Belize|Bhutan|Bosnia and Herzegovina|Brazil|Cambodia|Cameroon|Cabo Verde|Cape Verde|Colombia|Democratic Republic of Congo|Egypt|Ethiopia|Fiji|Georgia|Ghana|Grenada|Guatemala|Guinea|Iraq|Jamaica|Jordan|Kazakhstan|Kosovo|Kuwait|Kyrgyzstan|Lebanon|Liberia|Moldova|Mongolia|Montenegro|Morocco|Nepal|Nicaragua|North Macedonia|Pakistan|Russia|Rwanda|Saint Kitts and Nevis|Saint Lucia|Saint Vincent and the Grenadines|Thailand|Tunisia|Uganda|Uruguay|Uzbekistan');
+ setT(4,'China|India|Mexico|Philippines');
+ function tier(c){return TIER.hasOwnProperty(c)?TIER[c]:5;}
+ var COUNTRIES='Afghanistan|Albania|Algeria|Andorra|Angola|Antigua and Barbuda|Argentina|Armenia|Australia|Austria|Azerbaijan|Bahamas|Bahrain|Bangladesh|Barbados|Belarus|Belgium|Belize|Benin|Bhutan|Bolivia|Bosnia and Herzegovina|Botswana|Brazil|Brunei|Bulgaria|Burkina Faso|Burundi|Cabo Verde|Cambodia|Cameroon|Canada|Central African Republic|Chad|Chile|China|Colombia|Comoros|Costa Rica|Croatia|Cuba|Cyprus|Czech Republic|Democratic Republic of Congo|Denmark|Djibouti|Dominica|Dominican Republic|Ecuador|Egypt|El Salvador|Equatorial Guinea|Eritrea|Estonia|Eswatini|Ethiopia|Fiji|Finland|France|Gabon|Gambia|Georgia|Germany|Ghana|Greece|Grenada|Guatemala|Guinea|Guinea-Bissau|Guyana|Haiti|Honduras|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Ivory Coast|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kiribati|Kosovo|Kuwait|Kyrgyzstan|Laos|Latvia|Lebanon|Lesotho|Liberia|Libya|Liechtenstein|Lithuania|Luxembourg|Madagascar|Malawi|Malaysia|Maldives|Mali|Malta|Marshall Islands|Mauritania|Mauritius|Mexico|Micronesia|Moldova|Monaco|Mongolia|Montenegro|Morocco|Mozambique|Myanmar|Namibia|Nauru|Nepal|Netherlands|New Zealand|Nicaragua|Niger|Nigeria|North Korea|North Macedonia|Norway|Oman|Pakistan|Palau|Panama|Papua New Guinea|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Republic of Congo|Romania|Russia|Rwanda|Saint Kitts and Nevis|Saint Lucia|Saint Vincent and the Grenadines|Samoa|San Marino|Sao Tome and Principe|Saudi Arabia|Senegal|Serbia|Seychelles|Sierra Leone|Singapore|Slovakia|Slovenia|Solomon Islands|Somalia|South Africa|South Korea|South Sudan|Spain|Sri Lanka|Sudan|Suriname|Sweden|Switzerland|Syria|Taiwan|Tajikistan|Tanzania|Thailand|Timor-Leste|Togo|Tonga|Trinidad and Tobago|Tunisia|Turkey|Turkmenistan|Tuvalu|Uganda|Ukraine|United Arab Emirates|United Kingdom|Uruguay|Uzbekistan|Vanuatu|Venezuela|Vietnam|Yemen|Zambia|Zimbabwe|Other'.split('|');
+ var EV='Publications|Citations|Patents|Peer review or judging|Invited speaker|Awards|Press or media|Critical role|High salary|Leadership'.split('|');
+ var sel=document.getElementById('rCountry');
+ if(!sel)return;
+ COUNTRIES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+ var evbox=document.getElementById('rEv');
+ EV.forEach(function(l){var d=document.createElement('div');d.className='opt';d.textContent=l;evbox.appendChild(d);});
+ var R={country:'',visa:'',edu:'',years:'',sevis:'',ds:'',i140:'',viol:'',fam:'',sm:'',ev:0};
+ sel.addEventListener('change',function(){R.country=sel.value;});
+ document.querySelectorAll('#risk .opts[data-rg]').forEach(function(g){
+  var rg=g.dataset.rg,multi=g.dataset.multi;
+  g.querySelectorAll('.opt').forEach(function(o){o.addEventListener('click',function(){
+    if(multi){o.classList.toggle('on');R.ev=g.querySelectorAll('.opt.on').length;}
+    else{g.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on');});o.classList.add('on');R[rg]=o.dataset.v;
+      if(rg==='visa'){var f1=['F-1 Student','F-1 OPT STEM','F-1 OPT','F-1 CPT','J-1'].indexOf(o.dataset.v)>=0;document.getElementById('rDsField').style.display=f1?'block':'none';}}
+  });});
+ });
+ function compute(){
+  var t=tier(R.country);
+  var cP=({0:35,1:30,2:26,3:20,4:12,5:4})[t];
+  var vE={'EB-2 NIW Pending':2,'O-1':5,'H-1B':10,'L-1':10,'H-1B1':13,'F-1 Student':16,'J-1':20,'F-1 OPT STEM':17,'F-1 OPT':21,'F-1 CPT':25,'Other':16};
+  var vP=vE[R.visa]!=null?vE[R.visa]:16;
+  var n=R.ev,eP=n>=6?2:n>=4?6:n>=2?11:n===1?15:20;
+  var yP=({'1':10,'3':7,'6':5,'11':3,'16':1})[R.years]; if(yP==null)yP=10;
+  var dP=({phd:2,md:2,masters:4,bachelors:7,other:9})[R.edu]; if(dP==null)dP=7;
+  var i=R.i140==='yes'?-18:0, vi=R.viol==='yes'?15:0, fa=R.fam==='yes'?-8:0, sm=R.sm==='yes'?10:0, se=R.sevis==='yes'?15:0;
+  var isF1=['F-1 Student','F-1 OPT STEM','F-1 OPT','F-1 CPT','J-1'].indexOf(R.visa)>=0;
+  var ds=isF1?(R.ds==='5+'?10:R.ds==='3-4'?6:0):0;
+  var total=Math.min(100,Math.max(0,cP+vP+eP+yP+dP+se+ds+i+vi+fa+sm));
+  var bd=[{l:'Country & consular risk',p:cP,m:35},{l:'Visa status exposure',p:vP,m:25},{l:'Evidence record',p:eP,m:20},{l:'Career tenure',p:yP,m:10},{l:'Education level',p:dP,m:10}];
+  if(se)bd.push({l:'SEVIS termination',p:se,m:15});
+  if(isF1&&R.ds)bd.push({l:'Duration of status',p:ds,m:10});
+  bd.push({l:'Approved I-140',p:i,m:0});
+  if(vi)bd.push({l:'Status gaps',p:vi,m:15});
+  bd.push({l:'US family ties',p:fa,m:0});
+  if(sm)bd.push({l:'Social media exposure',p:sm,m:10});
+  return {score:total,bd:bd};
+ }
+ function label(s){
+  if(s>=70)return{l:'Critical exposure',sub:'Immediate action required',c:'#DC2626',a:'Your profile has critical vulnerability. Without an approved I-140, consular processing or indefinite US departure is a realistic near-term scenario. The report maps your most urgent options.'};
+  if(s>=50)return{l:'High exposure',sub:'Urgent action needed',c:'#EA580C',a:'Material exposure under current policy. The report identifies the fastest evidence-building path; several gaps are closeable within 60 to 90 days.'};
+  if(s>=25)return{l:'Moderate exposure',sub:'Proactive steps recommended',c:'#B45309',a:'A credible position with identifiable gaps. The report specifies which evidence builds the strongest extraordinary-circumstances argument for your profile.'};
+  return{l:'Lower exposure',sub:'Strong current position',c:'#0E9E8A',a:'Solid grounds for protection. Filing your NIW I-140 now locks that in; an approved I-140 is definitive evidence of national interest.'};
+ }
+ document.getElementById('rCalc').addEventListener('click',function(){
+  if(!R.country||!R.visa){document.getElementById('rHint').style.display='block';return;}
+  var r=compute(),L=label(r.score);
+  document.getElementById('rScoreN').textContent=r.score;
+  document.getElementById('rRing').setAttribute('stroke-dasharray',(r.score/100*327)+' 327');
+  document.getElementById('rRing').setAttribute('stroke',L.c);
+  var le=document.getElementById('rLabel');le.textContent=L.l;le.style.color=L.c;
+  document.getElementById('rSub').textContent=L.sub;
+  document.getElementById('rAdvice').textContent=L.a;
+  var html='';
+  r.bd.forEach(function(b){
+   var prot=b.m===0,ratio=prot?(b.p<0?1:0):Math.max(0,Math.min(1,b.p/b.m));
+   var col=prot?'#00C2A8':(ratio>=.7?'#DC2626':ratio>=.5?'#EA580C':ratio>=.3?'#D97706':'#00C2A8');
+   var vt=prot?(b.p<0?(b.p+' pts, protective'):'none yet'):(b.p+' / '+b.m);
+   html+='<div class="rrow"><div class="rt"><span class="rlab">'+b.l+'</span><span class="rv">'+vt+'</span></div><div class="rtrack"><span class="rfill" style="width:'+Math.round(ratio*100)+'%;background:'+col+'"></span></div></div>';
+  });
+  document.getElementById('rBreak').innerHTML=html;
+  document.getElementById('rForm').style.display='none';document.getElementById('rResult').style.display='block';
+  reportHeight();
+ });
+ document.getElementById('rRedo').addEventListener('click',function(){
+  document.getElementById('rResult').style.display='none';document.getElementById('rForm').style.display='block';reportHeight();
+ });
 })();
 
 updateCTA();reportHeight();
