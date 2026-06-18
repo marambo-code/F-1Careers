@@ -28,6 +28,19 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  // Homepage — logged-in users go to their dashboard; everyone else gets the
+  // marketing homepage served from /public/home.html (URL stays "/").
+  if (pathname === '/') {
+    if (user) {
+      const dashboardUrl = request.nextUrl.clone()
+      dashboardUrl.pathname = '/dashboard'
+      return NextResponse.redirect(dashboardUrl)
+    }
+    const homeUrl = request.nextUrl.clone()
+    homeUrl.pathname = '/home.html'
+    return NextResponse.rewrite(homeUrl)
+  }
+
   // Protected routes — redirect to login if not authenticated
   const protectedPaths = ['/dashboard', '/profile', '/strategy', '/rfe', '/petition-builder', '/career-moves', '/subscribe', '/filing-guide', '/print']
   const isProtected = protectedPaths.some(p => pathname.startsWith(p))
