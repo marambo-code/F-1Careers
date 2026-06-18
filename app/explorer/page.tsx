@@ -43,7 +43,7 @@ export default function ExplorerPage() {
           Self-Petition Eligibility Check
         </h1>
         <p className="text-base text-mid mt-3 max-w-2xl mx-auto leading-relaxed">
-          Free. Learn and see which green card you can file yourself, no employer, EB-1A or EB-2 NIW, and whether you&apos;d qualify. Run a full comprehensive diagnostic and strategy report afterwards based on your unique profile and plan ahead.
+          Free. See which green card you can file yourself, EB-1A or EB-2 NIW, and whether you&apos;d qualify. The full diagnostic comes next.
         </p>
       </section>
 

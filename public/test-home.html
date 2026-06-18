@@ -105,11 +105,11 @@
 
   /* WHY */
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
-  .card{border:1px solid var(--border);border-radius:18px;padding:24px;background:#fff}
-  .card .bx{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-  .card .bx .ico{width:24px;height:24px}
-  .card h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
-  .card p{font-size:14px;color:var(--mid);line-height:1.55}
+  .card{border:1px solid var(--border);border-radius:18px;padding:20px 22px;background:#fff;display:flex;gap:14px;align-items:flex-start}
+  .card .bx{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+  .card .bx .ico{width:23px;height:23px}
+  .card h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
+  .card p{font-size:14px;color:var(--mid);line-height:1.5}
   .bx-navy{background:var(--navy-l);color:var(--navy)}
   .bx-orange{background:#FFF1E8;color:#EA6A2A}
   .bx-teal{background:var(--teal-l);color:var(--teal-d)}
@@ -196,7 +196,6 @@
       <a class="brand" href="/test">F-1 Careers</a>
       <div class="navlinks">
         <a class="hideable" href="/explorer">Eligibility Check</a>
-        <a class="hideable" href="/stay-score">Risk Score</a>
         <a href="/login">Sign in</a>
         <a class="btn-teal" href="/start"><span class="long">Get my readiness report →</span><span class="short">Get my report →</span></a>
       </div>
@@ -267,9 +266,9 @@
   <div class="wrap">
     <p class="h2">Why this matters now</p>
     <div class="grid3">
-      <div class="card"><span class="bx bx-navy"><span class="ico i-cal"></span></span><h3>F-1 time may be capped</h3><p>Proposed rules could limit how long F-1 students can stay.</p></div>
-      <div class="card"><span class="bx bx-orange"><span class="ico i-alert"></span></span><h3>Leaving the US is riskier</h3><p>Travel limits make getting a green card harder than before.</p></div>
-      <div class="card"><span class="bx bx-teal"><span class="ico i-shield"></span></span><h3>Strong evidence is what wins</h3><p>Officers evaluate each case individually. Quality matters most.</p></div>
+      <div class="card"><span class="bx bx-navy"><span class="ico i-cal"></span></span><div class="cbody"><h3>F-1 time may be capped</h3><p>Proposed rules could limit how long F-1 students can stay.</p></div></div>
+      <div class="card"><span class="bx bx-orange"><span class="ico i-alert"></span></span><div class="cbody"><h3>Leaving the US is riskier</h3><p>Travel limits make getting a green card harder than before.</p></div></div>
+      <div class="card"><span class="bx bx-teal"><span class="ico i-shield"></span></span><div class="cbody"><h3>Strong evidence is what wins</h3><p>Officers evaluate each case individually. Quality matters most.</p></div></div>
     </div>
   </div>
 </section>
@@ -333,6 +332,7 @@
       <button class="fchip" data-f="bio">Biotech</button>
       <button class="fchip" data-f="med">Medicine</button>
       <button class="fchip" data-f="eng">Engineering</button>
+      <button class="fchip" data-f="bus">Business</button>
     </div>
     <div class="fpanel" id="fpanel"></div>
   </div>
@@ -384,7 +384,9 @@ var ICONS={
   'i-crown':'<path d="M2 18h20"/><path d="m4 18-2-9 5.5 4L12 6l4.5 7L22 9l-2 9"/>',
   'i-salary':'<line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
   'i-star':'<polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3"/>',
-  'i-badge':'<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>'
+  'i-badge':'<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>',
+  'i-image':'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L9 20"/>',
+  'i-chart':'<path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/>'
 };
 function svg(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name]+'</svg>';}
 ['i-shieldcheck','i-users','i-eye','i-bars'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=svg(id);});
@@ -402,12 +404,16 @@ var PATHS={
     info:'Tap any criterion to see what it means, and how to build it if you do not have it yet. You only need 3 of 10.',
     need:3,
     chips:[
-      {ic:'i-salary',label:'High salary',on:1,info:'<b>High salary.</b> Pay above the norm for your role and region. <span class="build">Equity, bonuses, and offer letters all count.</span>'},
-      {ic:'i-star',label:'Leading role',on:1,info:'<b>Leading or critical role.</b> Real responsibility at a respected organization. <span class="build">Document the scope and impact you own.</span>'},
-      {ic:'i-trophy',label:'Awards',on:1,info:'<b>Awards and recognition.</b> Prizes, honors, or competitive grants for your work. <span class="build">Company and industry awards both count.</span>'},
+      {ic:'i-salary',label:'High salary',info:'<b>High salary.</b> Pay above the norm for your role and region. <span class="build">Equity, bonuses, and offer letters all count.</span>'},
+      {ic:'i-star',label:'Leading role',info:'<b>Leading or critical role.</b> Real responsibility at a respected organization. <span class="build">Document the scope and impact you own.</span>'},
+      {ic:'i-trophy',label:'Awards',info:'<b>Awards and recognition.</b> Prizes, honors, or competitive grants for your work. <span class="build">Company and industry awards both count.</span>'},
       {ic:'i-bulb',label:'Original contributions',info:'<b>Original contributions.</b> Work others have adopted, built on, or been influenced by. <span class="build">Impact matters more than a title.</span>'},
       {ic:'i-badge',label:'Membership',info:'<b>Selective membership.</b> A group that admits members for achievement, not just dues. <span class="build">Senior or fellow grades count.</span>'},
-      {ic:'i-news',label:'Press',info:'<b>Press coverage.</b> Media or trade coverage of your work. <span class="build">One credible mention can satisfy this.</span>'}
+      {ic:'i-chart',label:'Commercial success',info:'<b>Commercial success.</b> Revenue, adoption, or market impact from your work. <span class="build">Sales, users, or business results count.</span>'},
+      {ic:'i-news',label:'Press',info:'<b>Press coverage.</b> Media or trade coverage of your work. <span class="build">One credible mention can satisfy this.</span>'},
+      {ic:'i-gavel',label:'Judging',info:'<b>Judging others.</b> Reviewing for a journal or conference, or judging a competition. <span class="build">One review invitation can count.</span>'},
+      {ic:'i-book',label:'Publications',info:'<b>Published work.</b> Papers, books, or articles in your field. <span class="build">Industry and academic venues both count.</span>'},
+      {ic:'i-image',label:'Exhibitions',info:'<b>Exhibitions.</b> Your work shown at exhibitions or showcases. <span class="build">Most relevant for design, arts, and architecture.</span>'}
     ]
   },
   eb2:{
@@ -457,7 +463,8 @@ var FIELDS={
   ai:['Papers at NeurIPS, ICML, or CVPR','Citations from labs outside your own','Open-source adopted in industry','A review role at a major venue'],
   bio:['First-author peer-reviewed work','A cross-lab citation footprint','Named inventor on a patent','Invited conference talks'],
   med:['Clinical or translational research','Contributions to practice guidelines','Journal peer review','Leadership in a professional society'],
-  eng:['Granted patents or licensed IP','Standards or committee work','Projects deployed at scale','Recognition from outside your employer']
+  eng:['Granted patents or licensed IP','Standards or committee work','Projects deployed at scale','Recognition from outside your employer'],
+  bus:['Original research, analysis, or a published framework','Quoted as a subject-matter expert','Advisory, board, or leadership roles','Measurable, field-wide business impact']
 };
 function showField(f){
   var items=FIELDS[f]||[];
