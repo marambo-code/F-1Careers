@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import BrandLink from '@/components/BrandLink'
 import SiteFooter from '@/components/SiteFooter'
 import ExplorerEmbed from '@/components/explorer/ExplorerEmbed'
 
@@ -23,9 +24,9 @@ export default function ExplorerPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-          <Link href="/" className="flex items-center gap-2 no-underline shrink-0">
+          <BrandLink className="flex items-center gap-2 no-underline shrink-0">
             <span className="text-[17px] sm:text-[19px] font-extrabold text-navy tracking-tight whitespace-nowrap">F-1 Careers</span>
-          </Link>
+          </BrandLink>
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <Link href="/login" className="text-sm text-mid font-medium hover:text-navy transition-colors px-2 sm:px-3 py-2 whitespace-nowrap">Sign in</Link>
             <Link href="/start" className="text-sm font-bold text-white bg-navy px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap">
