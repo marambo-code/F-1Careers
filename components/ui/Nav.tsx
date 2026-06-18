@@ -124,7 +124,6 @@ export default function Nav() {
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
             <span className="text-white font-bold text-lg tracking-tight">F-1 Careers</span>
-            <span className="hidden sm:inline text-teal text-xs font-bold bg-teal/15 px-1.5 py-0.5 rounded border border-teal/20">AI</span>
           </Link>
 
           {/* Desktop links */}
