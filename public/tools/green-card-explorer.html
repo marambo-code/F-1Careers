@@ -198,6 +198,12 @@
   #rEv .opt.on{background:rgba(0,194,168,.07);border-color:rgba(0,194,168,.45);color:var(--teal-d)}
   #rEv .opt.on::before{background:var(--teal);border-color:var(--teal)}
   @media(max-width:560px){#rEv{grid-template-columns:1fr}}
+  .pbranch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}
+  .pbcard{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#fff}
+  .pbcard .pbt{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .pbcard.go .pbt{color:var(--teal-d)}.pbcard.wait .pbt{color:var(--gold)}
+  .pbcard p{font-size:12.5px;color:var(--mid);line-height:1.45}
+  @media(max-width:560px){.pbranch{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -216,10 +222,9 @@
     <div class="tab active" data-view="choose"><span class="n">01</span> Compare &amp; Choose</div>
     <div class="tab" data-view="eb1a"><span class="n">02</span> EB-1A Constellation</div>
     <div class="tab" data-view="eb2"><span class="n">03</span> EB-2 NIW Prongs</div>
-    <div class="tab" data-view="tree"><span class="n">04</span> Decision Tree</div>
-    <div class="tab" data-view="timeline"><span class="n">05</span> Timeline</div>
-    <div class="tab" data-view="calc"><span class="n">06</span> Government Filing Costs</div>
-    <div class="tab" data-view="risk"><span class="n">07</span> Visa Risk</div>
+    <div class="tab" data-view="process"><span class="n">04</span> Process</div>
+    <div class="tab" data-view="calc"><span class="n">05</span> Government Filing Costs</div>
+    <div class="tab" data-view="risk"><span class="n">06</span> Visa Risk</div>
   </div>
 
   <section class="view active" id="choose">
@@ -298,41 +303,24 @@
     </div>
   </section>
 
-  <section class="view" id="tree">
+  <section class="view" id="process">
     <div class="card">
-      <h2>The Decision Tree</h2>
-      <p class="lead">Pick a pathway, prove its test, then follow the shared road to a green card.</p>
-      <div class="flow">
-        <div class="node start">Which self-petition fits your record?</div>
-        <div class="connector"></div>
-        <div class="branch">
-          <div class="limb"><div class="blabel gold">EB-1A</div><div class="node gold q">Meet 3+ of 10 criteria?<small>Awards, media, judging, major contributions, high salary, leading roles…</small></div></div>
-          <div class="limb"><div class="blabel cyan">EB-2 NIW</div><div class="node cyan q">Advanced degree/exceptional ability + 3 Dhanasar prongs?<small>Substantial merit + national importance • well positioned • beneficial to waive</small></div></div>
-        </div>
-        <div class="connector"></div>
-        <div class="node q">File Form I-140 (self-petition): $1,015<small>EB-2 NIW: include an uncertified ETA-9089 (no PERM). E-file or mail.</small></div>
-        <div class="connector"></div>
-        <div class="node q">Premium processing? (+$2,965, optional)</div>
-        <div class="branch">
-          <div class="limb"><div class="blabel gold">EB-1A speed</div><div class="node gold">Decision in 15 calendar days</div></div>
-          <div class="limb"><div class="blabel cyan">EB-2 NIW speed</div><div class="node cyan">Decision in 45 calendar days</div></div>
-        </div>
-        <div class="connector"></div>
-        <div class="node q" style="border-color:rgba(255,122,122,.45)">Is your priority date current? (depends on path + birth country)<small style="color:var(--red)">Rest of world: current for both. China/India: EB-1 and EB-2 each have their own (different) cutoffs, see the calculator.</small></div>
-        <div class="branch">
-          <div class="limb"><div class="blabel">Current</div><div class="node">File the green card<small>I-485 inside the U.S. (concurrent OK) or consular abroad.</small></div><div class="connector"></div><div class="node end">Green card ✦</div></div>
-          <div class="limb"><div class="blabel">Not current</div><div class="node">Hold after I-140 approval<small>Wait for your priority date, then file Stage 2.</small></div><div class="connector"></div><div class="node end">Green card when current ✦</div></div>
-        </div>
+      <h2>From your case to a green card</h2>
+      <p class="lead">Every step, the fees, and the one decision point that depends on your country. Toggle the path to see how it changes.</p>
+      <div class="ptoggle" id="procToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
+      <div class="tl eb1a" id="procTL">
+        <div class="tl-item"><div class="tl-num">1</div><div class="tl-body"><h4>Build and document your case</h4><p>Assemble exhibits for your 3 to 4 strongest criteria, recommendation letters, CV, and a credential evaluation.</p><span class="chip time">Weeks to months</span></div></div>
+        <div class="tl-item"><div class="tl-num">2</div><div class="tl-body"><h4>File Form I-140 (self-petition)</h4><p>Mail or e-file. The receipt notice date becomes your priority date, guard it. <span id="procEta"></span></p><span class="chip fee">$1,015</span> <span class="chip warn">Never send originals</span></div></div>
+        <div class="tl-item"><div class="tl-num">3</div><div class="tl-body"><h4>Choose your speed</h4><p>Premium processing is optional and changes nothing about your odds or place in line.</p><span class="chip fee">+$2,965 optional</span> <span class="chip time" id="procPrem">15 calendar days vs ~5 to 8 months</span></div></div>
+        <div class="tl-item"><div class="tl-num">4</div><div class="tl-body"><h4>I-140 approval</h4><p>Approval notice issued. The green card stage opens when your priority date is current.</p><span class="chip time" id="procBull">EB-1: current except China and India</span></div></div>
+        <div class="tl-item"><div class="tl-num">5</div><div class="tl-body"><h4>Is your priority date current?</h4><p>This is the one fork, and it depends on your country of birth.</p>
+          <div class="pbranch">
+            <div class="pbcard go"><div class="pbt">Current</div><p>File the green card now. I-485 inside the US (concurrent OK) or consular abroad.</p></div>
+            <div class="pbcard wait"><div class="pbt">Not current</div><p>Hold after I-140 approval. Wait for your priority date, then file Stage 2.</p></div>
+          </div>
+        </div></div>
+        <div class="tl-item"><div class="tl-num">6</div><div class="tl-body"><h4>Green card, then permanent residence</h4><p>A conditional or 10-year green card, then citizenship eligibility after 5 years.</p><span class="chip time">Then 5 yrs to citizenship</span></div></div>
       </div>
-    </div>
-  </section>
-
-  <section class="view" id="timeline">
-    <div class="card">
-      <h2>The Process Timeline</h2>
-      <p class="lead">Petition to permanent residence. Toggle the path, the premium window and bulletin notes change.</p>
-      <div class="ptoggle" id="tlToggle"><button data-p="eb1a" class="on">EB-1A</button><button data-p="eb2">EB-2 NIW</button></div>
-      <div class="tl eb1a" id="tlList"></div>
     </div>
   </section>
 
@@ -538,31 +526,14 @@ var PRONGS=[
  draw();
 })();
 
-var TLDATA={
- eb1a:[
-  {h:"Build & document your case",p:"Assemble exhibits for your 3–4 strongest criteria, recommendation letters, CV, and credential evaluation.",c:[['time','Weeks–months']]},
-  {h:"File Form I-140 (self-petition)",p:"Mail or e-file. The receipt notice (I-797) date becomes your priority date, guard it.",c:[['fee','$1,015'],['warn','Never send originals']]},
-  {h:"Choose your speed",p:"Optional premium processing buys a fast decision; it changes nothing about your odds or place in line.",c:[['fee','+$2,965 optional'],['time','15 calendar days vs ~5–8 months']]},
-  {h:"I-140 approval",p:"Approval notice issued. The green card stage opens when your priority date is current.",c:[['time','EB-1: current except China/India']]},
-  {h:"Green card",p:"Inside the U.S.: file I-485 (concurrent when current). Outside: NVC → DS-260 → consular interview.",c:[['fee','~$1,700 solo inside'],['fee','~$345+ outside']]},
-  {h:"Permanent residence",p:"5-year work card first, then the 10-year green card. After 5 years, apply for citizenship.",c:[['time','Then 5 yrs to citizenship']]}
- ],
- eb2:[
-  {h:"Sharpen your endeavor & evidence",p:"Define a specific, nationally important endeavor and tie your record to it. Gather degrees, publications, awards, letters.",c:[['time','Weeks–months']]},
-  {h:"File Form I-140 (self-petition)",p:"Include an uncertified ETA-9089 (no PERM). E-file or mail. The I-797 date is your priority date.",c:[['fee','$1,015'],['warn','No PERM; uncertified ETA-9089']]},
-  {h:"Choose your speed",p:"Optional premium processing buys a fast decision; same odds, same line.",c:[['fee','+$2,965 optional'],['time','45 calendar days vs ~5–8 months']]},
-  {h:"I-140 approval",p:"Approval notice issued. The green card stage opens when your priority date is current.",c:[['time','EB-2: current except China/India']]},
-  {h:"Green card",p:"Inside the U.S.: file I-485 (concurrent when current). Outside: NVC → DS-260 → consular interview.",c:[['fee','~$1,700 solo inside'],['fee','~$345+ outside']]},
-  {h:"Permanent residence",p:"5-year work card first, then the 10-year green card. After 5 years, apply for citizenship.",c:[['time','China/India: multi-year wait']]}
- ]
-};
-function renderTL(path){var box=document.getElementById('tlList');box.className='tl '+(path==='eb1a'?'eb1a':'eb2');box.innerHTML='';
- TLDATA[path].forEach(function(it,i){var row=document.createElement('div');row.className='tl-item';
-  var chips=it.c.map(function(c){return '<span class="chip '+c[0]+'">'+c[1]+'</span>';}).join('');
-  row.innerHTML='<div class="tl-num">'+(i+1)+'</div><div class="tl-body"><h4>'+it.h+'</h4><p>'+it.p+'</p>'+chips+'</div>';box.appendChild(row);});reportHeight();}
-document.querySelectorAll('#tlToggle button').forEach(function(b){b.addEventListener('click',function(){
- document.querySelectorAll('#tlToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderTL(b.dataset.p);});});
-renderTL('eb1a');
+var PROC={eb1a:{prem:'15 calendar days vs ~5 to 8 months',bull:'EB-1: current except China and India',eta:''},eb2:{prem:'45 calendar days vs ~5 to 8 months',bull:'EB-2: current except China and India',eta:'EB-2 NIW: include an uncertified ETA-9089 (no PERM).'}};
+document.querySelectorAll('#procToggle button').forEach(function(b){b.addEventListener('click',function(){
+ document.querySelectorAll('#procToggle button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+ var p=b.dataset.p;document.getElementById('procTL').className='tl '+p;
+ document.getElementById('procPrem').textContent=PROC[p].prem;
+ document.getElementById('procBull').textContent=PROC[p].bull;
+ document.getElementById('procEta').textContent=PROC[p].eta;
+ reportHeight();});});
 
 var FEES={i140:715,asylum:300,pp:2965,i485:1440,i765:260,i131:630,med:300,childU14:950,iv:345,medOut:400};
 var BULLETIN={eb1a:{row:'current',china:'China EB-1 cutoff <b>Apr 1, 2023</b>',india:'India EB-1 cutoff <b>Dec 15, 2022</b>'},
