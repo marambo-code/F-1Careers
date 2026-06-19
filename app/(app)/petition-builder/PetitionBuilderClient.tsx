@@ -114,6 +114,15 @@ function EvidenceTrack({
         <span className="text-xs text-mid">{items.length - doneCount - inProgressCount} remaining</span>
       </div>
 
+      {/* How-to legend: the status circle is click-to-cycle, which isn't obvious on its own */}
+      <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap text-xs text-mid bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5">
+        <span className="font-semibold text-navy">Click a circle to set status:</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 inline-block" /> Todo</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-full border-2 border-yellow-400 bg-yellow-50 inline-block" /> In progress</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-full bg-teal inline-block" /> Done</span>
+        <span>It cycles each click, so click a done item again to reset it.</span>
+      </div>
+
       {Object.entries(grouped).map(([group, groupItems]) => {
         const groupDone = groupItems.filter(i => i.status === 'done').length
         return (
@@ -142,7 +151,7 @@ function EvidenceTrack({
                           onToggle(item.id, next)
                         }}
                         className="flex-shrink-0 mt-0.5"
-                        title="Click to cycle: Todo → In Progress → Done"
+                        title="Click to cycle: Todo → In Progress → Done → Todo (click again to reset)"
                       >
                         {item.status === 'done' ? (
                           <div className="w-5 h-5 rounded-full bg-teal flex items-center justify-center">
