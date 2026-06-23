@@ -9,7 +9,7 @@ interface PayButtonProps {
 }
 
 const PRICES = {
-  strategy: '$497',
+  strategy: '$297',
   rfe: '$297',
 }
 
