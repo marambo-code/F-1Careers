@@ -82,7 +82,8 @@
   .starbg{position:absolute;inset:0;pointer-events:none}
   .twinkle{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s infinite ease-in-out}
   @keyframes tw{0%,100%{opacity:.15}50%{opacity:.8}}
-  .crit-label{font-size:11px;fill:#AEB9DC;pointer-events:none}
+  .crit-label{font-size:13px;fill:#AEB9DC;pointer-events:none}
+  @media(max-width:560px){.crit-label{font-size:15.5px}}
   .crit-node{cursor:pointer}.crit-node:hover .crit-dot{r:13}
   .crit-node.sel .crit-label{fill:#ffd97a;font-weight:700}
   .gate-grp{cursor:pointer}.gate-sub{font-size:10.5px;fill:#AEB9DC;pointer-events:none}
@@ -475,7 +476,7 @@ var CRIT=[
   var lx=cx+(R+34)*Math.cos(ang),ly=cy+(R+34)*Math.sin(ang),anc=Math.abs(Math.cos(ang))<0.3?"middle":(Math.cos(ang)>0?"start":"end");
   var lab=el('text',{x:lx,y:ly-3,"text-anchor":anc,"class":"crit-label"}),w=c.t.split(' ');
   var s1=document.createElementNS(SVGNS,'tspan');s1.setAttribute('x',lx);s1.setAttribute('dy','0');s1.textContent=w[0];
-  var s2=document.createElementNS(SVGNS,'tspan');s2.setAttribute('x',lx);s2.setAttribute('dy','13');s2.textContent=w.slice(1).join(' ');
+  var s2=document.createElementNS(SVGNS,'tspan');s2.setAttribute('x',lx);s2.setAttribute('dy','17');s2.textContent=w.slice(1).join(' ');
   lab.appendChild(s1);if(w.length>1)lab.appendChild(s2);g.appendChild(lab);nodeLayer.appendChild(g);
   function tog(){sel[i]=!sel[i];g.classList.toggle('sel',sel[i]);
    dot.setAttribute('fill',sel[i]?"#f5c451":"#cdd9ff");dot.setAttribute('stroke',sel[i]?"#ffd97a":"#5b6aa0");dot.setAttribute('r',sel[i]?10:8);
