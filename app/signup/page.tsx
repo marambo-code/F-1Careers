@@ -184,6 +184,13 @@ export default function SignupPage() {
                     </span>
                   ) : 'Create account →'}
                 </button>
+
+                <p className="text-xs text-mid text-center leading-relaxed mt-3">
+                  By creating an account, you agree to our{' '}
+                  <Link href="/terms" target="_blank" className="text-teal font-semibold hover:underline">Terms of Service</Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" target="_blank" className="text-teal font-semibold hover:underline">Privacy Policy</Link>.
+                </p>
               </form>
 
               <div className="mt-6 pt-6 border-t border-border text-center">
