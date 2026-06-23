@@ -137,10 +137,20 @@ export default function SubscribeClient() {
           </div>
         )}
 
+        {/* Auto-renewal disclosure, clear and conspicuous, in visual proximity to the consent button (CA ARL / FTC negative-option). */}
+        <p className="mt-5 text-[12px] leading-relaxed text-blue-100 bg-white/5 border border-white/15 rounded-lg p-3">
+          <span className="font-bold text-white">Automatic renewal.</span>{' '}
+          {billing === 'annual'
+            ? 'Your Pro membership renews automatically at $399/year until you cancel. We will charge your payment method on each yearly renewal date.'
+            : 'Your Pro membership renews automatically at $49/month until you cancel. We will charge your payment method on each monthly renewal date.'}{' '}
+          You can cancel anytime from your account; cancellation stops future renewals, and you keep access through the end of the current period. By starting your membership, you authorize these recurring charges and agree to our{' '}
+          <Link href="/terms" target="_blank" className="underline font-semibold text-white">Terms</Link>.
+        </p>
+
         <button
           onClick={handleSubscribe}
           disabled={loading}
-          className="mt-6 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors disabled:opacity-50"
+          className="mt-4 w-full bg-teal text-white font-bold py-3 rounded-xl hover:bg-teal/90 transition-colors disabled:opacity-50"
         >
           {loading ? 'Redirecting to checkout...' : billing === 'annual' ? 'Start annual plan, $399/year' : 'Start monthly plan, $49/month'}
         </button>

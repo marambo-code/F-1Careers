@@ -29,8 +29,15 @@ export default function PayButton({ reportId, productType, className }: PayButto
   }
 
   return (
-    <button onClick={handlePay} disabled={loading} className={className}>
-      {loading ? 'Redirecting to payment...' : `Unlock full report, ${PRICES[productType]}`}
-    </button>
+    <>
+      <button onClick={handlePay} disabled={loading} className={className}>
+        {loading ? 'Redirecting to payment...' : `Unlock full report, ${PRICES[productType]}`}
+      </button>
+      {/* Immediate-performance / non-refundable acknowledgment, adjacent to the purchase action. */}
+      <p className="mt-2 text-[11px] leading-relaxed text-blue-300 text-center">
+        By purchasing, you ask us to generate your report immediately and agree it is non-refundable once it has been generated. See our{' '}
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Terms</a>.
+      </p>
+    </>
   )
 }
