@@ -264,27 +264,23 @@ export function getGroupedItems(items: EvidenceItem[]): Record<string, EvidenceI
   }, {} as Record<string, EvidenceItem[]>)
 }
 
-// Current approval rate data, update periodically from USCIS/Lawfully
-export const APPROVAL_SIGNALS = {
-  NIW: {
-    overall: { rate: 44, trend: 'down', label: 'Overall NIW' },
-    stem: { rate: 90, trend: 'stable', label: 'STEM professionals' },
-    entrepreneur: { rate: 45, trend: 'down', label: 'Entrepreneurs / consultants' },
-    lastUpdated: 'March 2026',
-    source: 'Lawfully / USCIS data',
-  },
-  'EB-1A': {
-    overall: { rate: 62, trend: 'stable', label: 'Overall EB-1A' },
-    stem: { rate: 71, trend: 'stable', label: 'STEM / researchers' },
-    entrepreneur: { rate: 55, trend: 'down', label: 'Artists / athletes / entrepreneurs' },
-    lastUpdated: 'March 2026',
-    source: 'USCIS Q2 FY2025 data',
-  },
+// Map each evidence checklist group to the Precedent Engine key it corresponds
+// to, so the UI can show what real AAO decisions record for that requirement.
+// EB-1A groups map to 8 CFR 204.5(h)(3) criterion keys; NIW groups map to
+// Dhanasar prong keys. Groups with no direct corpus counterpart (letters,
+// petition documents) are intentionally unmapped.
+export const EVIDENCE_GROUP_PRECEDENT_KEYS: Record<string, string> = {
+  // EB-1A
+  'Criterion 1, Awards': 'awards',
+  'Criterion 2, Membership': 'membership',
+  'Criterion 3, Published Material About You': 'published_material',
+  'Criterion 4, Judging': 'judging',
+  'Criterion 5, Original Contributions of Major Significance': 'original_contributions',
+  'Criterion 6, Scholarly Articles': 'scholarly_articles',
+  'Criterion 7, Critical Role': 'leading_critical_role',
+  'Criterion 8, High Salary': 'high_salary',
+  // NIW
+  'Prong 1, Substantial Merit & National Importance': 'dhanasar_prong_1',
+  'Prong 2, Well-Positioned to Advance': 'dhanasar_prong_2',
+  'Prong 3, Waiver of Job Offer Serves National Interest': 'dhanasar_prong_3',
 }
-
-export const SERVICE_CENTERS = [
-  { code: 'NSC', name: 'Nebraska Service Center', note: 'Moderate RFE rate' },
-  { code: 'TSC', name: 'Texas Service Center', note: 'Highest RFE rate in 2025' },
-  { code: 'VSC', name: 'Vermont Service Center', note: 'Lower volume, faster processing' },
-  { code: 'CSC', name: 'California Service Center', note: 'Moderate RFE rate' },
-]

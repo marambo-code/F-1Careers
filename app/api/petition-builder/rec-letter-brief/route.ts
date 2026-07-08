@@ -19,9 +19,17 @@ export const maxDuration = 90
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getPrecedentGroundingAlways } from '@/lib/precedent/grounding'
 import Anthropic from '@anthropic-ai/sdk'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard timeout inside the route's 90s maxDuration (SDK aborts via
+// AbortController), no retries: fail cleanly to the client's error state
+// instead of Vercel killing the function mid-response.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 75_000,
+  maxRetries: 0,
+})
 
 export type RelationshipType = 'independent_expert' | 'collaborator' | 'supervisor' | 'employer'
 
@@ -30,6 +38,7 @@ function buildBriefingPrompt(
   recommender: { name: string; title: string; institution: string; relationship: RelationshipType },
   petitionerProfile: Record<string, string>,
   narrative: string,
+  precedentGrounding = '',
 ): string {
   const pathwayContext =
     pathway === 'EB-1A'
@@ -68,7 +77,11 @@ RECOMMENDER:
 
 RELATIONSHIP CONTEXT FOR THIS LETTER TYPE:
 ${relationshipGuidance[recommender.relationship]}
+${precedentGrounding ? `${precedentGrounding}
 
+HOW TO USE THE ADJUDICATION-PATTERN DATA ABOVE:
+Weak, conclusory letters are among the most commonly documented reasons adjudicators reject evidence. Use the failure patterns to make the "What NOT to write" section concrete: warn the recommender against the exact failures the AAO record names (unsupported superlatives, claims without independent corroboration, restating the petitioner's CV). Do not quote the statistics in the briefing and never present them as approval odds.
+` : ''}
 Write a complete, professional recommender briefing document. Format it as if you are writing it to ${recommender.name} personally, a polished briefing memo they can use to write the strongest possible letter.
 
 The briefing must include:
@@ -84,7 +97,7 @@ The briefing must include:
 
 4. **What NOT to write**, 4-5 specific mistakes to avoid. Be blunt. Include: generic praise, personal relationship language, vague superlatives, anything that could indicate familiarity bias
 
-5. **Suggested letter structure**, a clear outline: Opening / Body sections (labeled) / Closing, with 1-2 sentence description of what goes in each section. Recommend a target length (typically 1.5–2 pages).
+5. **Suggested letter structure**, a clear outline: Opening / Body sections (labeled) / Closing, with 1-2 sentence description of what goes in each section. Recommend a target length (typically 1.5-2 pages).
 
 6. **Key legal language to include**, 3-5 specific phrases, quotes, or framings that immigration adjudicators expect to see (with brief explanation of why each phrase matters legally)
 
@@ -129,12 +142,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Recommender name required' }, { status: 400 })
     }
 
-    // Load profile
-    const { data: profile } = await service
-      .from('profiles')
-      .select('full_name, field_of_study, job_title, current_employer, university')
-      .eq('id', user.id)
-      .single()
+    // Load profile + AAO adjudication patterns in parallel. Grounding
+    // resolves to '' on any failure or timeout; the briefing still generates.
+    const [{ data: profile }, grounding] = await Promise.all([
+      service
+        .from('profiles')
+        .select('full_name, field_of_study, job_title, current_employer, university')
+        .eq('id', user.id)
+        .single(),
+      getPrecedentGroundingAlways(pathway === 'EB-1A' ? 'EB1A' : 'NIW'),
+    ])
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
@@ -146,6 +163,7 @@ export async function POST(req: Request) {
           recommender,
           (profile as Record<string, string>) ?? {},
           narrative ?? '',
+          grounding,
         ),
       }],
     })

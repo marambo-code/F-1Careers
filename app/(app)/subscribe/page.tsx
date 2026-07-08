@@ -72,7 +72,7 @@ export default async function SubscribePage() {
           {[
             { step: '1', title: 'Get your Green Card Score', desc: 'Your EB-1A and NIW eligibility, scored across every criterion relevant to your profile.' },
             { step: '2', title: 'Come back here and subscribe', desc: 'Pro keeps your score updated as your career grows and unlocks all 4 career moves.' },
-            { step: '3', title: 'Execute and watch your score climb', desc: 'Most Pro members see their score increase 5–15 points after completing 2–3 career moves.' },
+            { step: '3', title: 'Execute and watch your score climb', desc: 'Most Pro members see their score increase 5-15 points after completing 2-3 career moves.' },
           ].map(item => (
             <div key={item.step} className="flex gap-3 items-start">
               <div className="w-6 h-6 rounded-full bg-navy text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">

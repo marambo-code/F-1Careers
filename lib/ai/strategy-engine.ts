@@ -1,7 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { StrategyAnswers, StrategyReport, StrategyPreview } from '@/lib/types'
+import { getPrecedentGrounding } from '@/lib/precedent/grounding'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard per-call timeout (SDK aborts via AbortController) + at most 1 retry:
+// worst case 2 x 120s = 240s, safely inside the route's maxDuration of 300s,
+// so a slow model response fails cleanly and the report is marked 'error'
+// instead of the function being killed with the row stuck on 'generating'.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 120_000,
+  maxRetries: 1,
+})
 const MODEL = 'claude-sonnet-4-6'
 
 const STRENGTH = ['None', 'Weak', 'Moderate', 'Strong', 'Exceptional']
@@ -388,12 +397,14 @@ export async function generateStrategyPreview(answers: StrategyAnswers): Promise
     ? buildLegacyPreviewPrompt(answers)
     : buildFullPreviewPrompt(answers)
 
+  // Preview runs inside a 60s route budget: override the shared 120s client
+  // timeout so a stuck call fails inside the route instead of being killed by it.
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1024,
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
-  })
+  }, { timeout: 45_000, maxRetries: 0 })
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
   return JSON.parse(extractJSON(raw)) as StrategyPreview
@@ -412,9 +423,17 @@ export async function generateStrategyReport(answers: StrategyAnswers): Promise<
     return generateLegacyReport(answers)
   }
 
-  const ctx = candidateContext(answers, eb1a, niw, today, recommendedPathway)
+  // Corpus grounding (REC 1): appended ONLY when PRECEDENT_GROUNDING=on.
+  // getPrecedentGrounding resolves to '' when the flag is off, on any fetch
+  // failure, or on timeout, so the paid report always builds the exact
+  // ungrounded prompt in every failure mode. Never throws.
+  const grounding = await getPrecedentGrounding(
+    recommendedPathway === 'EB1A' ? 'EB1A' : 'NIW',
+    [answers.field_of_work, answers.subfield].filter(Boolean).join(' ')
+  )
+  const ctx = candidateContext(answers, eb1a, niw, today, recommendedPathway) + grounding
 
-  console.log(`[strategy-engine] Starting 4 parallel calls. today=${today}, pathway=${recommendedPathway}`)
+  console.log(`[strategy-engine] Starting 4 parallel calls. today=${today}, pathway=${recommendedPathway}, grounded=${grounding.length > 0}`)
 
   // All 4 calls run simultaneously, total time = slowest single call (~25s at 30 tok/s).
   // No retry wrapper, retries compound timing on slow API days; the 55s route timeout

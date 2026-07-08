@@ -12,11 +12,12 @@ const FEATURES_FREE = [
 ]
 
 const FEATURES_PRO = [
+  'Petition Builder: evidence tracking benchmarked against thousands of real AAO decisions',
+  'Adversarial narrative review of your proposed endeavor',
+  'Recommender letter briefings and draft petition documents',
   'Living Green Card Score, updates as your profile grows',
   'All 4 personalized career moves, refreshed monthly',
-  'Score history chart, see your trajectory over time',
   'Priority email support',
-  'Early access to new features',
 ]
 
 export default function SubscribeClient() {
@@ -57,9 +58,9 @@ export default function SubscribeClient() {
       {/* Header */}
       <div>
         <span className="text-xs font-bold text-teal uppercase tracking-widest">Pro Membership</span>
-        <h1 className="text-2xl font-bold text-navy mt-1">Your Green Card Score, always current</h1>
+        <h1 className="text-2xl font-bold text-navy mt-1">The working environment for your self-petition</h1>
         <p className="text-mid mt-2">
-          Your petition strength changes as your career grows. A Pro membership turns your score into a living signal, so you always know exactly where you stand and what to do next.
+          Pro is where you build the case: track evidence against what real AAO decisions accepted, pressure-test your narrative, brief your recommenders, and keep your Green Card Score current as your career grows.
         </p>
       </div>
 
@@ -165,7 +166,7 @@ export default function SubscribeClient() {
         {[
           {
             q: 'Does my score actually change?',
-            a: 'Yes. Every time you complete a new Green Card Strategy report, your score is recalculated based on your updated profile. Most users see their score climb 5–15 points after executing 2–3 career moves.',
+            a: 'Yes. Every time you complete a new Green Card Strategy report, your score is recalculated based on your updated profile. Most users see their score climb 5-15 points after executing 2-3 career moves.',
           },
           {
             q: 'What are career moves?',
@@ -177,7 +178,11 @@ export default function SubscribeClient() {
           },
           {
             q: 'Do I still pay per report?',
-            a: 'Yes. The subscription covers your living score, career moves, and history. Individual strategy and RFE reports are still purchased separately.',
+            a: 'Yes. The subscription covers the Petition Builder, your living score, career moves, and history. The one-time Strategy Report and RFE Analysis are purchased separately.',
+          },
+          {
+            q: 'Is this legal advice?',
+            a: 'No. Everything in Pro is evidence-based guidance grounded in published USCIS decisions. It is not legal advice and never a guarantee of approval. Have an attorney review your petition before filing.',
           },
         ].map(({ q, a }) => (
           <div key={q} className="border-b border-border pb-4">

@@ -121,8 +121,8 @@ export default function CohortPage() {
             when you can file together, same attorney, shared infrastructure, fraction of the cost.
           </p>
           <div className="inline-flex items-center gap-3 bg-teal-light border border-teal/20 rounded-xl px-5 py-3">
-            <span className="text-2xl font-black text-teal">$2,400–$2,600</span>
-            <span className="text-sm text-navy font-medium">per person vs. $8,000–$12,000 solo attorney filing</span>
+            <span className="text-2xl font-black text-teal">$2,400, $2,600</span>
+            <span className="text-sm text-navy font-medium">per person vs. $8,000, $12,000 solo attorney filing</span>
           </div>
         </div>
 
@@ -131,10 +131,10 @@ export default function CohortPage() {
           <h2 className="text-lg font-black text-navy">How cohort filing works</h2>
           <div className="space-y-4">
             {[
-              { n: '1', title: 'Join your field\'s waitlist', desc: 'Choose your field below. When 15–20 people in the same field have joined, we open the cohort.' },
+              { n: '1', title: 'Join your field\'s waitlist', desc: 'Choose your field below. When 15-20 people in the same field have joined, we open the cohort.' },
               { n: '2', title: 'Complete your profile', desc: 'Each cohort member gets a personalized NIW petition framework generated from their specific career, evidence map, Dhanasar analysis, draft language.' },
-              { n: '3', title: 'Attorney review & filing', desc: 'A vetted immigration attorney reviews and finalizes each petition. The field-level national importance argument is shared across the cohort, dramatically reducing attorney time per case.' },
-              { n: '4', title: 'Premium processing recommended', desc: 'Add $2,805 USCIS premium processing fee for a 45-business-day I-140 decision. Your approved I-140 is your strongest evidence of extraordinary circumstances for adjustment of status.' },
+              { n: '3', title: 'Attorney review & filing', desc: 'A vetted immigration attorney reviews and finalizes each petition. The field-level national importance argument is shared across the cohort, which reduces duplicated attorney work per case.' },
+              { n: '4', title: 'Premium processing recommended', desc: 'Add the $2,805 USCIS premium processing fee for an NIW I-140 decision within 45 calendar days. Your approved I-140 is your strongest evidence of extraordinary circumstances for adjustment of status.' },
             ].map(step => (
               <div key={step.n} className="flex gap-4 items-start">
                 <div className="w-8 h-8 rounded-full bg-navy text-white text-sm font-black flex items-center justify-center flex-shrink-0">{step.n}</div>
@@ -197,7 +197,7 @@ export default function CohortPage() {
               <div className="text-center space-y-3 py-6">
                 <div className="w-14 h-14 bg-teal-light rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
                 <h3 className="text-lg font-bold text-navy">You're on the waitlist for {selectedFieldData?.label}</h3>
-                <p className="text-sm text-mid">We'll email you the moment your cohort reaches 15 members and is ready to open. Average time to open: 2–3 weeks given current demand.</p>
+                <p className="text-sm text-mid">We'll email you the moment your cohort reaches 15 members and is ready to open. Average time to open: 2-3 weeks given current demand.</p>
                 <p className="text-sm text-mid">While you wait, <Link href="/login" className="text-teal font-semibold hover:underline">build your NIW evidence package</Link> so you're ready to file the day the cohort opens.</p>
               </div>
             ) : (
@@ -235,8 +235,8 @@ export default function CohortPage() {
                       <select className="input" value={form.years_in_field} onChange={e => set('years_in_field', e.target.value)}>
                         <option value="">Select</option>
                         <option value="1">Less than 1 year</option>
-                        <option value="3">1–3 years</option>
-                        <option value="6">3–6 years</option>
+                        <option value="3">1-3 years</option>
+                        <option value="6">3-6 years</option>
                         <option value="11">6+ years</option>
                       </select>
                     </div>

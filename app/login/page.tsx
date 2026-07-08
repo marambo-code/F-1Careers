@@ -2,6 +2,8 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import LoginForm from './LoginForm'
 
+export const metadata = { title: 'Sign In', alternates: { canonical: '/login' } }
+
 // Server component, Suspense here satisfies Next.js 15 prerender requirement
 export default function LoginPage() {
   return (

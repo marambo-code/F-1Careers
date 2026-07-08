@@ -13,6 +13,7 @@ export const maxDuration = 300 // Vercel: allow up to 5 min (requires Pro plan)
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generatePetitionPackage } from '@/lib/ai/petition-generator'
+import { getPrecedentGroundingAlways } from '@/lib/precedent/grounding'
 import { checkRateLimit } from '@/lib/rate-limit'
 import type { EvidenceItem, Pathway } from '@/lib/data/petition-evidence'
 
@@ -71,13 +72,19 @@ export async function POST() {
     const narrative = progress.narrative_text ?? ''
     const evidenceItems = (progress.evidence_items ?? []) as EvidenceItem[]
 
+    // Ground the draft in real AAO adjudication patterns (Pro interactive
+    // tool, so the flag-independent variant). Resolves to '' on any failure
+    // or timeout; the draft still generates ungrounded.
+    const grounding = await getPrecedentGroundingAlways(pathway === 'EB-1A' ? 'EB1A' : 'NIW')
+
     // Generate
     const packet = await generatePetitionPackage(
       profile,
       pathway,
       narrative,
       evidenceItems,
-      strategyData
+      strategyData,
+      grounding
     )
 
     // Save to petition_progress

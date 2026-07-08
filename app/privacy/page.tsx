@@ -3,7 +3,7 @@ import BrandLink from '@/components/BrandLink'
 import LegalDoc from '@/components/LegalDoc'
 import { loadLegalMarkdown } from '@/lib/legal'
 
-export const metadata = { title: 'Privacy Policy, F-1 Careers' }
+export const metadata = { title: 'Privacy Policy', alternates: { canonical: '/privacy' } }
 
 export default function PrivacyPage() {
   const markdown = loadLegalMarkdown('privacy-policy.md')

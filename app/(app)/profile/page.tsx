@@ -533,13 +533,10 @@ function ProfileContent() {
                   <p className="text-xs text-mid mt-1">Next renewal: {periodEnd}</p>
                 )}
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-navy">$49<span className="text-sm font-normal text-mid">/mo</span></p>
-              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 py-3 border-y border-gray-100">
-              {['Unlimited reports', 'Career moves', 'RFE analyzer'].map(feature => (
+              {['Petition Builder', 'Career moves', 'Living Green Card Score'].map(feature => (
                 <div key={feature} className="flex items-center gap-1.5">
                   <svg className="w-3.5 h-3.5 text-teal flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -568,7 +565,7 @@ function ProfileContent() {
               <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
                 <p className="text-sm font-semibold text-orange-900">Cancel your Pro membership?</p>
                 <p className="text-xs text-orange-700 leading-relaxed">
-                  You'll lose access to unlimited reports, career moves, and RFE analysis. Your access continues until {periodEnd}.
+                  You'll lose access to the Petition Builder, career moves, and your living Green Card Score. Your access continues until {periodEnd}.
                 </p>
                 <div className="flex items-center gap-3">
                   <button onClick={handleCancelSubscription} disabled={cancelling}
@@ -591,7 +588,7 @@ function ProfileContent() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-bold text-navy">Upgrade to Pro</p>
-                <p className="text-xs text-mid mt-1">Unlock unlimited strategy reports, career move planning, and RFE analysis.</p>
+                <p className="text-xs text-mid mt-1">Unlock the Petition Builder, career move planning, and your living Green Card Score.</p>
               </div>
               <p className="text-lg font-bold text-navy flex-shrink-0">$49<span className="text-sm font-normal text-mid">/mo</span></p>
             </div>

@@ -329,9 +329,9 @@ export default async function StrategyPrintPage({ params }: { params: Promise<{ 
         <h2 style={sectionHeading('12-Month Roadmap')}>12-Month Roadmap</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           {[
-            { label: '0–3 Months', items: data.roadmap?.three_month },
-            { label: '3–6 Months', items: data.roadmap?.six_month },
-            { label: '6–12 Months', items: data.roadmap?.twelve_month },
+            { label: '0-3 Months', items: data.roadmap?.three_month },
+            { label: '3-6 Months', items: data.roadmap?.six_month },
+            { label: '6-12 Months', items: data.roadmap?.twelve_month },
           ].map(({ label, items }) => (
             <div key={label} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px 14px' }}>
               <p style={{ fontSize: '10pt', fontWeight: 'bold', color: '#1B2B6B', marginBottom: '10px', paddingBottom: '6px', borderBottom: '1px solid #e5e7eb' }}>{label}</p>

@@ -35,14 +35,14 @@ function PathwaySelector({
       label: 'NIW',
       sublabel: 'EB-2 National Interest Waiver',
       score: niwScore,
-      description: 'Moves target Prongs 1–3. Best if your work has national importance.',
+      description: 'Moves target Prongs 1-3. Best if your work has national importance.',
     },
     {
       key: 'EB-1A',
       label: 'EB-1A',
       sublabel: 'Extraordinary Ability',
       score: eb1aScore,
-      description: 'Moves target §i–§ix criteria. Best for building a strong evidence portfolio.',
+      description: 'Moves target §i, §ix criteria. Best for building a strong evidence portfolio.',
     },
     {
       key: 'Both',
@@ -557,6 +557,9 @@ export default function CareerMovesClient({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ force, targetPathway: selectedPathway }),
+        // Hard client-side stop just past the route's 180s maxDuration, so
+        // this button can never spin forever if the request hangs.
+        signal: AbortSignal.timeout(200_000),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.message ?? `Error ${res.status}`); return }
@@ -571,7 +574,10 @@ export default function CareerMovesClient({
         setError(data.message ?? data.error ?? 'No moves returned.')
       }
     } catch (e) {
-      setError(`Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
+      const timedOut = e instanceof DOMException && (e.name === 'TimeoutError' || e.name === 'AbortError')
+      setError(timedOut
+        ? 'Generation timed out. Nothing was lost, please try again.'
+        : `Network error: ${e instanceof Error ? e.message : 'Please try again.'}`)
     } finally {
       setLoading(false)
     }

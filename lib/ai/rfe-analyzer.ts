@@ -1,7 +1,17 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { RFEReport, RFEPreview } from '@/lib/types'
+import { getPrecedentGrounding } from '@/lib/precedent/grounding'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard per-call timeout (SDK aborts via AbortController) + at most 1 retry.
+// The largest single call (response plan, 5000 tokens) finishes in ~60-90s
+// worst case; anything past 120s is a genuinely stuck request and should fail
+// cleanly so the generate route can mark the report 'error' with a retry,
+// instead of Vercel killing the function with the row stuck on 'generating'.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 120_000,
+  maxRetries: 1,
+})
 const MODEL = 'claude-sonnet-4-6'
 
 const PETITION_LABELS: Record<string, string> = {
@@ -105,7 +115,9 @@ Return ONLY this JSON object (no markdown, no fences):
 }`,
       },
     ],
-  })
+    // Preview runs inside a 60s route budget (which also covers pdf-parse):
+    // fail inside the route rather than being killed by it.
+  }, { timeout: 45_000, maxRetries: 0 })
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
   const parsed = JSON.parse(extractJSON(raw)) as Omit<RFEPreview, 'overall_denial_risk'>
@@ -435,8 +447,20 @@ export async function generateRFEReport(
   const fieldLabel = FIELD_LABELS[opts.rfeField ?? ''] ?? 'general field'
   const criteria = PETITION_CRITERIA[opts.petitionType ?? 'other'] ?? PETITION_CRITERIA.other
 
+  // Corpus grounding (REC 1): '' unless PRECEDENT_GROUNDING=on and the fetch
+  // succeeds within its timeout, so the flag-off prompt is byte-identical to
+  // the ungrounded prompt and generation can never block on the corpus.
+  // Appended only to the full context (triage + response plan); the compact
+  // per-issue context stays lean to protect the rate-limit budget. Only
+  // EB-1A / EB-2 NIW petitions map onto the corpus; other types stay ungrounded.
+  const groundingPathway =
+    opts.petitionType === 'eb1a' ? 'EB1A' : opts.petitionType === 'eb2niw' ? 'NIW' : null
+  const grounding = groundingPathway
+    ? await getPrecedentGrounding(groundingPathway, opts.rfeField)
+    : ''
+
   // Full context (25k chars), used only by triage and response-plan (2 calls total)
-  const fullCtx = rfeContext(rfeText, petLabel, fieldLabel, criteria, opts.additionalContext)
+  const fullCtx = rfeContext(rfeText, petLabel, fieldLabel, criteria, opts.additionalContext) + grounding
 
   // Call 1: Triage, must complete first; needs full document to find every issue
   console.log('[rfe-analyzer] Starting triage')

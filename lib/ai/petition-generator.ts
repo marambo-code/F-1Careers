@@ -13,7 +13,15 @@ import Anthropic from '@anthropic-ai/sdk'
 import { cleanDashes } from '@/lib/sanitize'
 import type { EvidenceItem, Pathway } from '@/lib/data/petition-evidence'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard per-call timeout (SDK aborts via AbortController), no retries: the
+// personal statement is the longest single generation in the app (4096
+// tokens), so one attempt capped at 240s stays inside the route's 300s
+// maxDuration and fails cleanly instead of being killed mid-flight.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 240_000,
+  maxRetries: 0,
+})
 
 export interface PetitionProfile {
   full_name?: string | null
@@ -56,6 +64,12 @@ function buildEvidenceSummary(items: EvidenceItem[]): string {
     })
     .join('\n\n')
 }
+
+// Shared instruction for how the drafts must use the AAO adjudication-pattern
+// block (when provided). Kept out of the pathway prompts so both stay in sync.
+const GROUNDING_INSTRUCTION = `
+HOW TO USE THE ADJUDICATION-PATTERN DATA ABOVE (if present):
+The block describes documented evidence failure patterns from published AAO appeal decisions. Draft so the petition avoids each named failure pattern: tie every claim to specific, independently verifiable evidence, avoid conclusory assertions, and make the causal chain from evidence to legal standard explicit. Never cite the statistics themselves in the petition text and never present them as approval odds.`
 
 function buildNIWPrompt(
   profile: PetitionProfile,
@@ -200,7 +214,11 @@ export async function generatePetitionPackage(
   pathway: Pathway,
   narrative: string,
   evidenceItems: EvidenceItem[],
-  strategyData?: Record<string, unknown> | null
+  strategyData?: Record<string, unknown> | null,
+  // Optional AAO adjudication-pattern block from lib/precedent/grounding.
+  // Empty string = draft exactly as before; callers own the fetch so this
+  // module stays free of Supabase imports.
+  precedentGrounding = ''
 ): Promise<PetitionPackage> {
   const evidenceSummary = buildEvidenceSummary(evidenceItems)
 
@@ -209,9 +227,11 @@ export async function generatePetitionPackage(
     ? `Field: ${strategyData.field || ''}\nKey strengths identified: ${JSON.stringify(strategyData.strengths || strategyData.score_breakdown || '').slice(0, 500)}`
     : ''
 
-  const statementPrompt = pathway === 'NIW'
+  const groundingBlock = precedentGrounding ? `${precedentGrounding}\n${GROUNDING_INSTRUCTION}` : ''
+
+  const statementPrompt = (pathway === 'NIW'
     ? buildNIWPrompt(profile, narrative, evidenceSummary, strategyContext)
-    : buildEB1APrompt(profile, narrative, evidenceSummary, strategyContext)
+    : buildEB1APrompt(profile, narrative, evidenceSummary, strategyContext)) + groundingBlock
 
   const coverPrompt = buildCoverLetterPrompt(profile, pathway, evidenceSummary, narrative)
 

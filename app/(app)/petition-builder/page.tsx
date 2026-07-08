@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getPetitionBuilderPrecedent } from '@/lib/precedent/queries'
 import PetitionBuilderClient from './PetitionBuilderClient'
 import Link from 'next/link'
 
@@ -25,19 +26,20 @@ export default async function PetitionBuilderPage() {
         <div className="card !p-0 overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-navy to-navy/60" />
           <div className="p-8 space-y-5 text-center">
-            <div className="text-4xl">🗺️</div>
+            <div className="text-4xl">⚖️</div>
             <div>
               <h1 className="text-2xl font-bold text-navy">Petition Builder</h1>
               <p className="text-mid mt-2 leading-relaxed max-w-md mx-auto">
-                A structured 12–24 month roadmap from your current profile to a filing-ready EB-1A or NIW petition. Evidence tracking, narrative review, and live filing climate signals.
+                A working environment for your EB-1A or NIW self-petition: evidence tracking measured against real AAO
+                decisions, adversarial narrative review, recommender briefings, and draft petition documents.
               </p>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-3 text-left">
               {[
-                { icon: '📋', title: 'Evidence Track', desc: 'Criterion-by-criterion checklist with runway countdown' },
-                { icon: '✍️', title: 'Narrative Review', desc: 'AI reviews your proposed endeavor like a USCIS adjudicator' },
-                { icon: '📡', title: 'Filing Signal', desc: 'Live approval rates by field, pathway, and service center' },
+                { icon: '📋', title: 'Evidence, benchmarked', desc: 'Each criterion shows what thousands of real AAO decisions accepted, not just a checkbox' },
+                { icon: '✍️', title: 'Adversarial review', desc: 'Your proposed endeavor reviewed the way a skeptical adjudicator would read it' },
+                { icon: '📄', title: 'Working drafts', desc: 'Recommender briefings plus draft personal statement and cover letter you refine and own' },
               ].map(f => (
                 <div key={f.title} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50">
                   <div className="text-xl mb-2">{f.icon}</div>
@@ -51,7 +53,8 @@ export default async function PetitionBuilderPage() {
               <Link href="/subscribe" className="btn-primary inline-flex items-center gap-2">
                 Upgrade to Pro →
               </Link>
-              <p className="text-xs text-mid mt-3">$49/mo or $399/yr. Includes Petition Builder, Career Moves, RFE Analyzer, and more. Strategy reports purchased separately.</p>
+              <p className="text-xs text-mid mt-3">$49/mo or $399/yr. Includes Petition Builder, Career Moves, and the living Green Card Score. Strategy and RFE reports purchased separately.</p>
+              <p className="text-xs text-mid mt-2">Evidence-based guidance, not legal advice and never a guarantee of approval.</p>
             </div>
           </div>
         </div>
@@ -59,5 +62,9 @@ export default async function PetitionBuilderPage() {
     )
   }
 
-  return <PetitionBuilderClient />
+  // Real AAO adjudication patterns for the Evidence and Precedent tabs.
+  // Null on any failure; the client degrades gracefully.
+  const precedent = await getPetitionBuilderPrecedent()
+
+  return <PetitionBuilderClient precedent={precedent} />
 }

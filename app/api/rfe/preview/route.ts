@@ -1,3 +1,8 @@
+// PDF download + parse + one short Anthropic call (per-request timeout 45s,
+// no retries). Explicit maxDuration so the platform default can never kill it
+// mid-generation.
+export const maxDuration = 60
+
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEPreview } from '@/lib/ai/rfe-analyzer'

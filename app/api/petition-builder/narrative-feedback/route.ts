@@ -4,8 +4,16 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { stripDashesDeep } from '@/lib/sanitize'
+import { getPrecedentGroundingAlways } from '@/lib/precedent/grounding'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard timeout inside the route's 60s maxDuration (SDK aborts via
+// AbortController), no retries: fail cleanly to the client's error state
+// instead of Vercel killing the function mid-response.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 50_000,
+  maxRetries: 0,
+})
 
 export async function POST(req: Request) {
   try {
@@ -13,14 +21,14 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Gate behind Pro subscription
+    // Gate behind Pro subscription (trialing counts, consistent with the rest of the app)
     const { data: sub } = await supabase
       .from('subscriptions')
       .select('status')
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'trialing'])
       .maybeSingle()
-    if (!sub) return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 })
+    if (!sub) return NextResponse.json({ error: 'pro_required' }, { status: 403 })
 
     const { narrative, pathway } = await req.json()
     if (!narrative?.trim()) return NextResponse.json({ error: 'No narrative provided' }, { status: 400 })
@@ -28,6 +36,10 @@ export async function POST(req: Request) {
     const pathwayContext = pathway === 'EB-1A'
       ? 'EB-1A Extraordinary Ability (8 CFR §204.5(h)): must demonstrate extraordinary ability and sustained national or international acclaim.'
       : 'EB-2 NIW (Matter of Dhanasar): (1) proposed endeavor has substantial merit and national importance; (2) petitioner is well-positioned to advance it; (3) beneficial to waive the job offer requirement.'
+
+    // Ground the review in real AAO adjudication patterns. Never throws;
+    // resolves to '' on any failure so the review still runs.
+    const grounding = await getPrecedentGroundingAlways(pathway === 'EB-1A' ? 'EB1A' : 'NIW')
 
     // Use tool_use to guarantee structured JSON output, eliminates all parsing issues
     const response = await anthropic.messages.create({
@@ -46,7 +58,7 @@ export async function POST(req: Request) {
               },
               score: {
                 type: 'number',
-                description: 'Score from 0-100 where 100 is filing-ready',
+                description: 'Score from 0-100 where 100 means the statement would likely withstand a skeptical adjudicator with no further edits',
               },
               issues: {
                 type: 'array',
@@ -81,7 +93,7 @@ export async function POST(req: Request) {
           role: 'user',
           content: `You are a senior USCIS adjudicator reviewing a petition narrative. Be skeptical and precise.
 
-Pathway: ${pathwayContext}
+Pathway: ${pathwayContext}${grounding}
 
 Review this narrative adversarially, find every weakness before they file. Flag:
 1. Personal career benefit framing instead of national benefit to the US

@@ -14,6 +14,11 @@
  * Returns: { moves, cached, setId }
  */
 
+// Career-move generation is a single Anthropic call (SDK timeout 85s, 1
+// retry, worst case ~170s). Without an explicit maxDuration this route can be
+// killed at the platform default before the model finishes.
+export const maxDuration = 180
+
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateCareerMoves } from '@/lib/ai/career-moves'

@@ -91,7 +91,9 @@ export default async function DashboardPage() {
 
   const [profileResult, reportsResult, subscriptionResult, scoreHistoryResult, currentMoveSetResult, petitionResult] = await Promise.all([
     supabase.from('profiles').select('*, country_of_birth').eq('id', user.id).single(),
-    supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    // Bounded: each row can carry a multi-hundred-KB report_data blob, and the
+    // dashboard only needs the latest few reports per type.
+    supabase.from('reports').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end').eq('user_id', user.id).maybeSingle(),
     supabase.from('score_history').select('green_card_score, niw_score, eb1a_score, created_at').eq('user_id', user.id).order('created_at', { ascending: true }).limit(12),
     supabase.from('career_move_sets').select('moves').eq('user_id', user.id).eq('is_current', true).maybeSingle(),
@@ -374,8 +376,8 @@ export default async function DashboardPage() {
               <p className="text-sm font-bold text-navy">Petition Builder Progress</p>
               <p className="text-xs text-mid mt-0.5">
                 {runwayDays !== null && runwayDays > 0
-                  ? `~${runwayDays} days to filing-ready`
-                  : runwayDays === 0 ? '🎉 Evidence package complete' : 'Track your evidence'}
+                  ? `~${runwayDays} days of evidence work left (your estimate)`
+                  : runwayDays === 0 ? 'All evidence items marked done' : 'Track your evidence'}
               </p>
             </div>
             <Link href="/petition-builder" className="text-xs text-teal font-semibold hover:underline flex-shrink-0">
@@ -423,7 +425,7 @@ export default async function DashboardPage() {
                 <div>
                   <p className="text-sm font-bold text-navy">Unlock the full petition journey</p>
                   <p className="text-xs text-mid mt-1 max-w-sm leading-relaxed">
-                    Career moves, Petition Builder, evidence tracking, narrative review, RFE analyzer, and generated petition documents.
+                    Career moves, Petition Builder with evidence tracking benchmarked against real AAO decisions, narrative review, and draft petition documents.
                   </p>
                   <Link href="/subscribe" className="inline-flex items-center gap-2 mt-3 btn-primary text-sm">
                     Upgrade to Pro →

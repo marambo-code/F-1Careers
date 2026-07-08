@@ -42,7 +42,9 @@ export default async function CareerMovesPage() {
       .from('career_move_sets')
       .select('id, moves, generated_at, is_current')
       .eq('user_id', user.id)
-      .order('generated_at', { ascending: false }),
+      .order('generated_at', { ascending: false })
+      // Bounded: history view only ever shows recent sets
+      .limit(24),
   ])
 
   const profile = profileResult.data

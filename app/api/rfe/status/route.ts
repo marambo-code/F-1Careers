@@ -19,10 +19,14 @@ export async function GET(req: Request) {
 
   if (!report) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  // If stuck in 'generating' for > 2 minutes, reset to 'paid' so poller retries
+  // Stale-job recovery: if stuck in 'generating' past any legitimate runtime
+  // (worst case is ~4-5 min with the SDK call timeouts; the function limit is
+  // 300s), reset to 'paid' so the poller retries. Kept above the generate
+  // routes' 5-minute restart window so a healthy in-flight generation is
+  // never duplicated by an early reset.
   if (report.status === 'generating' && report.updated_at) {
     const minutesStuck = (Date.now() - new Date(report.updated_at).getTime()) / 60000
-    if (minutesStuck > 2) {
+    if (minutesStuck > 6) {
       const service = createServiceClient()
       await service.from('reports').update({ status: 'paid' }).eq('id', reportId)
       return NextResponse.json({ status: 'paid' })

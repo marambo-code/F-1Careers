@@ -156,7 +156,7 @@ function computeExposure(inputs: Inputs) {
   const tier = getCountryTier(effectiveCountry)
   const selectedCount = inputs.contributions.length
 
-  // 1. Country Risk Exposure (0–35 pts, higher = more exposed)
+  // 1. Country Risk Exposure (0-35 pts, higher = more exposed)
   const countryExp: Record<number, number> = { 0: 35, 1: 30, 2: 26, 3: 20, 4: 12, 5: 4 }
   const countryPoints = countryExp[tier]
   const countryNote = tier === 0
@@ -168,10 +168,10 @@ function computeExposure(inputs: Inputs) {
     : tier === 3
     ? `${effectiveCountry} is on the State Department's 75-country immigrant visa pause (effective Jan 21, 2026). Green card consular processing is currently suspended. AoS inside the US is your only active path.`
     : tier === 4
-    ? `${effectiveCountry} nationals face severe EB priority date backlogs, current wait times can reach 3–10+ years for consular processing. Filing a strong AoS case now substantially reduces the exposure window.`
+    ? `${effectiveCountry} nationals face severe EB priority date backlogs, current wait times can reach 3-10+ years for consular processing. Filing a strong AoS case now substantially reduces the exposure window.`
     : `Your consulate is currently operational. Consular processing remains an option, though AoS inside the US still provides stronger protection against future policy shifts.`
 
-  // 2. Visa Status Exposure (0–25 pts)
+  // 2. Visa Status Exposure (0-25 pts)
   const visaExp: Record<string, number> = {
     'EB-2 NIW Pending': 2, 'O-1': 5, 'H-1B': 10, 'L-1': 10, 'H-1B1': 13,
     'F-1 Student': 16, 'J-1': 20,
@@ -194,19 +194,19 @@ function computeExposure(inputs: Inputs) {
     ? 'F-1 status provides the least discretionary insulation. Filing NIW with premium processing should be your top priority.'
     : 'Your status situation requires personalized analysis, the full strategy report will map your specific options.'
 
-  // 3. Evidence Gap Exposure (0–20 pts, fewer credentials = more exposed)
+  // 3. Evidence Gap Exposure (0-20 pts, fewer credentials = more exposed)
   const evidencePoints = selectedCount >= 6 ? 2 : selectedCount >= 4 ? 6 : selectedCount >= 2 ? 11 : selectedCount === 1 ? 15 : 20
   const evidenceNote = selectedCount >= 6
     ? `${selectedCount} documented criteria, strong evidentiary record. The full report converts this into a structured petition framework.`
     : selectedCount >= 4
-    ? `${selectedCount} documented criteria, solid foundation. Your report will identify 2–3 additional criteria you can build within 60–90 days.`
+    ? `${selectedCount} documented criteria, solid foundation. Your report will identify 2-3 additional criteria you can build within 60-90 days.`
     : selectedCount >= 2
     ? `${selectedCount} documented criteria, some foundation, but gaps that need closing. Your report will prioritize the highest-leverage moves.`
     : selectedCount === 1
     ? 'Minimal documented evidence at this stage. This is your most urgent gap to close, the strategy report will give you a concrete 90-day plan.'
     : 'No documented extraordinary evidence yet. This is critical to address, your full report will show you the fastest evidence-building path.'
 
-  // 4. Career Tenure (0–10 pts, less experience = more exposed)
+  // 4. Career Tenure (0-10 pts, less experience = more exposed)
   const yearsExp: Record<string, number> = { '1': 10, '3': 7, '6': 5, '11': 3, '16': 1 }
   const yearsPoints = yearsExp[inputs.years] ?? 10
   const yearsNote = inputs.years === '16'
@@ -217,7 +217,7 @@ function computeExposure(inputs: Inputs) {
     ? 'Meaningful career tenure, solid foundation for the career impact argument.'
     : 'Earlier-career candidates should emphasize outsized impact and trajectory over years of tenure.'
 
-  // 5. Education (0–10 pts, lower degree = more exposed)
+  // 5. Education (0-10 pts, lower degree = more exposed)
   const eduExp: Record<string, number> = { 'phd': 2, 'md': 2, 'masters': 4, 'bachelors': 7, 'other': 9 }
   const eduPoints = eduExp[inputs.education] ?? 7
   const eduNote = ['phd', 'md'].includes(inputs.education)
@@ -252,13 +252,13 @@ function computeExposure(inputs: Inputs) {
     ? 'USCIS and State Dept now routinely screen public social media. Immigration attorneys advise that posts criticizing US immigration enforcement, expressing political affiliations, or discussing visa strategy can be relevant when officers weigh conduct in discretionary review. Review and archive public accounts before filing.'
     : 'No flagged social media content, neutral factor. Note that USCIS screens public accounts; immigration attorneys recommend auditing your social media presence before any AoS filing.'
 
-  // 6. SEVIS Termination History (0–15 pts)
+  // 6. SEVIS Termination History (0-15 pts)
   const sevisPoints = inputs.sevisTerminated === 'yes' ? 15 : 0
   const sevisNote = inputs.sevisTerminated === 'yes'
     ? 'A prior SEVIS termination, even if reversed, is a significant adverse factor in discretionary AoS review. Officers conduct totality-of-circumstances analysis and a termination on record materially raises your exposure. Proactively documenting strong positive factors is essential.'
     : 'No SEVIS termination on record, neutral factor in discretionary review.'
 
-  // 7. Duration of Status / Program Length (0–10 pts), only relevant for F-1
+  // 7. Duration of Status / Program Length (0-10 pts), only relevant for F-1
   const isF1 = ['F-1 Student', 'F-1 OPT STEM', 'F-1 OPT', 'F-1 CPT', 'J-1'].includes(inputs.visa) || (inputs.visa === 'Other' && (inputs.visaOther.toLowerCase().includes('f-1') || inputs.visaOther.toLowerCase().includes('j-1')))
   const dsPoints = isF1
     ? (inputs.programYears === '5+' ? 10 : inputs.programYears === '3-4' ? 6 : 0)
@@ -306,7 +306,7 @@ function getScoreLabel(score: number) {
     sub: 'Urgent action needed',
     color: 'text-orange-600', ring: '#EA580C',
     bg: 'bg-orange-50 border-orange-200',
-    advice: 'Material exposure to consular processing requirements. Your full report will identify the fastest evidence-building path, several gaps are realistically closeable within 60–90 days.',
+    advice: 'Material exposure to consular processing requirements. Your full report will identify the fastest evidence-building path, several gaps are realistically closeable within 60-90 days.',
   }
   if (score >= 25) return {
     label: 'Moderate Exposure',
@@ -509,9 +509,9 @@ export default function RiskScorePage() {
                 <select className="input" value={inputs.years} onChange={e => set('years', e.target.value)}>
                   <option value="">Select</option>
                   <option value="1">Less than 1 year</option>
-                  <option value="3">1–3 years</option>
-                  <option value="6">3–6 years</option>
-                  <option value="11">6–11 years</option>
+                  <option value="3">1-3 years</option>
+                  <option value="6">3-6 years</option>
+                  <option value="11">6-11 years</option>
                   <option value="16">11+ years</option>
                 </select>
               </div>
@@ -572,8 +572,8 @@ export default function RiskScorePage() {
                 <p className="text-xs text-mid mb-2 leading-relaxed">DHS is finalizing a rule replacing Duration of Status with a 4-year hard cap (expected September 2026). Students in programs longer than 4 years will need to file an I-539 extension.</p>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { val: '1-2', label: '1–2 years' },
-                    { val: '3-4', label: '3–4 years' },
+                    { val: '1-2', label: '1-2 years' },
+                    { val: '3-4', label: '3-4 years' },
                     { val: '5+', label: '5+ years (PhD / long program)' },
                   ].map(opt => (
                     <button key={opt.val} onClick={() => set('programYears', opt.val)}

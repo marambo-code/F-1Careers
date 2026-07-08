@@ -5,7 +5,7 @@ import { isAdminEmail } from '@/lib/admin'
 export const dynamic = 'force-dynamic'
 
 // Admin-only configuration healthcheck. Reports ONLY whether each environment
-// variable is present (boolean) — it never reads or displays the secret values.
+// variable is present (boolean), it never reads or displays the secret values.
 // Useful to catch silent failures, e.g. a missing POSTMARK_SERVER_TOKEN makes
 // report-ready emails skip sending with no error.
 

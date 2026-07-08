@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import PrecedentCalloutClient from '@/components/precedent/PrecedentCalloutClient'
 
 const PETITION_TYPES = [
   { value: 'eb1a',    label: 'EB-1A',    sub: 'Extraordinary Ability' },
@@ -206,6 +207,14 @@ export default function RFEUploadPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Precedent Engine reality check ── */}
+      {petitionType && (
+        <PrecedentCalloutClient
+          pathway={petitionType === 'eb1a' ? 'EB1A' : 'NIW'}
+          field={rfeField || null}
+        />
+      )}
 
       {/* ── Step content ───────────────────────────────────────────── */}
 

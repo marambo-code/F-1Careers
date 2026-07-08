@@ -153,7 +153,7 @@ export default async function StrategyPreviewPage({
               <p className="text-xs text-mid">/100</p>
               <p className="text-xs text-mid leading-relaxed border-t border-border pt-2">
                 {(preview.eb1a_score ?? 0) >= 70 ? 'Competitive EB-1A case, full breakdown in report.' :
-                 (preview.eb1a_score ?? 0) >= 50 ? 'Developing EB-1A case, 12–18 months of credential building needed.' :
+                 (preview.eb1a_score ?? 0) >= 50 ? 'Developing EB-1A case, 12-18 months of credential building needed.' :
                  'EB-1A is premature, focus on NIW pathway first.'}
               </p>
             </div>

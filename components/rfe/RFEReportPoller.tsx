@@ -3,12 +3,20 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
+// Hard caps so a dead job can never spin this UI forever: stop polling after
+// MAX_POLLS (~12 min at 3s) and stop re-triggering generation after
+// MAX_GENERATION_ATTEMPTS failures, then surface a retry state.
+const MAX_POLLS = 240
+const MAX_GENERATION_ATTEMPTS = 3
+
 export default function RFEReportPoller({ reportId, isRetry = false }: { reportId: string; isRetry?: boolean }) {
   const router = useRouter()
   const [dots, setDots] = useState('.')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const generationStarted = useRef(false)
   const lastStatus = useRef<string | null>(null)
+  const pollCount = useRef(0)
+  const generationAttempts = useRef(0)
 
   useEffect(() => {
     const i = setInterval(() => setDots(d => d.length >= 3 ? '.' : d + '.'), 600)
@@ -18,7 +26,12 @@ export default function RFEReportPoller({ reportId, isRetry = false }: { reportI
   useEffect(() => {
     const triggerGeneration = async () => {
       if (generationStarted.current) return
+      if (generationAttempts.current >= MAX_GENERATION_ATTEMPTS) {
+        setErrorMsg('Generation failed after several attempts. Your payment is safe, please try again in a few minutes.')
+        return
+      }
       generationStarted.current = true
+      generationAttempts.current += 1
       try {
         const res = await fetch('/api/rfe/generate', {
           method: 'POST',
@@ -39,6 +52,12 @@ export default function RFEReportPoller({ reportId, isRetry = false }: { reportI
     if (isRetry) triggerGeneration()
 
     const poll = setInterval(async () => {
+      pollCount.current += 1
+      if (pollCount.current > MAX_POLLS) {
+        clearInterval(poll)
+        setErrorMsg('This is taking much longer than expected. Your payment is safe, refresh the page to check on your analysis.')
+        return
+      }
       try {
         const res = await fetch(`/api/rfe/status?reportId=${reportId}`)
         if (!res.ok) return
@@ -84,7 +103,7 @@ export default function RFEReportPoller({ reportId, isRetry = false }: { reportI
         <h2 className="text-xl font-bold text-navy">Analyzing your RFE document{dots}</h2>
         <p className="text-mid mt-2 text-sm">
           Our AI is reading every issue in your USCIS document.<br />
-          This takes about 30–60 seconds. This page will update automatically.
+          This takes about 30-60 seconds. This page will update automatically.
         </p>
       </div>
       <div className="card text-left space-y-2 text-sm text-mid">

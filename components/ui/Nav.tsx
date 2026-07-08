@@ -7,6 +7,10 @@ import { createClient } from '@/lib/supabase/client'
 
 // ── Desktop nav links ─────────────────────────────────────────────
 
+// The Precedent Engine intentionally has no top-level nav item: its home is
+// the Precedent tab inside the Petition Builder, with contextual callouts on
+// Strategy and RFE. The standalone /precedent-engine page stays reachable via
+// deeper links from those surfaces (and stays auth-gated in middleware).
 const desktopLinks = [
   { href: '/dashboard',          label: 'Dashboard' },
   { href: '/strategy',           label: 'GC Strategy' },

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { StrategyPreview } from '@/lib/types'
+import PrecedentCallout from '@/components/precedent/PrecedentCallout'
 
 const DELIVERABLES = [
   {
@@ -161,6 +162,14 @@ export default async function StrategyStartPage() {
           </Link>
         </div>
       )}
+
+      {/* ── Precedent Engine: the evidence base behind the report ──
+          Placed after the user's own score/CTA so their case leads and the
+          corpus reads as credibility, not as a risk warning. */}
+      <PrecedentCallout
+        pathway={pendingPreview?.top_pathway ?? 'NIW'}
+        field={profile?.field_of_study ?? profile?.job_title ?? null}
+      />
 
       {/* Deliverables */}
       <div className="card">

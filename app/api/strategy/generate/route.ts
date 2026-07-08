@@ -1,3 +1,8 @@
+// Full report generation (4 parallel Anthropic calls, SDK timeout 120s x 1
+// retry). Must match the [id] route so the platform default can never kill it
+// with the report row stuck on 'generating'.
+export const maxDuration = 300
+
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateStrategyReport } from '@/lib/ai/strategy-engine'

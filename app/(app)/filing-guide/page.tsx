@@ -154,7 +154,7 @@ export default async function FilingGuidePage() {
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
             {[
               { label: 'I-140 base fee', amount: '$700', note: 'Required' },
-              { label: 'Premium processing', amount: '$2,805', note: 'Optional, 15 business days' },
+              { label: 'Premium processing', amount: '$2,805', note: 'Optional, 15 calendar days (EB-1A) or 45 (NIW)' },
               { label: 'Biometrics (I-485)', amount: '$85', note: 'Only if filing I-485 concurrently' },
               { label: 'I-485 filing fee', amount: '$1,440', note: 'Only if filing I-485 concurrently' },
             ].map(fee => (
@@ -183,8 +183,8 @@ export default async function FilingGuidePage() {
           <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-3">
             <p className="text-xs font-semibold text-yellow-900">Should you use premium processing?</p>
             <p className="text-xs text-yellow-800 mt-1 leading-relaxed">
-              Premium processing ($2,805) guarantees a decision in 15 business days, either approval, denial, or RFE.
-              Standard processing for NIW is currently 6–12 months. If you need status certainty quickly, premium is worth it.
+              Premium processing ($2,805) guarantees adjudicative action within 15 calendar days for EB-1A or 45 calendar days for NIW, either approval, denial, or RFE.
+              Standard processing for NIW is currently 6-12 months. If you need status certainty quickly, premium is worth it.
               If your case is strong and you're not in a rush, standard is fine.
             </p>
           </div>
@@ -267,18 +267,18 @@ export default async function FilingGuidePage() {
             {[
               {
                 title: 'Receipt notice (Form I-797)',
-                timing: '2–4 weeks after mailing',
+                timing: '2-4 weeks after mailing',
                 description: 'USCIS sends a receipt notice confirming they received your petition. It includes a receipt number (WAC, LIN, EAC, or SRC), use this to check status at egov.uscis.gov.',
               },
               {
                 title: 'Request for Evidence (RFE)',
-                timing: 'If issued: typically 3–6 months after filing',
+                timing: 'If issued: typically 3-6 months after filing',
                 description: 'USCIS may send an RFE asking for additional evidence. You usually have 87 days to respond. A strong initial petition reduces RFE risk significantly.',
               },
               {
                 title: 'Approval or denial',
-                timing: 'Standard: 6–12 months · Premium: 15 business days',
-                description: 'If approved, you receive Form I-797A (approval notice). The I-140 approval locks in your priority date. If denied, you have options to appeal or refile.',
+                timing: 'Standard: 6-12 months · Premium: 15 calendar days (EB-1A) / 45 (NIW)',
+                description: 'If approved, you receive a Form I-797 approval notice. The I-140 approval locks in your priority date. If denied, you have options to appeal or refile.',
               },
             ].map(step => (
               <div key={step.title} className="rounded-xl border border-gray-100 p-4 space-y-1">
@@ -403,11 +403,11 @@ const NIW_EXHIBITS = [
   { label: 'Personal Statement', description: 'Your attorney brief arguing all three Dhanasar prongs. This is the narrative you generated in the Petition Builder.', prong: 'All prongs' },
   { label: 'Curriculum Vitae', description: 'Complete CV including all publications, presentations, grants, and professional achievements.', prong: 'Prong 2 support' },
   { label: 'Publication list with citation counts', description: 'List of all peer-reviewed publications with citation counts pulled from Google Scholar or Web of Science.', prong: 'Prong 2, Well-positioned' },
-  { label: 'Copies of top publications', description: 'Full text of 3–5 most significant published works. Include the full paper, not just abstract.', prong: 'Prong 1 & 2' },
+  { label: 'Copies of top publications', description: 'Full text of 3-5 most significant published works. Include the full paper, not just abstract.', prong: 'Prong 1 & 2' },
   { label: 'Evidence of citations', description: 'Screenshots or printouts showing papers citing your work. Include the citing paper title and author.', prong: 'Prong 2' },
   { label: 'Peer review invitation letters', description: 'Any emails or letters from journals/conferences inviting you to review manuscripts.', prong: 'Prong 2, Field recognition' },
   { label: 'National priority documentation', description: 'Government reports, agency priorities, Congressional findings, or grant announcements establishing that your field is a national priority.', prong: 'Prong 1, National importance' },
-  { label: 'Recommendation letters', description: 'Signed original letters from 3–5 experts. Majority should be independent (no prior working relationship). Stack independent letters first.', prong: 'Prong 2 & 3' },
+  { label: 'Recommendation letters', description: 'Signed original letters from 3-5 experts. Majority should be independent (no prior working relationship). Stack independent letters first.', prong: 'Prong 2 & 3' },
   { label: 'Degree and transcript', description: 'Copy of advanced degree (PhD, MD, or equivalent). Include official or unofficial transcript.', prong: 'Background' },
   { label: 'Awards and recognition', description: 'Certificates, announcements, or documentation of competitive awards, grants, or honors.', prong: 'Prong 2' },
   { label: 'Current visa and I-94', description: 'Copy of current visa stamp and I-94 record (available at i94.cbp.dhs.gov).', prong: 'Status documentation' },
@@ -424,7 +424,7 @@ const EB1A_EXHIBITS = [
   { label: 'Scholarly articles', description: 'Copies of published peer-reviewed papers. Include citation counts.', prong: 'Criterion (vi)' },
   { label: 'Critical role documentation', description: 'Org charts, employer letters, or board resolutions confirming leadership or critical role at a distinguished organization.', prong: 'Criterion (viii)' },
   { label: 'Salary evidence', description: 'Pay stubs, offer letters, or salary surveys showing high compensation relative to peers in the field.', prong: 'Criterion (ix)' },
-  { label: 'Recommendation letters', description: '6–9 letters from independent experts and collaborators. Each letter should address specific criteria with concrete examples.', prong: 'All criteria support' },
+  { label: 'Recommendation letters', description: '6-9 letters from independent experts and collaborators. Each letter should address specific criteria with concrete examples.', prong: 'All criteria support' },
   { label: 'Degree and transcript', description: 'Copy of advanced degree. Include official or unofficial transcript.', prong: 'Background' },
   { label: 'Current visa and I-94', description: 'Copy of current visa stamp and I-94 record.', prong: 'Status documentation' },
 ]

@@ -17,7 +17,14 @@ import { stripDashesDeep } from '@/lib/sanitize'
 import type { StrategyAnswers } from '@/lib/types'
 import type { GreenCardScore } from '@/lib/scoring'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Hard per-call timeout (SDK aborts via AbortController) + at most 1 retry:
+// worst case 2 x 85s = 170s, inside the career-moves route's 180s budget,
+// so a stuck call fails cleanly instead of leaving the client spinner hanging.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 85_000,
+  maxRetries: 1,
+})
 const MODEL = 'claude-sonnet-4-6'
 
 export type TargetPathway = 'NIW' | 'EB-1A' | 'Both'

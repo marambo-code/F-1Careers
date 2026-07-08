@@ -41,8 +41,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(homeUrl)
   }
 
+  // Precedent Engine visibility (audit REC 4). DEFAULT: GATED, exactly as
+  // before. Setting PRECEDENT_ENGINE_PUBLIC=on is the single switch that
+  // exposes the read-only /precedent-engine page (aggregate stats served from
+  // SELECT-only public views, no user data) without login. It removes
+  // '/precedent-engine' from the protected list and nothing else; every other
+  // route keeps identical auth. Leave unset (or any value other than 'on')
+  // to keep the page login-only.
+  const precedentEnginePublic = process.env.PRECEDENT_ENGINE_PUBLIC === 'on'
+
   // Protected routes — redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/profile', '/strategy', '/rfe', '/petition-builder', '/career-moves', '/subscribe', '/filing-guide', '/print']
+  const protectedPaths = ['/dashboard', '/profile', '/strategy', '/precedent-engine', '/rfe', '/petition-builder', '/career-moves', '/subscribe', '/filing-guide', '/print']
+    .filter(p => !(precedentEnginePublic && p === '/precedent-engine'))
   const isProtected = protectedPaths.some(p => pathname.startsWith(p))
 
   if (isProtected && !user) {

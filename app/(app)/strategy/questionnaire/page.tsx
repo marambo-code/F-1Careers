@@ -212,6 +212,8 @@ function QuestionnaireInner() {
   const [answers, setAnswers] = useState(defaultAnswers)
   const [existingRegenCount, setExistingRegenCount] = useState(0)
   const [isPro, setIsPro] = useState(false)
+  // Pro monthly regeneration allowance (3 per calendar month, server-enforced)
+  const [proRegen, setProRegen] = useState<{ limit: number; remaining: number } | null>(null)
   const [resumeText, setResumeText] = useState<string>('')
   const [visaExpiration, setVisaExpiration] = useState<string>('')
   const [resumeUploading, setResumeUploading] = useState(false)
@@ -317,6 +319,18 @@ function QuestionnaireInner() {
 
       setIsPro(!!subRes.data)
 
+      // Pro members editing a report: fetch this month's remaining regenerations
+      if (subRes.data && editReportId) {
+        fetch('/api/usage/strategy-regen')
+          .then(r => (r.ok ? r.json() : null))
+          .then(d => {
+            if (d?.isPro && typeof d.remaining === 'number') {
+              setProRegen({ limit: d.limit, remaining: d.remaining })
+            }
+          })
+          .catch(() => {})
+      }
+
       const existingPending = reportsRes.data?.[0]
 
       // No edit param + existing pending report → redirect to preview
@@ -417,9 +431,14 @@ function QuestionnaireInner() {
     if (!step0Valid) { setError('Please go back and fill in all required fields.'); return }
     if (!step2Valid) { setError('Please describe your proposed US endeavor on Step 3.'); return }
 
-    // Regen cap: free users get 1 edit after their initial preview
+    // Regen caps (also enforced server-side in /api/strategy/preview):
+    // free members get 1 edit per report, Pro members get 3 per calendar month.
     if (editReportId && !isPro && existingRegenCount >= 1) {
-      setError('Free members can update their preview once. Upgrade to Pro to regenerate unlimited times.')
+      setError('Free members can update their preview once. Upgrade to Pro for 3 regenerations per month.')
+      return
+    }
+    if (editReportId && isPro && proRegen && proRegen.remaining <= 0) {
+      setError(`You have used all ${proRegen.limit} regenerations for this month. Your allowance resets on the 1st.`)
       return
     }
 
@@ -522,7 +541,12 @@ function QuestionnaireInner() {
         router.push(`/strategy/preview?reportId=${reportId}`)
       } else {
         const body = await res.json().catch(() => ({}))
-        setError(`Generation failed: ${body?.error ?? res.statusText}. Please try again.`)
+        if (body?.error === 'regen_limit_pro' || body?.error === 'regen_limit_free') {
+          setError(body.message ?? 'Regeneration limit reached.')
+          if (body.error === 'regen_limit_pro') setProRegen(p => p ? { ...p, remaining: 0 } : { limit: 3, remaining: 0 })
+        } else {
+          setError(`Generation failed: ${body?.message ?? body?.error ?? res.statusText}. Please try again.`)
+        }
         setSubmitting(false)
       }
     } catch (e: unknown) {
@@ -554,10 +578,12 @@ function QuestionnaireInner() {
             <p className="text-sm font-bold text-navy">Editing your saved responses</p>
             <p className="text-xs text-mid mt-0.5">
               {!isPro && existingRegenCount >= 1
-                ? 'You have used your free re-generation. Upgrade to Pro to regenerate again.'
+                ? 'You have used your free re-generation. Upgrade to Pro for 3 regenerations per month.'
                 : !isPro
                 ? `Free members can regenerate their preview once. You have ${1 - existingRegenCount} remaining.`
-                : 'Pro member, unlimited regenerations.'}
+                : proRegen
+                ? `Regenerations left this month: ${proRegen.remaining} of ${proRegen.limit}`
+                : 'Pro member: 3 regenerations per calendar month.'}
             </p>
           </div>
           <Link href={`/strategy/preview?reportId=${editReportId}`} className="text-xs text-teal font-semibold hover:underline flex-shrink-0 ml-4">
@@ -713,9 +739,9 @@ function QuestionnaireInner() {
               <select className="input" value={answers.years_in_field} onChange={e => set('years_in_field', e.target.value)}>
                 <option value="">Select</option>
                 <option value="1">Less than 1 year</option>
-                <option value="3">1–3 years</option>
-                <option value="6">3–6 years</option>
-                <option value="11">6–11 years</option>
+                <option value="3">1-3 years</option>
+                <option value="6">3-6 years</option>
+                <option value="11">6-11 years</option>
                 <option value="16">11+ years</option>
               </select>
             </div>
@@ -744,9 +770,9 @@ function QuestionnaireInner() {
               <select className="input" value={answers.filing_timeline} onChange={e => set('filing_timeline', e.target.value)}>
                 <option value="">Select</option>
                 <option value="3">Within 3 months</option>
-                <option value="6">3–6 months</option>
-                <option value="12">6–12 months</option>
-                <option value="18">12–18 months</option>
+                <option value="6">3-6 months</option>
+                <option value="12">6-12 months</option>
+                <option value="18">12-18 months</option>
               </select>
             </div>
           </div>
@@ -881,7 +907,7 @@ function QuestionnaireInner() {
                   <input className="input text-sm" placeholder="Employer" value={job.employer} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, employer: e.target.value } : j))} />
                 </div>
                 <div className="flex gap-2 sm:contents">
-                  <input className="input text-sm flex-1 sm:w-24" placeholder="2021–23" value={job.duration} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, duration: e.target.value } : j))} />
+                  <input className="input text-sm flex-1 sm:w-24" placeholder="2021-23" value={job.duration} onChange={e => setJobHistory(h => h.map((j, idx) => idx === i ? { ...j, duration: e.target.value } : j))} />
                   <button type="button" onClick={() => setJobHistory(h => h.filter((_, idx) => idx !== i))} className="text-mid hover:text-red-500 text-lg leading-none px-2 flex-shrink-0">×</button>
                 </div>
               </div>

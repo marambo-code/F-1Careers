@@ -3,24 +3,31 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
+// Honest step labels: each describes work the generator actually does.
+// No invented dataset sizes and no claims of "approved case" benchmarking,
+// the corpus behind the Precedent Engine is appeal decisions, not approvals.
 const STEPS = [
   { label: 'Extracting evidence from your resume, line by line…',            duration: 8 },
-  { label: 'Running your profile against 50,000+ USCIS petition outcomes…',  duration: 12 },
-  { label: 'Scoring your EB-1A criteria against AAO precedent decisions…',   duration: 10 },
-  { label: 'Benchmarking your NIW prongs against approved Dhanasar cases…',  duration: 12 },
-  { label: 'Cross-referencing your experience with successful petition patterns…', duration: 10 },
-  { label: 'Drafting your Dhanasar brief language for each prong…',          duration: 14 },
-  { label: 'Building your proposed endeavor from approved NIW templates…',   duration: 10 },
-  { label: 'Identifying your expert letter writers based on cases like yours…', duration: 10 },
-  { label: 'Mapping evidence gaps against USCIS adjudicator patterns…',      duration: 10 },
-  { label: 'Scanning RFE database to preempt your vulnerabilities…',         duration: 10 },
-  { label: 'Analysing O-1A approval rates for your specific profile…',       duration: 8 },
+  { label: 'Scoring your EB-1A criteria against the 10 regulatory standards…', duration: 12 },
+  { label: 'Scoring your NIW case against the three Dhanasar prongs…',       duration: 10 },
+  { label: 'Weighing your strongest pathway: NIW, EB-1A, or both…',          duration: 12 },
+  { label: 'Drafting petition brief language for each Dhanasar prong…',      duration: 14 },
+  { label: 'Drafting your proposed endeavor statement…',                     duration: 10 },
+  { label: 'Mapping each resume line to the criterion it supports…',         duration: 10 },
+  { label: 'Flagging the RFE objections your petition is most likely to face…', duration: 10 },
+  { label: 'Mapping your evidence gaps and how to close each one…',          duration: 10 },
+  { label: 'Assessing O-1A as a bridge option for your visa timeline…',      duration: 8 },
+  { label: 'Planning your expert letter strategy, writer by writer…',        duration: 10 },
   { label: 'Writing your personalised 30-day action plan…',                  duration: 8 },
-  { label: 'Compiling expert letter strategy and final recommendations…',    duration: 8 },
+  { label: 'Compiling your 3, 6, and 12 month roadmap…',                     duration: 8 },
 ]
 
 const TOTAL = STEPS.reduce((a, s) => a + s.duration, 0)  // ~130 s
 const TIMEOUT_SECONDS = 600  // 10 min hard stop → show retry
+// If the server still reports 'generating' at this point, the original
+// function almost certainly died (SDK timeouts cap real work at ~4 min).
+// Re-POST once: the generate route restarts jobs stale for more than 5 min.
+const REFIRE_AT_SECONDS = 350
 
 interface Props { reportId: string; reportType: 'strategy' | 'rfe' }
 
@@ -64,6 +71,8 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const doneRef = useRef(false)       // prevent double navigation
   const postDoneRef = useRef(false)   // true once the generate POST has returned
+  const firePostRef = useRef<(() => void) | null>(null) // for stale-job refire
+  const refiredRef = useRef(false)
 
   // Called when we know generation is complete, transition to the report.
   const handleComplete = useCallback(() => {
@@ -105,8 +114,22 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         })
     }
 
+    firePostRef.current = firePost
     firePost()
   }, [reportId, reportType, handleComplete])
+
+  // ── Stale-job auto-recovery ────────────────────────────────────────
+  // A serverless function that dies mid-generation leaves the row on
+  // 'generating' with no one working on it. Re-POST once after the server's
+  // stale window has passed; the generate route restarts stale jobs and
+  // dedupes healthy ones, so this is safe even if the first run is alive.
+  useEffect(() => {
+    if (elapsed !== REFIRE_AT_SECONDS || refiredRef.current) return
+    if (error || timedOut || doneRef.current) return
+    refiredRef.current = true
+    console.warn('[GeneratingView] Still generating after', REFIRE_AT_SECONDS, 's, re-firing generate POST')
+    firePostRef.current?.()
+  }, [elapsed, error, timedOut])
 
   // ── Poll status every 5 seconds (backup for reconnects / tab switching) ──
   useEffect(() => {

@@ -3,7 +3,7 @@ import BrandLink from '@/components/BrandLink'
 import LegalDoc from '@/components/LegalDoc'
 import { loadLegalMarkdown } from '@/lib/legal'
 
-export const metadata = { title: 'Terms of Service, F-1 Careers' }
+export const metadata = { title: 'Terms of Service', alternates: { canonical: '/terms' } }
 
 export default function TermsPage() {
   const markdown = loadLegalMarkdown('terms-of-service.md')

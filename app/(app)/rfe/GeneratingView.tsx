@@ -3,19 +3,25 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
+// Honest step labels: each describes work the analyzer actually does.
+// No invented databases of denials or "successful responses".
 const STEPS = [
   { label: 'Reading every page of your RFE document…',                       duration: 8 },
-  { label: 'Running USCIS objections against our denial database…',          duration: 14 },
+  { label: 'Identifying every distinct issue USCIS raised…',                 duration: 14 },
   { label: 'Classifying issues by risk level and legal standard…',           duration: 12 },
-  { label: 'Cross-referencing with successful RFE response patterns…',       duration: 14 },
-  { label: 'Building rebuttal strategy per issue based on case precedents…',  duration: 14 },
-  { label: 'Identifying critical evidence gaps to close before deadline…',   duration: 12 },
   { label: 'Writing plain-English explanations for each USCIS objection…',   duration: 10 },
+  { label: 'Drafting rebuttal language for each issue…',                     duration: 14 },
+  { label: 'Identifying critical evidence gaps to close before deadline…',   duration: 12 },
+  { label: 'Building your week-by-week response timeline…',                  duration: 14 },
   { label: 'Prioritising your action list by urgency and impact…',           duration: 8 },
 ]
 
 const TOTAL = STEPS.reduce((a, s) => a + s.duration, 0)
 const TIMEOUT_SECONDS = 600
+// If the server still reports 'generating' at this point, the original
+// function almost certainly died (SDK timeouts cap real work at ~5 min).
+// Re-POST once: the generate route restarts jobs stale for more than 5 min.
+const REFIRE_AT_SECONDS = 350
 
 interface Props { reportId: string; reportType: 'strategy' | 'rfe' }
 
@@ -58,6 +64,8 @@ export default function GeneratingView({ reportId, reportType }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const doneRef = useRef(false)
   const postDoneRef = useRef(false)
+  const firePostRef = useRef<(() => void) | null>(null) // for stale-job refire
+  const refiredRef = useRef(false)
 
   const handleComplete = useCallback(() => {
     if (doneRef.current) return
@@ -94,8 +102,22 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         })
     }
 
+    firePostRef.current = firePost
     firePost()
   }, [reportId, reportType, handleComplete])
+
+  // ── Stale-job auto-recovery ────────────────────────────────────────
+  // A serverless function that dies mid-generation leaves the row on
+  // 'generating' with no one working on it. Re-POST once after the server's
+  // stale window has passed; the generate route restarts stale jobs and
+  // dedupes healthy ones, so this is safe even if the first run is alive.
+  useEffect(() => {
+    if (elapsed !== REFIRE_AT_SECONDS || refiredRef.current) return
+    if (error || timedOut || doneRef.current) return
+    refiredRef.current = true
+    console.warn('[GeneratingView] Still generating after', REFIRE_AT_SECONDS, 's, re-firing generate POST')
+    firePostRef.current?.()
+  }, [elapsed, error, timedOut])
 
   // ── Poll every 5 seconds (backup for reconnects) ──────────────────
   useEffect(() => {
@@ -171,7 +193,7 @@ export default function GeneratingView({ reportId, reportType }: Props) {
         <div>
           <h1 className="text-xl font-bold text-navy">Analysing your RFE…</h1>
           <p className="text-sm text-mid mt-1">
-            Cross-referenced with 10,000+ USCIS RFE decisions · typically <strong>60–90 seconds</strong>
+            Issue-by-issue analysis of your USCIS notice · typically <strong>60-90 seconds</strong>
           </p>
         </div>
       </div>

@@ -4,6 +4,12 @@ export const metadata: Metadata = {
   title: 'Sponsor and Retain International Talent',
   description: 'Help your international employees secure green cards through EB-1A and EB-2 NIW. Petition framework generation and immigration strategy built for employers.',
   alternates: { canonical: '/for-employers' },
+  openGraph: {
+    title: 'Sponsor and Retain International Talent | F-1 Careers',
+    description: 'Help your international employees secure green cards through EB-1A and EB-2 NIW.',
+    url: '/for-employers',
+    type: 'website',
+  },
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {

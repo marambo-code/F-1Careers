@@ -1,3 +1,8 @@
+// Full RFE analysis (triage + per-issue calls + plan, SDK timeout 120s x 1
+// retry per call). Must match the [id] route so the platform default can
+// never kill it with the report row stuck on 'generating'.
+export const maxDuration = 300
+
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { generateRFEReport } from '@/lib/ai/rfe-analyzer'

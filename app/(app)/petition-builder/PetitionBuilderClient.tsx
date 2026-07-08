@@ -5,12 +5,13 @@ import {
   getTemplateForPathway,
   computeRunwayDays,
   getGroupedItems,
-  APPROVAL_SIGNALS,
-  SERVICE_CENTERS,
+  EVIDENCE_GROUP_PRECEDENT_KEYS,
   type EvidenceItem,
   type EvidenceStatus,
   type Pathway,
 } from '@/lib/data/petition-evidence'
+import type { PetitionPrecedent } from '@/lib/precedent/queries'
+import Link from 'next/link'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,13 @@ interface NarrativeFeedback {
   next_step: string
 }
 
-type Tab = 'evidence' | 'narrative' | 'signal' | 'letters' | 'generate'
+type Tab = 'evidence' | 'narrative' | 'precedent' | 'letters' | 'generate'
+
+// True for fetch() aborts from AbortSignal.timeout, so hung requests get a
+// specific message instead of a generic failure.
+function isTimeoutError(err: unknown): boolean {
+  return err instanceof DOMException && (err.name === 'TimeoutError' || err.name === 'AbortError')
+}
 
 // ── Recommender types ────────────────────────────────────────────────────────
 
@@ -60,20 +67,20 @@ function RunwayCounter({ days, total }: { days: number; total: number }) {
       </div>
       <div className="p-5 flex items-center gap-6">
         <div className="flex-1">
-          <p className="text-xs text-mid font-medium uppercase tracking-wide mb-0.5">Runway to Filing</p>
+          <p className="text-xs text-mid font-medium uppercase tracking-wide mb-0.5">Evidence Runway</p>
           <div className="flex items-baseline gap-2">
             <span className={`text-4xl font-bold ${color}`}>{days}</span>
             <span className="text-mid text-sm">days estimated</span>
           </div>
           <p className="text-xs text-mid mt-1">
             {days === 0
-              ? '🎉 Your evidence package looks filing-ready'
-              : `Complete the items below to reduce your runway. ${pct}% of evidence collected.`}
+              ? 'Every item is marked done. That reflects your own tracking, the strength of the evidence itself still needs review.'
+              : `Rough estimate of the solo work remaining on your unchecked items, based on typical acquisition times.`}
           </p>
         </div>
         <div className="flex-shrink-0 text-right hidden sm:block">
           <div className="text-3xl font-bold text-navy">{pct}%</div>
-          <div className="text-xs text-mid">complete</div>
+          <div className="text-xs text-mid">of estimated work marked done</div>
         </div>
       </div>
     </div>
@@ -82,12 +89,34 @@ function RunwayCounter({ days, total }: { days: number; total: number }) {
 
 // ── Evidence track ───────────────────────────────────────────────────────────
 
+// What the AAO record shows for a checklist group, rendered inline in the
+// group header. EB-1A groups get the criterion met-rate when contested;
+// NIW prong groups get the contest share (met-rates for prongs are a coding
+// artifact of the denial corpus and are never shown as odds).
+function groupPrecedentNote(group: string, pathway: Pathway, precedent: PetitionPrecedent | null): string | null {
+  if (!precedent) return null
+  const key = EVIDENCE_GROUP_PRECEDENT_KEYS[group]
+  if (!key) return null
+  if (pathway === 'EB-1A') {
+    const c = precedent.criteria[key]
+    if (!c || !c.decided) return null
+    return `AAO accepted this criterion in ${Math.round(c.metRate * 100)}% of ${c.decided.toLocaleString()} contested findings`
+  }
+  const p = precedent.prongShares.find(s => s.key === key)
+  if (!p || !p.decided) return null
+  return `Contested in ${Math.round(p.share * 100)}% of decided prong findings (n=${p.decided.toLocaleString()})`
+}
+
 function EvidenceTrack({
   items,
+  pathway,
+  precedent,
   onToggle,
   onNote,
 }: {
   items: EvidenceItem[]
+  pathway: Pathway
+  precedent: PetitionPrecedent | null
   onToggle: (id: string, status: EvidenceStatus) => void
   onNote: (id: string, notes: string) => void
 }) {
@@ -123,16 +152,30 @@ function EvidenceTrack({
         <span>It cycles each click, so click a done item again to reset it.</span>
       </div>
 
+      {/* Appeal-skew caveat: every precedent figure in the group headers below
+          must carry this context or it reads as approval odds. */}
+      {precedent && (
+        <p className="text-[11px] text-mid leading-relaxed px-1">
+          Benchmarks in the group headers come from {precedent.corpus.decisions.toLocaleString()} published AAO
+          appeal decisions. Appeals skew heavily to denials, so each figure is a share of contested findings,
+          never your approval odds. USCIS decides every case at its own discretion.
+        </p>
+      )}
+
       {Object.entries(grouped).map(([group, groupItems]) => {
         const groupDone = groupItems.filter(i => i.status === 'done').length
+        const precedentNote = groupPrecedentNote(group, pathway, precedent)
         return (
           <div key={group} className="card !p-0 overflow-hidden">
             {/* Group header */}
-            <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-              <div>
+            <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <h3 className="text-xs font-bold text-navy uppercase tracking-wide">{group}</h3>
+                {precedentNote && (
+                  <p className="text-[11px] text-teal mt-0.5">{precedentNote}</p>
+                )}
               </div>
-              <span className="text-xs text-mid font-medium">{groupDone}/{groupItems.length}</span>
+              <span className="text-xs text-mid font-medium flex-shrink-0">{groupDone}/{groupItems.length}</span>
             </div>
 
             {/* Items */}
@@ -254,6 +297,9 @@ function NarrativeTrack({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ narrative, pathway }),
+        // Hard client-side stop: the route itself fails at ~50s, this only
+        // guards against a request that never comes back at all.
+        signal: AbortSignal.timeout(75_000),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -281,7 +327,9 @@ function NarrativeTrack({
         next_step: data.next_step ?? '',
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed')
+      setError(isTimeoutError(err)
+        ? 'The review timed out. Nothing was lost, please try again.'
+        : err instanceof Error ? err.message : 'Analysis failed')
     } finally {
       setAnalyzing(false)
     }
@@ -303,7 +351,7 @@ function NarrativeTrack({
       <div className="rounded-xl border border-navy/10 bg-navy/3 p-4">
         <p className="text-xs font-bold text-navy mb-1">What to write here</p>
         <p className="text-xs text-mid leading-relaxed">
-          Write 2–4 sentences describing the specific work you will pursue after your green card is approved.
+          Write 2-4 sentences describing the specific work you will pursue after your green card is approved.
           This is your <span className="font-semibold text-navy">proposed endeavor</span>, the single most important phrase in your petition.
           Every document you file must use this exact language. The AI will review it the way a USCIS adjudicator would.
         </p>
@@ -415,117 +463,125 @@ function NarrativeTrack({
   )
 }
 
-// ── Signal track ─────────────────────────────────────────────────────────────
+// ── Precedent track ──────────────────────────────────────────────────────────
+// Real AAO adjudication patterns for the selected pathway, from the same
+// corpus that powers the Precedent Engine. Replaces the old "Signal" tab of
+// static approval-rate figures, which could not be kept honest or current.
 
-function SignalTrack({
-  pathway,
-  serviceCenter,
-  onServiceCenterChange,
-}: {
-  pathway: Pathway
-  serviceCenter: string
-  onServiceCenterChange: (code: string) => void
-}) {
-  const signals = APPROVAL_SIGNALS[pathway]
-  const currentSC = SERVICE_CENTERS.find(sc => sc.code === serviceCenter)
+function PrecedentTrack({ pathway, precedent }: { pathway: Pathway; precedent: PetitionPrecedent | null }) {
+  if (!precedent) {
+    return (
+      <div className="card !p-5 text-center space-y-2">
+        <p className="text-sm font-bold text-navy">Precedent data is unavailable right now</p>
+        <p className="text-xs text-mid leading-relaxed">
+          Try again in a few minutes, or open the{' '}
+          <Link href="/precedent-engine" className="text-teal font-semibold hover:underline">Precedent Engine</Link> directly.
+        </p>
+      </div>
+    )
+  }
 
-  const trendIcon = (trend: string) =>
-    trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'
-
-  const rateColor = (rate: number) =>
-    rate >= 70 ? 'text-teal' : rate >= 50 ? 'text-yellow-500' : 'text-red-500'
-
-  const filingClimate = signals.overall.rate >= 65
-    ? { label: 'Favorable', color: 'bg-teal/10 text-teal border-teal/20', icon: '🟢' }
-    : signals.overall.rate >= 45
-    ? { label: 'Proceed with care', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: '🟡' }
-    : { label: 'High scrutiny period', color: 'bg-red-50 text-red-700 border-red-200', icon: '🔴' }
+  const isEB1A = pathway === 'EB-1A'
+  const rankedCriteria = Object.entries(precedent.criteria)
+    .map(([key, c]) => ({ key, ...c }))
+    .filter(c => c.decided > 0)
+    .sort((a, b) => b.metRate - a.metRate)
+  const failMax = precedent.failtags[0]?.count ?? 1
 
   return (
     <div className="space-y-5">
-      {/* Climate banner */}
-      <div className={`rounded-xl border p-4 flex items-center gap-3 ${filingClimate.color}`}>
-        <span className="text-lg">{filingClimate.icon}</span>
-        <div>
-          <p className="text-sm font-bold">Filing climate: {filingClimate.label}</p>
-          <p className="text-xs opacity-80 mt-0.5">
-            {pathway} overall approval rate is currently {signals.overall.rate}%, {signals.overall.trend === 'down' ? 'down from recent highs' : signals.overall.trend === 'up' ? 'trending upward' : 'holding steady'}.
-          </p>
-        </div>
-      </div>
-
-      {/* Approval rates */}
-      <div className="card space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-navy">Current Approval Rates</h3>
-          <span className="text-[10px] text-mid">Updated {signals.lastUpdated}</span>
-        </div>
-
-        {[signals.overall, signals.stem, signals.entrepreneur].map((s, i) => (
-          <div key={i} className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-navy">{s.label}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-2 rounded-full bg-navy-light overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${s.rate >= 70 ? 'bg-teal' : s.rate >= 50 ? 'bg-yellow-400' : 'bg-red-400'}`}
-                  style={{ width: `${s.rate}%` }}
-                />
-              </div>
-              <span className={`text-sm font-bold w-12 text-right ${rateColor(s.rate)}`}>
-                {s.rate}% {trendIcon(s.trend)}
-              </span>
-            </div>
-          </div>
-        ))}
-
-        <p className="text-[10px] text-mid pt-1 border-t border-gray-100">
-          Source: {signals.source}. Rates reflect I-140 adjudications and may fluctuate quarterly.
+      {/* Framing */}
+      <div className="rounded-xl border border-teal/20 bg-teal/6 p-4">
+        <p className="text-sm font-bold text-navy">
+          What {precedent.corpus.decisions.toLocaleString()} real AAO decisions show for {isEB1A ? 'EB-1A' : 'NIW'} petitions
+        </p>
+        <p className="text-xs text-mid mt-1 leading-relaxed">
+          Every figure below is computed from published USCIS Administrative Appeals Office decisions and links back to
+          the source corpus. These are appeals of already-denied petitions, so nothing here is your approval odds. The
+          value is the pattern: which evidence adjudicators accepted, and the exact reasons they gave when they did not.
         </p>
       </div>
 
-      {/* Service center */}
-      <div className="card space-y-4">
+      {/* Pathway-specific requirement stats */}
+      <div className="card space-y-1">
         <div className="pb-2 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-navy">Your Service Center</h3>
-          <p className="text-xs text-mid mt-0.5">Determines processing time and RFE likelihood. Set by USCIS based on your state.</p>
+          <h3 className="text-sm font-bold text-navy">
+            {isEB1A ? 'Criteria ranked by acceptance when contested' : 'Where contested NIW cases are decided'}
+          </h3>
+          <p className="text-xs text-mid mt-0.5">
+            {isEB1A
+              ? 'Pick your strongest three from the top of this list, then document them to the standard the failure patterns below describe.'
+              : 'Prong-level acceptance rates are not shown because the denial corpus rarely records a satisfied prong. Contest share tells you where to concentrate your argument.'}
+          </p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SERVICE_CENTERS.map(sc => (
-            <button
-              key={sc.code}
-              onClick={() => onServiceCenterChange(sc.code)}
-              className={`text-left p-3 rounded-xl border text-xs transition-colors ${
-                serviceCenter === sc.code
-                  ? 'border-teal bg-teal/6 text-navy'
-                  : 'border-gray-200 hover:border-gray-300 text-mid'
-              }`}
-            >
-              <p className="font-bold text-navy">{sc.code}</p>
-              <p className="text-[11px] mt-0.5 leading-tight">{sc.name}</p>
-              <p className={`text-[10px] mt-1 ${sc.code === 'TSC' ? 'text-orange-600' : 'text-mid'}`}>{sc.note}</p>
-            </button>
-          ))}
-        </div>
-
-        {currentSC?.code === 'TSC' && (
-          <div className="rounded-xl bg-orange-50 border border-orange-200 p-3">
-            <p className="text-xs font-semibold text-orange-800">⚠️ Texas Service Center caution</p>
-            <p className="text-xs text-orange-700 mt-1 leading-relaxed">
-              TSC issued the highest RFE rate among service centers in 2025. If you have a choice, consider premium processing to get a faster, more consistent adjudication.
-            </p>
-          </div>
+        {isEB1A ? (
+          rankedCriteria.map((c, i) => (
+            <div key={c.key} className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
+              <span className="w-6 h-6 rounded-full bg-teal/10 text-teal flex items-center justify-center text-[11px] font-bold flex-shrink-0">{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-navy">{c.label}</p>
+                <p className="text-[10px] text-mid">n={c.decided.toLocaleString()} contested findings</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-20 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-teal" style={{ width: `${Math.max(Math.round(c.metRate * 100), 2)}%` }} />
+                </div>
+                <span className="text-xs font-bold text-navy w-9 text-right">{Math.round(c.metRate * 100)}%</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          precedent.prongShares.map((p, i) => (
+            <div key={p.key} className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
+              <span className="w-6 h-6 rounded-full bg-teal/10 text-teal flex items-center justify-center text-[11px] font-bold flex-shrink-0">{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-navy">{p.label}</p>
+                <p className="text-[10px] text-mid">n={p.decided.toLocaleString()} decided findings</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-20 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-teal" style={{ width: `${Math.max(Math.round(p.share * 100), 2)}%` }} />
+                </div>
+                <span className="text-xs font-bold text-navy w-9 text-right">{Math.round(p.share * 100)}%</span>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
-      {/* What to do with this */}
-      <div className="card !p-4 space-y-2">
-        <p className="text-xs font-bold text-navy">How to use this data</p>
-        <p className="text-xs text-mid leading-relaxed">
-          Approval rates fluctuate quarterly. A drop below 50% overall is a signal to wait until your evidence is stronger, marginal cases get denied faster in high-scrutiny periods. Strong cases (score 80+) can file in any climate.
+      {/* Documented failure patterns */}
+      <div className="card space-y-1">
+        <div className="pb-2 border-b border-gray-100">
+          <h3 className="text-sm font-bold text-navy">Documented evidence gaps to avoid</h3>
+          <p className="text-xs text-mid mt-0.5">
+            The specific reasons officers named when rejecting evidence, coded from EB-1A criterion findings.
+            {!isEB1A && ' NIW failures are argued per prong, but these are the same evidence standards officers apply.'}
+          </p>
+        </div>
+        {precedent.failtags.map(t => (
+          <div key={t.key} className="flex items-center gap-3 py-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-navy">{t.label}</p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-20 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-full rounded-full bg-orange-400" style={{ width: `${Math.max(Math.round((t.count / failMax) * 100), 2)}%` }} />
+              </div>
+              <span className="text-[11px] text-mid w-9 text-right">{t.count}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Handoff */}
+      <div className="card !p-4 flex items-center justify-between gap-3 flex-wrap">
+        <p className="text-xs text-mid leading-relaxed flex-1 min-w-[200px]">
+          Want the full picture, including sustained appeals worth reading and field-level coverage? The complete corpus
+          is in the Precedent Engine.
         </p>
+        <Link href="/precedent-engine" className="text-xs text-teal font-bold hover:underline whitespace-nowrap">
+          Open the Precedent Engine →
+        </Link>
       </div>
     </div>
   )
@@ -591,6 +647,9 @@ function LettersTrack({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recommender: rec, pathway, narrative }),
+        // Hard client-side stop: the route fails at ~75s, this only guards
+        // against a request that never comes back at all.
+        signal: AbortSignal.timeout(100_000),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message ?? data.error ?? 'Failed to generate briefing')
@@ -602,7 +661,9 @@ function LettersTrack({
       onUpdate(updated)
       setExpandedId(rec.id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate briefing')
+      setError(isTimeoutError(err)
+        ? 'The briefing timed out. Nothing was lost, please try again.'
+        : err instanceof Error ? err.message : 'Failed to generate briefing')
     } finally {
       setGeneratingId(null)
     }
@@ -625,7 +686,7 @@ function LettersTrack({
       <div className="card !p-4 space-y-2">
         <p className="text-xs font-bold text-navy">Why recommendation letters make or break your petition</p>
         <p className="text-xs text-mid leading-relaxed">
-          USCIS adjudicators weight independent expert letters highest, they prove your standing in the field without any relationship bias. For NIW, 3–5 letters is standard: at least 2 from experts with no direct connection to you. For EB-1A, 6–9 letters, majority independent.
+          USCIS adjudicators weight independent expert letters highest, they prove your standing in the field without any relationship bias. For NIW, 3-5 letters is standard: at least 2 from experts with no direct connection to you. For EB-1A, 6-9 letters, majority independent.
         </p>
         {totalCount > 0 && (
           <div className="flex gap-3 pt-1">
@@ -906,7 +967,11 @@ function GenerateTrack({
   const readinessScore = Math.round(((doneCount + inProgressCount * 0.5) / items.length) * 100)
 
   const readinessColor = readinessScore >= 70 ? 'text-teal' : readinessScore >= 40 ? 'text-yellow-500' : 'text-orange-500'
-  const readinessLabel = readinessScore >= 70 ? 'Strong, ready to generate' : readinessScore >= 40 ? 'Partial, generation will have gaps' : 'Early, add more evidence for better output'
+  const readinessLabel = readinessScore >= 70
+    ? 'Enough input for a substantive draft'
+    : readinessScore >= 40
+    ? 'Partial input, the draft will have gaps'
+    : 'Early, add more evidence for a better draft'
 
   const copy = async (text: string, key: string) => {
     await navigator.clipboard.writeText(text)
@@ -944,13 +1009,20 @@ function GenerateTrack({
     setGenerating(true)
     setError(null)
     try {
-      const res = await fetch('/api/petition-builder/generate', { method: 'POST' })
+      // Hard client-side stop just past the route's 300s maxDuration, so this
+      // button can never spin forever if the request hangs.
+      const res = await fetch('/api/petition-builder/generate', {
+        method: 'POST',
+        signal: AbortSignal.timeout(320_000),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message ?? data.error ?? 'Generation failed')
       setPacket(data)
       onGenerated(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Generation failed')
+      setError(isTimeoutError(err)
+        ? 'This took longer than expected. Drafts save automatically when they finish, so refresh this page in a minute before regenerating.'
+        : err instanceof Error ? err.message : 'Generation failed')
     } finally {
       setGenerating(false)
     }
@@ -962,7 +1034,10 @@ function GenerateTrack({
       {/* Readiness card */}
       <div className="card space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-navy">Generation Readiness</h3>
+          <div>
+            <h3 className="text-sm font-bold text-navy">Draft Inputs</h3>
+            <p className="text-[10px] text-mid mt-0.5">Based on what you have marked done. This measures input completeness, not the strength of your case.</p>
+          </div>
           <span className={`text-sm font-bold ${readinessColor}`}>{readinessScore}%</span>
         </div>
 
@@ -1008,9 +1083,9 @@ function GenerateTrack({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Generating… (60–90s)
+              Generating… (60-90s)
             </>
-          ) : packet ? 'Regenerate' : 'Generate petition package'}
+          ) : packet ? 'Regenerate drafts' : 'Generate draft documents'}
         </button>
 
         {packet && !generating && (
@@ -1151,7 +1226,7 @@ function GenerateTrack({
               >
                 Filing checklist & submission guide →
               </a>
-              <span className="text-xs text-mid">Not legal advice, consult an attorney before filing</span>
+              <span className="text-xs text-mid">These are working drafts, not a filing-ready petition. Not legal advice, consult an attorney before filing.</span>
             </div>
           </div>
         </div>
@@ -1162,12 +1237,11 @@ function GenerateTrack({
 
 // ── Main component ───────────────────────────────────────────────────────────
 
-export default function PetitionBuilderClient() {
+export default function PetitionBuilderClient({ precedent = null }: { precedent?: PetitionPrecedent | null }) {
   const [tab, setTab] = useState<Tab>('evidence')
   const [pathway, setPathway] = useState<Pathway>('NIW')
   const [items, setItems] = useState<EvidenceItem[]>([])
   const [narrative, setNarrative] = useState('')
-  const [serviceCenter, setServiceCenter] = useState('NSC')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [recommenders, setRecommenders] = useState<Recommender[]>([])
@@ -1184,7 +1258,6 @@ export default function PetitionBuilderClient() {
         setPathway(data.pathway ?? 'NIW')
         setItems(data.evidence_items?.length ? data.evidence_items : getTemplateForPathway(data.pathway ?? 'NIW'))
         setNarrative(data.narrative_text ?? '')
-        setServiceCenter(data.service_center ?? 'NSC')
         if (data.recommenders?.length) setRecommenders(data.recommenders)
         if (data.generated_petition) setGeneratedPacket(data.generated_petition)
       })
@@ -1222,11 +1295,6 @@ export default function PetitionBuilderClient() {
     save({ narrative_text: text })
   }
 
-  const handleServiceCenter = (code: string) => {
-    setServiceCenter(code)
-    save({ service_center: code })
-  }
-
   const handleRecommenders = (updated: Recommender[]) => {
     setRecommenders(updated)
     save({ recommenders: updated })
@@ -1256,9 +1324,9 @@ export default function PetitionBuilderClient() {
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'evidence', label: 'Evidence', icon: '📋' },
     { id: 'narrative', label: 'Narrative', icon: '✍️' },
-    { id: 'signal', label: 'Signal', icon: '📡' },
+    { id: 'precedent', label: 'Precedent', icon: '⚖️' },
     { id: 'letters', label: recommenders.length > 0 ? `Letters (${lettersWithBriefings}/${recommenders.length})` : 'Letters', icon: '✉️' },
-    { id: 'generate', label: generatedPacket ? 'Petition ✓' : 'Generate', icon: '📄' },
+    { id: 'generate', label: generatedPacket ? 'Drafts ✓' : 'Drafts', icon: '📄' },
   ]
 
   if (loading) {
@@ -1278,7 +1346,7 @@ export default function PetitionBuilderClient() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-navy">Petition Builder</h1>
-          <p className="text-sm text-mid mt-1">Your structured path from today to a filing-ready petition.</p>
+          <p className="text-sm text-mid mt-1">Track your evidence, pressure-test your narrative, and draft your documents, grounded in real AAO decisions.</p>
         </div>
         {saving && (
           <span className="text-xs text-mid mt-1.5 flex-shrink-0">Saving…</span>
@@ -1350,13 +1418,13 @@ export default function PetitionBuilderClient() {
 
       {/* ── Tab content ──────────────────────────────────────────────── */}
       {tab === 'evidence' && (
-        <EvidenceTrack items={items} onToggle={handleToggle} onNote={handleNote} />
+        <EvidenceTrack items={items} pathway={pathway} precedent={precedent} onToggle={handleToggle} onNote={handleNote} />
       )}
       {tab === 'narrative' && (
         <NarrativeTrack narrative={narrative} pathway={pathway} onChange={handleNarrative} />
       )}
-      {tab === 'signal' && (
-        <SignalTrack pathway={pathway} serviceCenter={serviceCenter} onServiceCenterChange={handleServiceCenter} />
+      {tab === 'precedent' && (
+        <PrecedentTrack pathway={pathway} precedent={precedent} />
       )}
       {tab === 'letters' && (
         <LettersTrack

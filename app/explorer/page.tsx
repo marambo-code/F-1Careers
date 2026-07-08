@@ -3,9 +3,10 @@ import Link from 'next/link'
 import BrandLink from '@/components/BrandLink'
 import SiteFooter from '@/components/SiteFooter'
 import ExplorerEmbed from '@/components/explorer/ExplorerEmbed'
+import PrecedentCallout from '@/components/precedent/PrecedentCallout'
 
 export const metadata: Metadata = {
-  title: 'Self-Petition Eligibility Check: EB-1A and EB-2 NIW Green Cards | F-1 Careers',
+  title: 'Self-Petition Eligibility Check: EB-1A and EB-2 NIW Green Cards',
   description:
     'A free check of the green cards you can file yourself, with no employer: EB-1A (extraordinary ability) and EB-2 NIW (national interest waiver). Learn both routes, test your fit against the criteria, and see your real 2026 filing costs.',
   alternates: { canonical: '/explorer' },
@@ -51,6 +52,12 @@ export default function ExplorerPage() {
       {/* Tool */}
       <section className="max-w-5xl mx-auto px-3 sm:px-6 pb-16">
         <ExplorerEmbed />
+      </section>
+
+      {/* Precedent Engine teaser, grounded credibility */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
+        <p className="text-[11px] font-extrabold uppercase tracking-[2px] text-teal mb-3 text-center">Why our read is different</p>
+        <PrecedentCallout pathway="NIW" field="business" compact />
       </section>
 
       <SiteFooter />

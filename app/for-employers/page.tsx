@@ -82,8 +82,8 @@ export default function ForEmployersPage() {
 
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { stat: '$150K–$300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity, industry standard estimate', color: 'text-red-500' },
-              { stat: '$2,805', label: 'Cost of I-140 premium processing', note: 'The USCIS fee for a 45-business-day I-140 decision, your employee\'s strongest protection regardless of petition type', color: 'text-teal' },
+              { stat: '$150K, $300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity, industry standard estimate', color: 'text-red-500' },
+              { stat: '$2,805', label: 'Cost of I-140 premium processing', note: 'The USCIS fee for an expedited I-140 decision (15 calendar days for EB-1A, 45 for NIW), your employee\'s strongest protection regardless of petition type', color: 'text-teal' },
               { stat: '100×', label: 'ROI of proactive filing', note: 'For every dollar spent on premium processing, you protect $100+ in retention value', color: 'text-navy' },
             ].map((item, i) => (
               <div key={i} className="card text-center space-y-2">
@@ -161,9 +161,9 @@ export default function ForEmployersPage() {
                       <label className="label">Company size</label>
                       <select className="input" value={form.company_size} onChange={e => set('company_size', e.target.value)}>
                         <option value="">Select</option>
-                        <option value="1-25">1–25 employees</option>
-                        <option value="26-100">26–100 employees</option>
-                        <option value="101-500">101–500 employees</option>
+                        <option value="1-25">1-25 employees</option>
+                        <option value="26-100">26-100 employees</option>
+                        <option value="101-500">101-500 employees</option>
                         <option value="500+">500+ employees</option>
                       </select>
                     </div>
@@ -171,9 +171,9 @@ export default function ForEmployersPage() {
                       <label className="label">International employees</label>
                       <select className="input" value={form.international_headcount} onChange={e => set('international_headcount', e.target.value)}>
                         <option value="">Estimate</option>
-                        <option value="1-10">1–10</option>
-                        <option value="11-25">11–25</option>
-                        <option value="26-50">26–50</option>
+                        <option value="1-10">1-10</option>
+                        <option value="11-25">11-25</option>
+                        <option value="26-50">26-50</option>
                         <option value="50+">50+</option>
                       </select>
                     </div>

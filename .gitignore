@@ -5,3 +5,7 @@ stripe-setup.js
 setup.js
 setup-vercel.sh
 *.sh
+
+# build output and OS junk
+.next/
+.DS_Store
