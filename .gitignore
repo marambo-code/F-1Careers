@@ -9,3 +9,5 @@ setup-vercel.sh
 # build output and OS junk
 .next/
 .DS_Store
+content-drop-*.md
+ChatGPT Image*.png
