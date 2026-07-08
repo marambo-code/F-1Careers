@@ -69,11 +69,14 @@ export function formatGroundingBlock(s: PrecedentSummary): string {
 
   // Failure tags are derived from EB-1A criterion findings; keep any future
   // NIW-specific tags (niw_* from the re-taxonomy script) out of this list.
-  const eb1aFailures = s.topFailures.filter((f) => !f.key.startsWith('niw_'))
-  if (eb1aFailures.length) {
-    lines.push('Most common documented EB-1A evidence failure patterns (as named by the AAO):')
-    for (const f of eb1aFailures) {
-      lines.push(`  • ${f.label} (${f.count} findings)`)
+  // EB-1A only: this list is criterion-failure noise on an EB-2 NIW report.
+  if (s.pathway === 'EB1A') {
+    const eb1aFailures = s.topFailures.filter((f) => !f.key.startsWith('niw_'))
+    if (eb1aFailures.length) {
+      lines.push('Most common documented EB-1A evidence failure patterns (as named by the AAO):')
+      for (const f of eb1aFailures) {
+        lines.push(`  • ${f.label} (${f.count} findings)`)
+      }
     }
   }
 

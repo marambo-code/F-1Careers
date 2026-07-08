@@ -387,6 +387,14 @@ test('grounding: flag on returns a short, honestly framed block', async () => {
     }
     assert.ok(/Prong/.test(niw), 'NIW block shows prong contest shares')
     assert.ok(!/% met \(n=/.test(niw), 'NIW block never renders prong met-rates')
+    assert.ok(
+      !niw.includes('Most common documented EB-1A evidence failure patterns'),
+      'NIW block omits the EB-1A failure-patterns section'
+    )
+    assert.ok(
+      eb1a.includes('Most common documented EB-1A evidence failure patterns'),
+      'EB-1A block keeps the failure-patterns section'
+    )
     assert.ok(/% met \(n=/.test(eb1a), 'EB-1A block shows criterion met-rates')
     assert.ok(/Hardest on appeal/.test(eb1a), 'EB-1A block names the hardest criterion')
     assert.ok(/failure patterns/i.test(eb1a), 'EB-1A failure patterns present')
