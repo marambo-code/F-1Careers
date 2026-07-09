@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Precedent Engine — F-1 Careers</title>
+<style>
+  :root{
+    --navy:#1B2B6B; --navy-light:#EDF0F8; --teal:#00C2A8; --gold:#C79320;
+    --coral:#CF5B30; --ink:#1B2B6B; --mid:#5b6478; --line:#e4e8f2; --bg:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f8fc;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 64px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin:0 0 8px}
+  h1{font-size:30px;line-height:1.12;font-weight:800;letter-spacing:-.5px;margin:0 0 8px;color:var(--navy)}
+  .sub{color:var(--mid);font-size:15px;max-width:640px;margin:0}
+  .scalebar{display:flex;gap:22px;flex-wrap:wrap;margin:18px 0 4px}
+  .scale{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:120px}
+  .scale b{display:block;font-size:22px;color:var(--navy);font-weight:800}
+  .scale span{font-size:12px;color:var(--mid)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 6px}
+  .seg{display:inline-flex;background:#eef1f8;border-radius:12px;padding:4px}
+  .seg button{border:0;background:transparent;padding:9px 16px;border-radius:9px;font-size:14px;font-weight:700;color:var(--mid);cursor:pointer;transition:.15s}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(27,43,107,.12)}
+  .spacer{flex:1}
+  .fieldsel label{font-size:12px;color:var(--mid);font-weight:600;margin-right:6px}
+  select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--navy);background:#fff;font-weight:600}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-top:16px}
+  .card h2{font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--navy);margin:0 0 4px}
+  .card .note{font-size:12.5px;color:var(--mid);margin:0 0 16px}
+  .row{display:flex;align-items:center;gap:12px;margin:11px 0}
+  .row .lab{width:200px;font-size:13.5px;font-weight:600;color:var(--navy);flex-shrink:0}
+  .track{flex:1;background:#eef1f8;border-radius:8px;height:22px;position:relative;overflow:hidden}
+  .fill{height:100%;border-radius:8px;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+  .val{width:90px;text-align:right;font-size:13px;font-weight:800;color:var(--navy);flex-shrink:0}
+  .val small{font-weight:600;color:var(--mid);font-size:11px}
+  .pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  .pill.win{background:rgba(0,194,168,.14);color:#087f6f}
+  .pill.hard{background:rgba(207,91,48,.13);color:var(--coral)}
+  .callout{background:var(--navy-light);border:1px solid #dfe4f4;border-radius:14px;padding:16px 18px;margin-top:16px}
+  .callout b{color:var(--navy)}
+  .outcomes{display:flex;gap:2px;height:34px;border-radius:9px;overflow:hidden;margin:6px 0 10px}
+  .outcomes div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;min-width:34px}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mid)}
+  .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .foot{margin-top:22px;font-size:12px;color:var(--mid);border-top:1px solid var(--line);padding-top:14px}
+  .foot b{color:var(--navy)}
+  .hidden{display:none}
+  a.src{color:var(--teal);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Proprietary · F-1 Careers</p>
+  <h1>Precedent Engine</h1>
+  <p class="sub">What actually persuades USCIS adjudicators, read from real appeal decisions. This is the evidence base behind your Strategy Report and RFE analysis.</p>
+
+  <div class="scalebar">
+    <div class="scale"><b id="s-dec">3,992</b><span>AAO decisions analyzed</span></div>
+    <div class="scale"><b id="s-find">11,373</b><span>criterion-level findings</span></div>
+    <div class="scale"><b id="s-field">—</b><span id="s-field-l">decisions in this field</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="seg" id="path">
+      <button data-v="EB1A" class="on">EB-1A</button>
+      <button data-v="NIW">EB-2 NIW</button>
+    </div>
+    <div class="seg" id="persona">
+      <button data-v="applicant" class="on">Applicant view</button>
+      <button data-v="attorney">Attorney view</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="fieldsel">
+      <label for="field">Field</label>
+      <select id="field"></select>
+    </div>
+  </div>
+
+  <div id="view"></div>
+
+  <div class="foot">
+    <b>Honest denominator.</b> These are appeals of petitions USCIS already denied, resolved by the Administrative Appeals Office. Rates show which arguments hold up at the appeal stage, not your odds of approval. We surface them so your case is built on what has actually worked, not guesswork. Every statistic links to the underlying <a class="src" href="https://www.uscis.gov/administrative-appeals/aao-decisions" target="_blank" rel="noopener">USCIS decisions</a>.
+  </div>
+</div>
+
+<script>
+const DATA = {
+  corpus:{decisions:3992, findings:11373},
+  outcomes:{
+    EB1A:{dismissed:695, remanded:202, sustained:11},
+    NIW:{dismissed:2098, remanded:175, sustained:46}
+  },
+  criteria:[
+    {k:"Leading or critical role", t:86,f:295},
+    {k:"Artistic exhibitions", t:27,f:96},
+    {k:"Judging others' work", t:53,f:216},
+    {k:"Scholarly articles", t:43,f:247},
+    {k:"High salary", t:37,f:232},
+    {k:"Awards", t:59,f:403},
+    {k:"Published material about you", t:35,f:272},
+    {k:"Selective membership", t:27,f:213},
+    {k:"Commercial success", t:5,f:52},
+    {k:"Original contributions", t:22,f:313}
+  ],
+  prongs:[
+    {k:"Prong 1 — Merit & national importance", n:2325},
+    {k:"Prong 3 — Balance / waiver in the interest", n:1040},
+    {k:"Prong 2 — Well positioned to advance", n:613}
+  ],
+  failtags:[
+    {k:"Role not truly leading/critical", n:106},
+    {k:"Contribution not of major significance", n:93},
+    {k:"Salary not shown comparative", n:90},
+    {k:"Membership not selective enough", n:63}
+  ],
+  fields:{
+    EB1A:{Business:767, Medicine:61, "Computer science":54, Engineering:45, Arts:29, Athletics:10, Sciences:9, Other:90},
+    NIW:{Business:1797, Medicine:387, Engineering:225, "Computer science":195, Sciences:13, Arts:8, Athletics:2, Other:235}
+  }
+};
+const C={teal:"#00C2A8",gold:"#C79320",coral:"#CF5B30",navy:"#1B2B6B",mid:"#8791a8"};
+let path="EB1A", persona="applicant";
+
+function pct(n){return Math.round(n*1000)/10}
+function rampColor(r){ // r 0..1 relative
+  if(r>=.66) return C.teal; if(r>=.33) return C.gold; return C.coral;
+}
+function fmtField(){
+  const sel=document.getElementById('field');
+  sel.innerHTML="";
+  const f=DATA.fields[path];
+  Object.keys(f).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k+" ("+f[k]+")";sel.appendChild(o);});
+}
+function fieldCount(){const k=document.getElementById('field').value;return DATA.fields[path][k]||0;}
+
+function bars(items, valFn, labelFn, maxRate){
+  return items.map((it,i)=>{
+    const v=valFn(it); const w=Math.max(4,(v/maxRate)*100);
+    const col=rampColor(v/maxRate);
+    return `<div class="row"><div class="lab">${it.k}</div>
+      <div class="track"><div class="fill" style="background:${col}" data-w="${w}"></div></div>
+      <div class="val">${labelFn(it)}</div></div>`;
+  }).join("");
+}
+
+function outcomeBar(o){
+  const tot=o.dismissed+o.remanded+o.sustained;
+  const seg=(n,c,lbl)=>`<div style="flex:${n};background:${c}" title="${lbl}: ${n}">${Math.round(n/tot*100)}%</div>`;
+  return `<div class="outcomes">
+    ${seg(o.sustained+o.remanded,C.teal,"Reopened or won on appeal")}
+    ${seg(o.dismissed,"#c3ccde","Denial upheld")}
+  </div>
+  <div class="leg">
+    <span><i style="background:${C.teal}"></i>Reopened / won on appeal (${o.sustained+o.remanded})</span>
+    <span><i style="background:#c3ccde"></i>Original denial upheld (${o.dismissed})</span>
+  </div>`;
+}
+
+function render(){
+  fmtField();
+  const fc=fieldCount();
+  document.getElementById('s-field').textContent=fc.toLocaleString();
+  const v=document.getElementById('view');
+
+  if(path==="EB1A"){
+    const crit=[...DATA.criteria].map(c=>({...c,rate:c.t/(c.t+c.f)})).sort((a,b)=>b.rate-a.rate);
+    const maxR=crit[0].rate;
+    const best=crit[0], hard=crit[crit.length-1];
+    let html="";
+    // applicant + attorney share the criteria chart
+    html+=`<div class="callout">On EB-1A appeals, the criterion that holds up most often is <b>${best.k}</b> (${pct(best.rate)}% of contested findings). The steepest to prove is <b>${hard.k}</b> (${pct(hard.rate)}%). Build toward strength, document around the weak ones.</div>`;
+    html+=`<div class="card"><h2>Which EB-1A criteria hold up on appeal</h2>
+      <p class="note">Share of contested findings where the AAO agreed the criterion was met. Higher = more defensible.</p>
+      ${bars(crit, c=>c.rate, c=>`${pct(c.rate)}% <small>(${c.t}/${c.t+c.f})</small>`, maxR)}
+    </div>`;
+    html+=`<div class="card"><h2>Where petitions stumble</h2>
+      <p class="note">Most common documented reasons EB-1A findings were rejected, from tagged decisions.</p>
+      ${bars(DATA.failtags, x=>x.n, x=>`${x.n} cases`, DATA.failtags[0].n)}
+    </div>`;
+    if(persona==="attorney"){
+      html+=`<div class="card"><h2>Appeal outcomes — EB-1A</h2>${outcomeBar(DATA.outcomes.EB1A)}
+      <p class="note" style="margin-top:12px">908 EB-1A appeals decided. Remands and sustained rulings mean the denial did not stand as written, useful leverage for RFE and motion strategy.</p></div>`;
+    }
+    v.innerHTML=html;
+  } else {
+    const tot=DATA.prongs.reduce((s,p)=>s+p.n,0);
+    const pr=DATA.prongs.map(p=>({...p,share:p.n/tot}));
+    const maxS=pr[0].share;
+    let html=`<div class="callout"><b>Prong 1 is the battleground.</b> ${pct(pr[0].share)}% of all contested NIW prong findings are about merit and national importance. Win the argument there and the rest of the petition gets easier.</div>`;
+    html+=`<div class="card"><h2>Where NIW cases are actually contested</h2>
+      <p class="note">Share of Dhanasar prong findings in dispute across the corpus. This shows where adjudicators focus, so you know where to invest.</p>
+      ${bars(pr, p=>p.share, p=>`${pct(p.share)}%`, maxS)}
+    </div>`;
+    html+=`<div class="card"><h2>Appeal outcomes — EB-2 NIW</h2>${outcomeBar(DATA.outcomes.NIW)}
+      <p class="note" style="margin-top:12px">2,319 NIW appeals decided. ${DATA.outcomes.NIW.sustained+DATA.outcomes.NIW.remanded} did not end in an upheld denial, evidence that a well-argued case survives scrutiny.</p></div>`;
+    if(persona==="attorney"){
+      html+=`<div class="card"><h2>Reading the corpus</h2>
+      <p class="note">Prong findings are recorded when contested. The dataset currently documents where cases fail; satisfied-prong extraction for won cases is the next enrichment pass, which will let it also describe winning arguments.</p></div>`;
+    }
+    v.innerHTML=html;
+  }
+  // animate
+  requestAnimationFrame(()=>{document.querySelectorAll('.fill').forEach(f=>{f.style.width=f.dataset.w+"%";});});
+}
+
+document.getElementById('path').addEventListener('click',e=>{
+  if(e.target.dataset.v){[...e.currentTarget.children].forEach(b=>b.classList.remove('on'));e.target.classList.add('on');path=e.target.dataset.v;render();}
+});
+document.getElementById('persona').addEventListener('click',e=>{
+  if(e.target.dataset.v){[...e.currentTarget.children].forEach(b=>b.classList.remove('on'));e.target.classList.add('on');persona=e.target.dataset.v;render();}
+});
+document.getElementById('field').addEventListener('change',render);
+render();
+</script>
+</body>
+</html>

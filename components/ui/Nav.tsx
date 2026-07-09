@@ -141,6 +141,12 @@ export default function Nav() {
               </Link>
             ))}
 
+            {/* Community (external) */}
+            <a href="https://community.f-1careers.com" target="_blank" rel="noopener"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors text-blue-200 hover:text-white hover:bg-white/5">
+              Community
+            </a>
+
             {/* Pro badge / upgrade */}
             {isPro ? (
               <span className="ml-1 px-3 py-1.5 rounded-lg text-sm font-bold bg-gradient-to-r from-teal/25 to-teal/15 text-teal border border-teal/30 flex items-center gap-1.5">
@@ -193,6 +199,17 @@ export default function Nav() {
               </Link>
             )
           })}
+
+          {/* Community tab (external) */}
+          <a href="https://community.f-1careers.com" target="_blank" rel="noopener"
+            className="flex-1 flex flex-col items-center justify-center gap-1 text-mid transition-colors min-h-[44px]">
+            <svg className="w-5 h-5 text-mid" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="text-[10px] font-semibold leading-none text-mid">
+              Community
+            </span>
+          </a>
 
           {/* Sign out tab */}
           <button onClick={handleSignOut} disabled={signingOut}

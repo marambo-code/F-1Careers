@@ -18,6 +18,7 @@ export default function SiteFooter() {
           <Link href="/explorer" className="text-sm text-mid hover:text-navy transition-colors">Eligibility Check</Link>
           <Link href="/stay-score" className="text-sm text-mid hover:text-navy transition-colors">Risk Score</Link>
           <Link href="/for-employers" className="text-sm text-mid hover:text-navy transition-colors">For Employers</Link>
+          <a href="https://community.f-1careers.com" target="_blank" rel="noopener" className="text-sm text-mid hover:text-navy transition-colors">Community</a>
           <Link href="/privacy" className="text-sm text-mid hover:text-navy transition-colors">Privacy</Link>
           <Link href="/terms" className="text-sm text-mid hover:text-navy transition-colors">Terms</Link>
           <Link href="/login" className="text-sm text-mid hover:text-navy transition-colors">Sign in</Link>
