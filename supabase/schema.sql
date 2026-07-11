@@ -311,14 +311,3 @@ create policy "Public can join cohort waitlist" on public.cohort_waitlist
 drop policy if exists "Public can read cohort counts" on public.cohort_waitlist;
 create policy "Public can read cohort counts" on public.cohort_waitlist
   for select using (true);
-
--- ─── PM-602-0199 POLICY ALERT ────────────────────────────────────
--- Run this to insert the active policy alert in the dashboard
--- (admin_alerts table was created in a prior migration)
--- insert into public.admin_alerts (title, message, severity, active)
--- values (
---   'Policy Alert — PM-602-0199 (May 22, 2026)',
---   'USCIS now requires most foreign nationals to leave the US for green card consular processing unless extraordinary circumstances are proven. An approved NIW I-140 is the strongest evidence. File premium processing now.',
---   'critical',
---   true
--- ) on conflict do nothing;
