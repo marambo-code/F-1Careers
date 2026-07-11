@@ -24,7 +24,15 @@ const SOCIALS = [
   },
 ]
 
-export default function SocialLinks({ className = '', iconClassName = 'w-[18px] h-[18px]' }: { className?: string; iconClassName?: string }) {
+export default function SocialLinks({
+  className = '',
+  iconClassName = 'w-[18px] h-[18px]',
+  linkClassName = 'text-mid hover:text-navy',
+}: {
+  className?: string
+  iconClassName?: string
+  linkClassName?: string
+}) {
   return (
     <div className={`flex items-center gap-3.5 ${className}`}>
       {SOCIALS.map(s => (
@@ -34,7 +42,7 @@ export default function SocialLinks({ className = '', iconClassName = 'w-[18px] 
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`F-1 Careers on ${s.name}`}
-          className="text-mid hover:text-navy transition-colors"
+          className={`${linkClassName} transition-colors`}
         >
           <svg className={iconClassName} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d={s.path} />
