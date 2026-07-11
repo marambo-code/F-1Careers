@@ -8,7 +8,7 @@ export default function SiteFooter() {
     <footer className="border-t border-border bg-white py-7 px-6">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
         <div className="flex flex-col items-center sm:items-start gap-3">
-          <img src="/logo-f1careers-transparent.png" alt="F-1 Careers" width={49} height={48} className="h-12 w-auto" />
+          <img src="/emblem-badge.png" alt="F-1 Careers" width={44} height={44} className="h-11 w-11 rounded-xl" />
           <BrandLink className="font-extrabold text-navy text-[15px] no-underline" />
           <SocialLinks />
         </div>
