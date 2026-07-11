@@ -47,7 +47,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-4">
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
+          <span className="text-2xl font-bold text-white tracking-tight"><span className="text-teal">F-1</span> Careers</span>
         </div>
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {success ? (

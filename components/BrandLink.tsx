@@ -16,7 +16,7 @@ export default function BrandLink({
   children,
 }: {
   className?: string
-  children: React.ReactNode
+  children?: React.ReactNode
 }) {
   const [href, setHref] = useState('/')
 
@@ -29,7 +29,11 @@ export default function BrandLink({
 
   return (
     <Link href={href} className={className}>
-      {children}
+      {children ?? (
+        <>
+          <span className="text-teal">F-1</span> Careers
+        </>
+      )}
     </Link>
   )
 }
