@@ -15,8 +15,14 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-3 no-underline">
-            <span className="text-2xl font-bold text-white tracking-tight">F-1 Careers</span>
+          <Link href="/" className="inline-block mb-3 no-underline">
+            <img
+              src="/logo-f1careers-transparent.png"
+              alt="F-1 Careers"
+              width={488}
+              height={481}
+              className="h-32 w-auto mx-auto"
+            />
           </Link>
           <p className="text-blue-200 text-sm">Your visa and career strategy, built for international professionals</p>
         </div>
