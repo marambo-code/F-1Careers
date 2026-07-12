@@ -26,6 +26,7 @@ export default function ExplorerPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
           <BrandLink className="flex items-center gap-2 no-underline shrink-0">
+            <img src="/emblem-badge.png" alt="" className="h-6 w-6 rounded-md" />
             <span className="text-[17px] sm:text-[19px] font-extrabold text-navy tracking-tight whitespace-nowrap"><span className="text-teal">F-1</span> Careers</span>
           </BrandLink>
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">

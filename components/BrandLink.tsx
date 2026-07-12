@@ -30,9 +30,10 @@ export default function BrandLink({
   return (
     <Link href={href} className={className}>
       {children ?? (
-        <>
-          <span className="text-teal">F-1</span> Careers
-        </>
+        <span className="inline-flex items-center gap-2 align-middle">
+          <img src="/emblem-badge.png" alt="" className="h-[22px] w-[22px] rounded-md" />
+          <span><span className="text-teal">F-1</span> Careers</span>
+        </span>
       )}
     </Link>
   )

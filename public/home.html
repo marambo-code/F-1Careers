@@ -30,7 +30,8 @@
     -webkit-mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%);mask-image:radial-gradient(ellipse at 78% 32%,#000 34%,transparent 68%)}
   nav{position:sticky;top:0;z-index:50;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.10)}
   nav .wrap{height:66px;display:flex;align-items:center;justify-content:space-between}
-  .brand{font-size:19px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;color:#fff}
+  .brand{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;color:#fff}
+  .brand img{display:block}
   .brand .t{color:var(--teal)}
   .navlinks{display:flex;align-items:center;gap:26px;font-size:14px}
   .navlinks a{color:rgba(255,255,255,.82);white-space:nowrap}
@@ -201,7 +202,7 @@
 
 <nav>
   <div class="wrap">
-    <a class="brand" href="/"><span class="t">F-1</span> Careers</a>
+    <a class="brand" href="/"><img src="/emblem.png" alt="" width="24" height="24"><span><span class="t">F-1</span> Careers</span></a>
     <div class="navlinks">
       <a class="hideable" href="/explorer">Eligibility Check</a>
       <a href="/login">Sign in</a>

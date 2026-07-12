@@ -127,6 +127,7 @@ export default function Nav() {
 
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
+            <img src="/emblem.png" alt="" className="h-6 w-6" />
             <span className="text-white font-bold text-lg tracking-tight"><span className="text-teal">F-1</span> Careers</span>
           </Link>
 
