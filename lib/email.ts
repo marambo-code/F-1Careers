@@ -130,6 +130,52 @@ export async function sendRFEReportReady(to: string, reportId: string, caseType:
   )
 }
 
+// Internal notification (to the founder) when a new employer lead is submitted
+// on /for-employers. Recipient: EMPLOYER_NOTIFY_EMAIL, falling back to the first
+// ADMIN_EMAILS address, then ATTORNEY_NOTIFY_EMAIL, then FROM_EMAIL. Best-effort:
+// if none is set (or Postmark is unconfigured) it skips without throwing.
+export async function sendEmployerLeadNotification(lead: {
+  company_name: string
+  contact_name: string
+  contact_email: string
+  company_size?: string | null
+  international_headcount?: string | null
+  message?: string | null
+  created_at?: string | null
+}): Promise<string> {
+  const firstAdmin = (process.env.ADMIN_EMAILS ?? '')
+    .split(',').map(s => s.trim()).filter(Boolean)[0]
+  const to = process.env.EMPLOYER_NOTIFY_EMAIL
+    || firstAdmin
+    || process.env.ATTORNEY_NOTIFY_EMAIL
+    || process.env.FROM_EMAIL
+  if (!to) {
+    console.log('[email] No recipient configured for employer lead notifications, skipping')
+    return 'skipped:no-recipient'
+  }
+
+  const esc = (v: string) => v
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const row = (label: string, value?: string | null) =>
+    value ? `<p style="margin:4px 0;"><strong>${label}:</strong> ${esc(value)}</p>` : ''
+
+  return await sendEmail(
+    to,
+    `New employer lead: ${lead.company_name}`,
+    `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#1B2B6B;">
+      <h2 style="margin:0 0 12px;">New employer lead</h2>
+      ${row('Company', lead.company_name)}
+      ${row('Contact name', lead.contact_name)}
+      ${row('Work email', lead.contact_email)}
+      ${row('Company size', lead.company_size)}
+      ${row('International headcount', lead.international_headcount)}
+      ${row('Message', lead.message)}
+      ${row('Received', lead.created_at)}
+      <p style="color:#888;font-size:12px;margin-top:16px;">Submitted via the /for-employers contact form. The lead is saved in the employer_leads table in Supabase.</p>
+    </body></html>`,
+  )
+}
+
 // Internal notification (to the founder) when a user requests an attorney review.
 export async function sendAttorneyReviewRequest(opts: {
   userEmail: string

@@ -46,7 +46,7 @@ export default function ForEmployersPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <BrandLink className="text-navy font-bold text-lg" />
           <div className="flex items-center gap-4">
-            <Link href="/stay-score" className="text-sm text-mid hover:text-navy">Risk Score</Link>
+            <Link href="/explorer" className="text-sm text-mid hover:text-navy">Eligibility Check</Link>
             <Link href="/login" className="text-sm text-teal font-semibold hover:underline">Sign in →</Link>
           </div>
         </div>
@@ -56,75 +56,111 @@ export default function ForEmployersPage() {
       <div className="bg-navy text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center space-y-5">
           <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-            For HR Leaders & General Counsel
+            For founders and heads of people
           </div>
           <h1 className="text-4xl font-black leading-tight">
-            Your International Workforce<br />
-            <span className="text-teal">Has Never Been More Exposed</span>
+            Your international employees can get green cards<br />
+            <span className="text-teal">without your sponsorship</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            The rules for F-1, OPT, and H-1B employees are changing simultaneously. Adjustment of status is now discretionary relief, not an entitlement. OPT fraud enforcement is escalating across the country. Duration of Status for F-1 holders is ending. Three compounding risks to your international team. We map every one of them and build the documentation that protects your people.
+            EB-1A and EB-2 NIW are self-petitioned green card categories. Your employee files as their own petitioner, so there is no H-1B lottery, no PERM labor certification, and your company signs nothing with USCIS. You pay for the benefit, like a 401k match, and your team gets a permanent path to stay.
           </p>
           <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-4 rounded-xl hover:bg-teal/90 transition-colors text-lg">
-            Request workforce support →
+            Talk to us about your team →
           </a>
         </div>
       </div>
 
-      {/* The Problem */}
       <div className="py-16 px-4">
-        <div className="max-w-4xl mx-auto space-y-12">
+        <div className="max-w-4xl mx-auto space-y-14">
 
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-navy">The math your CFO needs to see</h2>
-            <p className="text-mid">Losing one senior international engineer to a forced departure costs more than protecting your entire team.</p>
-          </div>
+          {/* The math */}
+          <div className="space-y-8">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-navy">The math, honestly</h2>
+              <p className="text-mid max-w-2xl mx-auto">Sponsorship is expensive and uncertain. A self-petitioned green card removes both problems, and the employee carries the case.</p>
+            </div>
 
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { stat: '$150K, $300K', label: 'Cost to replace one senior engineer', note: 'Recruiting, onboarding, lost productivity, industry standard estimate', color: 'text-red-500' },
-              { stat: '$2,805', label: 'Cost of I-140 premium processing', note: 'The USCIS fee for an expedited I-140 decision (15 calendar days for EB-1A, 45 for NIW), your employee\'s strongest protection regardless of petition type', color: 'text-teal' },
-              { stat: '100×', label: 'ROI of proactive filing', note: 'For every dollar spent on premium processing, you protect $100+ in retention value', color: 'text-navy' },
-            ].map((item, i) => (
-              <div key={i} className="card text-center space-y-2">
-                <p className={`text-4xl font-black ${item.color}`}>{item.stat}</p>
-                <p className="text-sm font-bold text-navy">{item.label}</p>
-                <p className="text-xs text-mid leading-relaxed">{item.note}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* How it works */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-black text-navy text-center">What we do for your team</h2>
-            <div className="space-y-3">
+            <div className="grid sm:grid-cols-3 gap-6">
               {[
-                { n: '1', title: 'Workforce immigration review', desc: 'We assess every international employee\'s current visa situation, priority date, country risk, and self-petition eligibility, and flag who is most exposed under the current policy environment.' },
-                { n: '2', title: 'EB-1A and NIW eligibility scoring', desc: 'Each employee receives a personalized eligibility score across both EB-1A Extraordinary Ability and EB-2 NIW, based on their field, education, publications, leadership, and salary. We identify exactly who has a strong self-petition case.' },
-                { n: '3', title: 'Petition framework generation', desc: 'For every eligible employee, we generate a complete petition framework, national importance argument, evidence map, Dhanasar analysis for NIW or EB-1A criteria mapping, ready for attorney review.' },
-                { n: '4', title: 'Attorney handoff', desc: 'We integrate with your immigration counsel or connect you to our vetted attorney network. Your legal team gets pre-built case files, not blank intake forms.' },
-                { n: '5', title: 'OPT compliance review', desc: 'ICE has identified 10,000+ OPT fraud cases (May 2026). We verify your OPT employee records, work site accuracy, authorization dates, E-Verify status, and flag any exposure before ICE does.' },
-              ].map((step) => (
-                <div key={step.n} className="card flex gap-4 items-start">
-                  <div className="w-9 h-9 rounded-full bg-navy text-white text-sm font-black flex items-center justify-center flex-shrink-0">{step.n}</div>
-                  <div>
-                    <p className="font-bold text-navy text-sm">{step.title}</p>
-                    <p className="text-sm text-mid mt-1 leading-relaxed">{step.desc}</p>
-                  </div>
+                { stat: '~1 in 4', label: 'H-1B registrations selected in the initial FY2025 lottery', note: 'USCIS reported 470,342 eligible registrations and 120,603 initial selections for FY2025. Sponsorship starts with a lottery your company cannot control.' },
+                { stat: '3 to 4×', label: 'A departing employee can cost multiples of their salary to replace', note: 'SHRM has published estimates that the total cost of replacing an employee can reach three to four times the position\'s salary once recruiting, ramp-up, and lost productivity are counted.' },
+                { stat: '$0', label: 'What your company files with USCIS for a self-petition', note: 'The employee is the petitioner. No lottery registration, no PERM recruitment, no employer petition, no company signature.' },
+              ].map((item, i) => (
+                <div key={i} className="card text-center space-y-2">
+                  <p className="text-4xl font-black text-navy">{item.stat}</p>
+                  <p className="text-sm font-bold text-navy">{item.label}</p>
+                  <p className="text-xs text-mid leading-relaxed">{item.note}</p>
                 </div>
               ))}
             </div>
+
+            <p className="text-sm text-mid text-center max-w-2xl mx-auto leading-relaxed">
+              There is also the spend you avoid later. Every employee who secures a green card on their own petition is one less H-1B registration, extension, and PERM process your company pays for in the years ahead.
+            </p>
           </div>
 
-          {/* Pre-contact nudge */}
-          <div className="card max-w-xl mx-auto text-center space-y-4 bg-navy text-white border-0">
-            <p className="text-lg font-black">Every team is different.</p>
-            <p className="text-sm text-white/70 leading-relaxed max-w-sm mx-auto">
-              We scope every engagement around your headcount, visa mix, and exposure profile. Tell us about your team and we'll put together a proposal within 24 hours.
+          {/* How self-petition works */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-navy text-center">How self-petition works</h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="card space-y-2">
+                <p className="font-bold text-navy text-sm">EB-1A, Extraordinary Ability</p>
+                <p className="text-sm text-mid leading-relaxed">
+                  For people with a strong record in their field, shown through evidence like publications, judging, original contributions, press, or a high salary. No employer or job offer is required.
+                </p>
+              </div>
+              <div className="card space-y-2">
+                <p className="font-bold text-navy text-sm">EB-2 NIW, National Interest Waiver</p>
+                <p className="text-sm text-mid leading-relaxed">
+                  For advanced-degree professionals whose work matters to the United States. The usual job offer and labor certification requirements are waived, so the employee can file on their own.
+                </p>
+              </div>
+            </div>
+            <div className="card space-y-3">
+              <p className="text-sm text-navy font-bold">Your employee is the petitioner. You sign nothing.</p>
+              <p className="text-sm text-mid leading-relaxed">
+                The petition belongs to the employee, is prepared with a licensed immigration attorney, and follows them even if they change jobs. The honest caveat: not everyone qualifies. These categories have real evidentiary standards, which is why eligibility is checked first, before anyone spends money on a filing.
+              </p>
+              <p className="text-sm text-mid leading-relaxed">
+                Any employee can start with our free <Link href="/explorer" className="text-teal font-semibold hover:underline">self-petition eligibility check</Link> and see where they stand in a few minutes.
+              </p>
+            </div>
+          </div>
+
+          {/* Ways companies work with us */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-navy text-center">Ways companies work with us</h2>
+            <div className="space-y-3">
+              <div className="card space-y-2">
+                <p className="font-bold text-navy text-sm">Company-paid access to F-1 Careers</p>
+                <p className="text-sm text-mid leading-relaxed">
+                  You cover F-1 Careers memberships for your international employees so each of them gets an eligibility assessment, a personal strategy report, and a roadmap toward a self-petition. It starts as a simple invoiced arrangement, no procurement process, no long contract.
+                </p>
+              </div>
+              <div className="card space-y-2">
+                <div className="flex items-center gap-2">
+                  <p className="font-bold text-navy text-sm">Company-sponsored cohort filing</p>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-teal-light text-teal">Beta</span>
+                </div>
+                <p className="text-sm text-mid leading-relaxed">
+                  You fund actual petition preparation for a group of eligible employees, who file together as a cohort with licensed attorneys. Current beta pricing is roughly $2,400 to $2,600 per person. The program is in beta, and final pricing and attorney partnerships are confirmed before a cohort opens. Details at <Link href="/cohort" className="text-teal font-semibold hover:underline">the cohort page</Link>.
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-mid text-center">
+              We are also building a larger employer platform. If that is what you need, mention it in the form below.
             </p>
-            <a href="#contact" className="inline-block bg-teal text-white font-bold px-8 py-3 rounded-xl hover:bg-teal/90 transition-colors text-sm">
-              Request workforce support →
-            </a>
+          </div>
+
+          {/* What F-1 Careers is not */}
+          <div className="card space-y-3 bg-navy text-white border-0">
+            <h2 className="text-lg font-black">What F-1 Careers is not</h2>
+            <ul className="space-y-2 text-sm text-white/80 leading-relaxed">
+              <li>We are not a law firm, and nothing on this page or in our product is legal advice.</li>
+              <li>Employees who file do so with licensed immigration attorneys.</li>
+              <li>Your company never gets access to an individual employee's immigration information without that employee's consent. You fund the benefit; the case belongs to them.</li>
+            </ul>
           </div>
 
           {/* Contact form */}
@@ -132,14 +168,14 @@ export default function ForEmployersPage() {
             {submitted ? (
               <div className="text-center space-y-3 py-6">
                 <div className="w-14 h-14 bg-teal-light rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
-                <h3 className="text-lg font-bold text-navy">We'll be in touch within 24 hours</h3>
-                <p className="text-sm text-mid">A member of our team will reach out to schedule your workforce support consultation.</p>
+                <h3 className="text-lg font-bold text-navy">Thanks, we got it</h3>
+                <p className="text-sm text-mid">We will reply by email within a few business days to talk through what would fit your team.</p>
               </div>
             ) : (
               <>
                 <div>
-                  <h3 className="text-lg font-bold text-navy">Request workforce support</h3>
-                  <p className="text-sm text-mid mt-1">Tell us about your team and we'll be in touch within 24 hours.</p>
+                  <h3 className="text-lg font-bold text-navy">Talk to us about your team</h3>
+                  <p className="text-sm text-mid mt-1">Tell us a little about your company and we will reply by email within a few business days.</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -180,11 +216,11 @@ export default function ForEmployersPage() {
                   </div>
                   <div>
                     <label className="label">Anything else we should know?</label>
-                    <textarea className="input" rows={3} value={form.message} onChange={e => set('message', e.target.value)} placeholder="e.g. We have several employees from India and China with pending I-485s..." />
+                    <textarea className="input" rows={3} value={form.message} onChange={e => set('message', e.target.value)} placeholder="e.g. We have a dozen engineers on OPT and H-1B and want to offer this as a benefit..." />
                   </div>
                   {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
                   <button type="submit" disabled={submitting} className="w-full btn-teal py-3 font-bold disabled:opacity-60">
-                    {submitting ? 'Submitting...' : 'Request workforce support →'}
+                    {submitting ? 'Submitting...' : 'Talk to us about your team →'}
                   </button>
                 </form>
               </>

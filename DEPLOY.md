@@ -44,6 +44,7 @@ Make sure these are set in Vercel → Project → Settings → Environment Varia
 | `STRIPE_WEBHOOK_SECRET` | your Stripe webhook signing secret |
 | `RESEND_API_KEY` | your Resend key (sign up free at resend.com) |
 | `FROM_EMAIL` | e.g. `F-1 Careers <reports@yourdomain.com>` |
+| `EMPLOYER_NOTIFY_EMAIL` | optional: where new employer lead alerts are sent (falls back to first `ADMIN_EMAILS` address, then `ATTORNEY_NOTIFY_EMAIL`, then `FROM_EMAIL`) |
 
 If `RESEND_API_KEY` is not set, emails are silently skipped — the app still works fine.
 

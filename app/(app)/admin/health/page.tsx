@@ -19,6 +19,7 @@ const GROUPS: { title: string; note?: string; checks: Check[] }[] = [
       { key: 'POSTMARK_SERVER_TOKEN', label: 'Postmark server token', required: true },
       { key: 'FROM_EMAIL', label: 'From address', required: false },
       { key: 'ATTORNEY_NOTIFY_EMAIL', label: 'Attorney-notify recipient', required: false },
+      { key: 'EMPLOYER_NOTIFY_EMAIL', label: 'Employer lead notifications', required: false },
     ],
   },
   {
