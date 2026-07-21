@@ -131,11 +131,12 @@ export default function Nav() {
             <span className="text-white font-bold text-lg tracking-tight"><span className="text-teal">F-1</span> Careers</span>
           </Link>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-0.5">
+          {/* Desktop links. lg+ only: with nowrap labels the full row does not
+              fit at md widths, so the tab bar covers 768-1024 instead. */}
+          <div className="hidden lg:flex items-center gap-0.5">
             {desktopLinks.map(link => (
               <Link key={link.href} href={link.href}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                   isActive(link.href) ? 'bg-white/10 text-white' : 'text-blue-200 hover:text-white hover:bg-white/5'
                 }`}>
                 {link.label}
@@ -144,13 +145,13 @@ export default function Nav() {
 
             {/* Community (external) */}
             <a href="https://community.f-1careers.com" target="_blank" rel="noopener"
-              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors text-blue-200 hover:text-white hover:bg-white/5">
+              className="px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors text-blue-200 hover:text-white hover:bg-white/5">
               Community
             </a>
 
             {/* Pro badge / upgrade */}
             {isPro ? (
-              <span className="ml-1 px-3 py-1.5 rounded-lg text-sm font-bold bg-gradient-to-r from-teal/25 to-teal/15 text-teal border border-teal/30 flex items-center gap-1.5">
+              <span className="ml-1 px-3 py-1.5 rounded-lg text-sm font-bold whitespace-nowrap bg-gradient-to-r from-teal/25 to-teal/15 text-teal border border-teal/30 flex items-center gap-1.5">
                 <span>✦</span> Pro Member
               </span>
             ) : (
@@ -163,10 +164,12 @@ export default function Nav() {
             )}
           </div>
 
-          {/* User name + sign out, desktop */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* User name + sign out, desktop. flex-shrink-0 + nowrap prevent the
+              Pro badge from overlapping this group when the nav gets tight;
+              the greeting only renders at xl+ where there is real room for it. */}
+          <div className="hidden lg:flex items-center gap-3 flex-shrink-0 whitespace-nowrap">
             {firstName && (
-              <span className="text-blue-200 text-sm">Hello, <span className="text-white font-semibold">{firstName}</span></span>
+              <span className="hidden xl:inline text-blue-200 text-sm">Hello, <span className="text-white font-semibold">{firstName}</span></span>
             )}
             <button onClick={handleSignOut} disabled={signingOut}
               className="text-blue-300 hover:text-white text-sm transition-colors disabled:opacity-50">
@@ -174,17 +177,17 @@ export default function Nav() {
             </button>
           </div>
 
-          {/* Mobile: logo area shows Pro badge if Pro */}
+          {/* Mobile/tablet: logo area shows Pro badge if Pro */}
           {isPro && (
-            <span className="md:hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal/20 text-teal border border-teal/30">
+            <span className="lg:hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal/20 text-teal border border-teal/30">
               ✦ Pro
             </span>
           )}
         </div>
       </nav>
 
-      {/* ── Tab bar (mobile only, pinned below top nav) ────────── */}
-      <nav className="md:hidden sticky top-14 z-40 bg-white border-b border-gray-200">
+      {/* ── Tab bar (mobile + tablet, pinned below top nav) ────── */}
+      <nav className="lg:hidden sticky top-14 z-40 bg-white border-b border-gray-200">
         <div className="flex items-stretch h-16">
           {tabItems.map(tab => {
             const active = isActive(tab.href)
