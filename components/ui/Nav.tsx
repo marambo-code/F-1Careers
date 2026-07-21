@@ -123,7 +123,7 @@ export default function Nav() {
     <>
       {/* ── Top nav (desktop) ──────────────────────────────────── */}
       <nav className="bg-navy border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 h-14">
 
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
@@ -152,7 +152,7 @@ export default function Nav() {
             {/* Pro badge / upgrade */}
             {isPro ? (
               <span className="ml-1 px-3 py-1.5 rounded-lg text-sm font-bold whitespace-nowrap bg-gradient-to-r from-teal/25 to-teal/15 text-teal border border-teal/30 flex items-center gap-1.5">
-                <span>✦</span> Pro Member
+                <span>✦</span> Pro
               </span>
             ) : (
               <Link href="/subscribe"
